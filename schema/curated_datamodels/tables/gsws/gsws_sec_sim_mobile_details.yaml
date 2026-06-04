@@ -1,0 +1,139 @@
+database: curated_datamodels
+table: gsws_sec_sim_mobile_details
+description: 'GSWS table: Sec Pin code and address'
+table_format: ICEBERG
+source_schema: GSWSONLINE
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/gsws/gsws_sec_sim_mobile_details/
+source_file: C:\Users\2797779\Downloads\GSWS_DDLs_File.txt
+raw_ddl: "create table GSWSONLINE.GSWS_SEC_SIM_MOBILE_DETAILS\n(\n  DISTRICT_CODE\
+  \          NUMBER,\n  MANDAL_CODE            NUMBER,\n  SEC_CODE               NUMBER\
+  \ not null,\n  IS_MOBILE_PROVIDED     VARCHAR2(10),\n  MOB_IMEI_1_NO          NUMBER,\n\
+  \  MOB_IMEI_2_NO          NUMBER,\n  SEC_MDM_MCASS_NO       NUMBER,\n  IS_SIM_PROVIDED_TO_SEC\
+  \ VARCHAR2(10),\n  SEC_MOBILE_NUMBER      NUMBER(10),\n  IS_MP_MOBILE_PROVIDED \
+  \ VARCHAR2(10),\n  MP_MOB_IMEI_1_NO       NUMBER,\n  MP_MOB_IMEI_2_NO       NUMBER,\n\
+  \  MP_MDM_MCASS_NO        NUMBER,\n  IS_SIM_PROVIDED_TO_MP  VARCHAR2(200),\n  MP_MOBILE_NUMBER\
+  \       NUMBER(10),\n  INSERTED_DATE          TIMESTAMP(6) default SYSDATE,\n  INSERTED_BY\
+  \            VARCHAR2(20),\n  UPDATED_BY             VARCHAR2(20),\n  UPDATED_DATE\
+  \           TIMESTAMP(6) default SYSDATE,\n  SECRETARIAT_ADDRESS    VARCHAR2(500),\n\
+  \  PINCODE                NUMBER,\n  RURAL_URBAN_FLAG       VARCHAR2(20),\n  DISIGNATION\
+  \            VARCHAR2(500),\n  SEC_MOBILE_WORKING_CON VARCHAR2(500),\n  MP_MOBILE_WORKING_CON\
+  \  VARCHAR2(500)\n  );"
+columns:
+- name: district_code
+  type: BIGINT
+  nullable: true
+  description: District code.
+- name: mandal_code
+  type: BIGINT
+  nullable: true
+  description: Mandal code.
+- name: sec_code
+  type: BIGINT
+  nullable: false
+  description: Sec code.
+- name: is_mobile_provided
+  type: VARCHAR
+  nullable: true
+  description: Is mobile provided.
+- name: mob_imei_1_no
+  type: BIGINT
+  nullable: true
+  description: Mob imei 1 no.
+- name: mob_imei_2_no
+  type: BIGINT
+  nullable: true
+  description: Mob imei 2 no.
+- name: sec_mdm_mcass_no
+  type: BIGINT
+  nullable: true
+  description: Sec mdm mcass no.
+- name: is_sim_provided_to_sec
+  type: VARCHAR
+  nullable: true
+  description: Is sim provided to sec.
+- name: sec_mobile_number
+  type: BIGINT
+  nullable: true
+  description: Sec mobile numberber.
+- name: is_mp_mobile_provided
+  type: VARCHAR
+  nullable: true
+  description: Is mp mobile provided.
+- name: mp_mob_imei_1_no
+  type: BIGINT
+  nullable: true
+  description: Mp mob imei 1 no.
+- name: mp_mob_imei_2_no
+  type: BIGINT
+  nullable: true
+  description: Mp mob imei 2 no.
+- name: mp_mdm_mcass_no
+  type: BIGINT
+  nullable: true
+  description: Mp mdm mcass no.
+- name: is_sim_provided_to_mp
+  type: VARCHAR
+  nullable: true
+  description: Is sim provided to mp.
+- name: mp_mobile_number
+  type: BIGINT
+  nullable: true
+  description: Mp mobile numberber.
+- name: inserted_date
+  type: TIMESTAMP
+  nullable: true
+  description: Inserted date.
+- name: inserted_by
+  type: VARCHAR
+  nullable: true
+  description: Inserted by.
+- name: updated_by
+  type: VARCHAR
+  nullable: true
+  description: Updated by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: secretariat_address
+  type: VARCHAR
+  nullable: true
+  description: Secretariat address.
+- name: pincode
+  type: BIGINT
+  nullable: true
+  description: Pincode.
+- name: rural_urban_flag
+  type: VARCHAR
+  nullable: true
+  description: Rural urban flag.
+- name: disignation
+  type: VARCHAR
+  nullable: true
+  description: Disignation.
+- name: sec_mobile_working_con
+  type: VARCHAR
+  nullable: true
+  description: Sec mobile working con.
+- name: mp_mobile_working_con
+  type: VARCHAR
+  nullable: true
+  description: Mp mobile working con.
+primary_key:
+- sec_code
+relationships: []
+business_terms:
+- GSWS
+- citizen services
+- secretariat
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in gsws_sec_sim_mobile_details
+tblproperties:
+  engine.hive.enabled: 'true'
+  format-version: '2'
+  write.format.default: parquet
+  parquet.compression: SNAPPY
+  table_type: ICEBERG

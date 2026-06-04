@@ -1,0 +1,121 @@
+database: curated_datamodels
+table: nutrition_item_dim
+description: Dimension/master table for nutrition item reference attributes.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/nutrition_item_dim
+partitioned_by: 'nutrition_item_dim_id_pk_bucket: bucket[32]'
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/nutrition_item_dim/metadata/00000-c81eb4f6-a815-40d9-a80a-6a33ef55be60.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`nutrition_item_dim`(\n  `nutrition_item_dim_id_pk`\
+  \ bigint COMMENT 'from deserializer', \n  `item_code` string COMMENT 'from deserializer',\
+  \ \n  `item_name` string COMMENT 'from deserializer', \n  `nutrition_category` string\
+  \ COMMENT 'from deserializer', \n  `unit_of_measure` string COMMENT 'from deserializer',\
+  \ \n  `default_quantity` decimal(10,2) COMMENT 'from deserializer', \n  `is_active`\
+  \ string COMMENT 'from deserializer', \n  `effective_start_date` date COMMENT 'from\
+  \ deserializer', \n  `effective_end_date` date COMMENT 'from deserializer', \n \
+  \ `is_current` string COMMENT 'from deserializer', \n  `created_date` timestamp\
+  \ with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT\
+  \ 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT\
+  \ 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW\
+  \ FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/nutrition_item_dim'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"nutrition_item_dim_id_pk\",\"required\":false,\"type\":\"\
+  long\"},{\"id\":2,\"name\":\"item_code\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":3,\"name\":\"item_name\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :4,\"name\":\"nutrition_category\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :5,\"name\":\"unit_of_measure\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :6,\"name\":\"default_quantity\",\"required\":false,\"type\":\"decimal(10, 2)\"\
+  },{\"id\":7,\"name\":\"is_active\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :8,\"name\":\"effective_start_date\",\"required\":false,\"type\":\"date\"},{\"id\"\
+  :9,\"name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"},{\"id\"\
+  :10,\"name\":\"is_current\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"\
+  name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":12,\"\
+  name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\"\
+  :\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":14,\"name\"\
+  :\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'default-partition-spec'='{\"\
+  spec-id\":0,\"fields\":[{\"name\":\"nutrition_item_dim_id_pk_bucket\",\"transform\"\
+  :\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true',\
+  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/nutrition_item_dim/metadata/00000-c81eb4f6-a815-40d9-a80a-6a33ef55be60.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
+  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1777896598', \n  'uuid'='7575d981-4192-4ac4-a130-9218ed7500e6',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
+  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: nutrition_item_dim_id_pk
+  type: BIGINT
+  nullable: true
+  description: Nutrition item dim identifier primary key.
+- name: item_code
+  type: STRING
+  nullable: true
+  description: Item code.
+- name: item_name
+  type: STRING
+  nullable: true
+  description: Item name.
+- name: nutrition_category
+  type: STRING
+  nullable: true
+  description: Nutrition category.
+- name: unit_of_measure
+  type: STRING
+  nullable: true
+  description: Unit of measure.
+- name: default_quantity
+  type: DECIMAL(10,2)
+  nullable: true
+  description: Default quantity.
+- name: is_active
+  type: STRING
+  nullable: true
+  description: Is active.
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: Effective start date.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: Effective end date.
+- name: is_current
+  type: STRING
+  nullable: true
+  description: Is current.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- nutrition_item_dim_id_pk
+relationships: []
+business_terms:
+- dimension table
+- reference lookup
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in nutrition_item_dim

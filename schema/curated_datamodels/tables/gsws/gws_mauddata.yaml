@@ -1,0 +1,128 @@
+database: curated_datamodels
+table: gws_mauddata
+description: 'GSWS table: Gws Service Present Month mauddata'
+table_format: ICEBERG
+source_schema: GSWSONLINE
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/gsws/gws_mauddata/
+source_file: C:\Users\2797779\Downloads\GSWS_DDLs_File.txt
+raw_ddl: "create table GSWSONLINE.GWS_MAUDDATA\n(\n  DISTRICTNAME        NVARCHAR2(600),\n\
+  \  ULBNAME             NVARCHAR2(300),\n  ULBCODE             NVARCHAR2(300),\n\
+  \  ASSNUMBER           NVARCHAR2(300),\n  MNAME               NVARCHAR2(400),\n\
+  \  GUARDIAN            NVARCHAR2(300),\n  HNO                 NVARCHAR2(200),\n\
+  \  UINO                VARCHAR2(200),\n  LENGTHUID           NVARCHAR2(200),\n \
+  \ MOBILENUMBER        NVARCHAR2(200),\n  PTYPE               NVARCHAR2(200),\n \
+  \ PUSAGE              NVARCHAR2(200),\n  EWNO                NVARCHAR2(200),\n \
+  \ RWNO                NVARCHAR2(200),\n  LOCALITY            NVARCHAR2(600),\n \
+  \ PLINTAREASQFT       NVARCHAR2(200),\n  EXTENTOFSITESQYARDS NVARCHAR2(200),\n \
+  \ CRNTYEARDMND        NVARCHAR2(200),\n  DATAEXTRACTEDON     NVARCHAR2(200),\n \
+  \ PLINTAREASQFT_SHARE VARCHAR2(200),\n  UNITSOFPLINTHAREA   VARCHAR2(200),\n  MAPPED\
+  \              VARCHAR2(20),\n  INSERTED_DATE       TIMESTAMP(6)\n  );"
+columns:
+- name: districtname
+  type: NVARCHAR
+  nullable: true
+  description: Districtname.
+- name: ulbname
+  type: NVARCHAR
+  nullable: true
+  description: Ulbname.
+- name: ulbcode
+  type: NVARCHAR
+  nullable: true
+  description: Ulbcode.
+- name: assnumber
+  type: NVARCHAR
+  nullable: true
+  description: Assnumberber.
+- name: mname
+  type: NVARCHAR
+  nullable: true
+  description: Mname.
+- name: guardian
+  type: NVARCHAR
+  nullable: true
+  description: Guardian.
+- name: hno
+  type: NVARCHAR
+  nullable: true
+  description: Hno.
+- name: uino
+  type: VARCHAR
+  nullable: true
+  description: Uino.
+- name: lengthuid
+  type: NVARCHAR
+  nullable: true
+  description: Lengthuid.
+- name: mobilenumber
+  type: NVARCHAR
+  nullable: true
+  description: Mobilenumberber.
+- name: ptype
+  type: NVARCHAR
+  nullable: true
+  description: Ptype.
+- name: pusage
+  type: NVARCHAR
+  nullable: true
+  description: Pusage.
+- name: ewno
+  type: NVARCHAR
+  nullable: true
+  description: Ewno.
+- name: rwno
+  type: NVARCHAR
+  nullable: true
+  description: Rwno.
+- name: locality
+  type: NVARCHAR
+  nullable: true
+  description: Locality.
+- name: plintareasqft
+  type: NVARCHAR
+  nullable: true
+  description: Plintareasqft.
+- name: extentofsitesqyards
+  type: NVARCHAR
+  nullable: true
+  description: Extentofsitesqyards.
+- name: crntyeardmnd
+  type: NVARCHAR
+  nullable: true
+  description: Crntyeardmnd.
+- name: dataextractedon
+  type: NVARCHAR
+  nullable: true
+  description: Dataextractedon.
+- name: plintareasqft_share
+  type: VARCHAR
+  nullable: true
+  description: Plintareasqft share.
+- name: unitsofplintharea
+  type: VARCHAR
+  nullable: true
+  description: Unitsofplintharea.
+- name: mapped
+  type: VARCHAR
+  nullable: true
+  description: Mapped.
+- name: inserted_date
+  type: TIMESTAMP
+  nullable: true
+  description: Inserted date.
+primary_key: []
+relationships: []
+business_terms:
+- GSWS
+- citizen services
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in gws_mauddata
+tblproperties:
+  engine.hive.enabled: 'true'
+  format-version: '2'
+  write.format.default: parquet
+  parquet.compression: SNAPPY
+  table_type: ICEBERG

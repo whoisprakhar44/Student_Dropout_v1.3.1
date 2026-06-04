@@ -1,0 +1,82 @@
+database: curated_datamodels
+table: gws_constiuency_sec_master
+description: 'GSWS table: Constiuency Sec Master
+
+  By using this table which constituency and which division is mapping to the secretariat.there
+  will be no addition of secretariat but there may be a chance of urban to rural and
+  rural to urban migration'
+table_format: ICEBERG
+source_schema: GSWSONLINE
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/gsws/gws_constiuency_sec_master/
+source_file: C:\Users\2797779\Downloads\GSWS_DDLs_File.txt
+raw_ddl: "create table GSWSONLINE.GWS_CONSTIUENCY_SEC_MASTER\n(\n  DISTRICTCODE  \
+  \  VARCHAR2(200),\n  DISTRICTNAME    VARCHAR2(200),\n  DIVISIONCODE    VARCHAR2(200),\n\
+  \  DIVISIONNAME    VARCHAR2(200),\n  MANDALCODE      VARCHAR2(200),\n  MANDALNAME\
+  \      VARCHAR2(200),\n  SECRETARIATCODE VARCHAR2(200),\n  RURALURBANFLAG  VARCHAR2(200),\n\
+  \  SECRETARIATNAME VARCHAR2(200),\n  ASSEMBLYNAME    VARCHAR2(200),\n  ASSEMBLYCODE\
+  \    VARCHAR2(200)\n);"
+columns:
+- name: districtcode
+  type: VARCHAR
+  nullable: true
+  description: Districtcode.
+- name: districtname
+  type: VARCHAR
+  nullable: true
+  description: Districtname.
+- name: divisioncode
+  type: VARCHAR
+  nullable: true
+  description: Divisioncode.
+- name: divisionname
+  type: VARCHAR
+  nullable: true
+  description: Divisionname.
+- name: mandalcode
+  type: VARCHAR
+  nullable: true
+  description: Mandalcode.
+- name: mandalname
+  type: VARCHAR
+  nullable: true
+  description: Mandalname.
+- name: secretariatcode
+  type: VARCHAR
+  nullable: true
+  description: Secretariatcode.
+- name: ruralurbanflag
+  type: VARCHAR
+  nullable: true
+  description: Ruralurbanflag.
+- name: secretariatname
+  type: VARCHAR
+  nullable: true
+  description: Secretariatname.
+- name: assemblyname
+  type: VARCHAR
+  nullable: true
+  description: Assemblyname.
+- name: assemblycode
+  type: VARCHAR
+  nullable: true
+  description: Assemblycode.
+primary_key: []
+relationships: []
+business_terms:
+- GSWS
+- citizen services
+- secretariat
+- master data
+- Non-Incremental
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in gws_constiuency_sec_master
+- 'refresh frequency: Master Table'
+tblproperties:
+  engine.hive.enabled: 'true'
+  format-version: '2'
+  write.format.default: parquet
+  parquet.compression: SNAPPY
+  table_type: ICEBERG

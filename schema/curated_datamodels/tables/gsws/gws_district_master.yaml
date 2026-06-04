@@ -1,0 +1,42 @@
+database: curated_datamodels
+table: gws_district_master
+description: 'GSWS table: Master table for Districts in Andhra Pradesh'
+table_format: ICEBERG
+source_schema: GSWSONLINE
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/gsws/gws_district_master/
+source_file: C:\Users\2797779\Downloads\GSWS_DDLs_File.txt
+raw_ddl: "create table GSWSONLINE.GWS_DISTRICT_MASTER\n(\n  LGD_DISTRICT_CODE VARCHAR2(3)\
+  \ not null,\n  DISTRICT_NAME     VARCHAR2(50),\n  IS_ACTIVE         VARCHAR2(1)\n\
+  \  );"
+columns:
+- name: lgd_district_code
+  type: VARCHAR
+  nullable: false
+  description: Lgd district code.
+- name: district_name
+  type: VARCHAR
+  nullable: true
+  description: District name.
+- name: is_active
+  type: VARCHAR
+  nullable: true
+  description: Is active.
+primary_key:
+- lgd_district_code
+relationships: []
+business_terms:
+- GSWS
+- citizen services
+- master data
+- Non-Incremental
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in gws_district_master
+tblproperties:
+  engine.hive.enabled: 'true'
+  format-version: '2'
+  write.format.default: parquet
+  parquet.compression: SNAPPY
+  table_type: ICEBERG

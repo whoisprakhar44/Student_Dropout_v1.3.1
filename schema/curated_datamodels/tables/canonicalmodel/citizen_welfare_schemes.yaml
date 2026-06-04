@@ -1,0 +1,137 @@
+database: curated_datamodels
+table: citizen_welfare_schemes
+description: Curated Hive/Iceberg table for citizen welfare schemes.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes/metadata/00000-164c92a7-3b9b-4b13-b00a-c18b1f0dba6d.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_welfare_schemes`(\n\
+  \  `citizen_welfare_schemes_pk` int COMMENT 'from deserializer', \n  `citizen_welfare_schemes_master_fk`\
+  \ int COMMENT 'from deserializer', \n  `citizen_master_citizen_master_fk` int COMMENT\
+  \ 'from deserializer', \n  `house_hold_id` string COMMENT 'from deserializer', \n\
+  \  `ration_card_no` string COMMENT 'from deserializer', \n  `scheme_application_no`\
+  \ string COMMENT 'from deserializer', \n  `scheme_registered_date` string COMMENT\
+  \ 'from deserializer', \n  `scheme_approved_date` string COMMENT 'from deserializer',\
+  \ \n  `scheme_processed_date` string COMMENT 'from deserializer', \n  `scheme_last_closed_date`\
+  \ string COMMENT 'from deserializer', \n  `scheme_amount` string COMMENT 'from deserializer',\
+  \ \n  `scheme_approved_amount` string COMMENT 'from deserializer', \n  `scheme_utilized_amount`\
+  \ string COMMENT 'from deserializer', \n  `created_date` timestamp with local time\
+  \ zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer',\
+  \ \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer',\
+  \ \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"citizen_welfare_schemes_pk\",\"required\":false,\"type\"\
+  :\"int\"},{\"id\":2,\"name\":\"citizen_welfare_schemes_master_fk\",\"required\"\
+  :false,\"type\":\"int\"},{\"id\":3,\"name\":\"citizen_master_citizen_master_fk\"\
+  ,\"required\":false,\"type\":\"int\"},{\"id\":4,\"name\":\"house_hold_id\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":5,\"name\":\"ration_card_no\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":6,\"name\":\"scheme_application_no\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":7,\"name\":\"scheme_registered_date\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":8,\"name\":\"scheme_approved_date\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":9,\"name\":\"scheme_processed_date\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":10,\"name\":\"scheme_last_closed_date\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":11,\"name\":\"scheme_amount\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":12,\"name\":\"scheme_approved_amount\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":13,\"name\":\"scheme_utilized_amount\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":14,\"name\":\"created_date\",\"required\":false,\"type\"\
+  :\"timestamptz\"},{\"id\":15,\"name\":\"created_by\",\"required\":false,\"type\"\
+  :\"string\"},{\"id\":16,\"name\":\"updated_date\",\"required\":false,\"type\":\"\
+  timestamptz\"},{\"id\":17,\"name\":\"updated_by\",\"required\":false,\"type\":\"\
+  string\"}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes/metadata/00000-164c92a7-3b9b-4b13-b00a-c18b1f0dba6d.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
+  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778658266', \n  'uuid'='eeb0e463-6af0-435e-8f81-5b4d3baeb198',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
+  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: citizen_welfare_schemes_pk
+  type: INT
+  nullable: true
+  description: Citizen welfare schemes pk.
+- name: citizen_welfare_schemes_master_fk
+  type: INT
+  nullable: true
+  description: Citizen welfare schemes master fk.
+- name: citizen_master_citizen_master_fk
+  type: INT
+  nullable: true
+  description: Citizen master citizen master fk.
+- name: house_hold_id
+  type: STRING
+  nullable: true
+  description: House hold id.
+- name: ration_card_no
+  type: STRING
+  nullable: true
+  description: Ration card no.
+- name: scheme_application_no
+  type: STRING
+  nullable: true
+  description: Scheme application no.
+- name: scheme_registered_date
+  type: STRING
+  nullable: true
+  description: Scheme registered date.
+- name: scheme_approved_date
+  type: STRING
+  nullable: true
+  description: Scheme approved date.
+- name: scheme_processed_date
+  type: STRING
+  nullable: true
+  description: Scheme processed date.
+- name: scheme_last_closed_date
+  type: STRING
+  nullable: true
+  description: Scheme last closed date.
+- name: scheme_amount
+  type: STRING
+  nullable: true
+  description: Scheme amount.
+- name: scheme_approved_amount
+  type: STRING
+  nullable: true
+  description: Scheme approved amount.
+- name: scheme_utilized_amount
+  type: STRING
+  nullable: true
+  description: Scheme utilized amount.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- citizen_welfare_schemes_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_welfare_schemes

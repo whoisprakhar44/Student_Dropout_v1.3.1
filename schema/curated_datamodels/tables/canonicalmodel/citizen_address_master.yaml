@@ -1,0 +1,153 @@
+database: curated_datamodels
+table: citizen_address_master
+description: Curated Hive/Iceberg table for citizen address master.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_address_master
+partitioned_by: 'citizen_master_fk_bucket: bucket[32]'
+tblproperties:
+  current-snapshot-id: '2579166232216546855'
+  current-snapshot-timestamp-ms: '1778496552586'
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_address_master/metadata/00008-68812b46-abda-414f-b763-00caf729eead.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '8'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_address_master`(\n \
+  \ `citizen_address_master_pk` int COMMENT 'from deserializer', \n  `citizen_master_fk`\
+  \ string COMMENT 'from deserializer', \n  `address_type` string COMMENT 'from deserializer',\
+  \ \n  `address_line_1` string COMMENT 'from deserializer', \n  `address_line_2`\
+  \ string COMMENT 'from deserializer', \n  `address_line_3` string COMMENT 'from\
+  \ deserializer', \n  `pin_code` string COMMENT 'from deserializer', \n  `latitude`\
+  \ string COMMENT 'from deserializer', \n  `longitude` string COMMENT 'from deserializer',\
+  \ \n  `coordinate_system` string COMMENT 'from deserializer', \n  `is_primary` int\
+  \ COMMENT 'from deserializer', \n  `address_status_code` string COMMENT 'from deserializer',\
+  \ \n  `effective_start_date` date COMMENT 'from deserializer', \n  `effective_end_date`\
+  \ date COMMENT 'from deserializer', \n  `created_date` timestamp with local time\
+  \ zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer',\
+  \ \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer',\
+  \ \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_address_master'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"citizen_address_master_pk\",\"required\":false,\"type\":\"\
+  int\"},{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":3,\"name\":\"address_type\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":4,\"name\":\"address_line_1\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :5,\"name\":\"address_line_2\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"\
+  name\":\"address_line_3\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\"\
+  :\"pin_code\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"latitude\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"longitude\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":10,\"name\":\"coordinate_system\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":11,\"name\":\"is_primary\",\"required\":false,\"\
+  type\":\"int\"},{\"id\":12,\"name\":\"address_status_code\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":13,\"name\":\"effective_start_date\",\"required\":false,\"\
+  type\":\"date\"},{\"id\":14,\"name\":\"effective_end_date\",\"required\":false,\"\
+  type\":\"date\"},{\"id\":15,\"name\":\"created_date\",\"required\":false,\"type\"\
+  :\"timestamptz\"},{\"id\":16,\"name\":\"created_by\",\"required\":false,\"type\"\
+  :\"string\"},{\"id\":17,\"name\":\"updated_date\",\"required\":false,\"type\":\"\
+  timestamptz\"},{\"id\":18,\"name\":\"updated_by\",\"required\":false,\"type\":\"\
+  string\"}]}', \n  'current-snapshot-id'='2579166232216546855', \n  'current-snapshot-summary'='{\"\
+  spark.app.id\":\"application_1775893506593_3130\",\"added-data-files\":\"32\",\"\
+  added-records\":\"49082356\",\"added-files-size\":\"1588361688\",\"changed-partition-count\"\
+  :\"32\",\"total-records\":\"49082356\",\"total-files-size\":\"1588361688\",\"total-data-files\"\
+  :\"32\",\"total-delete-files\":\"0\",\"total-position-deletes\":\"0\",\"total-equality-deletes\"\
+  :\"0\"}', \n  'current-snapshot-timestamp-ms'='1778496552586', \n  'default-partition-spec'='{\"\
+  spec-id\":0,\"fields\":[{\"name\":\"citizen_master_fk_bucket\",\"transform\":\"\
+  bucket[32]\",\"source-id\":2,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true',\
+  \ \n  'external'='true', \n  'impala.events.catalogServiceId'='9776eab397964690:a6788b7b6e82cea7',\
+  \ \n  'impala.events.catalogVersion'='138404', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_address_master/metadata/00008-68812b46-abda-414f-b763-00caf729eead.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_address_master/metadata/00007-21e47169-ed21-46d9-8f22-e52ec9698f9f.metadata.json',\
+  \ \n  'snapshot-count'='8', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778496553',\
+  \ \n  'uuid'='7c1706fd-1c49-4541-bae0-72d53b4be5ca', \n  'write.delete.mode'='merge-on-read',\
+  \ \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read',\
+  \ \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: citizen_address_master_pk
+  type: INT
+  nullable: true
+  description: Citizen address master pk.
+- name: citizen_master_fk
+  type: STRING
+  nullable: true
+  description: Citizen master fk.
+- name: address_type
+  type: STRING
+  nullable: true
+  description: Address type.
+- name: address_line_1
+  type: STRING
+  nullable: true
+  description: Address line 1.
+- name: address_line_2
+  type: STRING
+  nullable: true
+  description: Address line 2.
+- name: address_line_3
+  type: STRING
+  nullable: true
+  description: Address line 3.
+- name: pin_code
+  type: STRING
+  nullable: true
+  description: Pin code.
+- name: latitude
+  type: STRING
+  nullable: true
+  description: Latitude.
+- name: longitude
+  type: STRING
+  nullable: true
+  description: Longitude.
+- name: coordinate_system
+  type: STRING
+  nullable: true
+  description: Coordinate system.
+- name: is_primary
+  type: INT
+  nullable: true
+  description: Is primary.
+- name: address_status_code
+  type: STRING
+  nullable: true
+  description: Address status code.
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: Effective start date.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: Effective end date.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- citizen_address_master_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_address_master

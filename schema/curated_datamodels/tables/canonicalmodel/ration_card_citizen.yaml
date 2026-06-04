@@ -1,0 +1,108 @@
+database: curated_datamodels
+table: ration_card_citizen
+description: Curated Hive/Iceberg table for ration card citizen.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen/metadata/00000-11acfc35-73b2-478f-9d9a-efb0018cb173.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`ration_card_citizen`(\n  `citizen_ration_card_pk`\
+  \ int COMMENT 'from deserializer', \n  `citizen_master_fk` int COMMENT 'from deserializer',\
+  \ \n  `citizen_reason_fk` string COMMENT 'from deserializer', \n  `ration_card_family_fk`\
+  \ int COMMENT 'from deserializer', \n  `status_code` string COMMENT 'from deserializer',\
+  \ \n  `status_reason_code` string COMMENT 'from deserializer', \n  `effective_start_date`\
+  \ date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from\
+  \ deserializer', \n  `created_date` timestamp with local time zone COMMENT 'from\
+  \ deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date`\
+  \ timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string\
+  \ COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"citizen_ration_card_pk\",\"required\":false,\"type\":\"int\"\
+  },{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"int\"},{\"\
+  id\":3,\"name\":\"citizen_reason_fk\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":4,\"name\":\"ration_card_family_fk\",\"required\":false,\"type\":\"int\"},{\"\
+  id\":5,\"name\":\"status_code\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :6,\"name\":\"status_reason_code\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :7,\"name\":\"effective_start_date\",\"required\":false,\"type\":\"date\"},{\"id\"\
+  :8,\"name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"},{\"id\"\
+  :9,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\"\
+  :10,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"\
+  name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":12,\"\
+  name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true',\
+  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen/metadata/00000-11acfc35-73b2-478f-9d9a-efb0018cb173.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
+  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323391', \n  'uuid'='cee5d669-a022-4bbe-a1a2-3095e7c8706f',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
+  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: citizen_ration_card_pk
+  type: INT
+  nullable: true
+  description: Citizen ration card pk.
+- name: citizen_master_fk
+  type: INT
+  nullable: true
+  description: Citizen master fk.
+- name: citizen_reason_fk
+  type: STRING
+  nullable: true
+  description: Citizen reason fk.
+- name: ration_card_family_fk
+  type: INT
+  nullable: true
+  description: Ration card family fk.
+- name: status_code
+  type: STRING
+  nullable: true
+  description: Status code.
+- name: status_reason_code
+  type: STRING
+  nullable: true
+  description: Status reason code.
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: Effective start date.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: Effective end date.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- citizen_ration_card_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in ration_card_citizen

@@ -1,0 +1,82 @@
+database: curated_datamodels
+table: gws_cluster_map_tab
+description: 'GSWS table: Cluster Map Tab'
+table_format: ICEBERG
+source_schema: GSWSONLINE
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/gsws/gws_cluster_map_tab/
+source_file: C:\Users\2797779\Downloads\GSWS_DDLs_File.txt
+raw_ddl: "create table GSWSONLINE.GWS_CLUSTER_MAP_TAB\n(\n  SEC_CODE           NUMBER,\n\
+  \  PANCHAYAT_LGD_CODE NUMBER,\n  HABITATION_ID      NUMBER,\n  INSERTED_DATE   \
+  \   TIMESTAMP(6),\n  CLUSTER_ID         NUMBER,\n  INSERTED_BY        VARCHAR2(20),\n\
+  \  VILL_LGD_CODE      NUMBER,\n  VILLAGE_NAME       VARCHAR2(200),\n  HABITATION_NAME\
+  \    VARCHAR2(200),\n  PANCHAYAT_NAME     VARCHAR2(200),\n  VILL_HAB_ID        VARCHAR2(100),\n\
+  \  AUTO_ID            NUMBER,\n  IS_ACTIVE          VARCHAR2(5)\n  );"
+columns:
+- name: sec_code
+  type: BIGINT
+  nullable: true
+  description: Sec code.
+- name: panchayat_lgd_code
+  type: BIGINT
+  nullable: true
+  description: Panchayat lgd code.
+- name: habitation_id
+  type: BIGINT
+  nullable: true
+  description: Habitation id.
+- name: inserted_date
+  type: TIMESTAMP
+  nullable: true
+  description: Inserted date.
+- name: cluster_id
+  type: BIGINT
+  nullable: true
+  description: Cluster id.
+- name: inserted_by
+  type: VARCHAR
+  nullable: true
+  description: Inserted by.
+- name: vill_lgd_code
+  type: BIGINT
+  nullable: true
+  description: Vill lgd code.
+- name: village_name
+  type: VARCHAR
+  nullable: true
+  description: Village name.
+- name: habitation_name
+  type: VARCHAR
+  nullable: true
+  description: Habitation name.
+- name: panchayat_name
+  type: VARCHAR
+  nullable: true
+  description: Panchayat name.
+- name: vill_hab_id
+  type: VARCHAR
+  nullable: true
+  description: Vill hab id.
+- name: auto_id
+  type: BIGINT
+  nullable: true
+  description: Auto id.
+- name: is_active
+  type: VARCHAR
+  nullable: true
+  description: Is active.
+primary_key: []
+relationships: []
+business_terms:
+- GSWS
+- citizen services
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in gws_cluster_map_tab
+tblproperties:
+  engine.hive.enabled: 'true'
+  format-version: '2'
+  write.format.default: parquet
+  parquet.compression: SNAPPY
+  table_type: ICEBERG

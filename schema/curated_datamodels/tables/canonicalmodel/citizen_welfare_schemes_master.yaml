@@ -1,0 +1,137 @@
+database: curated_datamodels
+table: citizen_welfare_schemes_master
+description: Curated Hive/Iceberg table for citizen welfare schemes master.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes_master
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes_master/metadata/00000-8c1073a0-17bf-46e5-9d44-54583d7ffc81.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_welfare_schemes_master`(\n\
+  \  `citizen_welfare_schemes_master_pk` int COMMENT 'from deserializer', \n  `welfare_schemes_life_cycle_fk`\
+  \ int COMMENT 'from deserializer', \n  `welfare_schemes_life_cycle_id` int COMMENT\
+  \ 'from deserializer', \n  `scheme_name` string COMMENT 'from deserializer', \n\
+  \  `scheme_code` string COMMENT 'from deserializer', \n  `scheme_description` string\
+  \ COMMENT 'from deserializer', \n  `target_beneficiary_category` string COMMENT\
+  \ 'from deserializer', \n  `scheme_create_date` date COMMENT 'from deserializer',\
+  \ \n  `scheme_start_date` date COMMENT 'from deserializer', \n  `scheme_end_date`\
+  \ date COMMENT 'from deserializer', \n  `is_active` int COMMENT 'from deserializer',\
+  \ \n  `scheme_amount` string COMMENT 'from deserializer', \n  `scheme_dept` string\
+  \ COMMENT 'from deserializer', \n  `created_date` timestamp with local time zone\
+  \ COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer',\
+  \ \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer',\
+  \ \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes_master'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"citizen_welfare_schemes_master_pk\",\"required\":false,\"\
+  type\":\"int\"},{\"id\":2,\"name\":\"welfare_schemes_life_cycle_fk\",\"required\"\
+  :false,\"type\":\"int\"},{\"id\":3,\"name\":\"welfare_schemes_life_cycle_id\",\"\
+  required\":false,\"type\":\"int\"},{\"id\":4,\"name\":\"scheme_name\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":5,\"name\":\"scheme_code\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":6,\"name\":\"scheme_description\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":7,\"name\":\"target_beneficiary_category\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":8,\"name\":\"scheme_create_date\",\"required\"\
+  :false,\"type\":\"date\"},{\"id\":9,\"name\":\"scheme_start_date\",\"required\"\
+  :false,\"type\":\"date\"},{\"id\":10,\"name\":\"scheme_end_date\",\"required\":false,\"\
+  type\":\"date\"},{\"id\":11,\"name\":\"is_active\",\"required\":false,\"type\":\"\
+  int\"},{\"id\":12,\"name\":\"scheme_amount\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":13,\"name\":\"scheme_dept\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":14,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"\
+  id\":15,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :16,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\"\
+  :17,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true',\
+  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes_master/metadata/00000-8c1073a0-17bf-46e5-9d44-54583d7ffc81.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
+  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778658266', \n  'uuid'='afc17353-3136-475f-9e89-076a9df80f4b',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
+  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: citizen_welfare_schemes_master_pk
+  type: INT
+  nullable: true
+  description: Citizen welfare schemes master pk.
+- name: welfare_schemes_life_cycle_fk
+  type: INT
+  nullable: true
+  description: Welfare schemes life cycle fk.
+- name: welfare_schemes_life_cycle_id
+  type: INT
+  nullable: true
+  description: Welfare schemes life cycle id.
+- name: scheme_name
+  type: STRING
+  nullable: true
+  description: Scheme name.
+- name: scheme_code
+  type: STRING
+  nullable: true
+  description: Scheme code.
+- name: scheme_description
+  type: STRING
+  nullable: true
+  description: Scheme description.
+- name: target_beneficiary_category
+  type: STRING
+  nullable: true
+  description: Target beneficiary category.
+- name: scheme_create_date
+  type: DATE
+  nullable: true
+  description: Scheme create date.
+- name: scheme_start_date
+  type: DATE
+  nullable: true
+  description: Scheme start date.
+- name: scheme_end_date
+  type: DATE
+  nullable: true
+  description: Scheme end date.
+- name: is_active
+  type: INT
+  nullable: true
+  description: Is active.
+- name: scheme_amount
+  type: STRING
+  nullable: true
+  description: Scheme amount.
+- name: scheme_dept
+  type: STRING
+  nullable: true
+  description: Scheme dept.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- citizen_welfare_schemes_master_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_welfare_schemes_master

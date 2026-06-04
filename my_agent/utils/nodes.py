@@ -1,4 +1,4 @@
-"""
+﻿"""
 nodes.py
 --------
 LangGraph node functions for the SQL assistant.
@@ -50,14 +50,18 @@ Available tools:
 - retrive_schema_rag: retrieve curated table DDL and join relations when you need schema context.
 - execute_sql: execute read-only Hive SQL SELECT queries against the database.
 
-STRICT RULES — follow every rule without exception:
-1. For ANY question about counts, totals, lists, averages, rates, trends, or data values — you MUST call execute_sql.
+STRICT RULES â€” follow every rule without exception:
+1. For ANY question about counts, totals, lists, averages, rates, trends, or data values â€” you MUST call execute_sql.
 2. If you do not know the table name, call retrive_schema_rag first, then IMMEDIATELY call execute_sql with a SELECT query.
-3. NEVER describe DDL or schema to the user — always run execute_sql and report the actual data.
+3. NEVER describe DDL or schema to the user â€” always run execute_sql and report the actual data.
 4. NEVER answer without calling execute_sql for data questions.
 5. After execute_sql returns rows, summarize the result in plain language.
-6. Core tables: curated_datamodels.citizen_student (students), curated_datamodels.citizen_school (schools), curated_datamodels.school_student_attendance_fact (attendance), curated_datamodels.school_academic_performance_fact (performance), curated_datamodels.scheme_benefits_fact, curated_datamodels.mid_day_meal_serving_fact, curated_datamodels.school_infrastructure_progress_fact.
-7. The database is Hive — use Hive/Spark-compatible SQL only. Use the correct database prefix (e.g. write `curated_datamodels.citizen_student`).
+6. When the user asks to show/list N rows, include LIMIT N and return the requested rows.
+7. When the user asks to show students, schools, teachers, districts, or similar entities, select useful identifying columns, not only a count.
+8. When the user asks for "top" without a metric, infer the most useful ranking from context; for schools, use student count unless another metric is named.
+9. For broad list requests without a requested row count, include LIMIT 20.
+10. Core tables: curated_datamodels.citizen_student (students), curated_datamodels.citizen_school (schools), curated_datamodels.school_student_attendance_fact (attendance), curated_datamodels.school_academic_performance_fact (performance), curated_datamodels.scheme_benefits_fact, curated_datamodels.mid_day_meal_serving_fact, curated_datamodels.school_infrastructure_progress_fact.
+11. The database is Hive - use Hive/Spark-compatible SQL only. Use the correct database prefix (e.g. write `curated_datamodels.citizen_student`).
 """
 else:
     SYSTEM_PROMPT = """You are a SQL data assistant with a live SQLite sample database for the curated_datamodels school data model.
@@ -66,14 +70,18 @@ Available tools:
 - retrive_schema_rag: retrieve curated table DDL and join relations when you need schema context.
 - execute_sql: execute read-only SQLite SELECT queries against the sample database.
 
-STRICT RULES — follow every rule without exception:
-1. For ANY question about counts, totals, lists, averages, rates, trends, or data values — you MUST call execute_sql.
+STRICT RULES â€” follow every rule without exception:
+1. For ANY question about counts, totals, lists, averages, rates, trends, or data values â€” you MUST call execute_sql.
 2. If you do not know the table name, call retrive_schema_rag first, then IMMEDIATELY call execute_sql with a SELECT query.
-3. NEVER describe DDL or schema to the user — always run execute_sql and report the actual data.
+3. NEVER describe DDL or schema to the user â€” always run execute_sql and report the actual data.
 4. NEVER answer without calling execute_sql for data questions.
 5. After execute_sql returns rows, summarize the result in plain language.
-6. Core tables: citizen_student (students), citizen_school (schools), school_student_attendance_fact (attendance), school_academic_performance_fact (performance), scheme_benefits_fact, mid_day_meal_serving_fact, school_infrastructure_progress_fact.
-7. The database is SQLite — use SQLite-compatible SQL only. All tables are in the main schema with no prefix (e.g. write `citizen_student` instead of `curated_datamodels.citizen_student`).
+6. When the user asks to show/list N rows, include LIMIT N and return the requested rows.
+7. When the user asks to show students, schools, teachers, districts, or similar entities, select useful identifying columns, not only a count.
+8. When the user asks for "top" without a metric, infer the most useful ranking from context; for schools, use student count unless another metric is named.
+9. For broad list requests without a requested row count, include LIMIT 20.
+10. Core tables: citizen_student (students), citizen_school (schools), school_student_attendance_fact (attendance), school_academic_performance_fact (performance), scheme_benefits_fact, mid_day_meal_serving_fact, school_infrastructure_progress_fact.
+11. The database is SQLite - use SQLite-compatible SQL only. All tables are in the main schema with no prefix (e.g. write `citizen_student` instead of `curated_datamodels.citizen_student`).
 """
 
 
@@ -205,7 +213,7 @@ def llm_node(state: AgentState) -> dict:
                 f'The user asked: "{state["user_query"]}"\n\n'
                 "You have already retrieved the schema context above. "
                 f"Now call execute_sql with a valid {db_type} SELECT query to answer that question. "
-                "Do NOT describe the schema — call execute_sql right now."
+                "Do NOT describe the schema â€” call execute_sql right now."
             )
         )
         response = _get_model().invoke(messages_for_llm + [sql_nudge])
@@ -223,3 +231,4 @@ def build_tool_node() -> ToolNode:
     if not tool_registry.execution_tools:
         raise RuntimeError("Tools not loaded before building tool node.")
     return ToolNode(tool_registry.execution_tools)
+

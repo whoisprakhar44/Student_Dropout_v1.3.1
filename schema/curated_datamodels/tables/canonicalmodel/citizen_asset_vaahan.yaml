@@ -1,0 +1,163 @@
+database: curated_datamodels
+table: citizen_asset_vaahan
+description: Curated Hive/Iceberg table for citizen asset vaahan.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_vaahan
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_vaahan/metadata/00000-d77b2c68-6d56-4b4a-aa03-f2ccf3fec5bb.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_asset_vaahan`(\n  `citizen_asset_vaahan_pk`\
+  \ int COMMENT 'from deserializer', \n  `citizen_master_fk` int COMMENT 'from deserializer',\
+  \ \n  `citizen_asset_vaahan_type_fk` int COMMENT 'from deserializer', \n  `registration_no`\
+  \ string COMMENT 'from deserializer', \n  `date_of_registration` date COMMENT 'from\
+  \ deserializer', \n  `make` string COMMENT 'from deserializer', \n  `model` string\
+  \ COMMENT 'from deserializer', \n  `year_of_manufacture` string COMMENT 'from deserializer',\
+  \ \n  `fuel_type` string COMMENT 'from deserializer', \n  `chassis_no` string COMMENT\
+  \ 'from deserializer', \n  `engine_no` string COMMENT 'from deserializer', \n  `insurance_valid_to`\
+  \ string COMMENT 'from deserializer', \n  `office` string COMMENT 'from deserializer',\
+  \ \n  `color` string COMMENT 'from deserializer', \n  `owner_type` string COMMENT\
+  \ 'from deserializer', \n  `owner_seniority` string COMMENT 'from deserializer',\
+  \ \n  `ownership_start_date` date COMMENT 'from deserializer', \n  `ownership_end_date`\
+  \ date COMMENT 'from deserializer', \n  `created_date` timestamp with local time\
+  \ zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer',\
+  \ \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer',\
+  \ \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_vaahan'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"citizen_asset_vaahan_pk\",\"required\":false,\"type\":\"\
+  int\"},{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"int\"\
+  },{\"id\":3,\"name\":\"citizen_asset_vaahan_type_fk\",\"required\":false,\"type\"\
+  :\"int\"},{\"id\":4,\"name\":\"registration_no\",\"required\":false,\"type\":\"\
+  string\"},{\"id\":5,\"name\":\"date_of_registration\",\"required\":false,\"type\"\
+  :\"date\"},{\"id\":6,\"name\":\"make\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":7,\"name\":\"model\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\"\
+  :\"year_of_manufacture\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\"\
+  :\"fuel_type\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"name\":\"chassis_no\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"engine_no\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":12,\"name\":\"insurance_valid_to\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":13,\"name\":\"office\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":14,\"name\":\"color\",\"required\":false,\"type\":\"\
+  string\"},{\"id\":15,\"name\":\"owner_type\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":16,\"name\":\"owner_seniority\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":17,\"name\":\"ownership_start_date\",\"required\":false,\"type\":\"date\"\
+  },{\"id\":18,\"name\":\"ownership_end_date\",\"required\":false,\"type\":\"date\"\
+  },{\"id\":19,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"\
+  },{\"id\":20,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":21,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"\
+  id\":22,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n \
+  \ 'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_vaahan/metadata/00000-d77b2c68-6d56-4b4a-aa03-f2ccf3fec5bb.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
+  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1777364698', \n  'uuid'='01f3ef52-4099-4366-a086-03dedbb091cd',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
+  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: citizen_asset_vaahan_pk
+  type: INT
+  nullable: true
+  description: Citizen asset vaahan pk.
+- name: citizen_master_fk
+  type: INT
+  nullable: true
+  description: Citizen master fk.
+- name: citizen_asset_vaahan_type_fk
+  type: INT
+  nullable: true
+  description: Citizen asset vaahan type fk.
+- name: registration_no
+  type: STRING
+  nullable: true
+  description: Registration no.
+- name: date_of_registration
+  type: DATE
+  nullable: true
+  description: Date of registration.
+- name: make
+  type: STRING
+  nullable: true
+  description: Make.
+- name: model
+  type: STRING
+  nullable: true
+  description: Model.
+- name: year_of_manufacture
+  type: STRING
+  nullable: true
+  description: Year of manufacture.
+- name: fuel_type
+  type: STRING
+  nullable: true
+  description: Fuel type.
+- name: chassis_no
+  type: STRING
+  nullable: true
+  description: Chassis no.
+- name: engine_no
+  type: STRING
+  nullable: true
+  description: Engine no.
+- name: insurance_valid_to
+  type: STRING
+  nullable: true
+  description: Insurance valid to.
+- name: office
+  type: STRING
+  nullable: true
+  description: Office.
+- name: color
+  type: STRING
+  nullable: true
+  description: Color.
+- name: owner_type
+  type: STRING
+  nullable: true
+  description: Owner type.
+- name: owner_seniority
+  type: STRING
+  nullable: true
+  description: Owner seniority.
+- name: ownership_start_date
+  type: DATE
+  nullable: true
+  description: Ownership start date.
+- name: ownership_end_date
+  type: DATE
+  nullable: true
+  description: Ownership end date.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- citizen_asset_vaahan_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_asset_vaahan

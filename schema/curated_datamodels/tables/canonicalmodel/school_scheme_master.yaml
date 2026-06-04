@@ -1,0 +1,144 @@
+database: curated_datamodels
+table: school_scheme_master
+description: Dimension/master table for school scheme reference attributes.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_scheme_master
+partitioned_by: 'school_scheme_dim_id_pk_bucket: bucket[32]'
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_scheme_master/metadata/00000-9c0e2f58-814f-43cc-a668-77a5450cbaaf.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_scheme_master`(\n  `school_scheme_dim_id_pk`\
+  \ bigint COMMENT 'from deserializer', \n  `scheme_code` string COMMENT 'from deserializer',\
+  \ \n  `scheme_name` string COMMENT 'from deserializer', \n  `scheme_category` string\
+  \ COMMENT 'from deserializer', \n  `applicable_level` string COMMENT 'from deserializer',\
+  \ \n  `delivery_mode` string COMMENT 'from deserializer', \n  `funding_dept` string\
+  \ COMMENT 'from deserializer', \n  `start_date` date COMMENT 'from deserializer',\
+  \ \n  `end_date` date COMMENT 'from deserializer', \n  `scheme_status` string COMMENT\
+  \ 'from deserializer', \n  `effective_from` date COMMENT 'from deserializer', \n\
+  \  `effective_to` date COMMENT 'from deserializer', \n  `is_current` string COMMENT\
+  \ 'from deserializer', \n  `is_active` string COMMENT 'from deserializer', \n  `created_date`\
+  \ timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string\
+  \ COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone\
+  \ COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\n\
+  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_scheme_master'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"school_scheme_dim_id_pk\",\"required\":false,\"type\":\"\
+  long\"},{\"id\":2,\"name\":\"scheme_code\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":3,\"name\":\"scheme_name\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":4,\"name\":\"scheme_category\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":5,\"name\":\"applicable_level\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":6,\"name\":\"delivery_mode\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :7,\"name\":\"funding_dept\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"\
+  name\":\"start_date\",\"required\":false,\"type\":\"date\"},{\"id\":9,\"name\":\"\
+  end_date\",\"required\":false,\"type\":\"date\"},{\"id\":10,\"name\":\"scheme_status\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"effective_from\"\
+  ,\"required\":false,\"type\":\"date\"},{\"id\":12,\"name\":\"effective_to\",\"required\"\
+  :false,\"type\":\"date\"},{\"id\":13,\"name\":\"is_current\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":14,\"name\":\"is_active\",\"required\":false,\"type\"\
+  :\"string\"},{\"id\":15,\"name\":\"created_date\",\"required\":false,\"type\":\"\
+  timestamptz\"},{\"id\":16,\"name\":\"created_by\",\"required\":false,\"type\":\"\
+  string\"},{\"id\":17,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"\
+  },{\"id\":18,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}',\
+  \ \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"school_scheme_dim_id_pk_bucket\"\
+  ,\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true',\
+  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_scheme_master/metadata/00000-9c0e2f58-814f-43cc-a668-77a5450cbaaf.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
+  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1777886120', \n  'uuid'='da7e0d36-a91d-406a-b2f3-34ca37f94654',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
+  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: school_scheme_dim_id_pk
+  type: BIGINT
+  nullable: true
+  description: School scheme dim identifier primary key.
+- name: scheme_code
+  type: STRING
+  nullable: true
+  description: Scheme code.
+- name: scheme_name
+  type: STRING
+  nullable: true
+  description: Scheme name.
+- name: scheme_category
+  type: STRING
+  nullable: true
+  description: Scheme category.
+- name: applicable_level
+  type: STRING
+  nullable: true
+  description: Applicable level.
+- name: delivery_mode
+  type: STRING
+  nullable: true
+  description: Delivery mode.
+- name: funding_dept
+  type: STRING
+  nullable: true
+  description: Funding dept.
+- name: start_date
+  type: DATE
+  nullable: true
+  description: Start date.
+- name: end_date
+  type: DATE
+  nullable: true
+  description: End date.
+- name: scheme_status
+  type: STRING
+  nullable: true
+  description: Scheme status.
+- name: effective_from
+  type: DATE
+  nullable: true
+  description: Effective from.
+- name: effective_to
+  type: DATE
+  nullable: true
+  description: Effective to.
+- name: is_current
+  type: STRING
+  nullable: true
+  description: Is current.
+- name: is_active
+  type: STRING
+  nullable: true
+  description: Is active.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- school_scheme_dim_id_pk
+relationships: []
+business_terms:
+- school analytics
+- scheme benefit delivery
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in school_scheme_master
+- join with related school and citizen dimensions
+- track eligibility, sanction, delivery, and payment status

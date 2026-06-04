@@ -1,0 +1,70 @@
+database: curated_datamodels
+table: citizen_idty_type
+description: Curated Hive/Iceberg table for citizen idty type.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_idty_type
+partitioned_by: ''
+tblproperties:
+  current-snapshot-id: '4667290571798349333'
+  current-snapshot-timestamp-ms: '1776341111690'
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_idty_type/metadata/00004-746bf339-230d-4a05-8c92-55e2a3fcab1b.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '4'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_idty_type`(\n  `citizen_idty_type`\
+  \ int COMMENT 'from deserializer', \n  `idty_name` string COMMENT 'from deserializer',\
+  \ \n  `idty_description` string COMMENT 'from deserializer', \n  `issuing_authority`\
+  \ string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_idty_type'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"citizen_idty_type\",\"required\":false,\"type\":\"int\"},{\"\
+  id\":2,\"name\":\"idty_name\",\"required\":false,\"type\":\"string\"},{\"id\":3,\"\
+  name\":\"idty_description\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"\
+  name\":\"issuing_authority\",\"required\":false,\"type\":\"string\"}]}', \n  'current-snapshot-id'='4667290571798349333',\
+  \ \n  'current-snapshot-summary'='{\"spark.app.id\":\"application_1775893506593_0511\"\
+  ,\"added-data-files\":\"1\",\"deleted-data-files\":\"187\",\"added-records\":\"\
+  1\",\"deleted-records\":\"53024008\",\"added-files-size\":\"1960\",\"removed-files-size\"\
+  :\"213013535\",\"changed-partition-count\":\"1\",\"total-records\":\"1\",\"total-files-size\"\
+  :\"1960\",\"total-data-files\":\"1\",\"total-delete-files\":\"0\",\"total-position-deletes\"\
+  :\"0\",\"total-equality-deletes\":\"0\"}', \n  'current-snapshot-timestamp-ms'='1776341111690',\
+  \ \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_idty_type/metadata/00004-746bf339-230d-4a05-8c92-55e2a3fcab1b.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_idty_type/metadata/00003-a3a18b30-fa51-4d7c-a27f-2fe0612a13fa.metadata.json',\
+  \ \n  'snapshot-count'='4', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323232',\
+  \ \n  'uuid'='ffb3aaa4-a5b1-4b46-8473-d15855973ec1', \n  'write.delete.mode'='merge-on-read',\
+  \ \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read',\
+  \ \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: citizen_idty_type
+  type: INT
+  nullable: true
+  description: Citizen idty type.
+- name: idty_name
+  type: STRING
+  nullable: true
+  description: Idty name.
+- name: idty_description
+  type: STRING
+  nullable: true
+  description: Idty description.
+- name: issuing_authority
+  type: STRING
+  nullable: true
+  description: Issuing authority.
+primary_key: []
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_idty_type

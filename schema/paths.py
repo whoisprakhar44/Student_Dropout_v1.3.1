@@ -18,7 +18,7 @@ DATABASE_META_YAML = DATABASE_DIR / "database.yaml"
 def list_table_yaml_files() -> list[Path]:
     if not TABLES_DIR.is_dir():
         return []
-    return sorted(TABLES_DIR.glob("*.yaml"))
+    return sorted(TABLES_DIR.rglob("*.yaml"))
 
 
 def ensure_table_yaml_files() -> list[Path]:

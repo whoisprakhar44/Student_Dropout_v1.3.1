@@ -1,0 +1,125 @@
+database: curated_datamodels
+table: gws_emp_hh_cap_geo_cor_tab
+description: 'GSWS table: Household latitide and Longitude and Images path
+
+  We are capturing the house image, longitude and latitude,door no of the person and
+  if not available we are capturing the reason also and migration details.'
+table_format: ICEBERG
+source_schema: GSWSONLINE
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/gsws/gws_emp_hh_cap_geo_cor_tab/
+source_file: C:\Users\2797779\Downloads\GSWS_DDLs_File.txt
+raw_ddl: "create table GSWSONLINE.GWS_EMP_HH_CAP_GEO_COR_TAB\n(\n  CLUSTER_ID    \
+  \   NUMBER,\n  HH_ID            VARCHAR2(100) not null,\n  MEMBER_ID        NUMBER,\n\
+  \  DOORNO           VARCHAR2(100),\n  HOUSE_IMG        VARCHAR2(200),\n  AUTH_TYPE\
+  \        VARCHAR2(50),\n  LATITUDE         NUMBER,\n  LONGITUDE        NUMBER,\n\
+  \  INSERTED_BY      VARCHAR2(50),\n  INSERTED_DATE    TIMESTAMP(6),\n  HOUSE_TYPE\
+  \       VARCHAR2(200),\n  DEMISED          VARCHAR2(100),\n  MIGRATED_REASONS VARCHAR2(200),\n\
+  \  MIGRATED_DIST    VARCHAR2(200),\n  HOUSE            VARCHAR2(30),\n  TRANSACTION_ID\
+  \   VARCHAR2(99),\n  SECRETARIAT_CODE NUMBER,\n  MOBILE_NUM       NUMBER(10),\n\
+  \  IS_MOBILE_CRT    VARCHAR2(10),\n  REVERT_STATUS    VARCHAR2(10),\n  HH_DISTANCE\
+  \      VARCHAR2(10)\n  );"
+columns:
+- name: cluster_id
+  type: BIGINT
+  nullable: true
+  description: Cluster id.
+- name: hh_id
+  type: VARCHAR
+  nullable: false
+  description: Household id.
+- name: member_id
+  type: BIGINT
+  nullable: true
+  description: Member id.
+- name: doorno
+  type: VARCHAR
+  nullable: true
+  description: Doorno.
+- name: house_img
+  type: VARCHAR
+  nullable: true
+  description: House img.
+- name: auth_type
+  type: VARCHAR
+  nullable: true
+  description: Auth type.
+- name: latitude
+  type: BIGINT
+  nullable: true
+  description: Latitude.
+- name: longitude
+  type: BIGINT
+  nullable: true
+  description: Longitude.
+- name: inserted_by
+  type: VARCHAR
+  nullable: true
+  description: Inserted by.
+- name: inserted_date
+  type: TIMESTAMP
+  nullable: true
+  description: Inserted date.
+- name: house_type
+  type: VARCHAR
+  nullable: true
+  description: House type.
+- name: demised
+  type: VARCHAR
+  nullable: true
+  description: Demised.
+- name: migrated_reasons
+  type: VARCHAR
+  nullable: true
+  description: Migrated reasons.
+- name: migrated_dist
+  type: VARCHAR
+  nullable: true
+  description: Migrated dist.
+- name: house
+  type: VARCHAR
+  nullable: true
+  description: House.
+- name: transaction_id
+  type: VARCHAR
+  nullable: true
+  description: Transaction id.
+- name: secretariat_code
+  type: BIGINT
+  nullable: true
+  description: Secretariat code.
+- name: mobile_num
+  type: BIGINT
+  nullable: true
+  description: Mobile number.
+- name: is_mobile_crt
+  type: VARCHAR
+  nullable: true
+  description: Is mobile crt.
+- name: revert_status
+  type: VARCHAR
+  nullable: true
+  description: Revert status.
+- name: hh_distance
+  type: VARCHAR
+  nullable: true
+  description: Household distance.
+primary_key:
+- hh_id
+relationships: []
+business_terms:
+- GSWS
+- citizen services
+- household
+- Incremental
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in gws_emp_hh_cap_geo_cor_tab
+- 'refresh frequency: Daily'
+tblproperties:
+  engine.hive.enabled: 'true'
+  format-version: '2'
+  write.format.default: parquet
+  parquet.compression: SNAPPY
+  table_type: ICEBERG

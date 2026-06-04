@@ -1,0 +1,108 @@
+database: curated_datamodels
+table: citizen_bank_accounts
+description: Curated Hive/Iceberg table for citizen bank accounts.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_bank_accounts
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_bank_accounts/metadata/00000-d24046bb-b8e5-48db-aef8-30b28dfc2d44.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_bank_accounts`(\n  `citizen_bank_accounts_pk`\
+  \ int COMMENT 'from deserializer', \n  `citizen_master_fk` int COMMENT 'from deserializer',\
+  \ \n  `account_name` string COMMENT 'from deserializer', \n  `account_number` string\
+  \ COMMENT 'from deserializer', \n  `bank_name` string COMMENT 'from deserializer',\
+  \ \n  `bank_type` string COMMENT 'from deserializer', \n  `bank_branch` string COMMENT\
+  \ 'from deserializer', \n  `bank_ifsc_code` string COMMENT 'from deserializer',\
+  \ \n  `created_date` timestamp with local time zone COMMENT 'from deserializer',\
+  \ \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp\
+  \ with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT\
+  \ 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_bank_accounts'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"citizen_bank_accounts_pk\",\"required\":false,\"type\":\"\
+  int\"},{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"int\"\
+  },{\"id\":3,\"name\":\"account_name\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":4,\"name\":\"account_number\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :5,\"name\":\"bank_name\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\"\
+  :\"bank_type\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"bank_branch\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"bank_ifsc_code\",\"\
+  required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"created_date\",\"required\"\
+  :false,\"type\":\"timestamptz\"},{\"id\":10,\"name\":\"created_by\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":11,\"name\":\"updated_date\",\"required\":false,\"\
+  type\":\"timestamptz\"},{\"id\":12,\"name\":\"updated_by\",\"required\":false,\"\
+  type\":\"string\"}]}', \n  'engine.hive.enabled'='true', \n  'external'='true',\
+  \ \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_bank_accounts/metadata/00000-d24046bb-b8e5-48db-aef8-30b28dfc2d44.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
+  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778658265', \n  'uuid'='e93d57f8-54b3-44da-bc6b-85809ced3643',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
+  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: citizen_bank_accounts_pk
+  type: INT
+  nullable: true
+  description: Citizen bank accounts pk.
+- name: citizen_master_fk
+  type: INT
+  nullable: true
+  description: Citizen master fk.
+- name: account_name
+  type: STRING
+  nullable: true
+  description: Account name.
+- name: account_number
+  type: STRING
+  nullable: true
+  description: Account number.
+- name: bank_name
+  type: STRING
+  nullable: true
+  description: Bank name.
+- name: bank_type
+  type: STRING
+  nullable: true
+  description: Bank type.
+- name: bank_branch
+  type: STRING
+  nullable: true
+  description: Bank branch.
+- name: bank_ifsc_code
+  type: STRING
+  nullable: true
+  description: Bank ifsc code.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- citizen_bank_accounts_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_bank_accounts

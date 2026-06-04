@@ -1,0 +1,204 @@
+database: curated_datamodels
+table: school_subject_master
+description: Dimension/master table for school subject reference attributes.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_subject_master
+partitioned_by: 'subject_pk_bucket: bucket[32]'
+tblproperties:
+  current-snapshot-id: '2379330097821695264'
+  current-snapshot-timestamp-ms: '1778310195505'
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_subject_master/metadata/00001-5180b609-c075-4076-97af-ec6e8dd997e0.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '1'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_subject_master`(\n  `subject_pk`\
+  \ bigint COMMENT 'from deserializer', \n  `subject_code` string COMMENT 'from deserializer',\
+  \ \n  `subject_name` string COMMENT 'from deserializer', \n  `subject_short_name`\
+  \ string COMMENT 'from deserializer', \n  `subject_category` string COMMENT 'from\
+  \ deserializer', \n  `subject_type` string COMMENT 'from deserializer', \n  `language_order`\
+  \ int COMMENT 'from deserializer', \n  `is_vocational_flag` string COMMENT 'from\
+  \ deserializer', \n  `is_skill_subject_flag` string COMMENT 'from deserializer',\
+  \ \n  `min_class` int COMMENT 'from deserializer', \n  `max_class` int COMMENT 'from\
+  \ deserializer', \n  `medium_id` bigint COMMENT 'from deserializer', \n  `is_compulsory_flag`\
+  \ string COMMENT 'from deserializer', \n  `board_code` string COMMENT 'from deserializer',\
+  \ \n  `assessment_pattern` string COMMENT 'from deserializer', \n  `marks_scheme`\
+  \ string COMMENT 'from deserializer', \n  `credit_weight` decimal(5,2) COMMENT 'from\
+  \ deserializer', \n  `subject_status` string COMMENT 'from deserializer', \n  `grade_applicability_from`\
+  \ int COMMENT 'from deserializer', \n  `grade_applicability_to` int COMMENT 'from\
+  \ deserializer', \n  `effective_from` date COMMENT 'from deserializer', \n  `effective_to`\
+  \ date COMMENT 'from deserializer', \n  `replaced_by_subject_pk` bigint COMMENT\
+  \ 'from deserializer', \n  `created_date` timestamp with local time zone COMMENT\
+  \ 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n \
+  \ `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n\
+  \  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_subject_master'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"subject_pk\",\"required\":false,\"type\":\"long\"},{\"id\"\
+  :2,\"name\":\"subject_code\",\"required\":false,\"type\":\"string\"},{\"id\":3,\"\
+  name\":\"subject_name\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\"\
+  :\"subject_short_name\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\"\
+  :\"subject_category\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\"\
+  :\"subject_type\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"\
+  language_order\",\"required\":false,\"type\":\"int\"},{\"id\":8,\"name\":\"is_vocational_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"is_skill_subject_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":10,\"name\":\"min_class\",\"required\"\
+  :false,\"type\":\"int\"},{\"id\":11,\"name\":\"max_class\",\"required\":false,\"\
+  type\":\"int\"},{\"id\":12,\"name\":\"medium_id\",\"required\":false,\"type\":\"\
+  long\"},{\"id\":13,\"name\":\"is_compulsory_flag\",\"required\":false,\"type\":\"\
+  string\"},{\"id\":14,\"name\":\"board_code\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":15,\"name\":\"assessment_pattern\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":16,\"name\":\"marks_scheme\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":17,\"name\":\"credit_weight\",\"required\":false,\"type\":\"decimal(5, 2)\"\
+  },{\"id\":18,\"name\":\"subject_status\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":19,\"name\":\"grade_applicability_from\",\"required\":false,\"type\":\"\
+  int\"},{\"id\":20,\"name\":\"grade_applicability_to\",\"required\":false,\"type\"\
+  :\"int\"},{\"id\":21,\"name\":\"effective_from\",\"required\":false,\"type\":\"\
+  date\"},{\"id\":22,\"name\":\"effective_to\",\"required\":false,\"type\":\"date\"\
+  },{\"id\":23,\"name\":\"replaced_by_subject_pk\",\"required\":false,\"type\":\"\
+  long\"},{\"id\":24,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"\
+  },{\"id\":25,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":26,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"\
+  id\":27,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n \
+  \ 'current-snapshot-id'='2379330097821695264', \n  'current-snapshot-summary'='{\"\
+  spark.app.id\":\"application_1775893506593_2948\",\"added-data-files\":\"30\",\"\
+  added-records\":\"136\",\"added-files-size\":\"217847\",\"changed-partition-count\"\
+  :\"30\",\"total-records\":\"136\",\"total-files-size\":\"217847\",\"total-data-files\"\
+  :\"30\",\"total-delete-files\":\"0\",\"total-position-deletes\":\"0\",\"total-equality-deletes\"\
+  :\"0\"}', \n  'current-snapshot-timestamp-ms'='1778310195505', \n  'default-partition-spec'='{\"\
+  spec-id\":0,\"fields\":[{\"name\":\"subject_pk_bucket\",\"transform\":\"bucket[32]\"\
+  ,\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true',\
+  \ \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_subject_master/metadata/00001-5180b609-c075-4076-97af-ec6e8dd997e0.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_subject_master/metadata/00000-34bcc62a-6281-4f85-abe9-580761e2a07b.metadata.json',\
+  \ \n  'snapshot-count'='1', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778310195',\
+  \ \n  'uuid'='24abeae9-6e5b-4a5c-a62a-2d593dcad104', \n  'write.delete.mode'='merge-on-read',\
+  \ \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read',\
+  \ \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: subject_pk
+  type: BIGINT
+  nullable: true
+  description: Subject primary key.
+- name: subject_code
+  type: STRING
+  nullable: true
+  description: Subject code.
+- name: subject_name
+  type: STRING
+  nullable: true
+  description: Subject name.
+- name: subject_short_name
+  type: STRING
+  nullable: true
+  description: Subject short name.
+- name: subject_category
+  type: STRING
+  nullable: true
+  description: Subject category.
+- name: subject_type
+  type: STRING
+  nullable: true
+  description: Subject type.
+- name: language_order
+  type: INT
+  nullable: true
+  description: Language order.
+- name: is_vocational_flag
+  type: STRING
+  nullable: true
+  description: Is vocational flag.
+- name: is_skill_subject_flag
+  type: STRING
+  nullable: true
+  description: Is skill subject flag.
+- name: min_class
+  type: INT
+  nullable: true
+  description: Min class.
+- name: max_class
+  type: INT
+  nullable: true
+  description: Max class.
+- name: medium_id
+  type: BIGINT
+  nullable: true
+  description: Medium identifier.
+- name: is_compulsory_flag
+  type: STRING
+  nullable: true
+  description: Is compulsory flag.
+- name: board_code
+  type: STRING
+  nullable: true
+  description: Board code.
+- name: assessment_pattern
+  type: STRING
+  nullable: true
+  description: Assessment pattern.
+- name: marks_scheme
+  type: STRING
+  nullable: true
+  description: Marks scheme.
+- name: credit_weight
+  type: DECIMAL(5,2)
+  nullable: true
+  description: Credit weight.
+- name: subject_status
+  type: STRING
+  nullable: true
+  description: Subject status.
+- name: grade_applicability_from
+  type: INT
+  nullable: true
+  description: Grade applicability from.
+- name: grade_applicability_to
+  type: INT
+  nullable: true
+  description: Grade applicability to.
+- name: effective_from
+  type: DATE
+  nullable: true
+  description: Effective from.
+- name: effective_to
+  type: DATE
+  nullable: true
+  description: Effective to.
+- name: replaced_by_subject_pk
+  type: BIGINT
+  nullable: true
+  description: Replaced by subject primary key.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- subject_pk
+- replaced_by_subject_pk
+relationships: []
+business_terms:
+- school analytics
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in school_subject_master
+- join with related school and citizen dimensions

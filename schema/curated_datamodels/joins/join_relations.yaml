@@ -1,18 +1,20 @@
 database: curated_datamodels
-description: Explicit join relations for the curated school data model.
+description: Explicit join relations for the curated Hive/Iceberg data model, including
+  school, citizen canonical, ration card, welfare, and GSWS tables.
 joins:
 - name: student_to_school
   from_table: citizen_student
-  from_column: citizen_school_fk
+  from_column: citizen_school_id_fk
   to_table: citizen_school
   to_column: citizen_school_id_pk
   cardinality: many_to_one
-  usage: Join student profile records to school location, category, and infrastructure attributes.
+  usage: Join student profile records to school location, category, and infrastructure
+    attributes.
 - name: student_attendance_to_student
   from_table: school_student_attendance_fact
   from_column: citizen_student_id_fk
   to_table: citizen_student
-  to_column: citizen_student_pk
+  to_column: citizen_student_id_pk
   cardinality: many_to_one
   usage: Join attendance events to student demographics and identifiers.
 - name: student_attendance_to_school
@@ -21,7 +23,8 @@ joins:
   to_table: citizen_school
   to_column: citizen_school_id_pk
   cardinality: many_to_one
-  usage: Aggregate student attendance by school, district, mandal, village, or school category.
+  usage: Aggregate student attendance by school, district, mandal, village, or school
+    category.
 - name: student_attendance_to_class
   from_table: school_student_attendance_fact
   from_column: student_class_dim_id_fk
@@ -40,7 +43,7 @@ joins:
   from_table: school_academic_performance_fact
   from_column: citizen_student_id_fk
   to_table: citizen_student
-  to_column: citizen_student_pk
+  to_column: citizen_student_id_pk
   cardinality: many_to_one
   usage: Join marks and scores to student demographics.
 - name: academic_performance_to_school
@@ -110,7 +113,7 @@ joins:
   from_table: scheme_benefits_fact
   from_column: citizen_student_id_fk
   to_table: citizen_student
-  to_column: citizen_student_pk
+  to_column: citizen_student_id_pk
   cardinality: many_to_one
   usage: Link student benefit eligibility, sanction, and disbursement to student profile.
 - name: scheme_benefits_to_school
@@ -155,3 +158,283 @@ joins:
   to_column: infra_category_dim_id_pk
   cardinality: many_to_one
   usage: Roll infrastructure components up to category.
+- name: gsws_demographic_to_household_member
+  from_table: gsws_demographic_details
+  from_column: uid_num
+  to_table: gsws_hh_volunteer_mapping
+  to_column: uid_num
+  cardinality: one_to_one
+  usage: Join citizen demographic details to household-volunteer mapping by UID.
+- name: gsws_household_to_sixstep
+  from_table: gsws_hh_volunteer_mapping
+  from_column: uid_num
+  to_table: gsws_hh_sixstep_cal
+  to_column: uidnum
+  cardinality: one_to_one
+  usage: Join household member records to six-step eligibility parameters.
+- name: gsws_household_to_geo_capture
+  from_table: gsws_hh_volunteer_mapping
+  from_column: household_id
+  to_table: gws_emp_hh_cap_geo_cor_tab
+  to_column: hh_id
+  cardinality: many_to_one
+  usage: Join household members to captured house geolocation and image metadata.
+- name: gsws_household_to_bank
+  from_table: gsws_hh_volunteer_mapping
+  from_column: uid_num
+  to_table: gws_citizen_bank_dtls_tab
+  to_column: citizen_uid
+  cardinality: one_to_one
+  usage: Join citizen household records to bank account details.
+- name: gsws_household_to_secretariat
+  from_table: gsws_hh_volunteer_mapping
+  from_column: gsws_code
+  to_table: gsws_sec_secretariat_master
+  to_column: secretariat_code
+  cardinality: many_to_one
+  usage: Aggregate citizens and households by secretariat.
+- name: gsws_household_to_cluster
+  from_table: gsws_hh_volunteer_mapping
+  from_column: cluster_id
+  to_table: gsws_cluster_master
+  to_column: cluster_id
+  cardinality: many_to_one
+  usage: Aggregate households by volunteer cluster.
+- name: gsws_secretariat_to_cluster
+  from_table: gsws_cluster_master
+  from_column: gsws_code
+  to_table: gsws_sec_secretariat_master
+  to_column: secretariat_code
+  cardinality: many_to_one
+  usage: Map clusters to their secretariat master records.
+- name: gsws_secretariat_to_district
+  from_table: gsws_sec_secretariat_master
+  from_column: lgd_dist_code
+  to_table: gws_district_master
+  to_column: lgd_district_code
+  cardinality: many_to_one
+  usage: Roll secretariat records up to district.
+- name: gsws_secretariat_to_constituency
+  from_table: gsws_sec_secretariat_master
+  from_column: secretariat_code
+  to_table: gws_constiuency_sec_master
+  to_column: secretariatcode
+  cardinality: one_to_one
+  usage: Join secretariat records to constituency and division mapping.
+- name: gsws_secretariat_to_building_geo
+  from_table: gsws_sec_secretariat_master
+  from_column: secretariat_code
+  to_table: gsws_sec_building_lat_longs
+  to_column: gsws_code
+  cardinality: one_to_one
+  usage: Join secretariat records to building latitude and longitude.
+- name: gsws_secretariat_to_account
+  from_table: gsws_sec_secretariat_master
+  from_column: secretariat_code
+  to_table: gsws_sec_secretariat_accdtls
+  to_column: gsws_code
+  cardinality: one_to_one
+  usage: Join secretariat records to secretariat account details.
+- name: gsws_household_member_to_caste_religion
+  from_table: gws_hh_mem_data
+  from_column: subcastesno
+  to_table: gsws_caste_religion_master
+  to_column: id
+  cardinality: many_to_one
+  usage: Join household member survey data to caste and religion master records.
+- name: gsws_household_member_to_relation
+  from_table: gws_hh_mem_data
+  from_column: relationship
+  to_table: gsws_relation_masters
+  to_column: relationship
+  cardinality: many_to_one
+  usage: Join household member survey data to relation master records.
+- name: gsws_household_to_death_capture
+  from_table: gsws_hh_volunteer_mapping
+  from_column: uid_num
+  to_table: gws_death_capture_tab
+  to_column: uid_num
+  cardinality: one_to_many
+  usage: Find death capture records reported for a citizen UID.
+- name: gsws_mandal_to_revenue_master
+  from_table: gsws_hh_volunteer_mapping
+  from_column: mandal_code
+  to_table: gws_lgd_mdl_rev_master
+  to_column: mandalcode
+  cardinality: many_to_one
+  usage: Roll households up to LGD mandal revenue master.
+- name: gsws_revenue_village_to_mandal
+  from_table: gsws_revenue_village_map
+  from_column: mandal_code
+  to_table: gws_lgd_mdl_rev_master
+  to_column: mandalcode
+  cardinality: many_to_one
+  usage: Map revenue villages to mandal revenue master records.
+- name: student_to_citizen_master
+  from_table: citizen_student
+  from_column: student_citizen_master_id_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join student records to the canonical citizen master profile.
+- name: student_mother_to_citizen_master
+  from_table: citizen_student
+  from_column: mother_citizen_master_id_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join student records to mother citizen master profile when available.
+- name: student_father_to_citizen_master
+  from_table: citizen_student
+  from_column: father_citizen_master_id_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join student records to father citizen master profile when available.
+- name: citizen_address_to_master
+  from_table: citizen_address_master
+  from_column: citizen_master_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join citizen addresses to citizen master profiles.
+- name: citizen_bank_to_master
+  from_table: citizen_bank_accounts
+  from_column: citizen_master_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join citizen bank accounts to citizen master profiles.
+- name: citizen_document_to_master
+  from_table: citizen_document
+  from_column: citizen_master_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join citizen documents to citizen master profiles.
+- name: citizen_document_to_type
+  from_table: citizen_document
+  from_column: citizen_document_type_fk
+  to_table: citizen_idty_type
+  to_column: citizen_idty_type
+  cardinality: many_to_one
+  usage: Group citizen documents by identity/document type.
+- name: citizen_family_to_master
+  from_table: citizen_family_master
+  from_column: citizen_master_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join family relationship records to the base citizen profile.
+- name: citizen_family_to_related_citizen
+  from_table: citizen_family_master
+  from_column: relation_citizen_master_id
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join family relationship records to the related citizen profile.
+- name: citizen_education_to_master
+  from_table: citizen_education
+  from_column: citizen_master_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join citizen education attributes to citizen master profiles.
+- name: citizen_land_to_master
+  from_table: citizen_land
+  from_column: citizen_master_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join citizen land records to citizen master profiles.
+- name: citizen_agriculture_land_to_master
+  from_table: citizen_agriculture_land
+  from_column: citizen_master_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join agriculture land records to citizen master profiles.
+- name: citizen_property_to_master
+  from_table: citizen_property
+  from_column: citizen_master_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join property records to citizen master profiles.
+- name: citizen_electricity_to_master
+  from_table: citizen_asset_electricity
+  from_column: citizen_master_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join electricity asset records to citizen master profiles.
+- name: citizen_vaahan_to_master
+  from_table: citizen_asset_vaahan
+  from_column: citizen_master_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join vehicle asset records to citizen master profiles.
+- name: citizen_vaahan_to_type
+  from_table: citizen_asset_vaahan
+  from_column: citizen_asset_vaahan_type_fk
+  to_table: citizen_asset_vaahan_type
+  to_column: citizen_asset_vaahan_type_pk
+  cardinality: many_to_one
+  usage: Group vehicle asset records by vehicle type.
+- name: citizen_utility_to_master
+  from_table: citizen_utility_connection
+  from_column: citizen_master_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join utility connection records to citizen master profiles.
+- name: citizen_health_scheme_to_master
+  from_table: citizen_health_schemes
+  from_column: citizen_master_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join health scheme enrollment to citizen master profiles.
+- name: citizen_health_scheme_to_scheme_master
+  from_table: citizen_health_schemes
+  from_column: citizen_health_schemes_master_fk
+  to_table: citizen_health_schemes_master
+  to_column: citizen_health_schemes_master_pk
+  cardinality: many_to_one
+  usage: Group citizen health scheme enrollment by scheme master.
+- name: citizen_welfare_scheme_to_master
+  from_table: citizen_welfare_schemes
+  from_column: citizen_master_citizen_master_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join welfare scheme enrollment to citizen master profiles.
+- name: citizen_welfare_scheme_to_scheme_master
+  from_table: citizen_welfare_schemes
+  from_column: citizen_welfare_schemes_master_fk
+  to_table: citizen_welfare_schemes_master
+  to_column: citizen_welfare_schemes_master_pk
+  cardinality: many_to_one
+  usage: Group citizen welfare scheme enrollment by scheme master.
+- name: ration_card_citizen_to_master
+  from_table: ration_card_citizen
+  from_column: citizen_master_fk
+  to_table: citizen_master
+  to_column: citizen_master_pk
+  cardinality: many_to_one
+  usage: Join ration card citizen membership to citizen master profiles.
+- name: ration_card_citizen_to_family
+  from_table: ration_card_citizen
+  from_column: ration_card_family_fk
+  to_table: ration_card_family
+  to_column: ration_card_family_pk
+  cardinality: many_to_one
+  usage: Join ration card citizen membership to ration card family records.
+- name: ration_card_family_to_type
+  from_table: ration_card_family
+  from_column: ration_card_type_id_fk
+  to_table: ration_card_type
+  to_column: card_type_id
+  cardinality: many_to_one
+  usage: Group ration card families by card type.

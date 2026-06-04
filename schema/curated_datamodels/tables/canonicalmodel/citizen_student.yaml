@@ -1,0 +1,226 @@
+database: curated_datamodels
+table: citizen_student
+description: Curated table containing citizen student attributes.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_student
+partitioned_by: 'student_citizen_master_id_fk_bucket: bucket[32]'
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_student/metadata/00000-95965a6e-3a4e-4a3d-a7f7-51c390f37d23.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_student`(\n  `citizen_student_id_pk`\
+  \ bigint COMMENT 'from deserializer', \n  `citizen_school_id_fk` bigint COMMENT\
+  \ 'from deserializer', \n  `student_citizen_master_id_fk` bigint COMMENT 'from deserializer',\
+  \ \n  `student_subject_id_fk` bigint COMMENT 'from deserializer', \n  `student_name`\
+  \ string COMMENT 'from deserializer', \n  `gender` string COMMENT 'from deserializer',\
+  \ \n  `surname` string COMMENT 'from deserializer', \n  `mother_tongue` string COMMENT\
+  \ 'from deserializer', \n  `date_of_birth` date COMMENT 'from deserializer', \n\
+  \  `social_category` string COMMENT 'from deserializer', \n  `minority_status` string\
+  \ COMMENT 'from deserializer', \n  `disability_flag` string COMMENT 'from deserializer',\
+  \ \n  `disability_percentage` decimal(5,2) COMMENT 'from deserializer', \n  `admission_flag`\
+  \ string COMMENT 'from deserializer', \n  `current_grade` string COMMENT 'from deserializer',\
+  \ \n  `medium_key` string COMMENT 'from deserializer', \n  `is_current` string COMMENT\
+  \ 'from deserializer', \n  `mother_citizen_master_id_fk` bigint COMMENT 'from deserializer',\
+  \ \n  `father_citizen_master_id_fk` bigint COMMENT 'from deserializer', \n  `guardian_citizen_master_id_fk`\
+  \ bigint COMMENT 'from deserializer', \n  `is_current_flag` string COMMENT 'from\
+  \ deserializer', \n  `primary_mobile_no` string COMMENT 'from deserializer', \n\
+  \  `secondary_mobile_no` string COMMENT 'from deserializer', \n  `email_id` string\
+  \ COMMENT 'from deserializer', \n  `address` string COMMENT 'from deserializer',\
+  \ \n  `pincode` string COMMENT 'from deserializer', \n  `effective_start_date` date\
+  \ COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from deserializer',\
+  \ \n  `created_date` timestamp with local time zone COMMENT 'from deserializer',\
+  \ \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp\
+  \ with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT\
+  \ 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_student'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"citizen_student_id_pk\",\"required\":false,\"type\":\"long\"\
+  },{\"id\":2,\"name\":\"citizen_school_id_fk\",\"required\":false,\"type\":\"long\"\
+  },{\"id\":3,\"name\":\"student_citizen_master_id_fk\",\"required\":false,\"type\"\
+  :\"long\"},{\"id\":4,\"name\":\"student_subject_id_fk\",\"required\":false,\"type\"\
+  :\"long\"},{\"id\":5,\"name\":\"student_name\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":6,\"name\":\"gender\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :7,\"name\":\"surname\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\"\
+  :\"mother_tongue\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"\
+  date_of_birth\",\"required\":false,\"type\":\"date\"},{\"id\":10,\"name\":\"social_category\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"minority_status\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\":\"disability_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\":\"disability_percentage\"\
+  ,\"required\":false,\"type\":\"decimal(5, 2)\"},{\"id\":14,\"name\":\"admission_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":15,\"name\":\"current_grade\",\"\
+  required\":false,\"type\":\"string\"},{\"id\":16,\"name\":\"medium_key\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":17,\"name\":\"is_current\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":18,\"name\":\"mother_citizen_master_id_fk\",\"required\"\
+  :false,\"type\":\"long\"},{\"id\":19,\"name\":\"father_citizen_master_id_fk\",\"\
+  required\":false,\"type\":\"long\"},{\"id\":20,\"name\":\"guardian_citizen_master_id_fk\"\
+  ,\"required\":false,\"type\":\"long\"},{\"id\":21,\"name\":\"is_current_flag\",\"\
+  required\":false,\"type\":\"string\"},{\"id\":22,\"name\":\"primary_mobile_no\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":23,\"name\":\"secondary_mobile_no\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":24,\"name\":\"email_id\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":25,\"name\":\"address\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":26,\"name\":\"pincode\",\"required\":false,\"type\":\"\
+  string\"},{\"id\":27,\"name\":\"effective_start_date\",\"required\":false,\"type\"\
+  :\"date\"},{\"id\":28,\"name\":\"effective_end_date\",\"required\":false,\"type\"\
+  :\"date\"},{\"id\":29,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"\
+  },{\"id\":30,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":31,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"\
+  id\":32,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n \
+  \ 'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"student_citizen_master_id_fk_bucket\"\
+  ,\"transform\":\"bucket[32]\",\"source-id\":3,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true',\
+  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_student/metadata/00000-95965a6e-3a4e-4a3d-a7f7-51c390f37d23.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
+  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778326676', \n  'uuid'='acd2d1d0-4268-4a1b-a046-e659ce69424c',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
+  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: citizen_student_id_pk
+  type: BIGINT
+  nullable: true
+  description: Citizen student identifier pk.
+- name: citizen_school_id_fk
+  type: BIGINT
+  nullable: true
+  description: Citizen school identifier fk.
+- name: student_citizen_master_id_fk
+  type: BIGINT
+  nullable: true
+  description: Student citizen master identifier fk.
+- name: student_subject_id_fk
+  type: BIGINT
+  nullable: true
+  description: Student subject identifier fk.
+- name: student_name
+  type: STRING
+  nullable: true
+  description: Student name.
+- name: gender
+  type: STRING
+  nullable: true
+  description: Gender.
+- name: surname
+  type: STRING
+  nullable: true
+  description: Surname.
+- name: mother_tongue
+  type: STRING
+  nullable: true
+  description: Mother tongue.
+- name: date_of_birth
+  type: DATE
+  nullable: true
+  description: Date of birth.
+- name: social_category
+  type: STRING
+  nullable: true
+  description: Social category.
+- name: minority_status
+  type: STRING
+  nullable: true
+  description: Minority status.
+- name: disability_flag
+  type: STRING
+  nullable: true
+  description: Disability flag.
+- name: disability_percentage
+  type: DECIMAL(5,2)
+  nullable: true
+  description: Disability percentage.
+- name: admission_flag
+  type: STRING
+  nullable: true
+  description: Admission flag.
+- name: current_grade
+  type: STRING
+  nullable: true
+  description: Current grade.
+- name: medium_key
+  type: STRING
+  nullable: true
+  description: Medium key.
+- name: is_current
+  type: STRING
+  nullable: true
+  description: Is current.
+- name: mother_citizen_master_id_fk
+  type: BIGINT
+  nullable: true
+  description: Mother citizen master identifier fk.
+- name: father_citizen_master_id_fk
+  type: BIGINT
+  nullable: true
+  description: Father citizen master identifier fk.
+- name: guardian_citizen_master_id_fk
+  type: BIGINT
+  nullable: true
+  description: Guardian citizen master identifier fk.
+- name: is_current_flag
+  type: STRING
+  nullable: true
+  description: Is current flag.
+- name: primary_mobile_no
+  type: STRING
+  nullable: true
+  description: Primary mobile no.
+- name: secondary_mobile_no
+  type: STRING
+  nullable: true
+  description: Secondary mobile no.
+- name: email_id
+  type: STRING
+  nullable: true
+  description: Email identifier.
+- name: address
+  type: STRING
+  nullable: true
+  description: Address.
+- name: pincode
+  type: STRING
+  nullable: true
+  description: Pincode.
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: Effective start date.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: Effective end date.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- citizen_student_pk
+relationships:
+- citizen_student.citizen_school_fk is a foreign-key-style reference to citizen_school.
+- citizen_student.citizen_master_fk is a foreign-key-style reference to citizen_master.
+- citizen_student.student_subject_fk is a foreign-key-style reference to student_subject.
+business_terms:
+- student analytics
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_student
+- join with related school and citizen dimensions

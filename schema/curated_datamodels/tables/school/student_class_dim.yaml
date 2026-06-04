@@ -1,0 +1,126 @@
+database: curated_datamodels
+table: student_class_dim
+description: Dimension/master table for student class reference attributes.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/student_class_dim
+partitioned_by: 'student_class_dim_id_pk_bucket: bucket[32]'
+tblproperties:
+  current-snapshot-id: '8679126564052291040'
+  current-snapshot-timestamp-ms: '1778485502095'
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/student_class_dim/metadata/00004-1d998da8-cbad-4624-a529-3727ead23299.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '4'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`student_class_dim`(\n  `student_class_dim_id_pk`\
+  \ bigint COMMENT 'from deserializer', \n  `class_code` string COMMENT 'from deserializer',\
+  \ \n  `class_name` string COMMENT 'from deserializer', \n  `education_stage` string\
+  \ COMMENT 'from deserializer', \n  `min_age` int COMMENT 'from deserializer', \n\
+  \  `max_age` int COMMENT 'from deserializer', \n  `is_active` string COMMENT 'from\
+  \ deserializer', \n  `effective_start_date` date COMMENT 'from deserializer', \n\
+  \  `effective_end_date` date COMMENT 'from deserializer', \n  `created_date` timestamp\
+  \ with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT\
+  \ 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT\
+  \ 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW\
+  \ FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/student_class_dim'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"student_class_dim_id_pk\",\"required\":false,\"type\":\"\
+  long\"},{\"id\":2,\"name\":\"class_code\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":3,\"name\":\"class_name\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":4,\"name\":\"education_stage\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":5,\"name\":\"min_age\",\"required\":false,\"type\":\"int\"},{\"id\":6,\"name\"\
+  :\"max_age\",\"required\":false,\"type\":\"int\"},{\"id\":7,\"name\":\"is_active\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"effective_start_date\"\
+  ,\"required\":false,\"type\":\"date\"},{\"id\":9,\"name\":\"effective_end_date\"\
+  ,\"required\":false,\"type\":\"date\"},{\"id\":10,\"name\":\"created_date\",\"required\"\
+  :false,\"type\":\"timestamptz\"},{\"id\":11,\"name\":\"created_by\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":12,\"name\":\"updated_date\",\"required\":false,\"\
+  type\":\"timestamptz\"},{\"id\":13,\"name\":\"updated_by\",\"required\":false,\"\
+  type\":\"string\"}]}', \n  'current-snapshot-id'='8679126564052291040', \n  'current-snapshot-summary'='{\"\
+  spark.app.id\":\"application_1775893506593_3119\",\"added-data-files\":\"9\",\"\
+  added-records\":\"10\",\"added-files-size\":\"31878\",\"changed-partition-count\"\
+  :\"9\",\"total-records\":\"10\",\"total-files-size\":\"31878\",\"total-data-files\"\
+  :\"9\",\"total-delete-files\":\"0\",\"total-position-deletes\":\"0\",\"total-equality-deletes\"\
+  :\"0\"}', \n  'current-snapshot-timestamp-ms'='1778485502095', \n  'default-partition-spec'='{\"\
+  spec-id\":0,\"fields\":[{\"name\":\"student_class_dim_id_pk_bucket\",\"transform\"\
+  :\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true',\
+  \ \n  'external'='true', \n  'impala.events.catalogServiceId'='9776eab397964690:a6788b7b6e82cea7',\
+  \ \n  'impala.events.catalogVersion'='138327', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/student_class_dim/metadata/00004-1d998da8-cbad-4624-a529-3727ead23299.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/student_class_dim/metadata/00003-7f5f2b26-f6a8-41c7-96d5-318fc131966e.metadata.json',\
+  \ \n  'snapshot-count'='4', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778485503',\
+  \ \n  'uuid'='04969a30-8173-4b40-a617-092f5c874655', \n  'write.delete.mode'='merge-on-read',\
+  \ \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read',\
+  \ \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: student_class_dim_id_pk
+  type: BIGINT
+  nullable: true
+  description: Student class dim identifier primary key.
+- name: class_code
+  type: STRING
+  nullable: true
+  description: Class code.
+- name: class_name
+  type: STRING
+  nullable: true
+  description: Class name.
+- name: education_stage
+  type: STRING
+  nullable: true
+  description: Education stage.
+- name: min_age
+  type: INT
+  nullable: true
+  description: Min age.
+- name: max_age
+  type: INT
+  nullable: true
+  description: Max age.
+- name: is_active
+  type: STRING
+  nullable: true
+  description: Is active.
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: Effective start date.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: Effective end date.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- student_class_dim_id_pk
+relationships: []
+business_terms:
+- dimension table
+- reference lookup
+- student analytics
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in student_class_dim
+- join with related school and citizen dimensions

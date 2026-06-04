@@ -1,0 +1,168 @@
+database: curated_datamodels
+table: citizen_document
+description: Curated Hive/Iceberg table for citizen document.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document
+partitioned_by: ''
+tblproperties:
+  current-snapshot-id: '1640361325986248757'
+  current-snapshot-timestamp-ms: '1777556754705'
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document/metadata/00012-4edfff64-4c79-4a51-ad23-c9aef6b2f3b5.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '12'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_document`(\n  `citizen_document_pk`\
+  \ bigint COMMENT 'from deserializer', \n  `citizen_master_fk` bigint COMMENT 'from\
+  \ deserializer', \n  `citizen_document_type_fk` int COMMENT 'from deserializer',\
+  \ \n  `document_name` string COMMENT 'from deserializer', \n  `file_name` string\
+  \ COMMENT 'from deserializer', \n  `issuing_authority` string COMMENT 'from deserializer',\
+  \ \n  `issuance_date` string COMMENT 'from deserializer', \n  `registration_date`\
+  \ string COMMENT 'from deserializer', \n  `place_of_event` string COMMENT 'from\
+  \ deserializer', \n  `status` string COMMENT 'from deserializer', \n  `last_amendment_date`\
+  \ string COMMENT 'from deserializer', \n  `digital_signature_hash` string COMMENT\
+  \ 'from deserializer', \n  `document_storage_path` string COMMENT 'from deserializer',\
+  \ \n  `valid_from` string COMMENT 'from deserializer', \n  `coalesced_uid` string\
+  \ COMMENT 'from deserializer', \n  `uid_flag` string COMMENT 'from deserializer',\
+  \ \n  `valid_to` string COMMENT 'from deserializer', \n  `created_date` timestamp\
+  \ with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT\
+  \ 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT\
+  \ 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW\
+  \ FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"citizen_document_pk\",\"required\":false,\"type\":\"long\"\
+  },{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"long\"\
+  },{\"id\":3,\"name\":\"citizen_document_type_fk\",\"required\":false,\"type\":\"\
+  int\"},{\"id\":4,\"name\":\"document_name\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":5,\"name\":\"file_name\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :6,\"name\":\"issuing_authority\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :7,\"name\":\"issuance_date\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"\
+  name\":\"registration_date\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"\
+  name\":\"place_of_event\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"\
+  name\":\"status\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"\
+  last_amendment_date\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\"\
+  :\"digital_signature_hash\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"\
+  name\":\"document_storage_path\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :14,\"name\":\"valid_from\",\"required\":false,\"type\":\"string\"},{\"id\":15,\"\
+  name\":\"coalesced_uid\",\"required\":false,\"type\":\"string\"},{\"id\":16,\"name\"\
+  :\"uid_flag\",\"required\":false,\"type\":\"string\"},{\"id\":17,\"name\":\"valid_to\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":18,\"name\":\"created_date\",\"\
+  required\":false,\"type\":\"timestamptz\"},{\"id\":19,\"name\":\"created_by\",\"\
+  required\":false,\"type\":\"string\"},{\"id\":20,\"name\":\"updated_date\",\"required\"\
+  :false,\"type\":\"timestamptz\"},{\"id\":21,\"name\":\"updated_by\",\"required\"\
+  :false,\"type\":\"string\"}]}', \n  'current-snapshot-id'='1640361325986248757',\
+  \ \n  'current-snapshot-summary'='{\"spark.app.id\":\"application_1775893506593_2330\"\
+  ,\"added-data-files\":\"1\",\"added-records\":\"5429034\",\"added-files-size\":\"\
+  196189024\",\"changed-partition-count\":\"1\",\"total-records\":\"5429034\",\"total-files-size\"\
+  :\"196189024\",\"total-data-files\":\"1\",\"total-delete-files\":\"0\",\"total-position-deletes\"\
+  :\"0\",\"total-equality-deletes\":\"0\"}', \n  'current-snapshot-timestamp-ms'='1777556754705',\
+  \ \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'impala.events.catalogServiceId'='9776eab397964690:a6788b7b6e82cea7',\
+  \ \n  'impala.events.catalogVersion'='136830', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document/metadata/00012-4edfff64-4c79-4a51-ad23-c9aef6b2f3b5.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document/metadata/00011-2b8d34ae-065d-4a65-b60b-888e23ce27be.metadata.json',\
+  \ \n  'snapshot-count'='12', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1777556755',\
+  \ \n  'uuid'='5dd180cd-f9af-4767-a120-b93e9339fca1', \n  'write.delete.mode'='merge-on-read',\
+  \ \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read',\
+  \ \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: citizen_document_pk
+  type: BIGINT
+  nullable: true
+  description: Citizen document pk.
+- name: citizen_master_fk
+  type: BIGINT
+  nullable: true
+  description: Citizen master fk.
+- name: citizen_document_type_fk
+  type: INT
+  nullable: true
+  description: Citizen document type fk.
+- name: document_name
+  type: STRING
+  nullable: true
+  description: Document name.
+- name: file_name
+  type: STRING
+  nullable: true
+  description: File name.
+- name: issuing_authority
+  type: STRING
+  nullable: true
+  description: Issuing authority.
+- name: issuance_date
+  type: STRING
+  nullable: true
+  description: Issuance date.
+- name: registration_date
+  type: STRING
+  nullable: true
+  description: Registration date.
+- name: place_of_event
+  type: STRING
+  nullable: true
+  description: Place of event.
+- name: status
+  type: STRING
+  nullable: true
+  description: Status.
+- name: last_amendment_date
+  type: STRING
+  nullable: true
+  description: Last amendment date.
+- name: digital_signature_hash
+  type: STRING
+  nullable: true
+  description: Digital signature hash.
+- name: document_storage_path
+  type: STRING
+  nullable: true
+  description: Document storage path.
+- name: valid_from
+  type: STRING
+  nullable: true
+  description: Valid from.
+- name: coalesced_uid
+  type: STRING
+  nullable: true
+  description: Coalesced uid.
+- name: uid_flag
+  type: STRING
+  nullable: true
+  description: Uid flag.
+- name: valid_to
+  type: STRING
+  nullable: true
+  description: Valid to.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- citizen_document_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_document

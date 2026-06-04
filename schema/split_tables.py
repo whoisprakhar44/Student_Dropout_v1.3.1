@@ -14,6 +14,23 @@ import yaml
 from schema.paths import DATABASE_META_YAML, FULL_SCHEMA_YAML, TABLES_DIR
 
 
+def _domain_from_location(table_doc: dict) -> str:
+    location = table_doc.get("location") or ""
+    marker = "/curated_datamodels/"
+    if marker in location:
+        tail = location.split(marker, 1)[1].strip("/")
+        if tail:
+            return tail.split("/", 1)[0].lower()
+
+    table_name = table_doc.get("table", "")
+    if table_name.startswith(("gsws_", "gws_")) or table_name in {
+        "govt_emp_data",
+        "secretariate_employee_details",
+    }:
+        return "gsws"
+    return "misc"
+
+
 def split_from_full(
     src_path: Path | None = None,
     out_dir: Path | None = None,
@@ -62,7 +79,8 @@ def split_from_full(
         if not table_name:
             continue
 
-        out_path = dest / f"{table_name}.yaml"
+        out_path = dest / _domain_from_location(table_doc) / f"{table_name}.yaml"
+        out_path.parent.mkdir(parents=True, exist_ok=True)
         doc = {
             "database": database_name,
             "table": table_name,

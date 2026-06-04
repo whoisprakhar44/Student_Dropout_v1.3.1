@@ -1,0 +1,314 @@
+database: curated_datamodels
+table: citizen_school
+description: Curated table containing citizen school attributes.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school
+partitioned_by: 'citizen_school_id_pk_bucket: bucket[32]'
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school/metadata/00000-133a26f4-6450-4595-b73d-c6b22e47c17b.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_school`(\n  `citizen_school_id_pk`\
+  \ bigint COMMENT 'from deserializer', \n  `school_medium_id_fk` bigint COMMENT 'from\
+  \ deserializer', \n  `school_teacher_id_fk` bigint COMMENT 'from deserializer',\
+  \ \n  `school_category_id_fk` bigint COMMENT 'from deserializer', \n  `school_management_id_fk`\
+  \ bigint COMMENT 'from deserializer', \n  `school_dept_code` string COMMENT 'from\
+  \ deserializer', \n  `school_udise_code` string COMMENT 'from deserializer', \n\
+  \  `school_name` string COMMENT 'from deserializer', \n  `school_address` string\
+  \ COMMENT 'from deserializer', \n  `district_name` string COMMENT 'from deserializer',\
+  \ \n  `district_lgd_code` string COMMENT 'from deserializer', \n  `mandal_name`\
+  \ string COMMENT 'from deserializer', \n  `mandal_lgd_code` string COMMENT 'from\
+  \ deserializer', \n  `village_name` string COMMENT 'from deserializer', \n  `village_lgd_code`\
+  \ string COMMENT 'from deserializer', \n  `urban_rural_flag` string COMMENT 'from\
+  \ deserializer', \n  `latitude` decimal(9,6) COMMENT 'from deserializer', \n  `longitude`\
+  \ decimal(9,6) COMMENT 'from deserializer', \n  `school_pincode` string COMMENT\
+  \ 'from deserializer', \n  `functional_status` string COMMENT 'from deserializer',\
+  \ \n  `academic_year_opened` string COMMENT 'from deserializer', \n  `min_class`\
+  \ int COMMENT 'from deserializer', \n  `max_class` int COMMENT 'from deserializer',\
+  \ \n  `pre_primary_flag` string COMMENT 'from deserializer', \n  `vocational_flag`\
+  \ string COMMENT 'from deserializer', \n  `building_status` string COMMENT 'from\
+  \ deserializer', \n  `electricity_availability_flag` string COMMENT 'from deserializer',\
+  \ \n  `drinking_water_availability_flag` string COMMENT 'from deserializer', \n\
+  \  `toilet_boys_flag` string COMMENT 'from deserializer', \n  `toilet_girls_flag`\
+  \ string COMMENT 'from deserializer', \n  `ict_enabled_flag` string COMMENT 'from\
+  \ deserializer', \n  `playground_flag` string COMMENT 'from deserializer', \n  `head_master_name`\
+  \ string COMMENT 'from deserializer', \n  `head_master_mobile` string COMMENT 'from\
+  \ deserializer', \n  `school_contact_no` string COMMENT 'from deserializer', \n\
+  \  `school_email_id` string COMMENT 'from deserializer', \n  `noc_required_flag`\
+  \ string COMMENT 'from deserializer', \n  `noc_available_flag` string COMMENT 'from\
+  \ deserializer', \n  `fire_safety_flag` string COMMENT 'from deserializer', \n \
+  \ `health_safety_flag` string COMMENT 'from deserializer', \n  `effective_start_date`\
+  \ date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from\
+  \ deserializer', \n  `is_current` string COMMENT 'from deserializer', \n  `created_date`\
+  \ timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string\
+  \ COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone\
+  \ COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\n\
+  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"citizen_school_id_pk\",\"required\":false,\"type\":\"long\"\
+  },{\"id\":2,\"name\":\"school_medium_id_fk\",\"required\":false,\"type\":\"long\"\
+  },{\"id\":3,\"name\":\"school_teacher_id_fk\",\"required\":false,\"type\":\"long\"\
+  },{\"id\":4,\"name\":\"school_category_id_fk\",\"required\":false,\"type\":\"long\"\
+  },{\"id\":5,\"name\":\"school_management_id_fk\",\"required\":false,\"type\":\"\
+  long\"},{\"id\":6,\"name\":\"school_dept_code\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":7,\"name\":\"school_udise_code\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":8,\"name\":\"school_name\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":9,\"name\":\"school_address\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :10,\"name\":\"district_name\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"\
+  name\":\"district_lgd_code\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"\
+  name\":\"mandal_name\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\"\
+  :\"mandal_lgd_code\",\"required\":false,\"type\":\"string\"},{\"id\":14,\"name\"\
+  :\"village_name\",\"required\":false,\"type\":\"string\"},{\"id\":15,\"name\":\"\
+  village_lgd_code\",\"required\":false,\"type\":\"string\"},{\"id\":16,\"name\":\"\
+  urban_rural_flag\",\"required\":false,\"type\":\"string\"},{\"id\":17,\"name\":\"\
+  latitude\",\"required\":false,\"type\":\"decimal(9, 6)\"},{\"id\":18,\"name\":\"\
+  longitude\",\"required\":false,\"type\":\"decimal(9, 6)\"},{\"id\":19,\"name\":\"\
+  school_pincode\",\"required\":false,\"type\":\"string\"},{\"id\":20,\"name\":\"\
+  functional_status\",\"required\":false,\"type\":\"string\"},{\"id\":21,\"name\"\
+  :\"academic_year_opened\",\"required\":false,\"type\":\"string\"},{\"id\":22,\"\
+  name\":\"min_class\",\"required\":false,\"type\":\"int\"},{\"id\":23,\"name\":\"\
+  max_class\",\"required\":false,\"type\":\"int\"},{\"id\":24,\"name\":\"pre_primary_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":25,\"name\":\"vocational_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":26,\"name\":\"building_status\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":27,\"name\":\"electricity_availability_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":28,\"name\":\"drinking_water_availability_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":29,\"name\":\"toilet_boys_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":30,\"name\":\"toilet_girls_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":31,\"name\":\"ict_enabled_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":32,\"name\":\"playground_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":33,\"name\":\"head_master_name\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":34,\"name\":\"head_master_mobile\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":35,\"name\":\"school_contact_no\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":36,\"name\":\"school_email_id\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":37,\"name\":\"noc_required_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":38,\"name\":\"noc_available_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":39,\"name\":\"fire_safety_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":40,\"name\":\"health_safety_flag\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":41,\"name\":\"effective_start_date\"\
+  ,\"required\":false,\"type\":\"date\"},{\"id\":42,\"name\":\"effective_end_date\"\
+  ,\"required\":false,\"type\":\"date\"},{\"id\":43,\"name\":\"is_current\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":44,\"name\":\"created_date\",\"required\":false,\"\
+  type\":\"timestamptz\"},{\"id\":45,\"name\":\"created_by\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":46,\"name\":\"updated_date\",\"required\":false,\"type\"\
+  :\"timestamptz\"},{\"id\":47,\"name\":\"updated_by\",\"required\":false,\"type\"\
+  :\"string\"}]}', \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\"\
+  :\"citizen_school_id_pk_bucket\",\"transform\":\"bucket[32]\",\"source-id\":1,\"\
+  field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n\
+  \  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school/metadata/00000-133a26f4-6450-4595-b73d-c6b22e47c17b.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
+  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778484932', \n  'uuid'='78ebf7d3-de50-4287-9c98-3889c92566e0',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
+  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: citizen_school_id_pk
+  type: BIGINT
+  nullable: true
+  description: Citizen school identifier primary key.
+- name: school_medium_id_fk
+  type: BIGINT
+  nullable: true
+  description: School medium identifier foreign key.
+- name: school_teacher_id_fk
+  type: BIGINT
+  nullable: true
+  description: School teacher identifier foreign key.
+- name: school_category_id_fk
+  type: BIGINT
+  nullable: true
+  description: School category identifier foreign key.
+- name: school_management_id_fk
+  type: BIGINT
+  nullable: true
+  description: School management identifier foreign key.
+- name: school_dept_code
+  type: STRING
+  nullable: true
+  description: School dept code.
+- name: school_udise_code
+  type: STRING
+  nullable: true
+  description: School udise code.
+- name: school_name
+  type: STRING
+  nullable: true
+  description: School name.
+- name: school_address
+  type: STRING
+  nullable: true
+  description: School address.
+- name: district_name
+  type: STRING
+  nullable: true
+  description: District name.
+- name: district_lgd_code
+  type: STRING
+  nullable: true
+  description: District lgd code.
+- name: mandal_name
+  type: STRING
+  nullable: true
+  description: Mandal name.
+- name: mandal_lgd_code
+  type: STRING
+  nullable: true
+  description: Mandal lgd code.
+- name: village_name
+  type: STRING
+  nullable: true
+  description: Village name.
+- name: village_lgd_code
+  type: STRING
+  nullable: true
+  description: Village lgd code.
+- name: urban_rural_flag
+  type: STRING
+  nullable: true
+  description: Urban rural flag.
+- name: latitude
+  type: DECIMAL(9,6)
+  nullable: true
+  description: Latitude.
+- name: longitude
+  type: DECIMAL(9,6)
+  nullable: true
+  description: Longitude.
+- name: school_pincode
+  type: STRING
+  nullable: true
+  description: School pincode.
+- name: functional_status
+  type: STRING
+  nullable: true
+  description: Functional status.
+- name: academic_year_opened
+  type: STRING
+  nullable: true
+  description: Academic year opened.
+- name: min_class
+  type: INT
+  nullable: true
+  description: Min class.
+- name: max_class
+  type: INT
+  nullable: true
+  description: Max class.
+- name: pre_primary_flag
+  type: STRING
+  nullable: true
+  description: Pre primary flag.
+- name: vocational_flag
+  type: STRING
+  nullable: true
+  description: Vocational flag.
+- name: building_status
+  type: STRING
+  nullable: true
+  description: Building status.
+- name: electricity_availability_flag
+  type: STRING
+  nullable: true
+  description: Electricity availability flag.
+- name: drinking_water_availability_flag
+  type: STRING
+  nullable: true
+  description: Drinking water availability flag.
+- name: toilet_boys_flag
+  type: STRING
+  nullable: true
+  description: Toilet boys flag.
+- name: toilet_girls_flag
+  type: STRING
+  nullable: true
+  description: Toilet girls flag.
+- name: ict_enabled_flag
+  type: STRING
+  nullable: true
+  description: Ict enabled flag.
+- name: playground_flag
+  type: STRING
+  nullable: true
+  description: Playground flag.
+- name: head_master_name
+  type: STRING
+  nullable: true
+  description: Head master name.
+- name: head_master_mobile
+  type: STRING
+  nullable: true
+  description: Head master mobile.
+- name: school_contact_no
+  type: STRING
+  nullable: true
+  description: School contact no.
+- name: school_email_id
+  type: STRING
+  nullable: true
+  description: School email identifier.
+- name: noc_required_flag
+  type: STRING
+  nullable: true
+  description: Noc required flag.
+- name: noc_available_flag
+  type: STRING
+  nullable: true
+  description: Noc available flag.
+- name: fire_safety_flag
+  type: STRING
+  nullable: true
+  description: Fire safety flag.
+- name: health_safety_flag
+  type: STRING
+  nullable: true
+  description: Health safety flag.
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: Effective start date.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: Effective end date.
+- name: is_current
+  type: STRING
+  nullable: true
+  description: Is current.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- citizen_school_id_pk
+relationships:
+- citizen_school.school_medium_id_fk is a foreign-key-style reference to school_medium_id.
+- citizen_school.school_teacher_id_fk is a foreign-key-style reference to school_teacher_id.
+- citizen_school.school_category_id_fk is a foreign-key-style reference to school_category_id.
+- citizen_school.school_management_id_fk is a foreign-key-style reference to school_management_id.
+business_terms:
+- school analytics
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_school
+- join with related school and citizen dimensions

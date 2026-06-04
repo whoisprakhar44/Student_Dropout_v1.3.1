@@ -1,0 +1,106 @@
+database: curated_datamodels
+table: school_infra_category_dim
+description: Dimension/master table for school infra category reference attributes.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_infra_category_dim
+partitioned_by: 'school_infra_category_dim_id_pk_bucket: bucket[32]'
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_infra_category_dim/metadata/00000-2afd8d4d-8110-42f2-b378-d3e0f93b0c7e.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_infra_category_dim`(\n\
+  \  `school_infra_category_dim_id_pk` bigint COMMENT 'from deserializer', \n  `school_infra_category_code`\
+  \ string COMMENT 'from deserializer', \n  `school_infra_category_name` string COMMENT\
+  \ 'from deserializer', \n  `is_active` string COMMENT 'from deserializer', \n  `effective_start_date`\
+  \ date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from\
+  \ deserializer', \n  `is_current` string COMMENT 'from deserializer', \n  `created_date`\
+  \ timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string\
+  \ COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone\
+  \ COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\n\
+  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_infra_category_dim'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"school_infra_category_dim_id_pk\",\"required\":false,\"type\"\
+  :\"long\"},{\"id\":2,\"name\":\"school_infra_category_code\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":3,\"name\":\"school_infra_category_name\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":4,\"name\":\"is_active\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":5,\"name\":\"effective_start_date\",\"required\":false,\"\
+  type\":\"date\"},{\"id\":6,\"name\":\"effective_end_date\",\"required\":false,\"\
+  type\":\"date\"},{\"id\":7,\"name\":\"is_current\",\"required\":false,\"type\":\"\
+  string\"},{\"id\":8,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"\
+  },{\"id\":9,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":10,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"\
+  id\":11,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n \
+  \ 'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"school_infra_category_dim_id_pk_bucket\"\
+  ,\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true',\
+  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_infra_category_dim/metadata/00000-2afd8d4d-8110-42f2-b378-d3e0f93b0c7e.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
+  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1777897241', \n  'uuid'='43111612-811f-46f5-9e11-afe40006a02f',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
+  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: school_infra_category_dim_id_pk
+  type: BIGINT
+  nullable: true
+  description: School infra category dim identifier primary key.
+- name: school_infra_category_code
+  type: STRING
+  nullable: true
+  description: School infra category code.
+- name: school_infra_category_name
+  type: STRING
+  nullable: true
+  description: School infra category name.
+- name: is_active
+  type: STRING
+  nullable: true
+  description: Is active.
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: Effective start date.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: Effective end date.
+- name: is_current
+  type: STRING
+  nullable: true
+  description: Is current.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- school_infra_category_dim_id_pk
+relationships: []
+business_terms:
+- dimension table
+- reference lookup
+- school analytics
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in school_infra_category_dim
+- join with related school and citizen dimensions

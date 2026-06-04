@@ -1,0 +1,85 @@
+database: curated_datamodels
+table: source_department_code
+description: Curated Hive/Iceberg table for source department code.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/source_department_code
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/source_department_code/metadata/00000-7a32c655-fa92-4d1b-9b99-7486994a3b0b.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`source_department_code`(\n \
+  \ `source_department_code_pk` int COMMENT 'from deserializer', \n  `source_department_code`\
+  \ string COMMENT 'from deserializer', \n  `department_name` string COMMENT 'from\
+  \ deserializer', \n  `source_department` string COMMENT 'from deserializer', \n\
+  \  `created_at` string COMMENT 'from deserializer', \n  `created_by` string COMMENT\
+  \ 'from deserializer', \n  `updated_at` string COMMENT 'from deserializer', \n \
+  \ `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/source_department_code'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"source_department_code_pk\",\"required\":false,\"type\":\"\
+  int\"},{\"id\":2,\"name\":\"source_department_code\",\"required\":false,\"type\"\
+  :\"string\"},{\"id\":3,\"name\":\"department_name\",\"required\":false,\"type\"\
+  :\"string\"},{\"id\":4,\"name\":\"source_department\",\"required\":false,\"type\"\
+  :\"string\"},{\"id\":5,\"name\":\"created_at\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":6,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":7,\"name\":\"updated_at\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"\
+  name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true',\
+  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/source_department_code/metadata/00000-7a32c655-fa92-4d1b-9b99-7486994a3b0b.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
+  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323393', \n  'uuid'='c2333b4c-d7ce-47fc-905b-a796c7c00306',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
+  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: source_department_code_pk
+  type: INT
+  nullable: true
+  description: Source department code pk.
+- name: source_department_code
+  type: STRING
+  nullable: true
+  description: Source department code.
+- name: department_name
+  type: STRING
+  nullable: true
+  description: Department name.
+- name: source_department
+  type: STRING
+  nullable: true
+  description: Source department.
+- name: created_at
+  type: STRING
+  nullable: true
+  description: Created at.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_at
+  type: STRING
+  nullable: true
+  description: Updated at.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- source_department_code_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in source_department_code

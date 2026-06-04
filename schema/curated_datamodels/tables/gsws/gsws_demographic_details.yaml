@@ -1,0 +1,171 @@
+database: curated_datamodels
+table: gsws_demographic_details
+description: 'GSWS table: Citizen dempgraphic dtls. ekyc table and data is in telugu
+  also utf-8 eng-tel'
+table_format: ICEBERG
+source_schema: GSWSONLINE
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/gsws/gsws_demographic_details/
+source_file: C:\Users\2797779\Downloads\GSWS_DDLs_File.txt
+raw_ddl: "create table GSWSONLINE.GSWS_DEMOGRAPHIC_DETAILS\n(\n  STATUS          \
+  \    NUMBER,\n  REASON              VARCHAR2(200),\n  UID_NUM             NUMBER,\n\
+  \  DOB_DT              DATE,\n  GENDER              VARCHAR2(100),\n  CITIZEN_NAME\
+  \        VARCHAR2(400),\n  CARE_OF             VARCHAR2(400),\n  COUNTRY       \
+  \      VARCHAR2(400),\n  DISTRICT            VARCHAR2(400),\n  HOUSE_NO        \
+  \    VARCHAR2(400),\n  LANDMARK            VARCHAR2(400),\n  LOCATIONN         \
+  \  VARCHAR2(400),\n  PINCODE             VARCHAR2(400),\n  STATE               VARCHAR2(400),\n\
+  \  STREET              VARCHAR2(400),\n  VTC                 VARCHAR2(400),\n  BASE_64\
+  \             VARCHAR2(400),\n  TRANSACTIONID       VARCHAR2(400),\n  INSERTED_DATE\
+  \       TIMESTAMP(6) default sysdate,\n  CITIZEN_NAME_TELUGU NVARCHAR2(400),\n \
+  \ CARE_OF_TELUGU      NVARCHAR2(400),\n  DISTRICT_TELUGU     NVARCHAR2(400),\n \
+  \ LANDMARK_TELUGU     NVARCHAR2(400),\n  LOCATIONN_TELUGU    NVARCHAR2(400),\n \
+  \ STATE_TELUGU        NVARCHAR2(400),\n  STREET_TELUGU       NVARCHAR2(400),\n \
+  \ VTC_TELUGU          NVARCHAR2(400),\n  EKYC_IMG_PATH       VARCHAR2(500),\n  CONSENT_TAKEN\
+  \       VARCHAR2(10),\n  MOBILE_NUM          VARCHAR2(20),\n  AUTH_TYPE        \
+  \   VARCHAR2(200),\n  FLAG                VARCHAR2(100)\n  );"
+columns:
+- name: status
+  type: BIGINT
+  nullable: true
+  description: Status.
+- name: reason
+  type: VARCHAR
+  nullable: true
+  description: Reason.
+- name: uid_num
+  type: BIGINT
+  nullable: true
+  description: Uid number.
+- name: dob_dt
+  type: DATE
+  nullable: true
+  description: Dob date.
+- name: gender
+  type: VARCHAR
+  nullable: true
+  description: Gender.
+- name: citizen_name
+  type: VARCHAR
+  nullable: true
+  description: Citizen name.
+- name: care_of
+  type: VARCHAR
+  nullable: true
+  description: Care of.
+- name: country
+  type: VARCHAR
+  nullable: true
+  description: Country.
+- name: district
+  type: VARCHAR
+  nullable: true
+  description: District.
+- name: house_no
+  type: VARCHAR
+  nullable: true
+  description: House no.
+- name: landmark
+  type: VARCHAR
+  nullable: true
+  description: Landmark.
+- name: locationn
+  type: VARCHAR
+  nullable: true
+  description: Locationn.
+- name: pincode
+  type: VARCHAR
+  nullable: true
+  description: Pincode.
+- name: state
+  type: VARCHAR
+  nullable: true
+  description: State.
+- name: street
+  type: VARCHAR
+  nullable: true
+  description: Street.
+- name: vtc
+  type: VARCHAR
+  nullable: true
+  description: Vtc.
+- name: base_64
+  type: VARCHAR
+  nullable: true
+  description: Base 64.
+- name: transactionid
+  type: VARCHAR
+  nullable: true
+  description: Transactionid.
+- name: inserted_date
+  type: TIMESTAMP
+  nullable: true
+  description: Inserted date.
+- name: citizen_name_telugu
+  type: NVARCHAR
+  nullable: true
+  description: Citizen name telugu.
+- name: care_of_telugu
+  type: NVARCHAR
+  nullable: true
+  description: Care of telugu.
+- name: district_telugu
+  type: NVARCHAR
+  nullable: true
+  description: District telugu.
+- name: landmark_telugu
+  type: NVARCHAR
+  nullable: true
+  description: Landmark telugu.
+- name: locationn_telugu
+  type: NVARCHAR
+  nullable: true
+  description: Locationn telugu.
+- name: state_telugu
+  type: NVARCHAR
+  nullable: true
+  description: State telugu.
+- name: street_telugu
+  type: NVARCHAR
+  nullable: true
+  description: Street telugu.
+- name: vtc_telugu
+  type: NVARCHAR
+  nullable: true
+  description: Vtc telugu.
+- name: ekyc_img_path
+  type: VARCHAR
+  nullable: true
+  description: Ekyc img path.
+- name: consent_taken
+  type: VARCHAR
+  nullable: true
+  description: Consent taken.
+- name: mobile_num
+  type: VARCHAR
+  nullable: true
+  description: Mobile number.
+- name: auth_type
+  type: VARCHAR
+  nullable: true
+  description: Auth type.
+- name: flag
+  type: VARCHAR
+  nullable: true
+  description: Flag.
+primary_key: []
+relationships: []
+business_terms:
+- GSWS
+- citizen services
+- Incremental
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in gsws_demographic_details
+- 'refresh frequency: Realtime'
+tblproperties:
+  engine.hive.enabled: 'true'
+  format-version: '2'
+  write.format.default: parquet
+  parquet.compression: SNAPPY
+  table_type: ICEBERG

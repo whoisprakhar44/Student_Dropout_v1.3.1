@@ -1,0 +1,124 @@
+database: curated_datamodels
+table: citizen_education
+description: Curated Hive/Iceberg table for citizen education.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_education
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_education/metadata/00000-9759873a-af8e-4cbc-94aa-99ec399b2573.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_education`(\n  `citizen_education_id_pk`\
+  \ int COMMENT 'from deserializer', \n  `citizen_master_fk` int COMMENT 'from deserializer',\
+  \ \n  `qualification_name` string COMMENT 'from deserializer', \n  `qualification_level`\
+  \ string COMMENT 'from deserializer', \n  `course_name` string COMMENT 'from deserializer',\
+  \ \n  `institution_code` string COMMENT 'from deserializer', \n  `scholarship_scheme`\
+  \ string COMMENT 'from deserializer', \n  `department_id` string COMMENT 'from deserializer',\
+  \ \n  `current_qualification_flag` string COMMENT 'from deserializer', \n  `mode_of_study`\
+  \ string COMMENT 'from deserializer', \n  `medium_of_instruction` string COMMENT\
+  \ 'from deserializer', \n  `created_at` string COMMENT 'from deserializer', \n \
+  \ `created_by` string COMMENT 'from deserializer', \n  `updated_at` string COMMENT\
+  \ 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW\
+  \ FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_education'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"citizen_education_id_pk\",\"required\":false,\"type\":\"\
+  int\"},{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"int\"\
+  },{\"id\":3,\"name\":\"qualification_name\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":4,\"name\":\"qualification_level\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":5,\"name\":\"course_name\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":6,\"name\":\"institution_code\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":7,\"name\":\"scholarship_scheme\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":8,\"name\":\"department_id\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :9,\"name\":\"current_qualification_flag\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":10,\"name\":\"mode_of_study\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":11,\"name\":\"medium_of_instruction\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":12,\"name\":\"created_at\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":13,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :14,\"name\":\"updated_at\",\"required\":false,\"type\":\"string\"},{\"id\":15,\"\
+  name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true',\
+  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_education/metadata/00000-9759873a-af8e-4cbc-94aa-99ec399b2573.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
+  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323393', \n  'uuid'='aef68fc7-04c0-474e-9f55-f75d5e986966',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
+  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: citizen_education_id_pk
+  type: INT
+  nullable: true
+  description: Citizen education identifier pk.
+- name: citizen_master_fk
+  type: INT
+  nullable: true
+  description: Citizen master fk.
+- name: qualification_name
+  type: STRING
+  nullable: true
+  description: Qualification name.
+- name: qualification_level
+  type: STRING
+  nullable: true
+  description: Qualification level.
+- name: course_name
+  type: STRING
+  nullable: true
+  description: Course name.
+- name: institution_code
+  type: STRING
+  nullable: true
+  description: Institution code.
+- name: scholarship_scheme
+  type: STRING
+  nullable: true
+  description: Scholarship scheme.
+- name: department_id
+  type: STRING
+  nullable: true
+  description: Department id.
+- name: current_qualification_flag
+  type: STRING
+  nullable: true
+  description: Current qualification flag.
+- name: mode_of_study
+  type: STRING
+  nullable: true
+  description: Mode of study.
+- name: medium_of_instruction
+  type: STRING
+  nullable: true
+  description: Medium of instruction.
+- name: created_at
+  type: STRING
+  nullable: true
+  description: Created at.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_at
+  type: STRING
+  nullable: true
+  description: Updated at.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- citizen_education_id_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_education

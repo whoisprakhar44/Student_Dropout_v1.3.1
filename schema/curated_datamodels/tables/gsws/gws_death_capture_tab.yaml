@@ -1,0 +1,91 @@
+database: curated_datamodels
+table: gws_death_capture_tab
+description: 'GSWS table: This is about death info which are given by pachayiti secretary.its
+  a manual intervention.they are capturng the person death.they need to provide the
+  death certficate. Imp: We are capturing the citizen death but we are not marking
+  the citizen as the death. We are not removing any person bcz if any assets are transferred
+  or not we are just doing soft delete.Soft delete means in this table only we are
+  marking.'
+table_format: ICEBERG
+source_schema: GSWSONLINE
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/gsws/gws_death_capture_tab/
+source_file: C:\Users\2797779\Downloads\GSWS_DDLs_File.txt
+raw_ddl: "create table GSWSONLINE.GWS_DEATH_CAPTURE_TAB\n(\n  HOUSEHOLD_CODE     \
+  \   VARCHAR2(100),\n  UID_NUM               VARCHAR2(12),\n  DEATH_DATE        \
+  \    DATE,\n  CAUSE_OF_DEATH        VARCHAR2(100),\n  PLACE_OF_DEATH        VARCHAR2(100),\n\
+  \  DEATH_CERTIFICATE_LOC VARCHAR2(500),\n  STATUS                VARCHAR2(20),\n\
+  \  INSERTED_BY           VARCHAR2(100),\n  INSERTED_DATE         TIMESTAMP(6),\n\
+  \  UPDATED_BY            VARCHAR2(100),\n  UPDATED_DATE          TIMESTAMP(6),\n\
+  \  REMARKS               VARCHAR2(100),\n  CLUSTER_ID            VARCHAR2(20)\n\
+  \  );"
+columns:
+- name: household_code
+  type: VARCHAR
+  nullable: true
+  description: Household code.
+- name: uid_num
+  type: VARCHAR
+  nullable: true
+  description: Uid number.
+- name: death_date
+  type: DATE
+  nullable: true
+  description: Death date.
+- name: cause_of_death
+  type: VARCHAR
+  nullable: true
+  description: Cause of death.
+- name: place_of_death
+  type: VARCHAR
+  nullable: true
+  description: Place of death.
+- name: death_certificate_loc
+  type: VARCHAR
+  nullable: true
+  description: Death certificate loc.
+- name: status
+  type: VARCHAR
+  nullable: true
+  description: Status.
+- name: inserted_by
+  type: VARCHAR
+  nullable: true
+  description: Inserted by.
+- name: inserted_date
+  type: TIMESTAMP
+  nullable: true
+  description: Inserted date.
+- name: updated_by
+  type: VARCHAR
+  nullable: true
+  description: Updated by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: remarks
+  type: VARCHAR
+  nullable: true
+  description: Remarks.
+- name: cluster_id
+  type: VARCHAR
+  nullable: true
+  description: Cluster id.
+primary_key: []
+relationships: []
+business_terms:
+- GSWS
+- citizen services
+- Incremental
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in gws_death_capture_tab
+- 'refresh frequency: Daily'
+tblproperties:
+  engine.hive.enabled: 'true'
+  format-version: '2'
+  write.format.default: parquet
+  parquet.compression: SNAPPY
+  table_type: ICEBERG

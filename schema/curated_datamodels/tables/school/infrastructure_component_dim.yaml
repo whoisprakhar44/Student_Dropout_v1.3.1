@@ -1,0 +1,124 @@
+database: curated_datamodels
+table: infrastructure_component_dim
+description: Dimension/master table for infrastructure component reference attributes.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/infrastructure_component_dim
+partitioned_by: 'infrastructure_component_dim_id_pk_bucket: bucket[32]'
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/infrastructure_component_dim/metadata/00000-625b6d40-00e6-4ac2-8ed7-80da6c1f807e.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`infrastructure_component_dim`(\n\
+  \  `infrastructure_component_dim_id_pk` bigint COMMENT 'from deserializer', \n \
+  \ `infra_category_dim_id_fk` bigint COMMENT 'from deserializer', \n  `infra_component_code`\
+  \ string COMMENT 'from deserializer', \n  `infra_component_name` string COMMENT\
+  \ 'from deserializer', \n  `unit_type` string COMMENT 'from deserializer', \n  `is_functional_track`\
+  \ string COMMENT 'from deserializer', \n  `is_active` string COMMENT 'from deserializer',\
+  \ \n  `effective_start_date` date COMMENT 'from deserializer', \n  `effective_end_date`\
+  \ date COMMENT 'from deserializer', \n  `is_current` string COMMENT 'from deserializer',\
+  \ \n  `created_date` timestamp with local time zone COMMENT 'from deserializer',\
+  \ \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp\
+  \ with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT\
+  \ 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/infrastructure_component_dim'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"infrastructure_component_dim_id_pk\",\"required\":false,\"\
+  type\":\"long\"},{\"id\":2,\"name\":\"infra_category_dim_id_fk\",\"required\":false,\"\
+  type\":\"long\"},{\"id\":3,\"name\":\"infra_component_code\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":4,\"name\":\"infra_component_name\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":5,\"name\":\"unit_type\",\"required\":false,\"type\"\
+  :\"string\"},{\"id\":6,\"name\":\"is_functional_track\",\"required\":false,\"type\"\
+  :\"string\"},{\"id\":7,\"name\":\"is_active\",\"required\":false,\"type\":\"string\"\
+  },{\"id\":8,\"name\":\"effective_start_date\",\"required\":false,\"type\":\"date\"\
+  },{\"id\":9,\"name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"\
+  },{\"id\":10,\"name\":\"is_current\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":11,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"\
+  id\":12,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :13,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\"\
+  :14,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'default-partition-spec'='{\"\
+  spec-id\":0,\"fields\":[{\"name\":\"infrastructure_component_dim_id_pk_bucket\"\
+  ,\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true',\
+  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/infrastructure_component_dim/metadata/00000-625b6d40-00e6-4ac2-8ed7-80da6c1f807e.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
+  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1777896598', \n  'uuid'='21490ed1-e098-4649-a2a8-79cdb0101a6c',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
+  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: infrastructure_component_dim_id_pk
+  type: BIGINT
+  nullable: true
+  description: Infrastructure component dim identifier primary key.
+- name: infra_category_dim_id_fk
+  type: BIGINT
+  nullable: true
+  description: Infra category dim identifier foreign key.
+- name: infra_component_code
+  type: STRING
+  nullable: true
+  description: Infra component code.
+- name: infra_component_name
+  type: STRING
+  nullable: true
+  description: Infra component name.
+- name: unit_type
+  type: STRING
+  nullable: true
+  description: Unit type.
+- name: is_functional_track
+  type: STRING
+  nullable: true
+  description: Is functional track.
+- name: is_active
+  type: STRING
+  nullable: true
+  description: Is active.
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: Effective start date.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: Effective end date.
+- name: is_current
+  type: STRING
+  nullable: true
+  description: Is current.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Created date.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: Created by.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Updated date.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: Updated by.
+primary_key:
+- infrastructure_component_dim_id_pk
+relationships:
+- infrastructure_component_dim.infra_category_dim_id_fk is a foreign-key-style reference
+  to infra_category_dim_id.
+business_terms:
+- dimension table
+- reference lookup
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in infrastructure_component_dim

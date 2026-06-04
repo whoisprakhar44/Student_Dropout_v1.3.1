@@ -1,0 +1,50 @@
+database: curated_datamodels
+table: gsws_caste_religion_master
+description: 'GSWS table: Caste Religion Master'
+table_format: ICEBERG
+source_schema: GSWSONLINE
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/gsws/gsws_caste_religion_master/
+source_file: C:\Users\2797779\Downloads\GSWS_DDLs_File.txt
+raw_ddl: "create table GSWSONLINE.GSWS_CASTE_RELIGION_MASTER\n(\n  ID          NUMBER(10)\
+  \ not null,\n  NAME        VARCHAR2(600),\n  REFID       VARCHAR2(60),\n  MASTERTYPE\
+  \  VARCHAR2(60),\n  CORPORATION VARCHAR2(200)\n);"
+columns:
+- name: id
+  type: BIGINT
+  nullable: false
+  description: Id.
+- name: name
+  type: VARCHAR
+  nullable: true
+  description: Name.
+- name: refid
+  type: VARCHAR
+  nullable: true
+  description: Refid.
+- name: mastertype
+  type: VARCHAR
+  nullable: true
+  description: Mastertype.
+- name: corporation
+  type: VARCHAR
+  nullable: true
+  description: Corporation.
+primary_key: []
+relationships: []
+business_terms:
+- GSWS
+- citizen services
+- master data
+- Non-Incremental
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in gsws_caste_religion_master
+- 'refresh frequency: Master Table'
+tblproperties:
+  engine.hive.enabled: 'true'
+  format-version: '2'
+  write.format.default: parquet
+  parquet.compression: SNAPPY
+  table_type: ICEBERG

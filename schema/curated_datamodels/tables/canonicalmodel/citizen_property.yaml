@@ -1,0 +1,90 @@
+database: curated_datamodels
+table: citizen_property
+description: Curated Hive/Iceberg table for citizen property.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_property
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_property/metadata/00000-0adc51a8-9134-475b-b3db-cac489b240bc.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_property`(\n  `citizen_property_id_pk`\
+  \ int COMMENT 'from deserializer', \n  `citizen_master_fk` int COMMENT 'from deserializer',\
+  \ \n  `citizen_master_id` string COMMENT 'from deserializer', \n  `property_type`\
+  \ string COMMENT 'from deserializer', \n  `owner_type` string COMMENT 'from deserializer',\
+  \ \n  `location` string COMMENT 'from deserializer', \n  `registration_no` string\
+  \ COMMENT 'from deserializer', \n  `registration_date` string COMMENT 'from deserializer',\
+  \ \n  `market_value` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_property'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
+  :[{\"id\":1,\"name\":\"citizen_property_id_pk\",\"required\":false,\"type\":\"int\"\
+  },{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"int\"},{\"\
+  id\":3,\"name\":\"citizen_master_id\",\"required\":false,\"type\":\"string\"},{\"\
+  id\":4,\"name\":\"property_type\",\"required\":false,\"type\":\"string\"},{\"id\"\
+  :5,\"name\":\"owner_type\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"\
+  name\":\"location\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"\
+  registration_no\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"\
+  registration_date\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"\
+  market_value\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true',\
+  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_property/metadata/00000-0adc51a8-9134-475b-b3db-cac489b240bc.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
+  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323393', \n  'uuid'='2adbc10a-96cd-450c-90b4-4d4088e45339',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
+  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+columns:
+- name: citizen_property_id_pk
+  type: INT
+  nullable: true
+  description: Citizen property identifier pk.
+- name: citizen_master_fk
+  type: INT
+  nullable: true
+  description: Citizen master fk.
+- name: citizen_master_id
+  type: STRING
+  nullable: true
+  description: Citizen master id.
+- name: property_type
+  type: STRING
+  nullable: true
+  description: Property type.
+- name: owner_type
+  type: STRING
+  nullable: true
+  description: Owner type.
+- name: location
+  type: STRING
+  nullable: true
+  description: Location.
+- name: registration_no
+  type: STRING
+  nullable: true
+  description: Registration no.
+- name: registration_date
+  type: STRING
+  nullable: true
+  description: Registration date.
+- name: market_value
+  type: STRING
+  nullable: true
+  description: Market value.
+primary_key:
+- citizen_property_id_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_property
