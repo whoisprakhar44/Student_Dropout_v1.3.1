@@ -1,100 +1,147 @@
-﻿# Curated School Datamodel API
+# Curated School Datamodel — NL2SQL Agent
 
-FastAPI backend for querying the `curated_datamodels` school data model with MCP tools. This service is API-only; the frontend should be hosted separately and call this server over HTTP.
+FastAPI + LangGraph backend for querying the `curated_datamodels` school schema via natural language.
+Includes a **modular vector-DB injection pipeline** (`pipeline.py`) that populates Milvus with
+both table schemas and few-shot NL→SQL exemplars.
+
+---
 
 ## Components
 
 | Component | Technology |
-|-----------|------------|
-| API server | FastAPI |
-| Sample data | SQLite `database/schema.db` generated from curated YAML |
-| Natural-language queries | LangGraph agent via `POST /ask` |
-| Schema retrieval | MCP `retrive_schema_rag` + Milvus Lite |
-| SQL execution | MCP `execute_sql` against SQLite or Hive |
+|---|---|
+| API server | FastAPI (`app.py`) |
+| Agent | LangGraph (`my_agent/`) |
+| Chat + embedding model | Ollama (`nomic-embed-text` + `qwen3.5`) |
+| Schema retrieval | MCP `retrive_schema_rag` → Milvus Lite |
+| SQL execution | MCP `execute_sql` → SQLite or Hive |
+| **Vector injection** | **`pipeline.py`** — schema + few-shot |
 
-## Supported Endpoints
+---
 
-Only these application endpoints are supported:
+## Milvus Collection Layout
 
-- `GET /health`
-- `POST /ask`
+One collection (`schema_chunks`) with **two named partitions**:
 
-`POST /ask` returns only the generated SQL and executed rows:
+| Partition | Contents | `embedding_text` | `raw_ddl` |
+|---|---|---|---|
+| `schema_store` | One doc per table YAML | Schema prose | DDL string |
+| `few_shot_store` | NL→SQL exemplars | NL question | Gold SQL |
 
-```json
-{
-  "sql": "SELECT ...",
-  "result": []
-}
-```
+---
 
 ## Setup
 
 ```bash
+# 1. Create and activate virtualenv
 uv venv
 source .venv/bin/activate
 uv pip install -r requirements.txt
+
+# 2. Build SQLite sample database
 python create_schema.py
-python MCP/build_milvus_index.py
+
+# 3. Inject table schemas into Milvus  (schema_store partition)
+python pipeline.py --config config.yaml
+
+# 4. Inject few-shot NL→SQL pairs     (few_shot_store partition)
+python pipeline.py --config config.yaml --fewshots school_dropout_fewshots_200.jsonl
+
+# 5. Start the server
 python -m uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
-Ollama must be running on the server for schema retrieval and SQL generation. Configure models and Hive/SQLite mode in `.env`.
+---
 
-## Testing From Bruno Or Another Server
+## Deploying to Server
 
-Health:
+On a fresh server, after installing dependencies and pulling Ollama models, run these **once** to build the vector index before starting the API:
 
-```http
-GET http://<server-host>:8000/health
+```bash
+# First time only — inject schemas + few-shots into Milvus
+python pipeline.py --config config.yaml
+python pipeline.py --config config.yaml --fewshots school_dropout_fewshots_200.jsonl
+
+# Then start the server
+python -m uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
-Ask:
+> Re-run the pipeline commands any time you add new YAML schemas or few-shot examples.
 
-```http
-POST http://<server-host>:8000/ask
-Content-Type: application/json
+---
+
+> **Prerequisite**: Ollama must be running and `nomic-embed-text` pulled before steps 3–4:
+> ```bash
+> ollama pull nomic-embed-text
+> ```
+> Configure chat model and Hive/SQLite mode in `.env`.
+
+---
+
+## Pipeline Config (`config.yaml`)
+
+```yaml
+yaml_dir: ./schema/curated_datamodels/tables   # recursive YAML scan
+
+embedding:
+  provider: ollama          # openai | sentence_transformers | ollama
+  model: nomic-embed-text   # dim=768; change dim in milvus block if you switch models
+  ollama_url: http://localhost:11434/api/embeddings
+
+vector_db:
+  provider: milvus
+  milvus:
+    uri: ./milvus_schemas.db   # Milvus Lite (.db file) — swap to http://host:19530 for server
+    collection: schema_chunks
+    dim: 768
+    metric_type: COSINE
 ```
 
-Count example:
+Override `yaml_dir` at run time without editing the file:
+```bash
+python pipeline.py --config config.yaml --yaml_dir ./path/to/other/yamls
+```
 
+---
+
+## API Endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/health` | Liveness check |
+| `POST` | `/ask` | Natural language → SQL + result rows |
+
+```bash
+curl -X POST http://localhost:8000/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question": "How many students are in the database?"}'
+```
+
+Response:
 ```json
-{
-  "question": "How many students are in the database?"
-}
+{ "sql": "SELECT COUNT(*) FROM citizen_student", "result": [{"COUNT(*)": 1000}] }
 ```
 
-Row examples:
-
-```json
-{
-  "question": "Show 5 students"
-}
-```
-
-```json
-{
-  "question": "Show 20 schools"
-}
-```
-
-```json
-{
-  "question": "Show the top school"
-}
-```
-
-For count queries, `result` contains one row. For list/top queries, `result` contains the requested row objects.
+---
 
 ## Agent Flow
 
-The graph starts at the LLM. The LLM decides whether to call:
+```
+START → llm_node ↔ tool_node → END
+                 ↑          ↑
+         retrive_schema_rag  execute_sql
+```
 
-- `retrive_schema_rag` for curated table DDL and join relations.
-- `execute_sql` for read-only `SELECT` queries.
+- `retrive_schema_rag` queries Milvus (`schema_store` or both partitions)
+- `execute_sql` runs read-only SELECT against SQLite or Hive
+- Nudge logic re-prompts smaller models (2b) if they skip tool calls
 
-There is no deterministic retrieval node before every request.
+---
 
-## Database
+## SQLite vs Hive (`.env`)
 
-`create_schema.py` parses `schema/curated_datamodels/tables/*.yaml`, creates the curated tables in SQLite, and seeds coherent sample school, student, attendance, performance, meal, scheme, and infrastructure data.
+| Variable | SQLite mode | Hive mode |
+|---|---|---|
+| `HIVE_MCP_ENABLED` | `false` | `true` |
+| SQL dialect | No `db.table` prefix | `curated_datamodels.table` |
+| DDL preprocessing | Strip Iceberg keywords, remap types | Return as-is |
