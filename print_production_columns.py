@@ -1,44 +1,37 @@
 #!/usr/bin/env python3
 """
-Introspect columns of production tables from Impala.
+Introspect columns of production tables using PyHive.
 """
 
 import sys
-import yaml
-from pathlib import Path
-
-# Paths
-ROOT_DIR = Path(__file__).resolve().parent
-MCP_DIR = ROOT_DIR / "MCP"
 
 def main():
-    config_path = MCP_DIR / "hive_config.yaml"
-    if not config_path.is_file():
-        print(f"Error: hive_config.yaml not found at {config_path}")
-        sys.exit(1)
+    host = "dl-dev-cl-mn02.datalake-dev.local"
+    port = 10000
+    auth = "KERBEROS"
+    kerberos_service_name = "hive"
 
-    with open(config_path, "r", encoding="utf-8") as f:
-        cfg = yaml.safe_load(f)
-
-    query_engine = cfg.get("query_engine", {})
-    host = query_engine.get("host")
-    port = int(query_engine.get("port", 21050))
-    kerberos_service_name = query_engine.get("kerberos", {}).get("service_name", "impala")
-
-    print(f"Connecting to Impala at {host}:{port} using GSSAPI (service={kerberos_service_name})...")
+    print(f"Connecting to Hive at {host}:{port} using PyHive (auth={auth}, service={kerberos_service_name})...")
     try:
-        from impala.dbapi import connect
-        conn = connect(
+        from pyhive import hive
+        conn = hive.Connection(
             host=host,
             port=port,
-            auth_mechanism="GSSAPI",
+            auth=auth,
             kerberos_service_name=kerberos_service_name
         )
     except Exception as e:
         print(f"Error connecting: {e}")
+        print("Make sure you run inside the virtualenv and have valid Kerberos tickets (kinit).")
         sys.exit(1)
 
     cursor = conn.cursor()
+
+    # Apply session settings
+    try:
+        cursor.execute("SET hive.vectorized.execution.enabled=false")
+    except Exception as e:
+        print(f"Warning setting session parameter: {e}")
 
     tables = [
         "curated_datamodels.mid_day_meal_serving_fact",
@@ -50,12 +43,12 @@ def main():
     for table in tables:
         print(f"\n--- Columns in {table} ---")
         try:
-            cursor.execute(f"SELECT * FROM {table} LIMIT 1")
-            description = cursor.description or []
-            columns = [col[0] for col in description]
-            print(columns)
+            cursor.execute(f"DESCRIBE {table}")
+            rows = cursor.fetchall()
+            for row in rows:
+                print(row)
         except Exception as e:
-            print(f"Error: {e}")
+            print(f"Error describing {table}: {e}")
 
     cursor.close()
     conn.close()
