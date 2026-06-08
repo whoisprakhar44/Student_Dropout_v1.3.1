@@ -76,13 +76,14 @@ def main():
 
         # Execute query verbatim
         try:
+            print(f"[{total:03d}/{len(lines):03d}] Running {qid}...", end="", flush=True)
             cursor.execute(sql)
             cursor.fetchall()
             passed += 1
-            # print(f"[OK] {qid}")
+            print(" OK")
         except Exception as e:
             failed += 1
-            print(f"\n[FAIL] {qid}")
+            print(" FAIL")
             print(f"Question: {data.get('question')}")
             print(f"Error: {e}")
             print("-" * 60)
