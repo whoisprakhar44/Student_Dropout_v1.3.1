@@ -85,8 +85,6 @@ def main():
             print(f"\n[FAIL] {qid}")
             print(f"Question: {data.get('question')}")
             print(f"Error: {e}")
-            print("SQL Query executed:")
-            print(sql)
             print("-" * 60)
 
     cursor.close()
