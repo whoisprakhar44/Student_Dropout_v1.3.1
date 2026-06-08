@@ -64,6 +64,10 @@ def main():
         cursor.execute("SET DEFAULT_JOIN_DISTRIBUTION_MODE='SHUFFLE'")
     except Exception as e:
         print(f"Warning setting DEFAULT_JOIN_DISTRIBUTION_MODE: {e}")
+    try:
+        cursor.execute("SET MEM_LIMIT=2g")
+    except Exception as e:
+        print(f"Warning setting MEM_LIMIT: {e}")
 
     for idx, line in enumerate(lines, 1):
         if not line.strip():
