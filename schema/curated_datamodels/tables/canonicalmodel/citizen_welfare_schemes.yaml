@@ -18,7 +18,7 @@ tblproperties:
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
 raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_welfare_schemes`(\n\
   \  `citizen_welfare_schemes_pk` int COMMENT 'from deserializer', \n  `citizen_welfare_schemes_master_fk`\
-  \ int COMMENT 'from deserializer', \n  `citizen_master_citizen_master_fk` int COMMENT\
+  \ int COMMENT 'from deserializer', \n  `citizen_master_fk` int COMMENT\
   \ 'from deserializer', \n  `house_hold_id` string COMMENT 'from deserializer', \n\
   \  `ration_card_no` string COMMENT 'from deserializer', \n  `scheme_application_no`\
   \ string COMMENT 'from deserializer', \n  `scheme_registered_date` string COMMENT\
@@ -35,7 +35,7 @@ raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_welfare_schemes`(\
   TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
   :[{\"id\":1,\"name\":\"citizen_welfare_schemes_pk\",\"required\":false,\"type\"\
   :\"int\"},{\"id\":2,\"name\":\"citizen_welfare_schemes_master_fk\",\"required\"\
-  :false,\"type\":\"int\"},{\"id\":3,\"name\":\"citizen_master_citizen_master_fk\"\
+  :false,\"type\":\"int\"},{\"id\":3,\"name\":\"citizen_master_fk\"\
   ,\"required\":false,\"type\":\"int\"},{\"id\":4,\"name\":\"house_hold_id\",\"required\"\
   :false,\"type\":\"string\"},{\"id\":5,\"name\":\"ration_card_no\",\"required\":false,\"\
   type\":\"string\"},{\"id\":6,\"name\":\"scheme_application_no\",\"required\":false,\"\
@@ -64,10 +64,10 @@ columns:
   type: INT
   nullable: true
   description: Citizen welfare schemes master fk.
-- name: citizen_master_citizen_master_fk
+- name: citizen_master_fk
   type: INT
   nullable: true
-  description: Citizen master citizen master fk.
+  description: Citizen master fk.
 - name: house_hold_id
   type: STRING
   nullable: true

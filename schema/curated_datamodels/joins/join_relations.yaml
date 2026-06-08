@@ -405,7 +405,7 @@ joins:
   usage: Group citizen health scheme enrollment by scheme master.
 - name: citizen_welfare_scheme_to_master
   from_table: citizen_welfare_schemes
-  from_column: citizen_master_citizen_master_fk
+  from_column: citizen_master_fk
   to_table: citizen_master
   to_column: citizen_master_pk
   cardinality: many_to_one
