@@ -80,20 +80,21 @@ Each line must have at minimum `id`, `question`, `sql`. Optional fields `use_cas
 `intent` are mapped to `database_name` and `table_name` for downstream filtering.
 
 ### Join Relations Processing (join_relations.yaml)
-Although the table-specific YAML files are loaded by the primary schema injection pipeline, the explicit join mappings are defined in [join_relations.yaml](file:///Users/prakhar/Downloads/Student_Dropout_v1.3/schema/curated_datamodels/joins/join_relations.yaml). Here is how they are processed and retrieved:
+Although the table-specific YAML files are loaded by the primary schema injection pipeline, the explicit join mappings, key columns, and strict rules are defined in [join_relations.yaml](file:///Users/prakhar/Downloads/Student_Dropout_v1.3/schema/curated_datamodels/joins/join_relations.yaml). Here is how they are processed and retrieved:
 
 1. **Indexing/Setup Phase:**
    * When setting up the vector index (using [build_milvus_index.py](file:///Users/prakhar/Downloads/Student_Dropout_v1.3/MCP/build_milvus_index.py)), the function `load_join_chunks()` parses [join_relations.yaml](file:///Users/prakhar/Downloads/Student_Dropout_v1.3/schema/curated_datamodels/joins/join_relations.yaml).
    * It extracts each defined join relation (e.g. `from_table`, `from_column`, `to_table`, `to_column`, `cardinality`, `usage`) and formats it as descriptive text:
      `{name}: {from_table}.{from_column} -> {to_table}.{to_column} ({cardinality}). Usage: {usage}`.
-   * All join descriptions are aggregated into a single text block with the metadata attribute `table_name` set to `"__join_relations__"`.
+   * It also parses `key_columns` and `strict_rules` from the YAML and appends them to the join details.
+   * All join descriptions, key columns, and strict rules are aggregated into a single text block with the metadata attribute `table_name` set to `"__join_relations__"`.
    * This chunk is vectorized using the configured embedding model (e.g. `nomic-embed-text`) and inserted into the `schema_store` partition of the Milvus Lite collection ([milvus_schemas.db](file:///Users/prakhar/Downloads/Student_Dropout_v1.3/MCP/milvus_schemas.db)).
 
 2. **Query Phase (Runtime):**
    * When a user submits a query, the LangGraph agent calls `retrive_schema_rag(query, top_k)` via the schema RAG MCP server ([mcp_rag.py](file:///Users/prakhar/Downloads/Student_Dropout_v1.3/MCP/mcp_rag.py)).
    * The RAG MCP server embeds the query and searches the `schema_store` partition.
    * If the user's query pertains to relationships, joins, or mentions multiple tables, the semantic search retrieves the chunk with `table_name: "__join_relations__"`.
-   * The retrieved join details are passed back to the LangGraph agent, providing the necessary context for the LLM to write correct SQL table joins.
+   * The retrieved join details, key columns, and strict rules are passed back to the LangGraph agent, providing the necessary context for the LLM to write correct SQL table joins.
 
 ## 4. Impala Execution Layer (`MCP/`)
 
@@ -179,10 +180,10 @@ The database backend is controlled via the `HIVE_MCP_ENABLED` environment variab
 *   **SQLite Mode (`HIVE_MCP_ENABLED=false`)**:
     *   **Registry**: Loads `MCP/mcp_sql_execution.py` exposing the `execute_sql` tool.
         Connects to `database/schema.db`.
-    *   **Prompt**: The system prompt instructs the LLM that the database is SQLite and all
+    *   **Prompt**: The simplified system prompt instructs the LLM that the database is SQLite and all
         queries must omit database prefixes (e.g. `SELECT * FROM citizen_student` instead of
-        `SELECT * FROM curated_datamodels.citizen_student`).
-    *   **RAG Preprocessing**: When `retrive_schema_rag` returns DDL, it strips out the
+        `SELECT * FROM curated_datamodels.citizen_student`). Core schema lists and rules are dynamically retrieved via RAG.
+    *   **RAG Preprocessing**: When `retrive_schema_rag` returns DDL or join relations context, it strips out the
         `curated_datamodels.` prefix, removes Iceberg keywords (`USING ICEBERG`, location,
         table properties), and replaces Big Data types (`STRING` -> `TEXT`, `BIGINT` ->
         `INTEGER`) to prevent the LLM from writing invalid/unsupported syntax.
@@ -190,10 +191,10 @@ The database backend is controlled via the `HIVE_MCP_ENABLED` environment variab
 *   **Impala Mode (`HIVE_MCP_ENABLED=true`)**:
     *   **Registry**: Loads `MCP/mcp_hive_execution.py`. The tool inside is named `execute_sql`
         to maintain signature parity with the frontend/agent, but connects to Impala via Impyla.
-    *   **Prompt**: The system prompt instructs the LLM that the database is Impala/Iceberg
+    *   **Prompt**: The simplified system prompt instructs the LLM that the database is Impala/Iceberg
         and queries must include table prefixes
-        (e.g. `curated_datamodels.citizen_student`).
-    *   **RAG Preprocessing**: Schema DDLs and table prefixes are returned exactly as-is from
+        (e.g. `curated_datamodels.citizen_student`). Core schema lists and rules are dynamically retrieved via RAG.
+    *   **RAG Preprocessing**: Schema DDLs, table prefixes, and join relations are returned exactly as-is from
         the vector index.
 
 ## 6. Agent Graph & Reasoning Nudges
@@ -215,15 +216,15 @@ Here is exactly what happens from the moment a user submits a query (e.g., via `
 1. **Initialization (`initialize_node`):**
    * The user query is placed into the LangGraph state.
    * The graph starts at `initialize_node` in [nodes.py](file:///Users/prakhar/Downloads/Student_Dropout_v1.3/my_agent/utils/nodes.py).
-   * This node generates a forced/initial `AIMessage` containing a tool call to `retrive_schema_rag(query=user_query, top_k=5)`. This guarantees schema retrieval occurs before any SQL generation is attempted.
+   * This node generates a forced/initial `AIMessage` containing a tool call to `retrive_schema_rag(query=user_query, top_k=15)`. This guarantees schema retrieval occurs before any SQL generation is attempted.
 
 2. **RAG Tool Execution (`tool_node`):**
    * The `tool_node` intercepts the tool call and runs it using the RAG MCP server ([mcp_rag.py](file:///Users/prakhar/Downloads/Student_Dropout_v1.3/MCP/mcp_rag.py)).
    * The RAG server computes the query embedding (using Ollama's `nomic-embed-text`) and performs a semantic search against the Milvus Lite vector database (`milvus_schemas.db`).
-   * It retrieves matching table schemas and the join relations chunk (from `join_relations.yaml`), processes/normalizes them (depending on SQLite vs Impala mode), and returns the results to the agent state as a `ToolMessage`.
+   * It retrieves matching table schemas and the consolidated joins, columns, and rules chunk (from `join_relations.yaml`), processes/normalizes them (depending on SQLite vs Impala mode), and returns the results to the agent state as a `ToolMessage`.
 
 3. **LLM Reasoning & SQL Generation (`llm_node`):**
-   * The graph transitions to `llm_node`. The LLM receives the system prompt (defining core tables, instructions, and hardcoded main joins) along with the chat history (which now includes the retrieved RAG schema details).
+   * The graph transitions to `llm_node`. The LLM receives the simplified system prompt along with the chat history (which now includes the retrieved RAG schema details, join relationships, columns, and verification/SQL writing rules).
    * The LLM writes the SQL query and outputs a tool call to `execute_sql(query=...)`.
    * *Nudges:* If the LLM generates a conversational response on its first turn instead of calling `execute_sql`, or if it tries to describe the schema in words, the agent appends a corrective nudge message and forces the LLM to invoke the tool.
 

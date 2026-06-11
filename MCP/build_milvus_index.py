@@ -85,7 +85,12 @@ def load_join_chunks() -> list[dict]:
 
     database_name = doc.get("database", "curated_datamodels")
     joins = doc.get("joins") or []
+    key_columns = doc.get("key_columns") or []
+    strict_rules = doc.get("strict_rules") or []
+
     lines = [doc.get("description", "Join relations for curated school data model.")]
+    
+    lines.append("\nKEY JOIN RELATIONSHIPS:")
     for join in joins:
         lines.append(
             "{name}: {from_table}.{from_column} -> {to_table}.{to_column} "
@@ -99,6 +104,16 @@ def load_join_chunks() -> list[dict]:
                 usage=join.get("usage", ""),
             )
         )
+
+    if key_columns:
+        lines.append("\nKEY COLUMNS (use these exact names — do NOT guess or invent column names):")
+        for kc in key_columns:
+            lines.append(f"- {kc.get('table', '')}: {kc.get('columns', '')}")
+
+    if strict_rules:
+        lines.append("\nSTRICT RULES — follow every rule without exception:")
+        for i, rule in enumerate(strict_rules, 1):
+            lines.append(f"{i}. {rule}")
 
     embedding_text = "Database: {db}\nChunk: join_relations\n{body}".format(
         db=database_name,

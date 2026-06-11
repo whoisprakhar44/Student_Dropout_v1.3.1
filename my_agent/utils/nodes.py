@@ -48,79 +48,31 @@ if _HIVE_ENABLED:
     SYSTEM_PROMPT = """You are a SQL data assistant with a live Hive / Apache Spark SQL database for the curated_datamodels data model.
 
 Available tools:
-- retrive_schema_rag: retrieve curated table DDL and join relations when you need schema context.
+- retrive_schema_rag: retrieve curated table DDL, key joins, columns, and rules when you need schema context.
 - execute_sql: execute read-only Hive SQL SELECT queries against the database.
-
-KEY COLUMNS (use these exact names — do NOT guess or invent column names):
-- curated_datamodels.citizen_student: citizen_student_id_pk, student_name, gender, date_of_birth, social_category, current_grade, address, email_id, primary_mobile_no, citizen_school_id_fk, is_current, student_citizen_master_id_fk
-- curated_datamodels.citizen_school: citizen_school_id_pk, school_name, district_name, mandal_name, village_name, urban_rural_flag, functional_status, min_class, max_class, head_master_name
-- curated_datamodels.school_student_attendance_fact: school_student_attendance_fact_id_pk, citizen_student_id_fk, student_school_id_fk, academic_year, present_flag, absent_flag, attendance_status_code
-- curated_datamodels.school_academic_performance_fact: school_academic_performance_fact_id_pk, citizen_student_id_fk, citizen_school_id_fk, academic_year, marks_obtained, maximum_marks, percentage_score, pass_flag, fail_flag
-- curated_datamodels.scheme_benefits_fact: scheme_benefits_fact_id_pk, citizen_student_id_fk, citizen_school_id_fk, school_scheme_master_id_fk, academic_year, eligible_flag, benefit_sanctioned_flag, benefit_disbursed_flag, benefit_delivered_flag, delay_days, payment_failure_reason_code
-- curated_datamodels.citizen_welfare_schemes: citizen_welfare_schemes_pk, citizen_welfare_schemes_master_fk, citizen_master_fk, house_hold_id, ration_card_no, scheme_approved_date, scheme_amount
-- curated_datamodels.citizen_health_schemes: citizen_health_schemes_pk, citizen_health_schemes_master_fk, citizen_master_fk, house_hold_id, ration_card_no, scheme_approved_date, scheme_amount
-
-KEY JOIN RELATIONSHIPS (use these exact columns for JOINs):
-- To join students and schools: curated_datamodels.citizen_student.citizen_school_id_fk = curated_datamodels.citizen_school.citizen_school_id_pk
-- To join attendance and students: curated_datamodels.school_student_attendance_fact.citizen_student_id_fk = curated_datamodels.citizen_student.citizen_student_id_pk
-- To join attendance and schools: curated_datamodels.school_student_attendance_fact.student_school_id_fk = curated_datamodels.citizen_school.citizen_school_id_pk
-- To join academic performance and students: curated_datamodels.school_academic_performance_fact.citizen_student_id_fk = curated_datamodels.citizen_student.citizen_student_id_pk
-- To join academic performance and schools: curated_datamodels.school_academic_performance_fact.citizen_school_id_fk = curated_datamodels.citizen_school.citizen_school_id_pk
-- To join scheme benefits and students: curated_datamodels.scheme_benefits_fact.citizen_student_id_fk = curated_datamodels.citizen_student.citizen_student_id_pk
-- To join welfare schemes and students: curated_datamodels.citizen_welfare_schemes.citizen_master_fk = curated_datamodels.citizen_student.student_citizen_master_id_fk
-- To join health schemes and students: curated_datamodels.citizen_health_schemes.citizen_master_fk = curated_datamodels.citizen_student.student_citizen_master_id_fk
 
 STRICT RULES — follow every rule without exception:
 1. For ANY question about counts, totals, lists, averages, rates, trends, or data values — you MUST call execute_sql.
-2. If you do not know the table name, call retrive_schema_rag first, then IMMEDIATELY call execute_sql with a SELECT query.
+2. If you do not know the table name or columns, call retrive_schema_rag first, then IMMEDIATELY call execute_sql with a SELECT query.
 3. NEVER describe DDL or schema to the user — always run execute_sql and report the actual data.
 4. NEVER answer without calling execute_sql for data questions.
 5. After execute_sql returns rows, summarize the result in plain language.
-6. When the user asks to show/list N rows, include LIMIT N and return the requested rows.
-7. When the user asks to show students, schools, teachers, districts, or similar entities, select useful identifying columns, not only a count.
-8. When the user asks for "top" without a metric, infer the most useful ranking from context; for schools, use student count unless another metric is named. Note: There is NO student_count, enrollment, or total_students column in curated_datamodels.citizen_school. You MUST join curated_datamodels.citizen_school and curated_datamodels.citizen_student on curated_datamodels.citizen_school.citizen_school_id_pk = curated_datamodels.citizen_student.citizen_school_id_fk, group by the school ID/name, use COUNT(curated_datamodels.citizen_student.citizen_student_id_pk) to calculate the student count, and order by that count descending.
-9. For broad list requests without a requested row count, include LIMIT 20.
-10. Core tables: curated_datamodels.citizen_student (students), curated_datamodels.citizen_school (schools), curated_datamodels.school_student_attendance_fact (attendance), curated_datamodels.school_academic_performance_fact (performance), curated_datamodels.scheme_benefits_fact, curated_datamodels.mid_day_meal_serving_fact, curated_datamodels.school_infrastructure_progress_fact, curated_datamodels.citizen_welfare_schemes, curated_datamodels.citizen_health_schemes.
-11. The database is Hive - use Hive/Spark-compatible SQL only. Use the correct database prefix (e.g. write `curated_datamodels.citizen_student`).
+6. The database is Hive/Impala - use Hive/Spark-compatible SQL only. Use the correct database prefix (e.g. write `curated_datamodels.citizen_student`).
 """
 else:
     SYSTEM_PROMPT = """You are a SQL data assistant with a live SQLite sample database for the curated_datamodels school data model.
 
 Available tools:
-- retrive_schema_rag: retrieve curated table DDL and join relations when you need schema context.
+- retrive_schema_rag: retrieve curated table DDL, key joins, columns, and rules when you need schema context.
 - execute_sql: execute read-only SQLite SELECT queries against the sample database.
-
-KEY COLUMNS (use these exact names — do NOT guess or invent column names):
-- citizen_student: citizen_student_id_pk, student_name, gender, date_of_birth, social_category, current_grade, address, email_id, primary_mobile_no, citizen_school_id_fk, is_current, student_citizen_master_id_fk
-- citizen_school: citizen_school_id_pk, school_name, district_name, mandal_name, village_name, urban_rural_flag, functional_status, min_class, max_class, head_master_name
-- school_student_attendance_fact: school_student_attendance_fact_id_pk, citizen_student_id_fk, student_school_id_fk, academic_year, present_flag, absent_flag, attendance_status_code
-- school_academic_performance_fact: school_academic_performance_fact_id_pk, citizen_student_id_fk, citizen_school_id_fk, academic_year, marks_obtained, maximum_marks, percentage_score, pass_flag, fail_flag
-- scheme_benefits_fact: scheme_benefits_fact_id_pk, citizen_student_id_fk, citizen_school_id_fk, school_scheme_master_id_fk, academic_year, eligible_flag, benefit_sanctioned_flag, benefit_disbursed_flag, benefit_delivered_flag, delay_days, payment_failure_reason_code
-- citizen_welfare_schemes: citizen_welfare_schemes_pk, citizen_welfare_schemes_master_fk, citizen_master_fk, house_hold_id, ration_card_no, scheme_approved_date, scheme_amount
-- citizen_health_schemes: citizen_health_schemes_pk, citizen_health_schemes_master_fk, citizen_master_fk, house_hold_id, ration_card_no, scheme_approved_date, scheme_amount
-
-KEY JOIN RELATIONSHIPS (use these exact columns for JOINs):
-- To join students and schools: citizen_student.citizen_school_id_fk = citizen_school.citizen_school_id_pk
-- To join attendance and students: school_student_attendance_fact.citizen_student_id_fk = citizen_student.citizen_student_id_pk
-- To join attendance and schools: school_student_attendance_fact.student_school_id_fk = citizen_school.citizen_school_id_pk
-- To join academic performance and students: school_academic_performance_fact.citizen_student_id_fk = citizen_student.citizen_student_id_pk
-- To join academic performance and schools: school_academic_performance_fact.citizen_school_id_fk = citizen_school.citizen_school_id_pk
-- To join scheme benefits and students: scheme_benefits_fact.citizen_student_id_fk = citizen_student.citizen_student_id_pk
-- To join welfare schemes and students: citizen_welfare_schemes.citizen_master_fk = citizen_student.student_citizen_master_id_fk
-- To join health schemes and students: citizen_health_schemes.citizen_master_fk = citizen_student.student_citizen_master_id_fk
 
 STRICT RULES — follow every rule without exception:
 1. For ANY question about counts, totals, lists, averages, rates, trends, or data values — you MUST call execute_sql.
-2. If you need columns not listed above, call retrive_schema_rag first, then IMMEDIATELY call execute_sql.
+2. If you do not know the table name or columns, call retrive_schema_rag first, then IMMEDIATELY call execute_sql with a SELECT query.
 3. NEVER describe DDL or schema to the user — always run execute_sql and report the actual data.
 4. NEVER answer without calling execute_sql for data questions.
 5. After execute_sql returns rows, summarize the result in plain language.
-6. When the user asks to show/list N rows, include LIMIT N and return the requested rows.
-7. When the user asks to show students, schools, teachers, districts, or similar entities, select useful identifying columns, not only a count.
-8. When the user asks for "top" without a metric, infer the most useful ranking from context; for schools, use student count unless another metric is named. Note: There is NO student_count, enrollment, or total_students column in citizen_school. You MUST join citizen_school and citizen_student on citizen_school.citizen_school_id_pk = citizen_student.citizen_school_id_fk, group by the school ID/name, use COUNT(citizen_student.citizen_student_id_pk) to calculate the student count, and order by that count descending.
-9. For broad list requests without a requested row count, include LIMIT 20.
-10. Core tables: citizen_student (students), citizen_school (schools), school_student_attendance_fact (attendance), school_academic_performance_fact (performance), scheme_benefits_fact, mid_day_meal_serving_fact, school_infrastructure_progress_fact, citizen_welfare_schemes, citizen_health_schemes.
-11. The database is SQLite - use SQLite-compatible SQL only. All tables are in the main schema with no prefix (e.g. write `citizen_student` instead of `curated_datamodels.citizen_student`).
+6. The database is SQLite - use SQLite-compatible SQL only. All tables are in the main schema with no prefix (e.g. write `citizen_student` instead of `curated_datamodels.citizen_student`).
 """
 
 
@@ -513,16 +465,21 @@ def verify_node(state: AgentState) -> dict:
     ])
     verdict_text = (verdict_response.content or "").strip()
     logger.info(
-        "verify_node [round %d]: verdict=%s  (%.2fs)",
+        "verify_node [round %d]: raw verdict=%s  (%.2fs)",
         verify_calls + 1,
         verdict_text[:80],
         time.perf_counter() - t0,
     )
 
-    if verdict_text.upper().startswith("CORRECT"):
+    # Clean up thinking/reasoning tags
+    clean_verdict = re.sub(r"<think>.*?(?:</think>|$)", "", verdict_text, flags=re.DOTALL).strip()
+    if not clean_verdict:
+        clean_verdict = verdict_text
+
+    if clean_verdict.upper().startswith("CORRECT"):
         # Result is verified — produce the final pretty summary
         summary = _summarize_sql_result(state["user_query"], last_result_msg.content)
-        explanation = verdict_text.split(":", 1)[-1].strip() if ":" in verdict_text else ""
+        explanation = clean_verdict.split(":", 1)[-1].strip() if ":" in clean_verdict else ""
         final_answer = summary or result_table
         if explanation:
             final_answer += f"\n\n✅ *Verified: {explanation}*"
@@ -534,7 +491,7 @@ def verify_node(state: AgentState) -> dict:
         }
 
     # RETRY path — extract the reason and inject a corrective instruction
-    retry_reason = verdict_text.split(":", 1)[-1].strip() if ":" in verdict_text else verdict_text
+    retry_reason = clean_verdict.split(":", 1)[-1].strip() if ":" in clean_verdict else clean_verdict
     correction_msg = HumanMessage(
         content=(
             f'The previous SQL result did NOT correctly answer: "{state["user_query"]}"\n'
@@ -567,7 +524,7 @@ def initialize_node(state: AgentState) -> dict:
             "name": "retrive_schema_rag",
             "args": {
                 "query": state["user_query"],
-                "top_k": 5
+                "top_k": 15
             }
         }]
     )

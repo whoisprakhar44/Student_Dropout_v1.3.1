@@ -536,3 +536,33 @@ joins:
   to_column: citizen_master_pk
   cardinality: one_to_one
   usage: Join teacher record to citizen master for demographic detail lookups.
+
+key_columns:
+  - table: curated_datamodels.citizen_student
+    columns: citizen_student_id_pk, student_name, gender, date_of_birth, social_category, current_grade, address, email_id, primary_mobile_no, citizen_school_id_fk, is_current, student_citizen_master_id_fk
+  - table: curated_datamodels.citizen_school
+    columns: citizen_school_id_pk, school_name, district_name, mandal_name, village_name, urban_rural_flag, functional_status, min_class, max_class, head_master_name
+  - table: curated_datamodels.school_student_attendance_fact
+    columns: school_student_attendance_fact_id_pk, citizen_student_id_fk, student_school_id_fk, academic_year, present_flag, absent_flag, attendance_status_code
+  - table: curated_datamodels.school_academic_performance_fact
+    columns: school_academic_performance_fact_id_pk, citizen_student_id_fk, citizen_school_id_fk, academic_year, marks_obtained, maximum_marks, percentage_score, pass_flag, fail_flag
+  - table: curated_datamodels.scheme_benefits_fact
+    columns: scheme_benefits_fact_id_pk, citizen_student_id_fk, citizen_school_id_fk, school_scheme_master_id_fk, academic_year, eligible_flag, benefit_sanctioned_flag, benefit_disbursed_flag, benefit_delivered_flag, delay_days, payment_failure_reason_code
+  - table: curated_datamodels.citizen_welfare_schemes
+    columns: citizen_welfare_schemes_pk, citizen_welfare_schemes_master_fk, citizen_master_fk, house_hold_id, ration_card_no, scheme_approved_date, scheme_amount
+  - table: curated_datamodels.citizen_health_schemes
+    columns: citizen_health_schemes_pk, citizen_health_schemes_master_fk, citizen_master_fk, house_hold_id, ration_card_no, scheme_approved_date, scheme_amount
+
+strict_rules:
+  - "For ANY question about counts, totals, lists, averages, rates, trends, or data values — you MUST call execute_sql."
+  - "If you do not know the table name, call retrive_schema_rag first, then IMMEDIATELY call execute_sql with a SELECT query."
+  - "NEVER describe DDL or schema to the user — always run execute_sql and report the actual data."
+  - "NEVER answer without calling execute_sql for data questions."
+  - "After execute_sql returns rows, summarize the result in plain language."
+  - "When the user asks to show/list N rows, include LIMIT N and return the requested rows."
+  - "When the user asks to show students, schools, teachers, districts, or similar entities, select useful identifying columns, not only a count."
+  - "When the user asks for 'top' without a metric, infer the most useful ranking from context; for schools, use student count unless another metric is named. Note: There is NO student_count, enrollment, or total_students column in curated_datamodels.citizen_school. You MUST join curated_datamodels.citizen_school and curated_datamodels.citizen_student on curated_datamodels.citizen_school.citizen_school_id_pk = curated_datamodels.citizen_student.citizen_school_id_fk, group by the school ID/name, use COUNT(curated_datamodels.citizen_student.citizen_student_id_pk) to calculate the student count, and order by that count descending."
+  - "For broad list requests without a requested row count, include LIMIT 20."
+  - "Core tables: curated_datamodels.citizen_student (students), curated_datamodels.citizen_school (schools), curated_datamodels.school_student_attendance_fact (attendance), curated_datamodels.school_academic_performance_fact (performance), scheme_benefits_fact, mid_day_meal_serving_fact, school_infrastructure_progress_fact, citizen_welfare_schemes, citizen_health_schemes."
+  - "The database is Hive/Impala - use Hive/Spark-compatible SQL only. Use the correct database prefix (e.g. write `curated_datamodels.citizen_student`)."
+
