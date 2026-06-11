@@ -79,7 +79,23 @@ One collection (`schema_chunks`) with two named partitions:
 Each line must have at minimum `id`, `question`, `sql`. Optional fields `use_case` and
 `intent` are mapped to `database_name` and `table_name` for downstream filtering.
 
-## 3. Impala Execution Layer (`MCP/`)
+### Join Relations Processing (join_relations.yaml)
+Although the table-specific YAML files are loaded by the primary schema injection pipeline, the explicit join mappings are defined in [join_relations.yaml](file:///Users/prakhar/Downloads/Student_Dropout_v1.0/schema/curated_datamodels/joins/join_relations.yaml). Here is how they are processed and retrieved:
+
+1. **Indexing/Setup Phase:**
+   * When setting up the vector index (using [build_milvus_index.py](file:///Users/prakhar/Downloads/Student_Dropout_v1.0/MCP/build_milvus_index.py)), the function `load_join_chunks()` parses [join_relations.yaml](file:///Users/prakhar/Downloads/Student_Dropout_v1.0/schema/curated_datamodels/joins/join_relations.yaml).
+   * It extracts each defined join relation (e.g. `from_table`, `from_column`, `to_table`, `to_column`, `cardinality`, `usage`) and formats it as descriptive text:
+     `{name}: {from_table}.{from_column} -> {to_table}.{to_column} ({cardinality}). Usage: {usage}`.
+   * All join descriptions are aggregated into a single text block with the metadata attribute `table_name` set to `"__join_relations__"`.
+   * This chunk is vectorized using the configured embedding model (e.g. `nomic-embed-text`) and inserted into the `schema_store` partition of the Milvus Lite collection ([milvus_schemas.db](file:///Users/prakhar/Downloads/Student_Dropout_v1.0/MCP/milvus_schemas.db)).
+
+2. **Query Phase (Runtime):**
+   * When a user submits a query, the LangGraph agent calls `retrive_schema_rag(query, top_k)` via the schema RAG MCP server ([mcp_rag.py](file:///Users/prakhar/Downloads/Student_Dropout_v1.0/MCP/mcp_rag.py)).
+   * The RAG MCP server embeds the query and searches the `schema_store` partition.
+   * If the user's query pertains to relationships, joins, or mentions multiple tables, the semantic search retrieves the chunk with `table_name: "__join_relations__"`.
+   * The retrieved join details are passed back to the LangGraph agent, providing the necessary context for the LLM to write correct SQL table joins.
+
+## 4. Impala Execution Layer (`MCP/`)
 
 When `HIVE_MCP_ENABLED=true`, the agent executes SQL against Impala on CDP using
 Impyla with Kerberos (GSSAPI) authentication.  All execution-layer code lives in `MCP/`.
@@ -157,7 +173,7 @@ These are also documented in `.env` for reference.
     # 5. Start the server
     python -m uvicorn app:app --host 0.0.0.0 --port 8000
 
-## 4. SQLite vs Impala Configuration (`.env`)
+## 5. SQLite vs Impala Configuration (`.env`)
 The database backend is controlled via the `HIVE_MCP_ENABLED` environment variable:
 
 *   **SQLite Mode (`HIVE_MCP_ENABLED=false`)**:
@@ -180,7 +196,7 @@ The database backend is controlled via the `HIVE_MCP_ENABLED` environment variab
     *   **RAG Preprocessing**: Schema DDLs and table prefixes are returned exactly as-is from
         the vector index.
 
-## 5. Agent Graph & Reasoning Nudges
+## 6. Agent Graph & Reasoning Nudges
 The graph uses a standard loop: `START -> llm_node <-> tool_node -> END`.
 
 The LLM determines whether it needs to fetch context (`retrive_schema_rag`) and when to execute
@@ -193,7 +209,46 @@ queries (`execute_sql`). To ensure reliability with smaller models (like `2b`), 
     describe the schema in text instead of running a SQL query, the agent appends a second nudge,
     instructing the model to immediately call `execute_sql`.
 
-## 6. Main Files Reference
+### User Query Lifecycle (Step-by-Step)
+Here is exactly what happens from the moment a user submits a query (e.g., via `/ask` or `/api/chat` endpoints in `app.py`) to when the final response is returned:
+
+1. **Initialization (`initialize_node`):**
+   * The user query is placed into the LangGraph state.
+   * The graph starts at `initialize_node` in [nodes.py](file:///Users/prakhar/Downloads/Student_Dropout_v1.0/my_agent/utils/nodes.py).
+   * This node generates a forced/initial `AIMessage` containing a tool call to `retrive_schema_rag(query=user_query, top_k=5)`. This guarantees schema retrieval occurs before any SQL generation is attempted.
+
+2. **RAG Tool Execution (`tool_node`):**
+   * The `tool_node` intercepts the tool call and runs it using the RAG MCP server ([mcp_rag.py](file:///Users/prakhar/Downloads/Student_Dropout_v1.0/MCP/mcp_rag.py)).
+   * The RAG server computes the query embedding (using Ollama's `nomic-embed-text`) and performs a semantic search against the Milvus Lite vector database (`milvus_schemas.db`).
+   * It retrieves matching table schemas and the join relations chunk (from `join_relations.yaml`), processes/normalizes them (depending on SQLite vs Impala mode), and returns the results to the agent state as a `ToolMessage`.
+
+3. **LLM Reasoning & SQL Generation (`llm_node`):**
+   * The graph transitions to `llm_node`. The LLM receives the system prompt (defining core tables, instructions, and hardcoded main joins) along with the chat history (which now includes the retrieved RAG schema details).
+   * The LLM writes the SQL query and outputs a tool call to `execute_sql(query=...)`.
+   * *Nudges:* If the LLM generates a conversational response on its first turn instead of calling `execute_sql`, or if it tries to describe the schema in words, the agent appends a corrective nudge message and forces the LLM to invoke the tool.
+
+4. **SQL Execution (`tool_node`):**
+   * The `tool_node` executes `execute_sql` by communicating with the SQL execution MCP server:
+     * Under SQLite mode (`HIVE_MCP_ENABLED=false`): Runs queries against the local `database/schema.db`.
+     * Under Impala mode (`HIVE_MCP_ENABLED=true`): Runs queries via Impyla on the remote Impala instance.
+   * The server returns the query results (JSON representation of columns and rows) or an execution error as a `ToolMessage`.
+
+5. **SQL Result Verification (`verify_node`):**
+   * The graph transitions to `verify_node`. The verifier LLM is called with a prompt containing:
+     * The original user query.
+     * The executed SQL query.
+     * The first few rows of the query result.
+   * **Verification Verdicts:**
+     * **`RETRY`:** If the query execution failed or the verifier determines the result is incorrect/incomplete, the node injects a corrective human instruction message into the state and routes the graph back to `llm_node` to correct and re-run the SQL.
+     * **`CORRECT`:** Once the verifier approves the result, the state variable `verified` is set to `True`, and the graph continues.
+
+6. **Final Response Generation & Formatting (`llm_node`):**
+   * After verification passes, the graph returns to `llm_node`.
+   * It sees the successful SQL tool output and generates a clean, natural-language summary of the data (formatted nicely for the dashboard UI).
+   * The graph transitions to the `END` state, and the final response is returned to the user.
+
+
+## 7. Main Files Reference
 *   `app.py`                       Dashboard routes, database seeding hooks, and agent REST API wrapper.
 *   `pipeline.py`                  Schema + few-shot injection pipeline (Milvus, ChromaDB).
 *   `config.yaml`                  Pipeline configuration (embedding provider, Milvus URI, yaml_dir).
