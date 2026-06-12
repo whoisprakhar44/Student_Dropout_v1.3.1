@@ -203,6 +203,10 @@ def retrive_schema_rag(query: str, top_k: int = 15):
     results = dedupe(results)
     results = threshold(results)
     
+    logger.info(f"RAG retrieved {len(results)} chunks for query '{query}':")
+    for idx, hit in enumerate(results):
+        logger.info(f"  [{idx+1}] Table: {hit['database_name']}.{hit['table_name']} | Similarity Score: {hit['score']:.4f}")
+    
     hive_enabled = os.getenv("HIVE_MCP_ENABLED", "false").strip().lower() in ("true", "1", "yes")
     if not hive_enabled:
         import re

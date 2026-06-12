@@ -1,4 +1,4 @@
-﻿# API Contract
+# API Contract
 
 This project exposes one API server for a separately hosted frontend.
 
@@ -45,7 +45,8 @@ Request:
 
 ```json
 {
-  "question": "How many students are in the database?"
+  "question": "How many students are in the database?",
+  "request_id": "optional-custom-request-id-123"
 }
 ```
 
@@ -59,6 +60,39 @@ Response:
       "total_students": 1000
     }
   ]
+}
+```
+
+### Cancel
+
+```http
+POST /cancel
+Content-Type: application/json
+```
+
+Request:
+
+```json
+{
+  "request_id": "optional-custom-request-id-123"
+}
+```
+
+Response:
+
+```json
+{
+  "status": "success",
+  "message": "Request optional-custom-request-id-123 cancellation signal sent."
+}
+```
+
+Or if the request has already finished or is not active:
+
+```json
+{
+  "status": "not_found",
+  "message": "Request optional-custom-request-id-123 is not active or has already completed."
 }
 ```
 

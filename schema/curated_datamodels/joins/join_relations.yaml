@@ -430,14 +430,16 @@ joins:
   to_table: citizen_student
   to_column: student_citizen_master_id_fk
   cardinality: many_to_one
-  usage: Join health scheme enrollment directly to student profiles via citizen master ID.
+  usage: Join health scheme enrollment directly to student profiles via citizen master
+    ID.
 - name: citizen_welfare_scheme_to_student
   from_table: citizen_welfare_schemes
   from_column: citizen_master_fk
   to_table: citizen_student
   to_column: student_citizen_master_id_fk
   cardinality: many_to_one
-  usage: Join welfare scheme enrollment directly to student profiles via citizen master ID.
+  usage: Join welfare scheme enrollment directly to student profiles via citizen master
+    ID.
 - name: student_to_subject
   from_table: citizen_student
   from_column: student_subject_id_fk
@@ -528,7 +530,8 @@ joins:
   to_table: citizen_school_teacher
   to_column: citizen_school_teacher_id_pk
   cardinality: many_to_one
-  usage: Join scheme benefits to teacher profiles to track benefit allocations handled by teachers.
+  usage: Join scheme benefits to teacher profiles to track benefit allocations handled
+    by teachers.
 - name: teacher_to_citizen
   from_table: citizen_school_teacher
   from_column: teacher_citizen_master_fk
@@ -536,33 +539,149 @@ joins:
   to_column: citizen_master_pk
   cardinality: one_to_one
   usage: Join teacher record to citizen master for demographic detail lookups.
-
 key_columns:
-  - table: curated_datamodels.citizen_student
-    columns: citizen_student_id_pk, student_name, gender, date_of_birth, social_category, current_grade, address, email_id, primary_mobile_no, citizen_school_id_fk, is_current, student_citizen_master_id_fk
-  - table: curated_datamodels.citizen_school
-    columns: citizen_school_id_pk, school_name, district_name, mandal_name, village_name, urban_rural_flag, functional_status, min_class, max_class, head_master_name
-  - table: curated_datamodels.school_student_attendance_fact
-    columns: school_student_attendance_fact_id_pk, citizen_student_id_fk, student_school_id_fk, academic_year, present_flag, absent_flag, attendance_status_code
-  - table: curated_datamodels.school_academic_performance_fact
-    columns: school_academic_performance_fact_id_pk, citizen_student_id_fk, citizen_school_id_fk, academic_year, marks_obtained, maximum_marks, percentage_score, pass_flag, fail_flag
-  - table: curated_datamodels.scheme_benefits_fact
-    columns: scheme_benefits_fact_id_pk, citizen_student_id_fk, citizen_school_id_fk, school_scheme_master_id_fk, academic_year, eligible_flag, benefit_sanctioned_flag, benefit_disbursed_flag, benefit_delivered_flag, delay_days, payment_failure_reason_code
-  - table: curated_datamodels.citizen_welfare_schemes
-    columns: citizen_welfare_schemes_pk, citizen_welfare_schemes_master_fk, citizen_master_fk, house_hold_id, ration_card_no, scheme_approved_date, scheme_amount
-  - table: curated_datamodels.citizen_health_schemes
-    columns: citizen_health_schemes_pk, citizen_health_schemes_master_fk, citizen_master_fk, house_hold_id, ration_card_no, scheme_approved_date, scheme_amount
-
+- table: curated_datamodels.absent_reason_dim
+  columns: absent_reason_dim_id_pk
+- table: curated_datamodels.assessment_dim
+  columns: assessment_dim_id_pk
+- table: curated_datamodels.beneficiary_type_dim
+  columns: beneficiary_type_dim_id_pk
+- table: curated_datamodels.benefit_type_dim
+  columns: benefit_type_dim_id_pk
+- table: curated_datamodels.citizen_address_master
+  columns: citizen_address_master_pk, citizen_master_fk
+- table: curated_datamodels.citizen_address_master_test
+  columns: citizen_address_master_pk, citizen_master_fk
+- table: curated_datamodels.citizen_agriculture_land
+  columns: citizen_agriculture_land_id_pk, citizen_master_fk
+- table: curated_datamodels.citizen_asset_electricity
+  columns: citizen_asset_type_pk, citizen_master_fk
+- table: curated_datamodels.citizen_asset_vaahan
+  columns: citizen_asset_vaahan_pk, citizen_master_fk, citizen_asset_vaahan_type_fk
+- table: curated_datamodels.citizen_asset_vaahan_type
+  columns: citizen_asset_vaahan_type_pk
+- table: curated_datamodels.citizen_bank_accounts
+  columns: citizen_bank_accounts_pk, citizen_master_fk
+- table: curated_datamodels.citizen_consent
+  columns: citizen_consent_id_pk, citizen_master_fk
+- table: curated_datamodels.citizen_document
+  columns: citizen_document_pk, citizen_master_fk, citizen_document_type_fk
+- table: curated_datamodels.citizen_document_testing
+  columns: citizen_document_pk, citizen_master_fk, citizen_document_type_fk
+- table: curated_datamodels.citizen_education
+  columns: citizen_education_id_pk, citizen_master_fk
+- table: curated_datamodels.citizen_family_master
+  columns: citizen_family_master_pk, citizen_master_fk, father_citizen_master_fk,
+    mother_citizen_master_fk, spouse_citizen_master_fk
+- table: curated_datamodels.citizen_health_schemes
+  columns: citizen_health_schemes_pk, citizen_health_schemes_master_fk, citizen_master_fk,
+    house_hold_id, ration_card_no, scheme_approved_date, scheme_amount, citizen_master_citizen_master_fk
+- table: curated_datamodels.citizen_health_schemes_master
+  columns: citizen_health_schemes_master_pk, health_scheme_code_fk
+- table: curated_datamodels.citizen_idty
+  columns: citizen_idty_pk, citizen_idty_type_fk
+- table: curated_datamodels.citizen_land
+  columns: citizen_land_id_pk, citizen_master_fk
+- table: curated_datamodels.citizen_master
+  columns: citizen_master_pk, citizen_idty_fk
+- table: curated_datamodels.citizen_property
+  columns: citizen_property_id_pk, citizen_master_fk
+- table: curated_datamodels.citizen_school
+  columns: citizen_school_id_pk, school_name, district_name, mandal_name, village_name,
+    urban_rural_flag, functional_status, min_class, max_class, head_master_name, school_medium_id_fk,
+    school_teacher_id_fk, school_category_id_fk, school_management_id_fk
+- table: curated_datamodels.citizen_school_teacher
+  columns: citizen_school_teacher_id_pk, teacher_citizen_master_fk
+- table: curated_datamodels.citizen_student
+  columns: citizen_student_id_pk, student_name, gender, date_of_birth, social_category,
+    current_grade, address, email_id, primary_mobile_no, citizen_school_id_fk, is_current,
+    student_citizen_master_id_fk, student_subject_id_fk, mother_citizen_master_id_fk,
+    father_citizen_master_id_fk, guardian_citizen_master_id_fk
+- table: curated_datamodels.citizen_utility_connection
+  columns: citizen_utility_connection_fk, citizen_master_fk
+- table: curated_datamodels.citizen_welfare_schemes
+  columns: citizen_welfare_schemes_pk, citizen_welfare_schemes_master_fk, citizen_master_fk,
+    house_hold_id, ration_card_no, scheme_approved_date, scheme_amount
+- table: curated_datamodels.citizen_welfare_schemes_master
+  columns: citizen_welfare_schemes_master_pk, welfare_schemes_life_cycle_fk
+- table: curated_datamodels.infrastructure_category_dim
+  columns: infra_category_dim_id_pk
+- table: curated_datamodels.infrastructure_component_dim
+  columns: infrastructure_component_dim_id_pk, infra_category_dim_id_fk
+- table: curated_datamodels.meal_type_dim
+  columns: meal_type_dim_id_pk
+- table: curated_datamodels.mid_day_meal_serving_fact
+  columns: mid_day_meal_serving_fact_id_pk, citizen_school_id_fk, date_key_id_fk,
+    meal_type_id_fk
+- table: curated_datamodels.nutrition_item_dim
+  columns: nutrition_item_dim_id_pk
+- table: curated_datamodels.ration_card_citizen
+  columns: citizen_ration_card_pk, citizen_master_fk, citizen_reason_fk, ration_card_family_fk
+- table: curated_datamodels.ration_card_family
+  columns: ration_card_family_pk, ration_card_type_id_fk, citizen_master_id_fk
+- table: curated_datamodels.scheme_benefits_fact
+  columns: scheme_benefits_fact_id_pk, citizen_student_id_fk, citizen_school_id_fk,
+    school_scheme_master_id_fk, academic_year, eligible_flag, benefit_sanctioned_flag,
+    benefit_disbursed_flag, benefit_delivered_flag, delay_days, payment_failure_reason_code,
+    benefit_type_id_fk, beneficiary_type_id_fk, school_teacher_id_fk
+- table: curated_datamodels.school_academic_performance_fact
+  columns: school_academic_performance_fact_id_pk, citizen_student_id_fk, citizen_school_id_fk,
+    academic_year, marks_obtained, maximum_marks, percentage_score, pass_flag, fail_flag,
+    student_subject_id_fk, exam_date_key_id_fk, student_class_dim_id_fk, assessment_dim_id_fk,
+    school_medium_id_fk, student_exam_id_fk
+- table: curated_datamodels.school_category
+  columns: school_category_id_pk
+- table: curated_datamodels.school_infra_category_dim
+  columns: school_infra_category_dim_id_pk
+- table: curated_datamodels.school_infra_component_dim
+  columns: school_infra_component_dim_id_pk, infrastructure_component_dim_id_fk
+- table: curated_datamodels.school_infrastructure_progress_fact
+  columns: school_infrastructure_progress_fact_id_pk, citizen_school_id_pk, reporting_date_key_fk,
+    infrastructure_component_id_fk, infrastructure_category_id_fk, reporting_period_id_fk,
+    scheme_id_fk
+- table: curated_datamodels.school_meal_menu_dim
+  columns: school_meal_menu_dim_id_pk, meal_type_dim_id_fk, nutrition_item_dim_id_fk
+- table: curated_datamodels.school_medium
+  columns: school_medium_pk
+- table: curated_datamodels.school_scheme_master
+  columns: school_scheme_dim_id_pk
+- table: curated_datamodels.school_student_attendance_fact
+  columns: school_student_attendance_fact_id_pk, citizen_student_id_fk, student_school_id_fk,
+    academic_year, present_flag, absent_flag, attendance_status_code, school_medium_id_fk,
+    student_class_dim_id_fk, attendance_date_id_fk, absence_reason_dim_id_fk
+- table: curated_datamodels.school_subject_master
+  columns: subject_pk, replaced_by_subject_pk
+- table: curated_datamodels.school_teacher_attendance_fact
+  columns: school_teacher_attendance_fact_id_pk, citizen_school_teacher_id_fk, citizen_student_id_fk,
+    attendance_date_key_id_fk
+- table: curated_datamodels.source_department_code
+  columns: source_department_code_pk
+- table: curated_datamodels.student_class_dim
+  columns: student_class_dim_id_pk
 strict_rules:
-  - "For ANY question about counts, totals, lists, averages, rates, trends, or data values — you MUST call execute_sql."
-  - "If you do not know the table name, call retrive_schema_rag first, then IMMEDIATELY call execute_sql with a SELECT query."
-  - "NEVER describe DDL or schema to the user — always run execute_sql and report the actual data."
-  - "NEVER answer without calling execute_sql for data questions."
-  - "After execute_sql returns rows, summarize the result in plain language."
-  - "When the user asks to show/list N rows, include LIMIT N and return the requested rows."
-  - "When the user asks to show students, schools, teachers, districts, or similar entities, select useful identifying columns, not only a count."
-  - "When the user asks for 'top' without a metric, infer the most useful ranking from context; for schools, use student count unless another metric is named. Note: There is NO student_count, enrollment, or total_students column in curated_datamodels.citizen_school. You MUST join curated_datamodels.citizen_school and curated_datamodels.citizen_student on curated_datamodels.citizen_school.citizen_school_id_pk = curated_datamodels.citizen_student.citizen_school_id_fk, group by the school ID/name, use COUNT(curated_datamodels.citizen_student.citizen_student_id_pk) to calculate the student count, and order by that count descending."
-  - "For broad list requests without a requested row count, include LIMIT 20."
-  - "Core tables: curated_datamodels.citizen_student (students), curated_datamodels.citizen_school (schools), curated_datamodels.school_student_attendance_fact (attendance), curated_datamodels.school_academic_performance_fact (performance), scheme_benefits_fact, mid_day_meal_serving_fact, school_infrastructure_progress_fact, citizen_welfare_schemes, citizen_health_schemes."
-  - "The database is Hive/Impala - use Hive/Spark-compatible SQL only. Use the correct database prefix (e.g. write `curated_datamodels.citizen_student`)."
-
+- "For ANY question about counts, totals, lists, averages, rates, trends, or data\
+  \ values \u2014 you MUST call execute_sql."
+- If you do not know the table name, call retrive_schema_rag first, then IMMEDIATELY
+  call execute_sql with a SELECT query.
+- "NEVER describe DDL or schema to the user \u2014 always run execute_sql and report\
+  \ the actual data."
+- NEVER answer without calling execute_sql for data questions.
+- After execute_sql returns rows, summarize the result in plain language.
+- When the user asks to show/list N rows, include LIMIT N and return the requested
+  rows.
+- When the user asks to show students, schools, teachers, districts, or similar entities,
+  select useful identifying columns, not only a count.
+- 'When the user asks for ''top'' without a metric, infer the most useful ranking
+  from context; for schools, use student count unless another metric is named. Note:
+  There is NO student_count, enrollment, or total_students column in curated_datamodels.citizen_school.
+  You MUST join curated_datamodels.citizen_school and curated_datamodels.citizen_student
+  on curated_datamodels.citizen_school.citizen_school_id_pk = curated_datamodels.citizen_student.citizen_school_id_fk,
+  group by the school ID/name, use COUNT(curated_datamodels.citizen_student.citizen_student_id_pk)
+  to calculate the student count, and order by that count descending.'
+- For broad list requests without a requested row count, include LIMIT 20.
+- 'Core tables: curated_datamodels.citizen_student (students), curated_datamodels.citizen_school
+  (schools), curated_datamodels.school_student_attendance_fact (attendance), curated_datamodels.school_academic_performance_fact
+  (performance), scheme_benefits_fact, mid_day_meal_serving_fact, school_infrastructure_progress_fact,
+  citizen_welfare_schemes, citizen_health_schemes.'
+- The database is Hive/Impala - use Hive/Spark-compatible SQL only. Use the correct
+  database prefix (e.g. write `curated_datamodels.citizen_student`).
