@@ -509,7 +509,7 @@ class HiveExecutor:
           success → { status, columns, rows, row_count }
           error   → { status, error_type, error_msg, query }
         """
-        logger.info("[execute] %s", query[:200])
+        logger.info("[execute] %s", query)
 
         # ── 1. Validate ───────────────────────────────────────────────────────
         ok, reason = _validate_query(query)

@@ -183,7 +183,7 @@ def execute_sql(query: str) -> str:
     Execute ONLY SELECT SQL queries.
     """
 
-    logger.info("[execute_sql] %s", query[:200])
+    logger.info("[execute_sql] %s", query)
 
     # Validate query first
     is_valid, message = _validate_query(query)
