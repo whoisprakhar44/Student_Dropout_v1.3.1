@@ -1,0 +1,3116 @@
+================================================================================
+DISTINCT VALUES REPORT
+================================================================================
+
+--------------------------------------------------------------------------------
+curated_datamodels.absent_reason_dim
+--------------------------------------------------------------------------------
+
+Column: REASON_NAME (Top distinct values by frequency):
+  - School changed: 1
+  - Duplicate Student: 1
+  - Left the school: 1
+  - Not feeling well: 1
+
+Column: REASON_CODE (Top distinct values by frequency):
+  - 4: 1
+  - 0: 1
+  - 2: 1
+  - 3: 1
+  - 1: 1
+
+Column: REASON_CATEGORY (Top distinct values by frequency):
+  - None: 5
+
+Column: IS_GOVT_APPROVED (Top distinct values by frequency):
+  - None: 5
+
+Column: IS_ACTIVE (Top distinct values by frequency):
+  - Yes: 5
+
+Column: IS_CURRENT (Top distinct values by frequency):
+  - None: 5
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_address_master
+--------------------------------------------------------------------------------
+
+Column: DISTRICT_NAME (Top distinct values by frequency):
+  - ANNAMAYYA: 1
+  - ANAKAPALLI: 1
+  - ANANTHAPURAMU: 1
+  - GUNTUR: 1
+  - EAST GODAVARI: 1
+
+Column: MANDAL_NAME (Top distinct values by frequency):
+  - VEERABALLI: 1
+  - CHODAVARAM: 1
+  - GUNTHAKAL: 1
+  - TADEPALLI MANGALAGIRI MUNICIPAL CORPO...: 1
+  - KOVVUR: 1
+
+Column: SECRETARIAT_NAME (Top distinct values by frequency):
+  - ODIVEEDU: 1
+  - GAVARAVARAM: 1
+  - KASAPURAM: 1
+  - SRILAKSHMINARASIMHASWAMYCOLONY: 1
+  - SRIRAMACOLONY: 1
+
+Column: ADDRESS_LINE_1 (Top distinct values by frequency):
+  - 2/35: 1
+  - 1-10: 1
+  - 2/78: 1
+  - 11-1150: 1
+  - 14-16-17: 1
+
+Column: LGD_DIST_CODE (Top distinct values by frequency):
+  - 753: 1
+  - 744: 1
+  - 502: 1
+  - 506: 1
+  - 505: 1
+
+Column: LGD_MANDAL_CODE (Top distinct values by frequency):
+  - 5242: 1
+  - 4872: 1
+  - 5309: 1
+  - 1023: 1
+  - 1076: 1
+
+  ... (Truncated to top 200 values)
+
+Column: SECRETARIAT_CODE (Top distinct values by frequency):
+  - 11190187: 1
+  - 10390354: 1
+  - 11290505: 1
+  - 21023013: 1
+  - 21076001: 1
+
+  ... (Truncated to top 200 values)
+
+Column: RURAL_URBAN_FLAG (Top distinct values by frequency):
+  - R: 3
+  - U: 2
+
+Column: PIN_CODE (Top distinct values by frequency):
+  - None: 19730661
+  - None: 280822
+  - None: 258720
+  - None: 242981
+  - None: 221759
+  - None: 218794
+  - None: 198257
+  - None: 189369
+  - None: 185831
+  - None: 185415
+  - None: 184336
+  - None: 182528
+  - None: 182472
+  - None: 176266
+  - None: 166629
+  - None: 165056
+  - None: 162635
+  - None: 160461
+  - None: 153034
+  - None: 147207
+  - None: 146169
+  - None: 143857
+  - None: 142866
+  - None: 140986
+  - None: 140112
+  - None: 140030
+  - None: 138839
+  - None: 137000
+  - None: 136763
+  - None: 132394
+  - None: 130714
+  - None: 128692
+  - None: 127947
+  - None: 127080
+  - None: 125354
+  - None: 125238
+  - None: 123731
+  - None: 123180
+  - None: 122733
+  - None: 122359
+  - None: 121871
+  - None: 121730
+  - None: 120022
+  - None: 118423
+  - None: 117716
+  - None: 117708
+  - None: 117156
+  - None: 115755
+  - None: 114656
+  - None: 113053
+  - None: 112153
+  - None: 111848
+  - None: 111088
+  - None: 110508
+  - None: 110504
+  - None: 110465
+  - None: 110375
+  - None: 109216
+  - None: 108460
+  - None: 108313
+  - None: 108056
+  - None: 107312
+  - None: 106783
+  - None: 106495
+  - None: 105842
+  - None: 104007
+  - None: 103772
+  - None: 103449
+  - None: 103331
+  - None: 102439
+  - None: 101937
+  - None: 100385
+  - None: 99533
+  - None: 99239
+  - None: 98662
+  - None: 98419
+  - None: 98394
+  - None: 98351
+  - None: 97396
+  - None: 96768
+  - None: 96231
+  - None: 95363
+  - None: 94780
+  - None: 94594
+  - None: 94204
+  - None: 93225
+  - None: 93189
+  - None: 92383
+  - None: 91642
+  - None: 90847
+  - None: 90761
+  - None: 90397
+  - None: 88778
+  - None: 87781
+  - None: 87781
+  - None: 87757
+  - None: 87556
+  - None: 87514
+  - None: 87341
+  - None: 87263
+  - None: 86887
+  - None: 86409
+  - None: 86091
+  - None: 86082
+  - None: 85250
+  - None: 84668
+  - None: 84380
+  - None: 83654
+  - None: 83382
+  - None: 83314
+  - None: 83210
+  - None: 83002
+  - None: 82505
+  - None: 82057
+  - None: 81930
+  - None: 81890
+  - None: 81233
+  - None: 80723
+  - None: 80062
+  - None: 79808
+  - None: 78853
+  - None: 78839
+  - None: 78805
+  - None: 78605
+  - None: 78002
+  - None: 77828
+  - None: 77481
+  - None: 77463
+  - None: 77364
+  - None: 76361
+  - None: 76213
+  - None: 75845
+  - None: 75585
+  - None: 75154
+  - None: 75089
+  - None: 74471
+  - None: 74375
+  - None: 73760
+  - None: 73729
+  - None: 73418
+  - None: 73079
+  - None: 73016
+  - None: 72784
+  - None: 72770
+  - None: 72723
+  - None: 72580
+  - None: 72394
+  - None: 72326
+  - None: 72279
+  - None: 72086
+  - None: 71991
+  - None: 71903
+  - None: 71555
+  - None: 71264
+  - None: 71008
+  - None: 70641
+  - None: 69701
+  - None: 69661
+  - None: 69640
+  - None: 69550
+  - None: 68925
+  - None: 68841
+  - None: 68740
+  - None: 68730
+  - None: 68594
+  - None: 68428
+  - None: 67717
+  - None: 67592
+  - None: 67498
+  - None: 67197
+  - None: 66990
+  - None: 66581
+  - None: 66522
+  - None: 66408
+  - None: 66172
+  - None: 65805
+  - None: 65653
+  - None: 65425
+  - None: 65392
+  - None: 65057
+  - None: 64732
+  - None: 64491
+  - None: 64416
+  - None: 63919
+  - None: 63906
+  - None: 63705
+  - None: 63567
+  - None: 63469
+  - None: 63218
+  - None: 62916
+  - None: 62858
+  - None: 62808
+  - None: 62582
+  - None: 62558
+  - None: 62520
+  - None: 62032
+  - None: 61648
+  - None: 61626
+  - None: 61264
+  - None: 61131
+  ... (Truncated to top 200 values)
+
+Column: IS_PRIMARY (Top distinct values by frequency):
+  - None: 67797407
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_agriculture_land
+--------------------------------------------------------------------------------
+
+Column: LAND_AREA (Top distinct values by frequency):
+  - 50 Cents to 1 acre: 3
+  - Zero Cents: 2
+
+Column: VARIETY_NAME (Top distinct values by frequency):
+  - జీడి మామిడి: 2
+  - K-6: 1
+  - Indravathi: 1
+  - చామంతి పువ్వులు: 1
+
+Column: VILLAGE_CODE (Top distinct values by frequency):
+  - 2524003: 3
+  - 1515027: 2
+
+  ... (Truncated to top 200 values)
+
+Column: CROP_TYPE (Top distinct values by frequency):
+  - Cashew nut: 2
+  - Groundnut: 1
+  - Ragi: 1
+  - Chrysanthemum: 1
+
+  ... (Truncated to top 200 values)
+
+Column: CULTIVATOR_TYPE (Top distinct values by frequency):
+  - O: 5
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_asset_electricity
+--------------------------------------------------------------------------------
+
+Column: AADHAR_NO (Top distinct values by frequency):
+  - 012345678910: 4
+  - 008641569488: 1
+
+Column: PHASE (Top distinct values by frequency):
+  - 1: 4
+  - 3: 1
+
+Column: LOCATION (Top distinct values by frequency):
+  - null , null , null: 1
+  - KADAPA , CUDDAPAH-KAMALAPURAM , KAMAL...: 1
+  - ANNAMAYYA , CUDDAPAH-RAYACHOTI , TOWN: 1
+  - NELLORE , NELLORE-DAGADARTHI , CHOWTA...: 1
+  - TIRUPATI , NELLORE-VENKATAGIRI , null: 1
+
+Column: DISCOM_NAME (Top distinct values by frequency):
+  - APSPDCL: 4
+  - APCPDCL: 1
+
+Column: METER_TYPE (Top distinct values by frequency):
+  - SMART: 3
+  - NON-SMART: 2
+
+Column: CATEGORY_DESCRIPTION (Top distinct values by frequency):
+  - Commercial: 4
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_asset_vaahan
+--------------------------------------------------------------------------------
+
+Column: REGISTRATION_NO (Top distinct values by frequency):
+  - ABK1179: 1
+  - AEG1827: 1
+  - AP01F3723: 1
+  - AP02AB0875: 1
+  - AP02AG9009: 1
+
+Column: DATE_OF_REGISTRATION (Top distinct values by frequency):
+  - 26-Apr-1983 12.00.00.00000000  am: 1
+  - 15-Aug-1989 12.00.00.00000000  am: 1
+  - 22-Apr-2003 12.00.00.00000000  am: 1
+  - 25-Feb-2009 12.00.00.00000000  am: 1
+  - 09-Feb-2015 12.00.00.00000000  am: 1
+
+Column: MAKE (Top distinct values by frequency):
+  - 86: 2
+  - 3982: 1
+  - 36: 1
+  - 11: 1
+
+Column: YEAR_OF_MANUFACTURE (Top distinct values by frequency):
+  - 1983: 1
+  - 1989: 1
+  - 2003: 1
+  - 2009: 1
+  - 2014: 1
+
+Column: REGN_VALID_TO (Top distinct values by frequency):
+  - 07-Jul-2023 12.00.00.00000000  am: 1
+  - 05-May-2017 12.00.00.00000000  am: 1
+  - 21-Apr-2018 12.00.00.00000000  am: 1
+  - 24-Feb-2024 12.00.00.00000000  am: 1
+  - 08-Feb-2030 12.00.00.00000000  am: 1
+
+Column: COLOR (Top distinct values by frequency):
+  - INA: 2
+  - BLACK: 2
+  - MYTHOS BLACK METALLI: 1
+
+Column: OWNER_NAME (Top distinct values by frequency):
+  - J SATYA PRASAD: 1
+  - SRINIVASAMANIKANTA A: 1
+  - VANDANA LAKSHMINARAYANA: 1
+  - P S NASEEMA BEGUM: 1
+  - VAIDEHEE SAREES: 1
+
+Column: OWNER_SENIORITY (Top distinct values by frequency):
+  - 1: 5
+
+Column: MODEL (Top distinct values by frequency):
+  - TATA: 2
+  - HERO HONDA SPLENDOR: 1
+  - SHINE FRONT DRUM BRAKE KICK ST: 1
+  - AUDI Q3 2.0 TDI QUATTRO BSIV: 1
+
+  ... (Truncated to top 200 values)
+
+Column: FUEL_TYPE (Top distinct values by frequency):
+  - 2: 3
+  - 1: 2
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_asset_vaahan_type
+--------------------------------------------------------------------------------
+
+Column: MIN_INSURANCE_VALIDITY (Top distinct values by frequency):
+  - 0: 5
+
+Column: CLASS_DESCRIPTION (Top distinct values by frequency):
+  - Modular Hydraulic Trailer: 1
+  - Motor Cycle/Scooter-With Trailer: 1
+  - Hearses: 1
+  - Luxury Cab: 1
+  - Tractor (Commercial): 1
+
+Column: CONVERTIBLE_CLASSES (Top distinct values by frequency):
+  - 1,2,3,4,53,51: 1
+  - 76: 1
+  - 7,15,23,69,70,71,73,75,86: 1
+  - 10,11,13,17,19,22,25,27: 1
+
+Column: CLASS_TYPE (Top distinct values by frequency):
+  - 1: 5
+
+Column: TRANSPORT_CATEGORY (Top distinct values by frequency):
+  - G: 3
+  - S: 1
+  - P: 1
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_document
+--------------------------------------------------------------------------------
+
+Column: DOCUMENT_NAME (Top distinct values by frequency):
+  - BA202228900540094297: 1
+  - BA202228902270016319: 1
+  - BA202228900990048084: 1
+  - BA202228900320096683: 1
+  - BA202228110040026204: 1
+
+Column: ISSUING_AUTHORITY (Top distinct values by frequency):
+  - Dr.S.Shareena (Vennela Hospital)Nello...: 1
+  - AMAVM HOSPITAL GAVARAPALEM ANAKAPALLI...: 1
+  - SAIVEENA CHILDRENS HOSPITAL , 60 FEET...: 1
+  - ST ANNS HOSPITAL M G ROAD, Vijayawada...: 1
+  - RURAL DEVELOPMENT TRUST HOSPITAL, BAT...: 1
+
+Column: PLACE_OF_EVENT (Top distinct values by frequency):
+  - Hospital/Institution: 5
+
+Column: VALID_FROM (Top distinct values by frequency):
+  - 2022-10-11 00:00:00: 2
+  - 2022-10-02 00:00:00: 1
+  - 2022-08-19 00:00:00: 1
+  - 2022-08-23 00:00:00: 1
+
+Column: COALESCED_UID (Top distinct values by frequency):
+  - 233883689711: 1
+  - 287627567646: 1
+  - 717720347655: 1
+  - 974581428146: 1
+
+Column: STATUS (Top distinct values by frequency):
+  - None: 11319195
+
+Column: UID_FLAG (Top distinct values by frequency):
+  - M: 4
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_document_testing
+--------------------------------------------------------------------------------
+
+Column: DOCUMENT_NAME (Top distinct values by frequency):
+  - BA202128022240000203: 1
+  - BA201628151200004911: 1
+  - BA201628901470000217: 1
+  - BA202228160470000970: 1
+  - BA201628900410000053: 1
+
+Column: ISSUING_AUTHORITY (Top distinct values by frequency):
+  - GRAMA PANCHAYAT KUDUMSARAI: 1
+  - GGH Ananthapur: 1
+  - DISTRICT HOSPITAL CHITTOR: 1
+  - PHC GOMANGI: 1
+  - MUNICIPALITY VINUKONDA: 1
+
+Column: PLACE_OF_EVENT (Top distinct values by frequency):
+  - Hospital/Institution: 4
+  - House: 1
+
+Column: VALID_FROM (Top distinct values by frequency):
+  - 06-11-2023: 2
+  - 13-12-2016: 2
+  - 21-10-2019: 1
+
+Column: COALESCED_UID (Top distinct values by frequency):
+  - 303570390926: 1
+  - 252442579590: 1
+  - 534546812284: 1
+  - 660730884508: 1
+
+Column: STATUS (Top distinct values by frequency):
+  - None: 7118635
+
+Column: UID_FLAG (Top distinct values by frequency):
+  - F: 2
+  - M: 2
+  - N: 1
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_education
+--------------------------------------------------------------------------------
+
+Column: QUALIFICATION_NAME (Top distinct values by frequency):
+  - Other: 1
+  - Diploma & Other: 1
+  - 10th class: 1
+
+Column: QUALIFICATION_LEVEL (Top distinct values by frequency):
+  - None: 55748213
+
+Column: INSTITUTION_CODE (Top distinct values by frequency):
+  - None: 44998158
+  - None: 13420
+  - None: 10154
+  - None: 8601
+  - None: 8196
+  - None: 7377
+  - None: 7093
+  - None: 7011
+  - None: 6973
+  - None: 6958
+  - None: 6927
+  - None: 6742
+  - None: 6479
+  - None: 6430
+  - None: 6385
+  - None: 6342
+  - None: 6309
+  - None: 6254
+  - None: 6157
+  - None: 6138
+  - None: 6117
+  - None: 5967
+  - None: 5965
+  - None: 5869
+  - None: 5844
+  - None: 5821
+  - None: 5807
+  - None: 5755
+  - None: 5744
+  - None: 5718
+  - None: 5711
+  - None: 5656
+  - None: 5620
+  - None: 5579
+  - None: 5536
+  - None: 5524
+  - None: 5520
+  - None: 5520
+  - None: 5476
+  - None: 5474
+  - None: 5431
+  - None: 5412
+  - None: 5399
+  - None: 5377
+  - None: 5356
+  - None: 5355
+  - None: 5345
+  - None: 5329
+  - None: 5316
+  - None: 5315
+  - None: 5293
+  - None: 5292
+  - None: 5251
+  - None: 5221
+  - None: 5217
+  - None: 5187
+  - None: 5182
+  - None: 5161
+  - None: 5161
+  - None: 5135
+  - None: 5130
+  - None: 5119
+  - None: 5111
+  - None: 5098
+  - None: 5075
+  - None: 5051
+  - None: 5039
+  - None: 5036
+  - None: 5027
+  - None: 5017
+  - None: 5011
+  - None: 5007
+  - None: 5006
+  - None: 4986
+  - None: 4976
+  - None: 4934
+  - None: 4932
+  - None: 4926
+  - None: 4887
+  - None: 4876
+  - None: 4876
+  - None: 4868
+  - None: 4857
+  - None: 4807
+  - None: 4805
+  - None: 4799
+  - None: 4795
+  - None: 4761
+  - None: 4749
+  - None: 4737
+  - None: 4728
+  - None: 4726
+  - None: 4687
+  - None: 4680
+  - None: 4671
+  - None: 4658
+  - None: 4633
+  - None: 4630
+  - None: 4608
+  - None: 4606
+  - None: 4601
+  - None: 4583
+  - None: 4583
+  - None: 4562
+  - None: 4528
+  - None: 4522
+  - None: 4517
+  - None: 4516
+  - None: 4500
+  - None: 4498
+  - None: 4478
+  - None: 4471
+  - None: 4469
+  - None: 4448
+  - None: 4441
+  - None: 4426
+  - None: 4405
+  - None: 4402
+  - None: 4391
+  - None: 4357
+  - None: 4351
+  - None: 4345
+  - None: 4344
+  - None: 4342
+  - None: 4330
+  - None: 4327
+  - None: 4319
+  - None: 4317
+  - None: 4310
+  - None: 4306
+  - None: 4298
+  - None: 4293
+  - None: 4286
+  - None: 4281
+  - None: 4277
+  - None: 4266
+  - None: 4261
+  - None: 4261
+  - None: 4259
+  - None: 4256
+  - None: 4243
+  - None: 4241
+  - None: 4224
+  - None: 4222
+  - None: 4221
+  - None: 4221
+  - None: 4218
+  - None: 4192
+  - None: 4192
+  - None: 4186
+  - None: 4182
+  - None: 4175
+  - None: 4172
+  - None: 4161
+  - None: 4161
+  - None: 4161
+  - None: 4152
+  - None: 4150
+  - None: 4148
+  - None: 4135
+  - None: 4131
+  - None: 4131
+  - None: 4129
+  - None: 4120
+  - None: 4119
+  - None: 4116
+  - None: 4111
+  - None: 4108
+  - None: 4106
+  - None: 4101
+  - None: 4099
+  - None: 4098
+  - None: 4091
+  - None: 4085
+  - None: 4081
+  - None: 4078
+  - None: 4067
+  - None: 4061
+  - None: 4043
+  - None: 4029
+  - None: 4026
+  - None: 4024
+  - None: 3999
+  - None: 3994
+  - None: 3994
+  - None: 3989
+  - None: 3989
+  - None: 3972
+  - None: 3953
+  - None: 3936
+  - None: 3931
+  - None: 3929
+  - None: 3926
+  - None: 3923
+  - None: 3919
+  - None: 3904
+  - None: 3904
+  - None: 3901
+  - None: 3844
+  - None: 3833
+  ... (Truncated to top 200 values)
+
+Column: SCHOLARSHIP_SCHEME (Top distinct values by frequency):
+  - None: 55748213
+
+Column: CURRENT_QUALIFICATION_FLAG (Top distinct values by frequency):
+  - N: 5
+
+Column: MODE_OF_STUDY (Top distinct values by frequency):
+  - None: 55748213
+
+Column: MEDIUM_OF_INSTRUCTION (Top distinct values by frequency):
+  - None: 32072607
+  - None: 20793363
+  - None: 2658229
+  - None: 164515
+  - None: 26556
+  - None: 22941
+  - None: 5950
+  - None: 3487
+  - None: 443
+  - None: 102
+  - None: 20
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_family_master
+--------------------------------------------------------------------------------
+
+Column: CITIZEN_NAME (Top distinct values by frequency):
+  - PotnuruKushal: 1
+  - K Janardhan: 1
+  - Gonti Sai: 1
+  - Vadde Nagaraju: 1
+  - Kornu Govindarao: 1
+
+Column: CAREOF (Top distinct values by frequency):
+  - S/O: K Lakshmi Narasimhaiah: 1
+
+Column: IS_HOFAMILY (Top distinct values by frequency):
+  - 0: 5
+
+Column: IS_MEMBERADDED (Top distinct values by frequency):
+  - 0: 5
+
+Column: IS_MEMBERDELETED (Top distinct values by frequency):
+  - 0: 5
+
+Column: IS_MARRIED (Top distinct values by frequency):
+  - 0: 5
+
+Column: HH_UPDATE_STATUS (Top distinct values by frequency):
+  - None: 53201678
+  - None: 168
+  - None: 165
+  - None: 126
+  - None: 107
+  - None: 106
+  - None: 82
+  - None: 66
+  - None: 64
+  - None: 52
+  - None: 50
+  - None: 49
+  - None: 47
+  - None: 46
+  - None: 46
+  - None: 44
+  - None: 37
+  - None: 35
+  - None: 35
+  - None: 34
+  - None: 29
+  - None: 27
+  - None: 26
+  - None: 26
+  - None: 23
+  - None: 23
+  - None: 22
+  - None: 22
+  - None: 21
+  - None: 21
+  - None: 20
+  - None: 18
+  - None: 17
+  - None: 16
+  - None: 16
+  - None: 15
+  - None: 15
+  - None: 13
+  - None: 13
+  - None: 12
+  - None: 12
+  - None: 11
+  - None: 11
+  - None: 11
+  - None: 11
+  - None: 11
+  - None: 11
+  - None: 11
+  - None: 11
+  - None: 11
+  - None: 11
+  - None: 10
+  - None: 10
+  - None: 10
+  - None: 10
+  - None: 10
+  - None: 10
+  - None: 10
+  - None: 10
+  - None: 9
+  - None: 9
+  - None: 9
+  - None: 9
+  - None: 9
+  - None: 9
+  - None: 8
+  - None: 8
+  - None: 8
+  - None: 8
+  - None: 8
+  - None: 8
+  - None: 8
+  - None: 8
+  - None: 8
+  - None: 8
+  - None: 8
+  - None: 7
+  - None: 7
+  - None: 7
+  - None: 7
+  - None: 7
+  - None: 7
+  - None: 7
+  - None: 7
+  - None: 7
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 6
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  ... (Truncated to top 200 values)
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_health_schemes_master
+--------------------------------------------------------------------------------
+
+Column: SCHEME_NAME (Top distinct values by frequency):
+  - Ayushman Bharat(PM-JAY): 1
+  - Dr.NTR Vaidya Seva: 1
+  - Working journalist Health: 1
+  - Arogya Raksha: 1
+  - Employee health: 1
+
+Column: CREATE_BY (Top distinct values by frequency):
+  - Curated_team: 5
+
+Column: SCHEME_TYPE (Top distinct values by frequency):
+  - None: 5
+
+Column: CATEGORY (Top distinct values by frequency):
+  - None: 5
+
+Column: SUB_CATEGORY (Top distinct values by frequency):
+  - None: 5
+
+Column: SCHEME_CODE (Top distinct values by frequency):
+  - None: 5
+
+Column: SCHEME_ACTIVE_STATUS (Top distinct values by frequency):
+  - None: 5
+
+Column: SCHEME_BENEFITS (Top distinct values by frequency):
+  - None: 5
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_master
+--------------------------------------------------------------------------------
+
+Column: FULL_NAME (Top distinct values by frequency):
+  - Kasimkota Lavanya: 1
+  - Kuraba Yerriswamy: 1
+  - Rahul Chadalavada: 1
+  - GUVVADI RATHAMMA: 1
+  - Ajaguttu Nikileswar Reddy: 1
+
+Column: SOURCE_SYSTEM (Top distinct values by frequency):
+  - GSWS: 5
+
+Column: GENDER (Top distinct values by frequency):
+  - MALE: 3
+  - FEMALE: 2
+
+Column: MARITAL_STATUS (Top distinct values by frequency):
+  - 0: 5
+
+Column: RESIDENCY_STATUS (Top distinct values by frequency):
+  - 1045735750: 1
+  - 1374783456: 1
+  - 1802477394: 1
+  - 1286552336: 1
+  - 1312143190: 1
+
+  ... (Truncated to top 200 values)
+
+Column: STATUS_CODE (Top distinct values by frequency):
+  - None: 53024008
+
+Column: RELIGION (Top distinct values by frequency):
+  - Hindu: 4
+
+Column: CASTE (Top distinct values by frequency):
+  - BC-B: 2
+  - SC: 1
+  - OC: 1
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_school
+--------------------------------------------------------------------------------
+
+Column: SCHOOL_MEDIUM_ID_FK (Top distinct values by frequency):
+  - 5: 1
+  - 3: 1
+
+Column: SCHOOL_CATEGORY_ID_FK (Top distinct values by frequency):
+  - 1: 2
+  - 5: 1
+  - 7: 1
+
+Column: SCHOOL_NAME (Top distinct values by frequency):
+  - DSCTraining Teachers: 1
+  - GPS (TW) NERADIGUDA: 1
+  - KENDRIYA VIDYALAYAM: 1
+  - JAWAHAR NAVODAYA VIDYALAYA: 1
+  - GOVT TRIBAL WELFARE SCHOOL NEKKANTI: 1
+
+Column: SCHOOL_ADDRESS (Top distinct values by frequency):
+  - NEAR SEVEN TEMPLES, BABAMETTA , VIZIA...: 1
+  - VELERU VILLAGE BAPULAPADU MANDAL KRIS...: 1
+  - NEKKANTI VILLAGE YERRAGONDAPALEM MAND...: 1
+
+Column: DISTRICT_NAME (Top distinct values by frequency):
+  - State Level: 1
+  - SRIKAKULAM: 1
+  - Vizianagaram: 1
+  - Krishna: 1
+  - Prakasam: 1
+
+Column: MANDAL_NAME (Top distinct values by frequency):
+  - -: 1
+  - HIRAMANDALAM: 1
+  - VIZIANAGARAM: 1
+  - BAPULAPADU: 1
+  - YERRAGONDAPALEM: 1
+
+Column: VILLAGE_NAME (Top distinct values by frequency):
+  - -: 1
+  - VIZIANAGARAM-1: 1
+  - VELERU: 1
+  - KOLUKULA: 1
+
+Column: SCHOOL_PINCODE (Top distinct values by frequency):
+  - 535002: 1
+  - 521110: 1
+  - 523327: 1
+
+Column: ACADEMIC_YEAR_OPENED (Top distinct values by frequency):
+  - 2007: 1
+  - 1990: 1
+  - 2019: 1
+
+Column: MIN_CLASS (Top distinct values by frequency):
+  - -2: 3
+  - 6: 1
+
+Column: MAX_CLASS (Top distinct values by frequency):
+  - 5: 2
+  - 12: 2
+
+Column: SCHOOL_DEPT_CODE (Top distinct values by frequency):
+  - None: 73686
+
+Column: SCHOOL_UDISE_CODE (Top distinct values by frequency):
+  - None: 1222
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  ... (Truncated to top 200 values)
+
+Column: DISTRICT_LGD_CODE (Top distinct values by frequency):
+  - None: 4206
+  - None: 3736
+  - None: 3665
+  - None: 3625
+  - None: 3619
+  - None: 3409
+  - None: 3358
+  - None: 3151
+  - None: 2979
+  - None: 2905
+  - None: 2834
+  - None: 2788
+  - None: 2724
+  - None: 2501
+  - None: 2480
+  - None: 2433
+  - None: 2375
+  - None: 2367
+  - None: 2364
+  - None: 2338
+  - None: 2268
+  - None: 2235
+  - None: 2203
+  - None: 1992
+  - None: 1985
+  - None: 1924
+  - None: 1222
+
+Column: MANDAL_LGD_CODE (Top distinct values by frequency):
+  - None: 16018
+  - None: 1222
+  - None: 427
+  - None: 237
+  - None: 224
+  - None: 221
+  - None: 220
+  - None: 220
+  - None: 211
+  - None: 207
+  - None: 202
+  - None: 202
+  - None: 201
+  - None: 199
+  - None: 198
+  - None: 197
+  - None: 194
+  - None: 194
+  - None: 192
+  - None: 185
+  - None: 180
+  - None: 180
+  - None: 174
+  - None: 172
+  - None: 169
+  - None: 168
+  - None: 165
+  - None: 163
+  - None: 162
+  - None: 160
+  - None: 159
+  - None: 152
+  - None: 150
+  - None: 150
+  - None: 148
+  - None: 146
+  - None: 146
+  - None: 145
+  - None: 144
+  - None: 141
+  - None: 141
+  - None: 139
+  - None: 137
+  - None: 136
+  - None: 135
+  - None: 135
+  - None: 135
+  - None: 133
+  - None: 132
+  - None: 130
+  - None: 130
+  - None: 128
+  - None: 127
+  - None: 127
+  - None: 126
+  - None: 126
+  - None: 126
+  - None: 125
+  - None: 123
+  - None: 123
+  - None: 123
+  - None: 122
+  - None: 122
+  - None: 122
+  - None: 122
+  - None: 121
+  - None: 120
+  - None: 120
+  - None: 120
+  - None: 120
+  - None: 119
+  - None: 119
+  - None: 118
+  - None: 118
+  - None: 117
+  - None: 117
+  - None: 117
+  - None: 117
+  - None: 117
+  - None: 116
+  - None: 116
+  - None: 116
+  - None: 116
+  - None: 115
+  - None: 115
+  - None: 115
+  - None: 115
+  - None: 114
+  - None: 113
+  - None: 113
+  - None: 113
+  - None: 112
+  - None: 112
+  - None: 112
+  - None: 112
+  - None: 112
+  - None: 111
+  - None: 111
+  - None: 111
+  - None: 111
+  - None: 111
+  - None: 111
+  - None: 110
+  - None: 110
+  - None: 110
+  - None: 110
+  - None: 109
+  - None: 109
+  - None: 109
+  - None: 109
+  - None: 108
+  - None: 108
+  - None: 108
+  - None: 108
+  - None: 108
+  - None: 107
+  - None: 106
+  - None: 106
+  - None: 105
+  - None: 105
+  - None: 105
+  - None: 105
+  - None: 104
+  - None: 104
+  - None: 104
+  - None: 103
+  - None: 103
+  - None: 103
+  - None: 103
+  - None: 102
+  - None: 102
+  - None: 102
+  - None: 102
+  - None: 102
+  - None: 102
+  - None: 102
+  - None: 101
+  - None: 101
+  - None: 101
+  - None: 101
+  - None: 101
+  - None: 101
+  - None: 101
+  - None: 100
+  - None: 100
+  - None: 100
+  - None: 100
+  - None: 100
+  - None: 99
+  - None: 99
+  - None: 99
+  - None: 99
+  - None: 99
+  - None: 99
+  - None: 99
+  - None: 99
+  - None: 98
+  - None: 98
+  - None: 98
+  - None: 98
+  - None: 98
+  - None: 98
+  - None: 98
+  - None: 97
+  - None: 97
+  - None: 97
+  - None: 97
+  - None: 97
+  - None: 97
+  - None: 97
+  - None: 97
+  - None: 97
+  - None: 96
+  - None: 96
+  - None: 96
+  - None: 96
+  - None: 96
+  - None: 95
+  - None: 95
+  - None: 95
+  - None: 95
+  - None: 95
+  - None: 95
+  - None: 94
+  - None: 94
+  - None: 94
+  - None: 94
+  - None: 93
+  - None: 93
+  - None: 93
+  - None: 93
+  - None: 93
+  - None: 93
+  - None: 93
+  - None: 92
+  - None: 92
+  - None: 92
+  - None: 92
+  - None: 92
+  - None: 92
+  ... (Truncated to top 200 values)
+
+Column: VILLAGE_LGD_CODE (Top distinct values by frequency):
+  - None: 22025
+  - None: 1222
+  - None: 89
+  - None: 62
+  - None: 61
+  - None: 59
+  - None: 53
+  - None: 47
+  - None: 45
+  - None: 45
+  - None: 45
+  - None: 43
+  - None: 43
+  - None: 42
+  - None: 42
+  - None: 42
+  - None: 42
+  - None: 42
+  - None: 41
+  - None: 40
+  - None: 39
+  - None: 39
+  - None: 39
+  - None: 38
+  - None: 38
+  - None: 37
+  - None: 37
+  - None: 37
+  - None: 37
+  - None: 36
+  - None: 35
+  - None: 35
+  - None: 35
+  - None: 34
+  - None: 34
+  - None: 34
+  - None: 34
+  - None: 34
+  - None: 34
+  - None: 34
+  - None: 33
+  - None: 33
+  - None: 33
+  - None: 32
+  - None: 32
+  - None: 32
+  - None: 32
+  - None: 32
+  - None: 32
+  - None: 32
+  - None: 32
+  - None: 31
+  - None: 31
+  - None: 31
+  - None: 31
+  - None: 31
+  - None: 30
+  - None: 30
+  - None: 30
+  - None: 30
+  - None: 30
+  - None: 30
+  - None: 29
+  - None: 29
+  - None: 29
+  - None: 29
+  - None: 29
+  - None: 29
+  - None: 28
+  - None: 28
+  - None: 28
+  - None: 28
+  - None: 27
+  - None: 27
+  - None: 27
+  - None: 27
+  - None: 27
+  - None: 27
+  - None: 27
+  - None: 27
+  - None: 27
+  - None: 27
+  - None: 27
+  - None: 27
+  - None: 27
+  - None: 26
+  - None: 26
+  - None: 26
+  - None: 26
+  - None: 26
+  - None: 26
+  - None: 26
+  - None: 26
+  - None: 26
+  - None: 26
+  - None: 26
+  - None: 25
+  - None: 25
+  - None: 25
+  - None: 25
+  - None: 25
+  - None: 25
+  - None: 25
+  - None: 25
+  - None: 25
+  - None: 25
+  - None: 25
+  - None: 24
+  - None: 24
+  - None: 24
+  - None: 24
+  - None: 24
+  - None: 24
+  - None: 24
+  - None: 23
+  - None: 23
+  - None: 23
+  - None: 23
+  - None: 23
+  - None: 23
+  - None: 23
+  - None: 23
+  - None: 23
+  - None: 23
+  - None: 23
+  - None: 23
+  - None: 23
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 22
+  - None: 21
+  - None: 21
+  - None: 21
+  - None: 21
+  - None: 21
+  - None: 21
+  - None: 21
+  - None: 21
+  - None: 21
+  - None: 21
+  - None: 21
+  - None: 21
+  - None: 21
+  - None: 21
+  - None: 21
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 20
+  - None: 19
+  - None: 19
+  - None: 19
+  - None: 19
+  - None: 19
+  - None: 19
+  - None: 19
+  - None: 19
+  - None: 19
+  - None: 19
+  ... (Truncated to top 200 values)
+
+Column: URBAN_RURAL_FLAG (Top distinct values by frequency):
+  - RURAL: 3
+  - URBAN: 2
+
+Column: FUNCTIONAL_STATUS (Top distinct values by frequency):
+  - Active: 5
+
+Column: PRE_PRIMARY_FLAG (Top distinct values by frequency):
+  - None: 36403
+  - None: 21441
+  - None: 15842
+
+Column: VOCATIONAL_FLAG (Top distinct values by frequency):
+  - None: 73686
+
+Column: BUILDING_STATUS (Top distinct values by frequency):
+  - None: 43782
+  - None: 11745
+  - None: 9034
+  - None: 8243
+  - None: 592
+  - None: 218
+  - None: 52
+  - None: 20
+
+Column: ELECTRICITY_AVAILABILITY_FLAG (Top distinct values by frequency):
+  - None: 61716
+  - None: 11745
+  - None: 149
+  - None: 56
+  - None: 20
+
+Column: DRINKING_WATER_AVAILABILITY_FLAG (Top distinct values by frequency):
+  - None: 61941
+  - None: 11745
+
+Column: TOILET_BOYS_FLAG (Top distinct values by frequency):
+  - None: 29031
+  - None: 11745
+  - None: 10769
+  - None: 7321
+  - None: 3770
+  - None: 3280
+  - None: 2210
+  - None: 1316
+  - None: 1255
+  - None: 755
+  - None: 346
+  - None: 307
+  - None: 299
+  - None: 242
+  - None: 195
+  - None: 89
+  - None: 81
+  - None: 80
+  - None: 71
+  - None: 69
+  - None: 53
+  - None: 52
+  - None: 43
+  - None: 37
+  - None: 21
+  - None: 18
+  - None: 17
+  - None: 15
+  - None: 13
+  - None: 13
+  - None: 12
+  - None: 12
+  - None: 12
+  - None: 10
+  - None: 10
+  - None: 9
+  - None: 9
+  - None: 9
+  - None: 8
+  - None: 5
+  - None: 5
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 3
+  - None: 3
+  - None: 3
+  - None: 3
+  - None: 3
+  - None: 3
+  - None: 3
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+
+Column: TOILET_GIRLS_FLAG (Top distinct values by frequency):
+  - None: 31131
+  - None: 11745
+  - None: 11303
+  - None: 4460
+  - None: 4040
+  - None: 2494
+  - None: 1549
+  - None: 1355
+  - None: 1340
+  - None: 1018
+  - None: 501
+  - None: 395
+  - None: 332
+  - None: 299
+  - None: 289
+  - None: 150
+  - None: 141
+  - None: 134
+  - None: 115
+  - None: 107
+  - None: 81
+  - None: 70
+  - None: 63
+  - None: 50
+  - None: 48
+  - None: 45
+  - None: 41
+  - None: 32
+  - None: 30
+  - None: 27
+  - None: 20
+  - None: 19
+  - None: 19
+  - None: 17
+  - None: 17
+  - None: 12
+  - None: 11
+  - None: 11
+  - None: 10
+  - None: 10
+  - None: 10
+  - None: 9
+  - None: 7
+  - None: 7
+  - None: 7
+  - None: 6
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 5
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 4
+  - None: 3
+  - None: 3
+  - None: 3
+  - None: 3
+  - None: 3
+  - None: 3
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 2
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+  - None: 1
+
+Column: ICT_ENABLED_FLAG (Top distinct values by frequency):
+  - None: 47275
+  - None: 14646
+  - None: 11745
+  - None: 20
+
+Column: PLAYGROUND_FLAG (Top distinct values by frequency):
+  - None: 51503
+  - None: 11745
+  - None: 10418
+  - None: 20
+
+Column: FIRE_SAFETY_FLAG (Top distinct values by frequency):
+  - None: 73686
+
+Column: HEALTH_SAFETY_FLAG (Top distinct values by frequency):
+  - None: 73686
+
+Column: IS_CURRENT (Top distinct values by frequency):
+  - YES: 5
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_school_teacher
+--------------------------------------------------------------------------------
+
+Column: TEACHER_NAME (Top distinct values by frequency):
+  - G.RAGHAVa RAO: 1
+  - K KAVITHA: 1
+  - VENU gopal: 1
+  - MAHESH: 1
+  - SANDHYA RANI: 1
+
+Column: DATE_OF_BIRTH (Top distinct values by frequency):
+  - 1965-01-09: 1
+  - 1988-05-01: 1
+  - 1963-10-30: 1
+  - 1990-08-22: 1
+  - 1993-06-01: 1
+
+Column: TEACHER_DESIGNATION (Top distinct values by frequency):
+  - Secondary Grade Teacher (Telugu): 1
+  - CRT-BIOLOGICAL SCIENCE: 1
+  - School Asst./PGT / JL ( Mathematics ): 1
+  - School Asst./PGT ( Bio.Science ): 1
+  - PGT PHYSICS: 1
+
+Column: FATHER_NAME (Top distinct values by frequency):
+  - raghavasubramanyam: 1
+  - k narasimhulu: 1
+  - ramaraoks: 1
+  - nagireddy: 1
+  - SUBBARAYUDU: 1
+
+Column: NATIONAL_TEACHER_CODE (Top distinct values by frequency):
+  - TS50010742: 1
+  - TR30931450: 1
+
+  ... (Truncated to top 200 values)
+
+Column: GENDER (Top distinct values by frequency):
+  - M: 3
+  - F: 2
+
+Column: EMPLOYMENT_TYPE (Top distinct values by frequency):
+  - None: 155415
+  - None: 126211
+  - None: 48332
+  - None: 33912
+  - None: 3291
+  - None: 832
+
+Column: IS_SINGLE_PARENT (Top distinct values by frequency):
+  - None: 367993
+
+Column: DISABILITY_CATEGORY (Top distinct values by frequency):
+  - None: 339622
+  - None: 18913
+  - None: 5005
+  - None: 1660
+  - None: 1303
+  - None: 1052
+  - None: 414
+  - None: 24
+
+Column: TET_PASSED_FLAG (Top distinct values by frequency):
+  - Yes: 1
+
+Column: SERVICE_STATUS (Top distinct values by frequency):
+  - Active: 5
+
+Column: PRESENT_DESIGNATION_TEACHING_TYPE (Top distinct values by frequency):
+  - Teaching: 2
+
+Column: IS_CURRENT (Top distinct values by frequency):
+  - Yes: 5
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_student
+--------------------------------------------------------------------------------
+
+Column: STUDENT_NAME (Top distinct values by frequency):
+  - GORLE HEMANTH: 1
+  - CHALLA SAI MONISH: 1
+  - ITRAJU SANTHOSH: 1
+  - UDIYANA DILEEP: 1
+  - CHINTHADA SOMESH: 1
+
+Column: MOTHER_TONGUE (Top distinct values by frequency):
+  - 140: 5
+
+Column: DATE_OF_BIRTH (Top distinct values by frequency):
+  - 2008-06-07: 1
+  - 2009-03-10: 1
+  - 2005-12-25: 1
+  - 2008-11-04: 1
+  - 2009-01-01: 1
+
+Column: MINORITY_STATUS (Top distinct values by frequency):
+  - Not Applicable: 5
+
+Column: DISABILITY_PERCENTAGE (Top distinct values by frequency):
+  - 0.00: 4
+
+Column: ADDRESS (Top distinct values by frequency):
+  - 3-1 PATHARALAPALLI RANASTHALAM SRIKAK...: 1
+  - FAZULBEGPETA SRIKAKULAM SRIKAKULAM: 1
+  - 1-59 THALAVARAM VEERAGHATTAM PARVATHI...: 1
+  - 1-209 THALAVARAM VEERAGHATTAM PARVATH...: 1
+  - 1-123 THALAVARAM VEERAGHATTAM PARVATH...: 1
+
+Column: PINCODE (Top distinct values by frequency):
+  - 532462: 3
+  - 532407: 1
+  - 532005: 1
+
+Column: CURRENT_GRADE (Top distinct values by frequency):
+  - 12: 3
+  - 11: 2
+
+Column: GENDER (Top distinct values by frequency):
+  - MALE: 5
+
+Column: SOCIAL_CATEGORY (Top distinct values by frequency):
+  - OBC: 5
+
+Column: DISABILITY_FLAG (Top distinct values by frequency):
+  - No: 5
+
+Column: ADMISSION_FLAG (Top distinct values by frequency):
+  - Yes: 5
+
+Column: MEDIUM_KEY (Top distinct values by frequency):
+  - 3: 3
+  - 5: 2
+
+Column: IS_CURRENT (Top distinct values by frequency):
+  - Yes: 5
+
+Column: IS_CURRENT_FLAG (Top distinct values by frequency):
+  - Y: 5
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_utility_connection
+--------------------------------------------------------------------------------
+
+
+
+
+Column: GAS_CONNECTION_STATUS (Top distinct values by frequency):
+  - LPG_GAS: 5
+
+Column: ELECTRICITY_CONNECTION_STATUS (Top distinct values by frequency):
+  - Y: 1
+
+Column: WATER_CONNECTION_STATUS (Top distinct values by frequency):
+  - MUNICIPAL_PANCHAYAT_TAP: 4
+  - PUBLIC_TAP: 1
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_welfare_schemes_master
+--------------------------------------------------------------------------------
+
+Column: SCHEME_NAME (Top distinct values by frequency):
+  - Annadatha Sukhibava: 1
+  - Aasara: 1
+  - Jalakala: 1
+  - Videsi Vidya Deevena: 1
+  - Pension Kanuka: 1
+
+Column: CATEGORY (Top distinct values by frequency):
+  - None: 31
+
+Column: SUB_CATEGORY (Top distinct values by frequency):
+  - None: 31
+
+Column: SCHEME_CODE (Top distinct values by frequency):
+  - S22: 1
+  - S30: 1
+  - S14: 1
+  - S4: 1
+
+Column: SCHEME_ACTIVE_STATUS (Top distinct values by frequency):
+  - N: 4
+  - Y: 1
+
+Column: SCHEME_BENEFITS (Top distinct values by frequency):
+  - None: 31
+
+Column: SCHEME_ELIGIBILITY_CONDITION1 (Top distinct values by frequency):
+  - None: 31
+
+Column: SCHEME_ELIGIBILITY_CONDITION2 (Top distinct values by frequency):
+  - None: 31
+
+--------------------------------------------------------------------------------
+curated_datamodels.meal_type_dim
+--------------------------------------------------------------------------------
+
+Column: MEAL_TYPE_NAME (Top distinct values by frequency):
+  - Dal Rasam: 1
+  - Potato Khurma: 1
+  - Gongura Chutney: 1
+  - Egg: 1
+  - Egg with Salt+ Karam: 1
+
+Column: MEAL_TYPE_CODE (Top distinct values by frequency):
+  - 90: 1
+  - 95: 1
+  - 104: 1
+  - 108: 1
+  - 110: 1
+
+Column: IS_COMPULSORY (Top distinct values by frequency):
+  - None: 46
+
+Column: IS_ACTIVE (Top distinct values by frequency):
+  - Y: 5
+
+Column: IS_CURRENT (Top distinct values by frequency):
+  - None: 46
+
+--------------------------------------------------------------------------------
+curated_datamodels.mid_day_meal_serving_fact
+--------------------------------------------------------------------------------
+
+
+Column: ACADEMIC_YEAR (Top distinct values by frequency):
+  - 2025: 5
+
+Column: MEAL_SERVED_FLAG (Top distinct values by frequency):
+  - No: 4
+  - Yes: 1
+
+Column: HYGIENE_COMPLIANT_FLAG (Top distinct values by frequency):
+  - None: 16270678
+
+Column: FOOD_TASTED_FLAG (Top distinct values by frequency):
+  - None: 16270678
+
+Column: TEACHER_SUPERVISED_FLAG (Top distinct values by frequency):
+  - None: 16270678
+
+Column: MEDICAL_INCIDENT_REPORTED_FLAG (Top distinct values by frequency):
+  - None: 16270678
+
+Column: INSPECTION_REMARKS_CODE (Top distinct values by frequency):
+  - None: 16270678
+
+Column: GEO_TAGGED_FLAG (Top distinct values by frequency):
+  - None: 16270678
+
+Column: PHOTO_CAPTURED_FLAG (Top distinct values by frequency):
+  - None: 16270678
+
+Column: SUPPLY_SHORTAGE_FLAG (Top distinct values by frequency):
+  - None: 16270678
+
+--------------------------------------------------------------------------------
+curated_datamodels.ration_card_citizen
+--------------------------------------------------------------------------------
+
+
+
+
+Column: STATUS_CODE (Top distinct values by frequency):
+  - A: 5
+
+--------------------------------------------------------------------------------
+curated_datamodels.ration_card_family
+--------------------------------------------------------------------------------
+
+Column: RATION_CARD_NO (Top distinct values by frequency):
+  - 2806815210: 1
+  - 2811953690: 1
+  - 2822422238: 1
+  - 2821123807: 1
+  - 2812132618: 1
+
+Column: ANNUAL_INCOME (Top distinct values by frequency):
+  - 0: 1
+  - 70000: 1
+  - 40000: 1
+
+Column: CARD_TYPE_CODE (Top distinct values by frequency):
+  - 3: 4
+  - 2: 1
+
+Column: ISSUING_DISTRICT_CODE (Top distinct values by frequency):
+  - 542.0: 1
+  - 544.0: 1
+  - 568.0: 1
+  - 566.0: 1
+  - 550.0: 1
+
+Column: FPS_CODE (Top distinct values by frequency):
+  - 154201500201: 1
+  - 154408601892: 1
+  - 154900300081: 1
+  - 155304102683: 1
+  - 155003001590: 1
+
+  ... (Truncated to top 200 values)
+
+Column: STATUS_CODE (Top distinct values by frequency):
+  - A: 5
+
+--------------------------------------------------------------------------------
+curated_datamodels.ration_card_type
+--------------------------------------------------------------------------------
+
+Column: RATION_CARD_TYPE_NAME (Top distinct values by frequency):
+  - Above Poverty Line: 1
+  - Antyodaya Anna Yojana: 1
+  - Below Poverty Line: 1
+  - Annapurna Scheme: 1
+
+Column: CARD_TYPE_DESCRIPTION (Top distinct values by frequency):
+  - Families above poverty line: 1
+  - For poorest households with highest s...: 1
+  - Economically weaker families: 1
+  - For senior citizens under Annapurna s...: 1
+
+Column: CARD_TYPE_CODE (Top distinct values by frequency):
+  - APL: 1
+  - AAY: 1
+  - BPL: 1
+  - AAP: 1
+
+--------------------------------------------------------------------------------
+curated_datamodels.school_academic_performance_fact
+--------------------------------------------------------------------------------
+
+Column: SCHOOL_MEDIUM_ID_FK (Top distinct values by frequency):
+  - 5: 3
+  - 3: 2
+
+Column: STUDENT_ROLL_NUMBER (Top distinct values by frequency):
+  - 11: 1
+  - 10: 1
+  - 49: 1
+
+Column: FA1_MAX_OBTAINED_MARKS (Top distinct values by frequency):
+  - 43.00: 1
+  - 50.00: 1
+  - 25.00: 1
+  - 46.00: 1
+
+Column: FA2_MAX_OBTAINED_MARKS (Top distinct values by frequency):
+  - 44.00: 1
+  - 50.00: 1
+  - 30.00: 1
+  - 46.00: 1
+
+Column: FA3_MAX_OBTAINED_MARKS (Top distinct values by frequency):
+  - 27.00: 1
+  - 50.00: 1
+  - 34.00: 1
+  - 46.00: 1
+
+Column: FA4_MAX_OBTAINED_MARKS (Top distinct values by frequency):
+  - 40.00: 1
+  - 30.00: 1
+
+Column: SA1_MAX_OBTAINED_MARKS (Top distinct values by frequency):
+  - 35.00: 1
+  - 80.00: 1
+  - 39.00: 1
+  - 76.00: 1
+
+Column: FA1_MARKS_PERCENTAGE (Top distinct values by frequency):
+  - 86.00: 1
+  - 100.00: 1
+  - 50.00: 1
+  - 92.00: 1
+
+Column: FA2_MARKS_PERCENTAGE (Top distinct values by frequency):
+  - 88.00: 1
+  - 100.00: 1
+  - 60.00: 1
+  - 92.00: 1
+
+Column: FA3_MARKS_PERCENTAGE (Top distinct values by frequency):
+  - 54.00: 1
+  - 100.00: 1
+  - 68.00: 1
+  - 92.00: 1
+
+Column: FA4_MARKS_PERCENTAGE (Top distinct values by frequency):
+  - 80.00: 1
+  - 60.00: 1
+
+Column: SA1_MARKS_PERCENTAGE (Top distinct values by frequency):
+  - 43.75: 1
+  - 100.00: 1
+  - 48.75: 1
+  - 95.00: 1
+
+Column: INSTRUCTION_LANGUAGE (Top distinct values by frequency):
+  - English: 3
+  - Telugu: 2
+
+Column: SCORE (Top distinct values by frequency):
+  - 90.00: 2
+  - 95.00: 1
+  - 54.00: 1
+  - 57.00: 1
+
+Column: STUDENT_CLASS_DIM_ID_FK (Top distinct values by frequency):
+  - 3: 2
+  - 5: 1
+  - 7: 1
+
+Column: ACADEMIC_YEAR (Top distinct values by frequency):
+  - 0: 4
+  - 2: 1
+
+Column: GRADE_POINT (Top distinct values by frequency):
+  - None: 1
+
+Column: PASS_FLAG (Top distinct values by frequency):
+  - Y: 5
+
+Column: FAIL_FLAG (Top distinct values by frequency):
+  - N: 5
+
+Column: ABSENT_FLAG (Top distinct values by frequency):
+  - None: 38077276
+
+Column: WITHHELD_FLAG (Top distinct values by frequency):
+  - None: 38077276
+
+Column: EXAM_TYPE (Top distinct values by frequency):
+  - None: 38077276
+
+Column: EVALUATION_TYPE (Top distinct values by frequency):
+  - None: 38077276
+
+Column: MEDIUM_OF_EXAM (Top distinct values by frequency):
+  - None: 38077276
+
+Column: YEAR_ON_YEAR_IMPROVEMENT_FLAG (Top distinct values by frequency):
+  - None: 38077276
+
+--------------------------------------------------------------------------------
+curated_datamodels.school_category
+--------------------------------------------------------------------------------
+
+Column: SCHOOL_CATEGORY_ID_PK (Top distinct values by frequency):
+  - 4: 1
+  - 8: 1
+  - 6: 1
+  - 10: 1
+  - 3: 1
+
+Column: CATEGORY_NAME (Top distinct values by frequency):
+  - PRIMARY WITH UPPER PRIMARY: 1
+  - PR. UP PR. AND SECONDARY ONLY: 1
+  - UPPER PRIMARY ONLY: 1
+  - SECONDARY ONLY: 1
+  - HIGHER SECONDARY ONLY: 1
+
+Column: MIN_CLASS (Top distinct values by frequency):
+  - 1: 2
+  - 6: 2
+  - 11: 1
+
+Column: MAX_CLASS (Top distinct values by frequency):
+  - 8: 2
+  - 10: 2
+  - 12: 1
+
+Column: CATEGORY_CODE (Top distinct values by frequency):
+  - 2: 1
+  - 6: 1
+  - 4: 1
+  - 8: 1
+  - 11: 1
+
+Column: CATEGORY_TYPE (Top distinct values by frequency):
+  - UPPER PRIMARY: 2
+  - HIGH SCHOOL: 2
+  - COLLEGE: 1
+
+Column: UDISE_TYPE (Top distinct values by frequency):
+  - S: 4
+  - C: 1
+
+--------------------------------------------------------------------------------
+curated_datamodels.school_medium
+--------------------------------------------------------------------------------
+
+Column: MEDIUM_NAME (Top distinct values by frequency):
+  - State Govt.EM(SSC): 1
+  - Urdu: 1
+  - English: 1
+  - Tamil: 1
+  - Telugu: 1
+
+Column: MEDIUM_CODE (Top distinct values by frequency):
+  - 31: 1
+  - 18: 1
+  - 19: 1
+  - 16: 1
+  - 17: 1
+
+--------------------------------------------------------------------------------
+curated_datamodels.school_student_attendance_fact
+--------------------------------------------------------------------------------
+
+Column: SCHOOL_MEDIUM_ID_FK (Top distinct values by frequency):
+  - 5: 5
+
+Column: ATTENDANCE_MONTH (Top distinct values by frequency):
+  - 6: 5
+
+Column: STUDENT_CLASS_DIM_ID_FK (Top distinct values by frequency):
+  - 9: 3
+  - 7: 2
+
+Column: ACADEMIC_YEAR (Top distinct values by frequency):
+  - 2025: 5
+
+Column: PRESENT_FLAG (Top distinct values by frequency):
+  - Y: 5
+
+Column: ABSENT_FLAG (Top distinct values by frequency):
+  - N: 5
+
+Column: HALF_DAY_FLAG (Top distinct values by frequency):
+  - None: 81815886
+
+Column: ATTENDANCE_STATUS_CODE (Top distinct values by frequency):
+  - None: 81815886
+
+Column: ATTENDANCE_REASON_CODE (Top distinct values by frequency):
+  - 0: 5
+
+Column: MARKED_BY_ROLE (Top distinct values by frequency):
+  - None: 81815886
+
+Column: MDM_ELIGIBLE_FLAG (Top distinct values by frequency):
+  - N: 5
+
+Column: MEALS_CONSUMED_FLAG (Top distinct values by frequency):
+  - None: 81815886
+
+Column: EGGS_ELIGIBLE_FLAG (Top distinct values by frequency):
+  - None: 81815886
+
+Column: CHIKKI_ELIGIBLE_FLAG (Top distinct values by frequency):
+  - None: 81815886
+
+Column: RAGI_JAVA_ELIGIBLE_FLAG (Top distinct values by frequency):
+  - None: 81815886
+
+Column: HM_APPROVAL_FLAG (Top distinct values by frequency):
+  - None: 81815886
+
+Column: IMAGE_AVAILABLE_FLAG (Top distinct values by frequency):
+  - None: 81815886
+
+--------------------------------------------------------------------------------
+curated_datamodels.school_subject_master
+--------------------------------------------------------------------------------
+
+Column: SUBJECT_NAME (Top distinct values by frequency):
+  - IRPM: 1
+  - DRAWING: 1
+  - WOODWORK: 1
+  - BOOK BINDING: 1
+  - DRAWING/STILLLIFE: 1
+
+Column: SUBJECT_SHORT_NAME (Top distinct values by frequency):
+  - ART_DRAWING: 2
+  - N.A.: 2
+  - SA_SS: 1
+
+Column: MIN_CLASS (Top distinct values by frequency):
+  - None: 1
+
+Column: MAX_CLASS (Top distinct values by frequency):
+  - None: 1
+
+Column: GRADE_APPLICABILITY_FROM (Top distinct values by frequency):
+  - None: 1
+
+Column: GRADE_APPLICABILITY_TO (Top distinct values by frequency):
+  - None: 1
+
+Column: SUBJECT_CODE (Top distinct values by frequency):
+  - S100: 1
+  - S113: 1
+  - S120: 1
+  - S129: 1
+  - S145: 1
+
+Column: SUBJECT_CATEGORY (Top distinct values by frequency):
+  - None: 136
+
+Column: SUBJECT_TYPE (Top distinct values by frequency):
+  - None: 136
+
+Column: IS_VOCATIONAL_FLAG (Top distinct values by frequency):
+  - None: 136
+
+Column: IS_SKILL_SUBJECT_FLAG (Top distinct values by frequency):
+  - None: 136
+
+Column: IS_COMPULSORY_FLAG (Top distinct values by frequency):
+  - None: 136
+
+Column: BOARD_CODE (Top distinct values by frequency):
+  - None: 136
+
+Column: MARKS_SCHEME (Top distinct values by frequency):
+  - None: 136
+
+Column: SUBJECT_STATUS (Top distinct values by frequency):
+  - Active: 5
+
+--------------------------------------------------------------------------------
+curated_datamodels.student_class_dim
+--------------------------------------------------------------------------------
+
+Column: EDUCATION_STAGE (Top distinct values by frequency):
+  - PRIMARY: 3
+  - UPPER_PRIMARY: 1
+  - SECONDARY: 1
+
+Column: STUDENT_CLASS_DIM_ID_PK (Top distinct values by frequency):
+  - 6: 1
+  - 5: 1
+  - 9: 1
+  - 2: 1
+  - 1: 1
+
+Column: CLASS_NAME (Top distinct values by frequency):
+  - Class VI: 1
+  - Class V: 1
+  - Class IX: 1
+  - Class II: 1
+  - Class I: 1
+
+Column: CLASS_CODE (Top distinct values by frequency):
+  - 6: 1
+  - 5: 1
+  - 9: 1
+  - 2: 1
+  - 1: 1
+
+Column: IS_ACTIVE (Top distinct values by frequency):
+  - Y: 5
+
+--------------------------------------------------------------------------------
+curated_datamodels.assessment_dim
+--------------------------------------------------------------------------------
+
+
+
+
+Column: assessment_code
+  (No data or table empty)
+
+Column: assessment_type
+  (No data or table empty)
+
+Column: board_code
+  (No data or table empty)
+
+Column: grade_scheme
+  (No data or table empty)
+
+Column: is_summative
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.beneficiary_type_dim
+--------------------------------------------------------------------------------
+
+
+
+
+Column: beneficiary_type_code
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.benefit_type_dim
+--------------------------------------------------------------------------------
+
+
+
+
+Column: benefit_type_code
+  (No data or table empty)
+
+Column: delivery_mode
+  (No data or table empty)
+
+Column: is_monetary
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_address_master_test
+--------------------------------------------------------------------------------
+
+
+
+
+Column: pin_code
+  (No data or table empty)
+
+Column: is_primary
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+Column: is_deleted
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_bank_accounts
+--------------------------------------------------------------------------------
+
+
+
+
+Column: bank_type
+  (No data or table empty)
+
+Column: bank_ifsc_code
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_consent
+--------------------------------------------------------------------------------
+
+
+
+
+Column: is_revocable
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_land
+--------------------------------------------------------------------------------
+
+
+
+
+Column: land_type
+  (No data or table empty)
+
+Column: soil_type
+  (No data or table empty)
+
+Column: irrigation_type
+  (No data or table empty)
+
+Column: encumbrance_status
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.citizen_property
+--------------------------------------------------------------------------------
+
+
+
+
+Column: property_type
+  (No data or table empty)
+
+Column: owner_type
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.health_scheme_code
+--------------------------------------------------------------------------------
+
+
+
+
+Column: health_scheme_code
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.infrastructure_category_dim
+--------------------------------------------------------------------------------
+
+
+
+
+Column: infra_category_code
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.infrastructure_component_dim
+--------------------------------------------------------------------------------
+
+
+
+
+Column: infra_component_code
+  (No data or table empty)
+
+Column: unit_type
+  (No data or table empty)
+
+Column: is_functional_track
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.nutrition_item_dim
+--------------------------------------------------------------------------------
+
+
+
+
+Column: item_code
+  (No data or table empty)
+
+Column: nutrition_category
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.ration_card_citizen_reason
+--------------------------------------------------------------------------------
+
+
+
+
+Column: reason_description
+  (No data or table empty)
+
+Column: reason_code
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.scheme_benefits_fact
+--------------------------------------------------------------------------------
+
+
+
+
+Column: social_category
+  (No data or table empty)
+
+Column: eligible_flag
+  (No data or table empty)
+
+Column: attendance_eligible_flag
+  (No data or table empty)
+
+Column: benefit_delivered_flag
+  (No data or table empty)
+
+Column: delivery_mode
+  (No data or table empty)
+
+Column: eligible_beneficiary_flag
+  (No data or table empty)
+
+Column: benefit_sanctioned_flag
+  (No data or table empty)
+
+Column: benefit_disbursed_flag
+  (No data or table empty)
+
+Column: benefit_rejected_flag
+  (No data or table empty)
+
+Column: benefit_withheld_flag
+  (No data or table empty)
+
+Column: rejection_reason_code
+  (No data or table empty)
+
+Column: payment_failure_reason_code
+  (No data or table empty)
+
+Column: aadhaar_seeded_flag
+  (No data or table empty)
+
+Column: bank_account_verified_flag
+  (No data or table empty)
+
+Column: kyc_completed_flag
+  (No data or table empty)
+
+Column: girl_child_flag
+  (No data or table empty)
+
+Column: cwsn_flag
+  (No data or table empty)
+
+Column: bgm_eligible_flag
+  (No data or table empty)
+
+Column: scheme_uptake_rate
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.school_infra_category_dim
+--------------------------------------------------------------------------------
+
+
+
+
+Column: school_infra_category_code
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.school_infra_component_dim
+--------------------------------------------------------------------------------
+
+
+
+
+Column: component_code
+  (No data or table empty)
+
+Column: measurement_type
+  (No data or table empty)
+
+Column: is_digital
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.school_infrastructure_progress_fact
+--------------------------------------------------------------------------------
+
+
+
+
+Column: work_status
+  (No data or table empty)
+
+Column: delay_reason_code
+  (No data or table empty)
+
+Column: is_structurally_certified_flag
+  (No data or table empty)
+
+Column: is_safety_compliant_flag
+  (No data or table empty)
+
+Column: is_functional_flag
+  (No data or table empty)
+
+Column: maintenance_required_flag
+  (No data or table empty)
+
+Column: geo_tagged_flag
+  (No data or table empty)
+
+Column: inspection_remarks_code
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.school_meal_menu_dim
+--------------------------------------------------------------------------------
+
+
+
+
+Column: weekday_code
+  (No data or table empty)
+
+Column: is_planned
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.school_scheme_master
+--------------------------------------------------------------------------------
+
+
+
+
+Column: scheme_code
+  (No data or table empty)
+
+Column: scheme_category
+  (No data or table empty)
+
+Column: applicable_level
+  (No data or table empty)
+
+Column: delivery_mode
+  (No data or table empty)
+
+Column: scheme_status
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.school_teacher_attendance_fact
+--------------------------------------------------------------------------------
+
+
+
+
+Column: present_flag
+  (No data or table empty)
+
+Column: on_leave_flag
+  (No data or table empty)
+
+Column: on_duty_flag
+  (No data or table empty)
+
+Column: late_flag
+  (No data or table empty)
+
+Column: leave_type
+  (No data or table empty)
+
+Column: approved_leave_flag
+  (No data or table empty)
+
+Column: attendance_status_code
+  (No data or table empty)
+
+Column: image_available_flag
+  (No data or table empty)
+
+Column: approval_status_code
+  (No data or table empty)
+
+Column: approval_role
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+curated_datamodels.source_department_code
+--------------------------------------------------------------------------------
+
+
+
+
+Column: source_department_code
+  (No data or table empty)
