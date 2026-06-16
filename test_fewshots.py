@@ -65,7 +65,7 @@ def main():
     except Exception as e:
         print(f"Warning setting DEFAULT_JOIN_DISTRIBUTION_MODE: {e}")
     try:
-        cursor.execute("SET MEM_LIMIT=2g")
+        cursor.execute("SET MEM_LIMIT=4g")
     except Exception as e:
         print(f"Warning setting MEM_LIMIT: {e}")
 

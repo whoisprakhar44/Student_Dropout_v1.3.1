@@ -3,12 +3,14 @@ table: ration_card_type
 department: canonicalmodel
 description: Curated Hive/Iceberg table for ration card type.
 table_format: ICEBERG
-location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_type
+location: 
+  hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_type
 partitioned_by: ''
 tblproperties:
   engine.hive.enabled: 'true'
   external: 'true'
-  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_type/metadata/00000-338b9a97-1df3-4287-ba9c-d539bca3b507.metadata.json
+  metadata_location: 
+    hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_type/metadata/00000-338b9a97-1df3-4287-ba9c-d539bca3b507.metadata.json
   parquet.compression: SNAPPY
   snapshot-count: '0'
   table_type: ICEBERG
@@ -17,12 +19,12 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`ration_card_type`(\n  `card_type_id`\
-  \ string COMMENT 'from deserializer', \n  `ration_card_type_name` string COMMENT\
-  \ 'from deserializer', \n  `card_type_description` string COMMENT 'from deserializer',\
-  \ \n  `card_type_code` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n\
-  \  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\
-  \ \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_type'\n\
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`ration_card_type`(\n  `card_type_id`
+  string COMMENT 'from deserializer', \n  `ration_card_type_name` string COMMENT 'from
+  deserializer', \n  `card_type_description` string COMMENT 'from deserializer', \n\
+  \  `card_type_code` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_type'\n\
   TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
   :[{\"id\":1,\"name\":\"card_type_id\",\"required\":false,\"type\":\"string\"},{\"\
   id\":2,\"name\":\"ration_card_type_name\",\"required\":false,\"type\":\"string\"\
@@ -34,29 +36,33 @@ raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`ration_card_type`(\n  `car
   \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
   \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
 columns:
-- name: card_type_id
-  type: STRING
-  nullable: true
-  description: Card type id.
-- name: ration_card_type_name
-  type: STRING
-  nullable: true
-  description: Ration card type name.
-- name: card_type_description
-  type: STRING
-  nullable: true
-  description: Card type description.
-- name: card_type_code
-  type: STRING
-  nullable: true
-  description: The category of the ration card (e.g., 'LOW' for Low Income/BPL).
+  - name: card_type_id_pk
+    type: INT
+    nullable: true
+    description: 'Primary Key: Unique identifier for ration card type.'
+  - name: ration_card_type_name
+    type: STRING
+    nullable: true
+    description: Ration card type name.
+  - name: card_type_description
+    type: STRING
+    nullable: true
+    description: 'Categorical column. Distinct values: Economically weaker families,
+      Families above poverty line, For poorest households with highest s..., For senior
+      citizens under Annapurna s....'
+  - name: card_type_code
+    type: STRING
+    nullable: true
+    description: "Code/ID column: The category of the ration card (e.g., 'LOW' for
+      Low Income/BPL). Categorical column. Distinct values: 4. Examples: AAY, BPL,
+      AAP, APL. Top frequencies: 1, 1, 1, 1. Categorical column."
 primary_key: []
 relationships: []
 business_terms:
-- curated datamodels
-- canonicalmodel
-- Hive
-- Iceberg
-- ICEBERG
+  - curated datamodels
+  - canonicalmodel
+  - Hive
+  - Iceberg
+  - ICEBERG
 common_operations:
-- profile records in ration_card_type
+  - profile records in ration_card_type

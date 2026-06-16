@@ -138,23 +138,51 @@ class VectorDB:
                 )
             ]
         elif self.provider=="milvus":
-            res = self.client.search(
+            # ── Search schema_store (actual DDL) ─────────────────────────────
+            schema_res = self.client.search(
                 collection_name=self.collection,
                 data=[embedding],
                 limit=top_k,
                 output_fields=["database_name", "table_name", "raw_ddl", "embedding_text"],
-                search_params={"metric_type": "COSINE"}
+                search_params={"metric_type": "COSINE"},
+                partition_names=["schema_store"],
             )
-            return [
+            schema_hits = [
                 {
                     "database_name": hit["entity"]["database_name"],
-                    "table_name": hit["entity"]["table_name"],
-                    "raw_ddl": hit["entity"]["raw_ddl"],
-                    "embedding_text": hit["entity"]["embedding_text"],
-                    "score": 1.0 - hit["distance"]
+                    "table_name":    hit["entity"]["table_name"],
+                    "raw_ddl":       hit["entity"]["raw_ddl"],
+                    "embedding_text":hit["entity"]["embedding_text"],
+                    "score":         1.0 - hit["distance"],
                 }
-                for hit in res[0]
+                for hit in schema_res[0]
             ]
+
+            # ── Search few_shot_store (SQL examples) ─────────────────────────
+            try:
+                fewshot_res = self.client.search(
+                    collection_name=self.collection,
+                    data=[embedding],
+                    limit=max(1, top_k // 2),
+                    output_fields=["database_name", "table_name", "raw_ddl", "embedding_text"],
+                    search_params={"metric_type": "COSINE"},
+                    partition_names=["few_shot_store"],
+                )
+                fewshot_hits = [
+                    {
+                        "database_name": hit["entity"]["database_name"],
+                        "table_name":    hit["entity"]["table_name"],
+                        "raw_ddl":       hit["entity"]["raw_ddl"],
+                        "embedding_text":hit["entity"]["embedding_text"],
+                        "score":         1.0 - hit["distance"],
+                    }
+                    for hit in fewshot_res[0]
+                ]
+            except Exception:
+                fewshot_hits = []
+
+            # Schema DDL first so LLM always sees real columns before examples
+            return schema_hits + fewshot_hits
 
         else:
             raise ValueError(f"Unsupported vector_db provider: {self.provider}")

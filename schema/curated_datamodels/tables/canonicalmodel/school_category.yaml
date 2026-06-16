@@ -19,35 +19,9 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_category`(\n  `school_category_id_pk`\
-  \ bigint COMMENT 'from deserializer', \n  `category_code` string COMMENT 'from deserializer',\
-  \ \n  `category_name` string COMMENT 'from deserializer', \n  `category_type` string\
-  \ COMMENT 'from deserializer', \n  `min_class` int COMMENT 'from deserializer',\
-  \ \n  `max_class` int COMMENT 'from deserializer', \n  `udise_type` string COMMENT\
-  \ 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
-  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
-  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_category'\n\
-  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
-  :[{\"id\":1,\"name\":\"school_category_id_pk\",\"required\":false,\"type\":\"long\"\
-  },{\"id\":2,\"name\":\"category_code\",\"required\":false,\"type\":\"string\"},{\"\
-  id\":3,\"name\":\"category_name\",\"required\":false,\"type\":\"string\"},{\"id\"\
-  :4,\"name\":\"category_type\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"\
-  name\":\"min_class\",\"required\":false,\"type\":\"int\"},{\"id\":6,\"name\":\"\
-  max_class\",\"required\":false,\"type\":\"int\"},{\"id\":7,\"name\":\"udise_type\"\
-  ,\"required\":false,\"type\":\"string\"}]}', \n  'current-snapshot-id'='1745969990198052956',\
-  \ \n  'current-snapshot-summary'='{\"spark.app.id\":\"application_1775893506593_2958\"\
-  ,\"added-data-files\":\"9\",\"added-records\":\"10\",\"added-files-size\":\"20037\"\
-  ,\"changed-partition-count\":\"9\",\"total-records\":\"10\",\"total-files-size\"\
-  :\"20037\",\"total-data-files\":\"9\",\"total-delete-files\":\"0\",\"total-position-deletes\"\
-  :\"0\",\"total-equality-deletes\":\"0\"}', \n  'current-snapshot-timestamp-ms'='1778321862379',\
-  \ \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"school_category_id_pk_bucket\"\
-  ,\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true',\
-  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_category/metadata/00001-ec8d93ac-54f0-476c-9120-9047209bf21d.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_category/metadata/00000-f42960ff-50f3-463f-872c-729faddf0d07.metadata.json',\
-  \ \n  'snapshot-count'='1', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778242172',\
-  \ \n  'uuid'='be9aa995-52b0-479e-a8a8-b34802d5cfd0', \n  'write.delete.mode'='merge-on-read',\
-  \ \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read',\
-  \ \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_category`(\n  `school_category_id_pk` bigint COMMENT 'from deserializer', \n  `category_code` string COMMENT 'from deserializer', \n  `category_name` string COMMENT 'from deserializer', \n  `category_type` string COMMENT 'from deserializer', \n  `min_class` int COMMENT 'from deserializer', \n  `max_class` int COMMENT 'from deserializer', \n  `udise_type` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_category'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"school_category_id_pk\",\"required\":false,\"type\":\"long\"},{\"id\":2,\"name\":\"category_code\",\"required\":false,\"type\":\"string\"},{\"id\":3,\"name\":\"category_name\",\"required\":false,\"type\"\
+  :\"string\"},{\"id\":4,\"name\":\"category_type\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"min_class\",\"required\":false,\"type\":\"int\"},{\"id\":6,\"name\":\"max_class\",\"required\":false,\"type\":\"int\"},{\"id\":7,\"name\":\"udise_type\",\"required\":false,\"type\":\"string\"}]}', \n  'current-snapshot-id'='1745969990198052956', \n  'current-snapshot-summary'='{\"spark.app.id\":\"application_1775893506593_2958\",\"added-data-files\":\"9\",\"added-records\":\"10\",\"added-files-size\":\"20037\",\"changed-partition-count\":\"9\",\"total-records\":\"10\",\"total-files-size\":\"20037\",\"total-data-files\":\"9\",\"total-delete-files\":\"0\",\"total-position-deletes\":\"0\",\"total-equality-deletes\":\"0\"}', \n  'current-snapshot-timestamp-ms'='1778321862379', \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"school_category_id_pk_bucket\",\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true',\
+  \ \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_category/metadata/00001-ec8d93ac-54f0-476c-9120-9047209bf21d.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_category/metadata/00000-f42960ff-50f3-463f-872c-729faddf0d07.metadata.json', \n  'snapshot-count'='1', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778242172', \n  'uuid'='be9aa995-52b0-479e-a8a8-b34802d5cfd0', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
 columns:
 - name: school_category_id_pk
   type: BIGINT
@@ -56,27 +30,27 @@ columns:
 - name: category_code
   type: STRING
   nullable: true
-  description: Standardized system code representing the category.
+  description: 'Code/ID column: Standardized system code representing the category. Categorical column. Distinct values: 10. Examples: 11, 2, 8, 4, 6. Top frequencies: 1, 1, 1, 1, 1. Categorical column.'
 - name: category_name
   type: STRING
   nullable: true
-  description: Category name.
+  description: 'Categorical classification column. Standardized values include: PRIMARY WITH UPPER PRIMARY, PR. UP PR. AND SECONDARY ONLY, UPPER PRIMARY ONLY, SECONDARY ONLY, HIGHER SECONDARY ONLY.'
 - name: category_type
   type: STRING
   nullable: true
-  description: Category type.
+  description: 'Categorical column. Distinct values: COLLEGE, HIGH SCHOOL, UPPER PRIMARY.'
 - name: min_class
   type: INT
   nullable: true
-  description: Min class.
+  description: The minimum class or grade level (e.g. Class 1 or Class 6) for which this category/subject is applicable.
 - name: max_class
   type: INT
   nullable: true
-  description: Max class.
+  description: The maximum class or grade level (e.g. Class 5 or Class 10) for which this category/subject is applicable.
 - name: udise_type
   type: STRING
   nullable: true
-  description: Udise type.
+  description: 'Categorical column. Distinct values: C, S.'
 primary_key:
 - school_category_id_pk
 relationships: []

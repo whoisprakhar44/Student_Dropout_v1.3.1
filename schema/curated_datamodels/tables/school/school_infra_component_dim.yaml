@@ -17,56 +17,23 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_infra_component_dim`(\n\
-  \  `school_infra_component_dim_id_pk` bigint COMMENT 'from deserializer', \n  `infrastructure_component_dim_id_fk`\
-  \ bigint COMMENT 'from deserializer', \n  `component_code` string COMMENT 'from\
-  \ deserializer', \n  `component_name` string COMMENT 'from deserializer', \n  `measurement_type`\
-  \ string COMMENT 'from deserializer', \n  `is_digital` string COMMENT 'from deserializer',\
-  \ \n  `is_active` string COMMENT 'from deserializer', \n  `effective_start_date`\
-  \ date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from\
-  \ deserializer', \n  `is_current` string COMMENT 'from deserializer', \n  `created_date`\
-  \ timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string\
-  \ COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone\
-  \ COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\n\
-  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
-  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_infra_component_dim'\n\
-  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
-  :[{\"id\":1,\"name\":\"school_infra_component_dim_id_pk\",\"required\":false,\"\
-  type\":\"long\"},{\"id\":2,\"name\":\"infrastructure_component_dim_id_fk\",\"required\"\
-  :false,\"type\":\"long\"},{\"id\":3,\"name\":\"component_code\",\"required\":false,\"\
-  type\":\"string\"},{\"id\":4,\"name\":\"component_name\",\"required\":false,\"type\"\
-  :\"string\"},{\"id\":5,\"name\":\"measurement_type\",\"required\":false,\"type\"\
-  :\"string\"},{\"id\":6,\"name\":\"is_digital\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":7,\"name\":\"is_active\",\"required\":false,\"type\":\"string\"},{\"id\"\
-  :8,\"name\":\"effective_start_date\",\"required\":false,\"type\":\"date\"},{\"id\"\
-  :9,\"name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"},{\"id\"\
-  :10,\"name\":\"is_current\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"\
-  name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":12,\"\
-  name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\"\
-  :\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":14,\"name\"\
-  :\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'default-partition-spec'='{\"\
-  spec-id\":0,\"fields\":[{\"name\":\"school_infra_component_dim_id_pk_bucket\",\"\
-  transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true',\
-  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_infra_component_dim/metadata/00000-7cd2c1d3-c135-4fff-89d1-fa2477480374.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
-  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1777897241', \n  'uuid'='29959664-7cd9-4757-9834-9e945a01e2be',\
-  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
-  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_infra_component_dim`(\n  `school_infra_component_dim_id_pk` bigint COMMENT 'from deserializer', \n  `infrastructure_component_dim_id_fk` bigint COMMENT 'from deserializer', \n  `component_code` string COMMENT 'from deserializer', \n  `component_name` string COMMENT 'from deserializer', \n  `measurement_type` string COMMENT 'from deserializer', \n  `is_digital` string COMMENT 'from deserializer', \n  `is_active` string COMMENT 'from deserializer', \n  `effective_start_date` date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from deserializer', \n  `is_current` string COMMENT 'from deserializer', \n  `created_date` timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_infra_component_dim'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"school_infra_component_dim_id_pk\",\"required\":false,\"type\":\"long\"},{\"id\":2,\"name\":\"infrastructure_component_dim_id_fk\",\"required\":false,\"type\":\"long\"},{\"id\":3,\"name\":\"component_code\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"component_name\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"measurement_type\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"is_digital\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"is_active\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"effective_start_date\",\"required\":false,\"type\":\"date\"},{\"id\":9,\"name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"},{\"\
+  id\":10,\"name\":\"is_current\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":12,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":14,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"school_infra_component_dim_id_pk_bucket\",\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_infra_component_dim/metadata/00000-7cd2c1d3-c135-4fff-89d1-fa2477480374.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1777897241', \n  'uuid'='29959664-7cd9-4757-9834-9e945a01e2be',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
 columns:
 - name: school_infra_component_dim_id_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for the school infra component dim
-    record.'
+  description: 'Primary Key: Unique identifier for the school infra component dim record.'
 - name: infrastructure_component_dim_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated infrastructure component dim
-    dimension or master table.'
+  description: 'Foreign Key: Links to the associated infrastructure component dim dimension or master table.'
 - name: component_code
   type: STRING
   nullable: true
-  description: Standardized system code representing the component.
+  description: 'Code/ID column: Standardized system code representing the component. Categorical column.'
 - name: component_name
   type: STRING
   nullable: true
@@ -74,16 +41,15 @@ columns:
 - name: measurement_type
   type: STRING
   nullable: true
-  description: Measurement type.
+  description: Classification field defining the specific measurement type.
 - name: is_digital
   type: STRING
   nullable: true
-  description: Is digital.
+  description: Field containing the is digital details for the table.
 - name: is_active
   type: STRING
   nullable: true
-  description: Indicates if the entity is currently active in the system ('Y' for
-    Yes, 'N' for No, or 'ACTIVE'/'INACTIVE').
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
 - name: effective_start_date
   type: DATE
   nullable: true
@@ -95,17 +61,15 @@ columns:
 - name: is_current
   type: STRING
   nullable: true
-  description: Is current.
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: Timestamp indicating exactly when this record was originally created in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: The user ID or automated system process responsible for creating this record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -113,13 +77,11 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  description: The user ID or automated system process responsible for the most recent update to this record.
 primary_key:
 - school_infra_component_dim_id_pk
 relationships:
-- school_infra_component_dim.infrastructure_component_dim_id_fk is a foreign-key-style
-  reference to infrastructure_component_dim_id.
+- school_infra_component_dim.infrastructure_component_dim_id_fk is a foreign-key-style reference to infrastructure_component_dim_id.
 business_terms:
 - dimension table
 - reference lookup

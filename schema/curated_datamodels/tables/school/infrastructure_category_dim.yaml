@@ -1,14 +1,17 @@
 database: curated_datamodels
 table: infrastructure_category_dim
 department: school
-description: Dimension/master table for infrastructure category reference attributes.
+description: Dimension/master table for infrastructure category reference 
+  attributes.
 table_format: ICEBERG
-location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/infrastructure_category_dim
+location: 
+  hdfs://datalakedev/user/CURATED/curated_datamodels/school/infrastructure_category_dim
 partitioned_by: 'infra_category_dim_id_pk_bucket: bucket[32]'
 tblproperties:
   engine.hive.enabled: 'true'
   external: 'true'
-  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/infrastructure_category_dim/metadata/00000-23432966-5884-4802-8784-ee9d7579338a.metadata.json
+  metadata_location: 
+    hdfs://datalakedev/user/CURATED/curated_datamodels/school/infrastructure_category_dim/metadata/00000-23432966-5884-4802-8784-ee9d7579338a.metadata.json
   parquet.compression: SNAPPY
   snapshot-count: '0'
   table_type: ICEBERG
@@ -18,16 +21,16 @@ tblproperties:
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
 raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`infrastructure_category_dim`(\n\
-  \  `infra_category_dim_id_pk` bigint COMMENT 'from deserializer', \n  `infra_category_code`\
-  \ string COMMENT 'from deserializer', \n  `infra_category_name` string COMMENT 'from\
-  \ deserializer', \n  `is_active` string COMMENT 'from deserializer', \n  `effective_start_date`\
-  \ date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from\
-  \ deserializer', \n  `is_current` string COMMENT 'from deserializer', \n  `created_date`\
-  \ timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string\
-  \ COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone\
-  \ COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\n\
-  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
-  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/infrastructure_category_dim'\n\
+  \  `infra_category_dim_id_pk` bigint COMMENT 'from deserializer', \n  `infra_category_code`
+  string COMMENT 'from deserializer', \n  `infra_category_name` string COMMENT 'from
+  deserializer', \n  `is_active` string COMMENT 'from deserializer', \n  `effective_start_date`
+  date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from deserializer',\
+  \ \n  `is_current` string COMMENT 'from deserializer', \n  `created_date` timestamp
+  with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT
+  'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from
+  deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT
+  SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\
+  \ \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/infrastructure_category_dim'\n\
   TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
   :[{\"id\":1,\"name\":\"infra_category_dim_id_pk\",\"required\":false,\"type\":\"\
   long\"},{\"id\":2,\"name\":\"infra_category_code\",\"required\":false,\"type\":\"\
@@ -48,62 +51,64 @@ raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`infrastructure_category_di
   \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
   \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
 columns:
-- name: infra_category_dim_id_pk
-  type: BIGINT
-  nullable: true
-  description: 'Primary Key: Unique identifier for the infra category dim record.'
-- name: infra_category_code
-  type: STRING
-  nullable: true
-  description: Standardized system code representing the infra category.
-- name: infra_category_name
-  type: STRING
-  nullable: true
-  description: Infra category name.
-- name: is_active
-  type: STRING
-  nullable: true
-  description: Indicates if the entity is currently active in the system ('Y' for
-    Yes, 'N' for No, or 'ACTIVE'/'INACTIVE').
-- name: effective_start_date
-  type: DATE
-  nullable: true
-  description: The specific date or timestamp when the effective start occurred.
-- name: effective_end_date
-  type: DATE
-  nullable: true
-  description: The specific date or timestamp when the effective end occurred.
-- name: is_current
-  type: STRING
-  nullable: true
-  description: Is current.
-- name: created_date
-  type: TIMESTAMP
-  nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
-- name: created_by
-  type: STRING
-  nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
-- name: updated_date
-  type: TIMESTAMP
-  nullable: true
-  description: Timestamp indicating the last time this record was modified or updated.
-- name: updated_by
-  type: STRING
-  nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  - name: infra_category_dim_id_pk
+    type: BIGINT
+    nullable: true
+    description: 'Primary Key: Unique identifier for the infra category dim record.'
+  - name: infra_category_code
+    type: STRING
+    nullable: true
+    description: 'Code/ID column: Standardized system code representing the infra
+      category. Categorical column.'
+  - name: infra_category_name
+    type: STRING
+    nullable: true
+    description: Infra category name.
+  - name: is_active
+    type: STRING
+    nullable: true
+    description: "Boolean indicator flag (values: 'Y'/'N')."
+  - name: effective_start_date
+    type: DATE
+    nullable: true
+    description: The specific date or timestamp when the effective start 
+      occurred.
+  - name: effective_end_date
+    type: DATE
+    nullable: true
+    description: The specific date or timestamp when the effective end occurred.
+  - name: is_current
+    type: STRING
+    nullable: true
+    description: "Boolean indicator flag (values: 'Y'/'N')."
+  - name: created_date
+    type: TIMESTAMP
+    nullable: true
+    description: Timestamp indicating exactly when this record was originally 
+      created in the source system.
+  - name: created_by
+    type: STRING
+    nullable: true
+    description: The user ID or automated system process responsible for 
+      creating this record.
+  - name: updated_date
+    type: TIMESTAMP
+    nullable: true
+    description: Timestamp indicating the last time this record was modified or 
+      updated.
+  - name: updated_by
+    type: STRING
+    nullable: true
+    description: The user ID or automated system process responsible for the 
+      most recent update to this record.
 primary_key:
-- infra_category_dim_id_pk
+  - infra_category_dim_id_pk
 relationships: []
 business_terms:
-- dimension table
-- reference lookup
-- Hive
-- Iceberg
-- ICEBERG
+  - dimension table
+  - reference lookup
+  - Hive
+  - Iceberg
+  - ICEBERG
 common_operations:
-- profile records in infrastructure_category_dim
+  - profile records in infrastructure_category_dim

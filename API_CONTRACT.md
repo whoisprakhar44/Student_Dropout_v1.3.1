@@ -63,6 +63,38 @@ Response:
 }
 ```
 
+#### Query Failure / Fallback Response
+
+If query generation or execution fails (e.g. because of syntax errors, invalid tables/columns, or limit caps), the API will return a valid `AskResponse` with details of the failure inside the `result` block instead of throwing a HTTP error:
+
+Response (on SQL execution failure):
+
+```json
+{
+  "sql": "SELECT * FROM non_existent_table",
+  "result": [
+    {
+      "error": "no such table: non_existent_table",
+      "status": "failed"
+    }
+  ]
+}
+```
+
+Response (on SQL generation failure):
+
+```json
+{
+  "sql": "",
+  "result": [
+    {
+      "error": "The agent did not return an executed SQL query.",
+      "status": "failed"
+    }
+  ]
+}
+```
+
 ### Cancel
 
 ```http

@@ -3,12 +3,14 @@ table: citizen_agriculture_land
 department: canonicalmodel
 description: Curated Hive/Iceberg table for citizen agriculture land.
 table_format: ICEBERG
-location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_agriculture_land
+location: 
+  hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_agriculture_land
 partitioned_by: ''
 tblproperties:
   engine.hive.enabled: 'true'
   external: 'true'
-  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_agriculture_land/metadata/00000-7da22245-dd5e-4b60-aa08-db6c97c71cb0.metadata.json
+  metadata_location: 
+    hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_agriculture_land/metadata/00000-7da22245-dd5e-4b60-aa08-db6c97c71cb0.metadata.json
   parquet.compression: SNAPPY
   snapshot-count: '0'
   table_type: ICEBERG
@@ -18,14 +20,14 @@ tblproperties:
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
 raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_agriculture_land`(\n\
-  \  `citizen_agriculture_land_id_pk` int COMMENT 'from deserializer', \n  `citizen_master_fk`\
-  \ int COMMENT 'from deserializer', \n  `farmer_id` string COMMENT 'from deserializer',\
-  \ \n  `crop_types` string COMMENT 'from deserializer', \n  `land_area_acres` string\
-  \ COMMENT 'from deserializer', \n  `linked_schemes` string COMMENT 'from deserializer',\
-  \ \n  `department_id` string COMMENT 'from deserializer', \n  `created_date` string\
-  \ COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer',\
-  \ \n  `updated_date` string COMMENT 'from deserializer', \n  `updated_by` string\
-  \ COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \  `citizen_agriculture_land_id_pk` int COMMENT 'from deserializer', \n  `citizen_master_fk`
+  int COMMENT 'from deserializer', \n  `farmer_id` string COMMENT 'from deserializer',\
+  \ \n  `crop_types` string COMMENT 'from deserializer', \n  `land_area_acres` string
+  COMMENT 'from deserializer', \n  `linked_schemes` string COMMENT 'from deserializer',\
+  \ \n  `department_id` string COMMENT 'from deserializer', \n  `created_date` string
+  COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer',\
+  \ \n  `updated_date` string COMMENT 'from deserializer', \n  `updated_by` string
+  COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
   \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
   \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_agriculture_land'\n\
   TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
@@ -46,62 +48,72 @@ raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_agriculture_land`(
   \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
   \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
 columns:
-- name: citizen_agriculture_land_id_pk
-  type: INT
-  nullable: true
-  description: 'Primary Key: Unique identifier for the citizen agriculture land record.'
-- name: citizen_master_fk
-  type: INT
-  nullable: true
-  description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
-- name: farmer_id
-  type: STRING
-  nullable: true
-  description: Farmer id.
-- name: crop_types
-  type: STRING
-  nullable: true
-  description: Crop types.
-- name: land_area_acres
-  type: STRING
-  nullable: true
-  description: Land area acres.
-- name: linked_schemes
-  type: STRING
-  nullable: true
-  description: Linked schemes.
-- name: department_id
-  type: STRING
-  nullable: true
-  description: Department id.
-- name: created_date
-  type: STRING
-  nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
-- name: created_by
-  type: STRING
-  nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
-- name: updated_date
-  type: STRING
-  nullable: true
-  description: Timestamp indicating the last time this record was modified or updated.
-- name: updated_by
-  type: STRING
-  nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  - name: citizen_agriculture_land_pk
+    type: BIGINT
+    nullable: true
+    description: 'Primary Key: Unique identifier for citizen agriculture land.'
+  - name: citizen_master_fk
+    type: INT
+    nullable: true
+    description: 'Foreign Key: Links to the associated citizen master dimension or
+      master table.'
+  - name: village_code
+    type: STRING
+    nullable: true
+    description: 'Code/ID column: LGD village code. Categorical column.'
+  - name: land_area
+    type: STRING
+    nullable: true
+    description: Land area description.
+  - name: crop_type
+    type: STRING
+    nullable: true
+    description: 'Categorical column. Distinct values: Cashew nut, Chrysanthemum,
+      Groundnut, Ragi.'
+  - name: variety_name
+    type: STRING
+    nullable: true
+    description: Crop variety name.
+  - name: cultivator_type
+    type: STRING
+    nullable: true
+    description: 'Categorical column. Distinct values: O.'
+  - name: survey_no
+    type: STRING
+    nullable: true
+    description: Survey number of the agricultural land.
+  - name: khata_no
+    type: STRING
+    nullable: true
+    description: Khata number of the agricultural land.
+  - name: created_date
+    type: STRING
+    nullable: true
+    description: Timestamp indicating exactly when this record was originally 
+      created in the source system.
+  - name: created_by
+    type: STRING
+    nullable: true
+    description: The user ID or automated system process responsible for 
+      creating this record.
+  - name: updated_date
+    type: STRING
+    nullable: true
+    description: Timestamp indicating the last time this record was modified or 
+      updated.
+  - name: updated_by
+    type: STRING
+    nullable: true
+    description: The user ID or automated system process responsible for the 
+      most recent update to this record.
 primary_key:
-- citizen_agriculture_land_id_pk
+  - citizen_agriculture_land_pk
 relationships: []
 business_terms:
-- curated datamodels
-- canonicalmodel
-- Hive
-- Iceberg
-- ICEBERG
+  - curated datamodels
+  - canonicalmodel
+  - Hive
+  - Iceberg
+  - ICEBERG
 common_operations:
-- profile records in citizen_agriculture_land
+  - profile records in citizen_agriculture_land

@@ -17,47 +17,10 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_land`(\n  `citizen_land_id_pk`\
-  \ int COMMENT 'from deserializer', \n  `citizen_master_fk` int COMMENT 'from deserializer',\
-  \ \n  `land_id` string COMMENT 'from deserializer', \n  `land_type` string COMMENT\
-  \ 'from deserializer', \n  `acres` string COMMENT 'from deserializer', \n  `survey_no`\
-  \ string COMMENT 'from deserializer', \n  `location` string COMMENT 'from deserializer',\
-  \ \n  `district_id` string COMMENT 'from deserializer', \n  `mandal_id` string COMMENT\
-  \ 'from deserializer', \n  `village_name` string COMMENT 'from deserializer', \n\
-  \  `registration_no` string COMMENT 'from deserializer', \n  `registration_date`\
-  \ string COMMENT 'from deserializer', \n  `market_value` string COMMENT 'from deserializer',\
-  \ \n  `soil_type` string COMMENT 'from deserializer', \n  `irrigation_type` string\
-  \ COMMENT 'from deserializer', \n  `encumbrance_status` string COMMENT 'from deserializer',\
-  \ \n  `created_date` string COMMENT 'from deserializer', \n  `created_by` string\
-  \ COMMENT 'from deserializer', \n  `updated_date` string COMMENT 'from deserializer',\
-  \ \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
-  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
-  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_land'\n\
-  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
-  :[{\"id\":1,\"name\":\"citizen_land_id_pk\",\"required\":false,\"type\":\"int\"\
-  },{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"int\"},{\"\
-  id\":3,\"name\":\"land_id\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"\
-  name\":\"land_type\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\"\
-  :\"acres\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"survey_no\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"location\",\"required\"\
-  :false,\"type\":\"string\"},{\"id\":8,\"name\":\"district_id\",\"required\":false,\"\
-  type\":\"string\"},{\"id\":9,\"name\":\"mandal_id\",\"required\":false,\"type\"\
-  :\"string\"},{\"id\":10,\"name\":\"village_name\",\"required\":false,\"type\":\"\
-  string\"},{\"id\":11,\"name\":\"registration_no\",\"required\":false,\"type\":\"\
-  string\"},{\"id\":12,\"name\":\"registration_date\",\"required\":false,\"type\"\
-  :\"string\"},{\"id\":13,\"name\":\"market_value\",\"required\":false,\"type\":\"\
-  string\"},{\"id\":14,\"name\":\"soil_type\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":15,\"name\":\"irrigation_type\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":16,\"name\":\"encumbrance_status\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":17,\"name\":\"created_date\",\"required\":false,\"type\":\"string\"},{\"\
-  id\":18,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\"\
-  :19,\"name\":\"updated_date\",\"required\":false,\"type\":\"string\"},{\"id\":20,\"\
-  name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true',\
-  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_land/metadata/00000-db3f7abf-9ff0-4a8c-b6d5-c63a9f1b989c.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
-  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323392', \n  'uuid'='d6f215fb-d5e9-4bc3-a7bf-62f617b01a49',\
-  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
-  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_land`(\n  `citizen_land_id_pk` int COMMENT 'from deserializer', \n  `citizen_master_fk` int COMMENT 'from deserializer', \n  `land_id` string COMMENT 'from deserializer', \n  `land_type` string COMMENT 'from deserializer', \n  `acres` string COMMENT 'from deserializer', \n  `survey_no` string COMMENT 'from deserializer', \n  `location` string COMMENT 'from deserializer', \n  `district_id` string COMMENT 'from deserializer', \n  `mandal_id` string COMMENT 'from deserializer', \n  `village_name` string COMMENT 'from deserializer', \n  `registration_no` string COMMENT 'from deserializer', \n  `registration_date` string COMMENT 'from deserializer', \n  `market_value` string COMMENT 'from deserializer', \n  `soil_type` string COMMENT 'from deserializer', \n  `irrigation_type` string COMMENT 'from deserializer', \n  `encumbrance_status` string COMMENT 'from deserializer', \n  `created_date` string COMMENT 'from deserializer', \n  `created_by`\
+  \ string COMMENT 'from deserializer', \n  `updated_date` string COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_land'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"citizen_land_id_pk\",\"required\":false,\"type\":\"int\"},{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"int\"},{\"id\":3,\"name\":\"land_id\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"land_type\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"acres\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"survey_no\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"location\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\"\
+  :\"district_id\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"mandal_id\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"name\":\"village_name\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"registration_no\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\":\"registration_date\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\":\"market_value\",\"required\":false,\"type\":\"string\"},{\"id\":14,\"name\":\"soil_type\",\"required\":false,\"type\":\"string\"},{\"id\":15,\"name\":\"irrigation_type\",\"required\":false,\"type\":\"string\"},{\"id\":16,\"name\":\"encumbrance_status\",\"required\":false,\"type\":\"string\"},{\"id\":17,\"name\":\"created_date\",\"required\":false,\"type\":\"string\"},{\"id\":18,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":19,\"name\":\"updated_date\",\"required\":false,\"type\":\"string\"},{\"id\":20,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true',\
+  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_land/metadata/00000-db3f7abf-9ff0-4a8c-b6d5-c63a9f1b989c.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323392', \n  'uuid'='d6f215fb-d5e9-4bc3-a7bf-62f617b01a49', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
 columns:
 - name: citizen_land_id_pk
   type: INT
@@ -66,40 +29,39 @@ columns:
 - name: citizen_master_fk
   type: INT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+  description: 'Foreign Key: Links to the associated citizen master dimension or master table.'
 - name: land_id
   type: STRING
   nullable: true
-  description: Land id.
+  description: Identifier key referencing the associated land.
 - name: land_type
   type: STRING
   nullable: true
-  description: Land type.
+  description: Classification field defining the specific land type.
 - name: acres
   type: STRING
   nullable: true
-  description: Acres.
+  description: The area size of the land holding measured in acres.
 - name: survey_no
   type: STRING
   nullable: true
-  description: Survey no.
+  description: The official land survey number or sub-division number of the land parcel.
 - name: location
   type: STRING
   nullable: true
-  description: Location.
+  description: A text description or address of the physical location of the asset or land.
 - name: district_id
   type: STRING
   nullable: true
-  description: District id.
+  description: Identifier key referencing the associated district.
 - name: mandal_id
   type: STRING
   nullable: true
-  description: Mandal id.
+  description: Identifier key referencing the associated mandal.
 - name: village_name
   type: STRING
   nullable: true
-  description: Village name.
+  description: The official name of the village/habitation where the school or citizen address is located.
 - name: registration_no
   type: STRING
   nullable: true
@@ -111,29 +73,27 @@ columns:
 - name: market_value
   type: STRING
   nullable: true
-  description: Market value.
+  description: The estimated or registered market value of the property or land parcel in INR.
 - name: soil_type
   type: STRING
   nullable: true
-  description: Soil type.
+  description: Classification field defining the specific soil type.
 - name: irrigation_type
   type: STRING
   nullable: true
-  description: Irrigation type.
+  description: Classification field defining the specific irrigation type.
 - name: encumbrance_status
   type: STRING
   nullable: true
-  description: Encumbrance status.
+  description: System field indicating the current encumbrance status of the record.
 - name: created_date
   type: STRING
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: Timestamp indicating exactly when this record was originally created in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: The user ID or automated system process responsible for creating this record.
 - name: updated_date
   type: STRING
   nullable: true
@@ -141,8 +101,7 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  description: The user ID or automated system process responsible for the most recent update to this record.
 primary_key:
 - citizen_land_id_pk
 relationships: []

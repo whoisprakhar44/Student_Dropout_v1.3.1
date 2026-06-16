@@ -182,7 +182,25 @@ def llm_node(state: AgentState) -> dict:
     current_calls = state.get("llm_calls", 0)
     max_llm_calls = int(os.getenv("MAX_LLM_CALLS", "15"))
     if current_calls >= max_llm_calls:
-        # Collect the last SQL error message (if any) to include in the fallback.
+        logger.warning("llm_node: Max LLM call limit reached (%d). Ending conversation.", current_calls)
+
+        # If a successful SQL result already exists in history, surface it so the
+        # API can return a 200 instead of a 502.  This is the common case when
+        # verify_node keeps requesting retries even though good data was found.
+        successful_sql_msgs = [
+            m for m in _tool_messages(history, "execute_sql")
+            if _summarize_sql_result(state["user_query"], m.content) is not None
+        ]
+        if successful_sql_msgs:
+            summary = _summarize_sql_result(state["user_query"], successful_sql_msgs[-1].content)
+            logger.info("llm_node: returning best available SQL result after hitting call cap.")
+            return {
+                "messages": [AIMessage(content=summary or "Query executed successfully.")],
+                "llm_calls": current_calls,
+                "verified": True,
+            }
+
+        # No successful result at all — collect the last SQL error for the hint.
         last_sql_error: str | None = None
         for m in reversed(_tool_messages(history, "execute_sql")):
             try:
@@ -195,11 +213,11 @@ def llm_node(state: AgentState) -> dict:
             except (json.JSONDecodeError, TypeError, AttributeError):
                 break
 
-        logger.warning("llm_node: Max LLM call limit reached (%d). Ending conversation.", current_calls)
         error_hint = f" (Last error: {last_sql_error})" if last_sql_error else ""
         return {
             "messages": [AIMessage(content=f"I encountered multiple issues or errors while trying to query the database. Please try rephrasing your request.{error_hint}")],
             "llm_calls": current_calls,
+            "verified": True,
         }
 
     # If a successful SQL result already exists in history, summarise and stop —
@@ -412,6 +430,17 @@ def verify_node(state: AgentState) -> dict:
             error_msg = "Unknown execution error"
             
         sql = _extract_sql_from_history(history)
+        
+        if verify_calls >= _MAX_VERIFY_LOOPS:
+            logger.warning(
+                "verify_node: max verification loops (%d) reached with failed SQL; accepting error as-is",
+                _MAX_VERIFY_LOOPS,
+            )
+            return {
+                "messages": [AIMessage(content=f"SQL execution failed: {error_msg}")],
+                "verify_calls": verify_calls + 1,
+                "verified": True,
+            }
         
         correction_msg = HumanMessage(
             content=(

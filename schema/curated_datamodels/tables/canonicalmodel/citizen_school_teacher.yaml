@@ -19,85 +19,13 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_school_teacher`(\n \
-  \ `citizen_school_teacher_id_pk` bigint COMMENT 'from deserializer', \n  `treasury_id`\
-  \ string COMMENT 'from deserializer', \n  `cfms_id` string COMMENT 'from deserializer',\
-  \ \n  `national_teacher_code` string COMMENT 'from deserializer', \n  `teacher_citizen_master_fk`\
-  \ bigint COMMENT 'from deserializer', \n  `teacher_emp_id` string COMMENT 'from\
-  \ deserializer', \n  `teacher_name` string COMMENT 'from deserializer', \n  `gender`\
-  \ string COMMENT 'from deserializer', \n  `date_of_birth` date COMMENT 'from deserializer',\
-  \ \n  `joining_date` date COMMENT 'from deserializer', \n  `qualification` string\
-  \ COMMENT 'from deserializer', \n  `employment_type` string COMMENT 'from deserializer',\
-  \ \n  `teacher_designation` string COMMENT 'from deserializer', \n  `subject_specialization_key`\
-  \ bigint COMMENT 'from deserializer', \n  `father_name` string COMMENT 'from deserializer',\
-  \ \n  `father_citizen_master_id` bigint COMMENT 'from deserializer', \n  `mother_name`\
-  \ string COMMENT 'from deserializer', \n  `mother_citizen_master_id` bigint COMMENT\
-  \ 'from deserializer', \n  `spouse_name` string COMMENT 'from deserializer', \n\
-  \  `spouse_citizen_master_id` bigint COMMENT 'from deserializer', \n  `is_single_parent`\
-  \ string COMMENT 'from deserializer', \n  `disability_category` string COMMENT 'from\
-  \ deserializer', \n  `academic_qualification` string COMMENT 'from deserializer',\
-  \ \n  `professional_qualification` string COMMENT 'from deserializer', \n  `tet_passed_flag`\
-  \ string COMMENT 'from deserializer', \n  `tet_year_of_passing` int COMMENT 'from\
-  \ deserializer', \n  `service_status` string COMMENT 'from deserializer', \n  `date_of_first_appointment`\
-  \ date COMMENT 'from deserializer', \n  `present_designation_teaching_type` string\
-  \ COMMENT 'from deserializer', \n  `effective_start_date` date COMMENT 'from deserializer',\
-  \ \n  `effective_end_date` date COMMENT 'from deserializer', \n  `is_current` string\
-  \ COMMENT 'from deserializer', \n  `created_date` timestamp with local time zone\
-  \ COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer',\
-  \ \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer',\
-  \ \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
-  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
-  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school_teacher'\n\
-  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
-  :[{\"id\":1,\"name\":\"citizen_school_teacher_id_pk\",\"required\":false,\"type\"\
-  :\"long\"},{\"id\":2,\"name\":\"treasury_id\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":3,\"name\":\"cfms_id\",\"required\":false,\"type\":\"string\"},{\"id\"\
-  :4,\"name\":\"national_teacher_code\",\"required\":false,\"type\":\"string\"},{\"\
-  id\":5,\"name\":\"teacher_citizen_master_fk\",\"required\":false,\"type\":\"long\"\
-  },{\"id\":6,\"name\":\"teacher_emp_id\",\"required\":false,\"type\":\"string\"},{\"\
-  id\":7,\"name\":\"teacher_name\",\"required\":false,\"type\":\"string\"},{\"id\"\
-  :8,\"name\":\"gender\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\"\
-  :\"date_of_birth\",\"required\":false,\"type\":\"date\"},{\"id\":10,\"name\":\"\
-  joining_date\",\"required\":false,\"type\":\"date\"},{\"id\":11,\"name\":\"qualification\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\":\"employment_type\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\":\"teacher_designation\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":14,\"name\":\"subject_specialization_key\"\
-  ,\"required\":false,\"type\":\"long\"},{\"id\":15,\"name\":\"father_name\",\"required\"\
-  :false,\"type\":\"string\"},{\"id\":16,\"name\":\"father_citizen_master_id\",\"\
-  required\":false,\"type\":\"long\"},{\"id\":17,\"name\":\"mother_name\",\"required\"\
-  :false,\"type\":\"string\"},{\"id\":18,\"name\":\"mother_citizen_master_id\",\"\
-  required\":false,\"type\":\"long\"},{\"id\":19,\"name\":\"spouse_name\",\"required\"\
-  :false,\"type\":\"string\"},{\"id\":20,\"name\":\"spouse_citizen_master_id\",\"\
-  required\":false,\"type\":\"long\"},{\"id\":21,\"name\":\"is_single_parent\",\"\
-  required\":false,\"type\":\"string\"},{\"id\":22,\"name\":\"disability_category\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":23,\"name\":\"academic_qualification\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":24,\"name\":\"professional_qualification\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":25,\"name\":\"tet_passed_flag\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":26,\"name\":\"tet_year_of_passing\"\
-  ,\"required\":false,\"type\":\"int\"},{\"id\":27,\"name\":\"service_status\",\"\
-  required\":false,\"type\":\"string\"},{\"id\":28,\"name\":\"date_of_first_appointment\"\
-  ,\"required\":false,\"type\":\"date\"},{\"id\":29,\"name\":\"present_designation_teaching_type\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":30,\"name\":\"effective_start_date\"\
-  ,\"required\":false,\"type\":\"date\"},{\"id\":31,\"name\":\"effective_end_date\"\
-  ,\"required\":false,\"type\":\"date\"},{\"id\":32,\"name\":\"is_current\",\"required\"\
-  :false,\"type\":\"string\"},{\"id\":33,\"name\":\"created_date\",\"required\":false,\"\
-  type\":\"timestamptz\"},{\"id\":34,\"name\":\"created_by\",\"required\":false,\"\
-  type\":\"string\"},{\"id\":35,\"name\":\"updated_date\",\"required\":false,\"type\"\
-  :\"timestamptz\"},{\"id\":36,\"name\":\"updated_by\",\"required\":false,\"type\"\
-  :\"string\"}]}', \n  'current-snapshot-id'='5056792522604944809', \n  'current-snapshot-summary'='{\"\
-  spark.app.id\":\"application_1775893506593_2965\",\"added-data-files\":\"32\",\"\
-  added-records\":\"367993\",\"added-files-size\":\"21787226\",\"changed-partition-count\"\
-  :\"32\",\"total-records\":\"367993\",\"total-files-size\":\"21787226\",\"total-data-files\"\
-  :\"32\",\"total-delete-files\":\"0\",\"total-position-deletes\":\"0\",\"total-equality-deletes\"\
-  :\"0\"}', \n  'current-snapshot-timestamp-ms'='1778328929160', \n  'default-partition-spec'='{\"\
-  spec-id\":0,\"fields\":[{\"name\":\"citizen_school_teacher_id_pk_bucket\",\"transform\"\
-  :\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true',\
-  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school_teacher/metadata/00001-e242124b-4067-4b3c-9313-60c096c8b065.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school_teacher/metadata/00000-494c33c8-401a-4773-88cc-7a269788e1ba.metadata.json',\
-  \ \n  'snapshot-count'='1', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778328929',\
-  \ \n  'uuid'='95d3fd82-4dd3-40a4-b39a-729b8688914e', \n  'write.delete.mode'='merge-on-read',\
-  \ \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read',\
-  \ \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_school_teacher`(\n  `citizen_school_teacher_id_pk` bigint COMMENT 'from deserializer', \n  `treasury_id` string COMMENT 'from deserializer', \n  `cfms_id` string COMMENT 'from deserializer', \n  `national_teacher_code` string COMMENT 'from deserializer', \n  `teacher_citizen_master_fk` bigint COMMENT 'from deserializer', \n  `teacher_emp_id` string COMMENT 'from deserializer', \n  `teacher_name` string COMMENT 'from deserializer', \n  `gender` string COMMENT 'from deserializer', \n  `date_of_birth` date COMMENT 'from deserializer', \n  `joining_date` date COMMENT 'from deserializer', \n  `qualification` string COMMENT 'from deserializer', \n  `employment_type` string COMMENT 'from deserializer', \n  `teacher_designation` string COMMENT 'from deserializer', \n  `subject_specialization_key` bigint COMMENT 'from deserializer', \n  `father_name` string COMMENT 'from deserializer', \n  `father_citizen_master_id` bigint COMMENT 'from\
+  \ deserializer', \n  `mother_name` string COMMENT 'from deserializer', \n  `mother_citizen_master_id` bigint COMMENT 'from deserializer', \n  `spouse_name` string COMMENT 'from deserializer', \n  `spouse_citizen_master_id` bigint COMMENT 'from deserializer', \n  `is_single_parent` string COMMENT 'from deserializer', \n  `disability_category` string COMMENT 'from deserializer', \n  `academic_qualification` string COMMENT 'from deserializer', \n  `professional_qualification` string COMMENT 'from deserializer', \n  `tet_passed_flag` string COMMENT 'from deserializer', \n  `tet_year_of_passing` int COMMENT 'from deserializer', \n  `service_status` string COMMENT 'from deserializer', \n  `date_of_first_appointment` date COMMENT 'from deserializer', \n  `present_designation_teaching_type` string COMMENT 'from deserializer', \n  `effective_start_date` date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from deserializer', \n  `is_current` string COMMENT 'from deserializer',\
+  \ \n  `created_date` timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school_teacher'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"citizen_school_teacher_id_pk\",\"required\":false,\"type\":\"long\"},{\"id\":2,\"name\":\"treasury_id\",\"required\":false,\"type\":\"string\"},{\"id\":3,\"name\":\"cfms_id\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"national_teacher_code\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"teacher_citizen_master_fk\",\"required\":false,\"type\":\"\
+  long\"},{\"id\":6,\"name\":\"teacher_emp_id\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"teacher_name\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"gender\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"date_of_birth\",\"required\":false,\"type\":\"date\"},{\"id\":10,\"name\":\"joining_date\",\"required\":false,\"type\":\"date\"},{\"id\":11,\"name\":\"qualification\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\":\"employment_type\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\":\"teacher_designation\",\"required\":false,\"type\":\"string\"},{\"id\":14,\"name\":\"subject_specialization_key\",\"required\":false,\"type\":\"long\"},{\"id\":15,\"name\":\"father_name\",\"required\":false,\"type\":\"string\"},{\"id\":16,\"name\":\"father_citizen_master_id\",\"required\":false,\"type\":\"long\"},{\"id\":17,\"name\":\"mother_name\",\"required\":false,\"type\":\"string\"},{\"id\":18,\"name\":\"mother_citizen_master_id\"\
+  ,\"required\":false,\"type\":\"long\"},{\"id\":19,\"name\":\"spouse_name\",\"required\":false,\"type\":\"string\"},{\"id\":20,\"name\":\"spouse_citizen_master_id\",\"required\":false,\"type\":\"long\"},{\"id\":21,\"name\":\"is_single_parent\",\"required\":false,\"type\":\"string\"},{\"id\":22,\"name\":\"disability_category\",\"required\":false,\"type\":\"string\"},{\"id\":23,\"name\":\"academic_qualification\",\"required\":false,\"type\":\"string\"},{\"id\":24,\"name\":\"professional_qualification\",\"required\":false,\"type\":\"string\"},{\"id\":25,\"name\":\"tet_passed_flag\",\"required\":false,\"type\":\"string\"},{\"id\":26,\"name\":\"tet_year_of_passing\",\"required\":false,\"type\":\"int\"},{\"id\":27,\"name\":\"service_status\",\"required\":false,\"type\":\"string\"},{\"id\":28,\"name\":\"date_of_first_appointment\",\"required\":false,\"type\":\"date\"},{\"id\":29,\"name\":\"present_designation_teaching_type\",\"required\":false,\"type\":\"string\"},{\"id\":30,\"name\":\"effective_start_date\"\
+  ,\"required\":false,\"type\":\"date\"},{\"id\":31,\"name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"},{\"id\":32,\"name\":\"is_current\",\"required\":false,\"type\":\"string\"},{\"id\":33,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":34,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":35,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":36,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'current-snapshot-id'='5056792522604944809', \n  'current-snapshot-summary'='{\"spark.app.id\":\"application_1775893506593_2965\",\"added-data-files\":\"32\",\"added-records\":\"367993\",\"added-files-size\":\"21787226\",\"changed-partition-count\":\"32\",\"total-records\":\"367993\",\"total-files-size\":\"21787226\",\"total-data-files\":\"32\",\"total-delete-files\":\"0\",\"total-position-deletes\":\"0\",\"total-equality-deletes\":\"0\"}', \n  'current-snapshot-timestamp-ms'='1778328929160',\
+  \ \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"citizen_school_teacher_id_pk_bucket\",\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school_teacher/metadata/00001-e242124b-4067-4b3c-9313-60c096c8b065.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school_teacher/metadata/00000-494c33c8-401a-4773-88cc-7a269788e1ba.metadata.json', \n  'snapshot-count'='1', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778328929', \n  'uuid'='95d3fd82-4dd3-40a4-b39a-729b8688914e', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
 columns:
 - name: citizen_school_teacher_id_pk
   type: BIGINT
@@ -114,12 +42,11 @@ columns:
 - name: national_teacher_code
   type: STRING
   nullable: true
-  description: Standardized system code representing the national teacher.
+  description: 'Code/ID column: Standardized system code representing the national teacher. Categorical column. Distinct values: 200. Examples: TS50010742, TR30931450. Top frequencies: 153088, 2851, 935, 911, 820. Categorical column.'
 - name: teacher_citizen_master_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated teacher citizen master dimension
-    or master table.'
+  description: 'Foreign Key: Links to the associated teacher citizen master dimension or master table.'
 - name: teacher_emp_id
   type: STRING
   nullable: true
@@ -127,15 +54,15 @@ columns:
 - name: teacher_name
   type: STRING
   nullable: true
-  description: Teacher name.
+  description: 'System field containing values such as: G.RAGHAVa RAO, K KAVITHA, VENU gopal, MAHESH, SANDHYA RANI.'
 - name: gender
   type: STRING
   nullable: true
-  description: The gender of the individual (e.g., 'M' for Male, 'F' for Female).
+  description: 'Gender of the individual. Categorical column. Distinct values: MALE, FEMALE.'
 - name: date_of_birth
   type: DATE
   nullable: true
-  description: Date of birth.
+  description: The birth date of the individual (citizen, student, or teacher) as recorded in official records.
 - name: joining_date
   type: DATE
   nullable: true
@@ -143,11 +70,11 @@ columns:
 - name: qualification
   type: STRING
   nullable: true
-  description: Qualification.
+  description: The educational qualification attained by the school teacher.
 - name: employment_type
   type: STRING
   nullable: true
-  description: Employment type.
+  description: Classification field defining the specific employment type.
 - name: teacher_designation
   type: STRING
   nullable: true
@@ -159,7 +86,7 @@ columns:
 - name: father_name
   type: STRING
   nullable: true
-  description: Father name.
+  description: The full name of the individual's father.
 - name: father_citizen_master_id
   type: BIGINT
   nullable: true
@@ -167,7 +94,7 @@ columns:
 - name: mother_name
   type: STRING
   nullable: true
-  description: Mother name.
+  description: The full name of the individual's mother.
 - name: mother_citizen_master_id
   type: BIGINT
   nullable: true
@@ -175,7 +102,7 @@ columns:
 - name: spouse_name
   type: STRING
   nullable: true
-  description: Spouse name.
+  description: The full name of the individual's spouse (if married).
 - name: spouse_citizen_master_id
   type: BIGINT
   nullable: true
@@ -183,11 +110,11 @@ columns:
 - name: is_single_parent
   type: STRING
   nullable: true
-  description: Is single parent.
+  description: Field containing the is single parent details for the table.
 - name: disability_category
   type: STRING
   nullable: true
-  description: Disability category.
+  description: Classification field defining the specific disability category.
 - name: academic_qualification
   type: STRING
   nullable: true
@@ -199,7 +126,7 @@ columns:
 - name: tet_passed_flag
   type: STRING
   nullable: true
-  description: Boolean indicator flag for tet passed ('Y' for Yes, 'N' for No).
+  description: 'Boolean indicator flag (values: ''Yes''/''No'').'
 - name: tet_year_of_passing
   type: INT
   nullable: true
@@ -207,7 +134,7 @@ columns:
 - name: service_status
   type: STRING
   nullable: true
-  description: Service status.
+  description: 'Categorical column. Distinct values: Active.'
 - name: date_of_first_appointment
   type: DATE
   nullable: true
@@ -215,7 +142,7 @@ columns:
 - name: present_designation_teaching_type
   type: STRING
   nullable: true
-  description: Present designation teaching type.
+  description: 'Categorical column. Distinct values: Teaching.'
 - name: effective_start_date
   type: DATE
   nullable: true
@@ -227,17 +154,15 @@ columns:
 - name: is_current
   type: STRING
   nullable: true
-  description: Is current.
+  description: 'Boolean indicator flag (values: ''Yes''/''No'').'
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: Timestamp indicating exactly when this record was originally created in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: The user ID or automated system process responsible for creating this record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -245,13 +170,11 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  description: The user ID or automated system process responsible for the most recent update to this record.
 primary_key:
 - citizen_school_teacher_id_pk
 relationships:
-- citizen_school_teacher.teacher_citizen_master_fk is a foreign-key-style reference
-  to teacher_citizen_master.
+- citizen_school_teacher.teacher_citizen_master_fk is a foreign-key-style reference to teacher_citizen_master.
 - citizen_school_teacher.caste_id_fk is a foreign-key-style reference to caste_id.
 business_terms:
 - school analytics

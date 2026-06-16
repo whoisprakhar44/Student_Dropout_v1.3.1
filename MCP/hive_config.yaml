@@ -28,8 +28,8 @@ execution:
   #
   # Example Impala session settings:
   #   - "SET REQUEST_POOL=my_pool"
-  #   - "SET MEM_LIMIT=2g"
+  #   - "SET MEM_LIMIT=4g"
   #
   # Leave as an empty list if no session configuration is required.
   session_settings:
-    - "SET MEM_LIMIT=2g"
+    - "SET MEM_LIMIT=4g"

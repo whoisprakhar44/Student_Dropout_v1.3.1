@@ -19,45 +19,10 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`absent_reason_dim`(\n  `absent_reason_dim_id_pk`\
-  \ bigint COMMENT 'from deserializer', \n  `reason_code` string COMMENT 'from deserializer',\
-  \ \n  `reason_name` string COMMENT 'from deserializer', \n  `reason_category` string\
-  \ COMMENT 'from deserializer', \n  `is_govt_approved` string COMMENT 'from deserializer',\
-  \ \n  `is_active` string COMMENT 'from deserializer', \n  `effective_start_date`\
-  \ date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from\
-  \ deserializer', \n  `is_current` string COMMENT 'from deserializer', \n  `created_date`\
-  \ timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string\
-  \ COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone\
-  \ COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\n\
-  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
-  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/absent_reason_dim'\n\
-  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
-  :[{\"id\":1,\"name\":\"absent_reason_dim_id_pk\",\"required\":false,\"type\":\"\
-  long\"},{\"id\":2,\"name\":\"reason_code\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":3,\"name\":\"reason_name\",\"required\":false,\"type\":\"string\"},{\"\
-  id\":4,\"name\":\"reason_category\",\"required\":false,\"type\":\"string\"},{\"\
-  id\":5,\"name\":\"is_govt_approved\",\"required\":false,\"type\":\"string\"},{\"\
-  id\":6,\"name\":\"is_active\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"\
-  name\":\"effective_start_date\",\"required\":false,\"type\":\"date\"},{\"id\":8,\"\
-  name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"},{\"id\":9,\"\
-  name\":\"is_current\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"name\"\
-  :\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":11,\"name\"\
-  :\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\":\"updated_date\"\
-  ,\"required\":false,\"type\":\"timestamptz\"},{\"id\":13,\"name\":\"updated_by\"\
-  ,\"required\":false,\"type\":\"string\"}]}', \n  'current-snapshot-id'='8771172961618289400',\
-  \ \n  'current-snapshot-summary'='{\"spark.app.id\":\"application_1775893506593_3127\"\
-  ,\"added-data-files\":\"5\",\"added-records\":\"5\",\"added-files-size\":\"18177\"\
-  ,\"changed-partition-count\":\"5\",\"total-records\":\"5\",\"total-files-size\"\
-  :\"18177\",\"total-data-files\":\"5\",\"total-delete-files\":\"0\",\"total-position-deletes\"\
-  :\"0\",\"total-equality-deletes\":\"0\"}', \n  'current-snapshot-timestamp-ms'='1778491034140',\
-  \ \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"absent_reason_dim_id_pk_bucket\"\
-  ,\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true',\
-  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/absent_reason_dim/metadata/00001-ccab5f73-0f23-4c88-b5e0-800db9a60bef.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/absent_reason_dim/metadata/00000-7ff3f674-005c-4c59-9e5c-5f7cf50751dd.metadata.json',\
-  \ \n  'snapshot-count'='1', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778491093',\
-  \ \n  'uuid'='ed934576-77d4-4b9e-8186-9889c380cf04', \n  'write.delete.mode'='merge-on-read',\
-  \ \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read',\
-  \ \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`absent_reason_dim`(\n  `absent_reason_dim_id_pk` bigint COMMENT 'from deserializer', \n  `reason_code` string COMMENT 'from deserializer', \n  `reason_name` string COMMENT 'from deserializer', \n  `reason_category` string COMMENT 'from deserializer', \n  `is_govt_approved` string COMMENT 'from deserializer', \n  `is_active` string COMMENT 'from deserializer', \n  `effective_start_date` date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from deserializer', \n  `is_current` string COMMENT 'from deserializer', \n  `created_date` timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/absent_reason_dim'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"absent_reason_dim_id_pk\",\"required\":false,\"type\":\"long\"},{\"id\":2,\"name\":\"reason_code\",\"required\":false,\"type\":\"string\"},{\"id\":3,\"name\":\"reason_name\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"reason_category\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"is_govt_approved\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"is_active\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"effective_start_date\",\"required\":false,\"type\":\"date\"},{\"id\":8,\"name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"},{\"id\":9,\"name\":\"is_current\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":11,\"name\":\"created_by\",\"required\"\
+  :false,\"type\":\"string\"},{\"id\":12,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":13,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'current-snapshot-id'='8771172961618289400', \n  'current-snapshot-summary'='{\"spark.app.id\":\"application_1775893506593_3127\",\"added-data-files\":\"5\",\"added-records\":\"5\",\"added-files-size\":\"18177\",\"changed-partition-count\":\"5\",\"total-records\":\"5\",\"total-files-size\":\"18177\",\"total-data-files\":\"5\",\"total-delete-files\":\"0\",\"total-position-deletes\":\"0\",\"total-equality-deletes\":\"0\"}', \n  'current-snapshot-timestamp-ms'='1778491034140', \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"absent_reason_dim_id_pk_bucket\",\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/absent_reason_dim/metadata/00001-ccab5f73-0f23-4c88-b5e0-800db9a60bef.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/absent_reason_dim/metadata/00000-7ff3f674-005c-4c59-9e5c-5f7cf50751dd.metadata.json', \n  'snapshot-count'='1', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778491093', \n  'uuid'='ed934576-77d4-4b9e-8186-9889c380cf04', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
 columns:
 - name: absent_reason_dim_id_pk
   type: BIGINT
@@ -66,24 +31,23 @@ columns:
 - name: reason_code
   type: STRING
   nullable: true
-  description: Standardized system code representing the reason.
+  description: 'Code/ID column: Standardized system code representing the reason. Categorical column. Distinct values: 5. Examples: 2, 4, 3, 1, 0. Top frequencies: 1, 1, 1, 1, 1. Categorical column.'
 - name: reason_name
   type: STRING
   nullable: true
-  description: Reason name.
+  description: 'Categorical classification column. Standardized values include: School changed, Duplicate Student, Left the school, Not feeling well.'
 - name: reason_category
   type: STRING
   nullable: true
-  description: Reason category.
+  description: Classification field defining the specific reason category.
 - name: is_govt_approved
   type: STRING
   nullable: true
-  description: Is govt approved.
+  description: Field containing the is govt approved details for the table.
 - name: is_active
   type: STRING
   nullable: true
-  description: Indicates if the entity is currently active in the system ('Y' for
-    Yes, 'N' for No, or 'ACTIVE'/'INACTIVE').
+  description: 'Boolean indicator flag (values: ''Yes''/''No'').'
 - name: effective_start_date
   type: DATE
   nullable: true
@@ -95,17 +59,15 @@ columns:
 - name: is_current
   type: STRING
   nullable: true
-  description: Is current.
+  description: 'Boolean indicator flag (values: ''Yes''/''No'').'
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: Timestamp indicating exactly when this record was originally created in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: The user ID or automated system process responsible for creating this record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -113,8 +75,7 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  description: The user ID or automated system process responsible for the most recent update to this record.
 primary_key:
 - absent_reason_dim_id_pk
 relationships: []

@@ -17,34 +17,31 @@ columns:
 - name: ration_card_type_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated ration card type dimension or
-    master table.'
+  description: 'Foreign Key: Links to the associated ration card type dimension or master table.'
 - name: ration_card_no
   type: STRING
   nullable: true
-  description: The unique household ration card number used for public distribution
-    benefits.
+  description: The unique household ration card number used for public distribution benefits.
 - name: card_type_code
   type: STRING
   nullable: true
-  description: The category of the ration card (e.g., 'LOW' for Low Income/BPL).
+  description: 'Code/ID column: The category of the ration card (e.g., ''LOW'' for Low Income/BPL). Categorical column. Distinct values: 2. Examples: 3, 2. Top frequencies: 41304349, 2253870. Categorical column.'
 - name: issuing_district_code
   type: STRING
   nullable: true
-  description: Standardized system code representing the issuing district.
+  description: 'Code/ID column: Standardized system code representing the issuing district. Categorical column. Distinct values: 28. Examples: 566.0, 550.0, 544.0, 568.0, 542.0. Top frequencies: 2310601, 2090697, 1993205, 1986799, 1984595. Categorical column.'
 - name: fps_code
   type: STRING
   nullable: true
-  description: Standardized system code representing the fps.
+  description: 'Code/ID column: Standardized system code representing the fps. Categorical column. Distinct values: 200. Examples: 154900300081, 155304102683, 155003001590, 154408601892, 154201500201. Top frequencies: 8774, 8309, 7685, 7517, 7160. Categorical column.'
 - name: citizen_master_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+  description: 'Foreign Key: Links to the associated citizen master dimension or master table.'
 - name: annual_income
   type: STRING
   nullable: true
-  description: Annual income.
+  description: The total recorded annual income of the citizen's household in Indian Rupees (INR).
 - name: ration_card_id
   type: STRING
   nullable: true
@@ -52,26 +49,23 @@ columns:
 - name: status_code
   type: STRING
   nullable: true
-  description: The current operational status code of the record (e.g., 'ACTIVE',
-    'INACTIVE', 'PENDING').
+  description: 'Code/ID column: The current operational status code of the record (e.g., ''ACTIVE'', ''INACTIVE'', ''PENDING''). Categorical column. Distinct values: 1. Examples: A. Top frequencies: 43558219. Categorical column.'
 - name: created_at
   type: TIMESTAMP
   nullable: true
-  description: Created at.
+  description: Timestamp indicating exactly when this record was originally created in the database system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: The user ID or automated system process responsible for creating this record.
 - name: updated_at
   type: TIMESTAMP
   nullable: true
-  description: Updated at.
+  description: Timestamp indicating the last time this record was modified or updated in the database system.
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  description: The user ID or automated system process responsible for the most recent update to this record.
 primary_key:
 - ration_card_family_pk
 relationships: []

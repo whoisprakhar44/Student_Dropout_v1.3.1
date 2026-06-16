@@ -19,60 +19,11 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_master`(\n  `citizen_master_pk`\
-  \ bigint COMMENT 'from deserializer', \n  `citizen_idty_fk` bigint COMMENT 'from\
-  \ deserializer', \n  `first_name` string COMMENT 'from deserializer', \n  `middle_name`\
-  \ string COMMENT 'from deserializer', \n  `last_name` string COMMENT 'from deserializer',\
-  \ \n  `full_name` string COMMENT 'from deserializer', \n  `birth_date` string COMMENT\
-  \ 'from deserializer', \n  `gender` string COMMENT 'from deserializer', \n  `marital_status`\
-  \ string COMMENT 'from deserializer', \n  `residency_status` string COMMENT 'from\
-  \ deserializer', \n  `status_code` string COMMENT 'from deserializer', \n  `primary_language`\
-  \ string COMMENT 'from deserializer', \n  `image_url` string COMMENT 'from deserializer',\
-  \ \n  `deceased_date` string COMMENT 'from deserializer', \n  `religion` string\
-  \ COMMENT 'from deserializer', \n  `caste` string COMMENT 'from deserializer', \n\
-  \  `source_system` string COMMENT 'from deserializer', \n  `created_date` timestamp\
-  \ with local time zone COMMENT 'from deserializer', \n  `updated_date` timestamp\
-  \ with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT\
-  \ 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW\
-  \ FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
-  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_master'\n\
-  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
-  :[{\"id\":1,\"name\":\"citizen_master_pk\",\"required\":false,\"type\":\"long\"\
-  },{\"id\":2,\"name\":\"citizen_idty_fk\",\"required\":false,\"type\":\"long\"},{\"\
-  id\":3,\"name\":\"first_name\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"\
-  name\":\"middle_name\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\"\
-  :\"last_name\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"full_name\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"birth_date\",\"required\"\
-  :false,\"type\":\"string\"},{\"id\":8,\"name\":\"gender\",\"required\":false,\"\
-  type\":\"string\"},{\"id\":9,\"name\":\"marital_status\",\"required\":false,\"type\"\
-  :\"string\"},{\"id\":10,\"name\":\"residency_status\",\"required\":false,\"type\"\
-  :\"string\"},{\"id\":11,\"name\":\"status_code\",\"required\":false,\"type\":\"\
-  string\"},{\"id\":12,\"name\":\"primary_language\",\"required\":false,\"type\":\"\
-  string\"},{\"id\":13,\"name\":\"image_url\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":14,\"name\":\"deceased_date\",\"required\":false,\"type\":\"string\"},{\"\
-  id\":15,\"name\":\"religion\",\"required\":false,\"type\":\"string\"},{\"id\":16,\"\
-  name\":\"caste\",\"required\":false,\"type\":\"string\"},{\"id\":17,\"name\":\"\
-  source_system\",\"required\":false,\"type\":\"string\"},{\"id\":18,\"name\":\"created_date\"\
-  ,\"required\":false,\"type\":\"timestamptz\"},{\"id\":19,\"name\":\"updated_date\"\
-  ,\"required\":false,\"type\":\"timestamptz\"},{\"id\":20,\"name\":\"created_by\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":21,\"name\":\"updated_by\",\"required\"\
-  :false,\"type\":\"string\"}]}', \n  'current-snapshot-id'='6767371102140490421',\
-  \ \n  'current-snapshot-summary'='{\"spark.app.id\":\"application_1775893506593_3145\"\
-  ,\"added-data-files\":\"108\",\"added-position-delete-files\":\"42\",\"added-delete-files\"\
-  :\"42\",\"added-records\":\"53024008\",\"added-files-size\":\"2234199300\",\"added-position-deletes\"\
-  :\"53024008\",\"changed-partition-count\":\"32\",\"total-records\":\"106048016\"\
-  ,\"total-files-size\":\"4234009105\",\"total-data-files\":\"190\",\"total-delete-files\"\
-  :\"42\",\"total-position-deletes\":\"53024008\",\"total-equality-deletes\":\"0\"\
-  }', \n  'current-snapshot-timestamp-ms'='1778507148887', \n  'default-partition-spec'='{\"\
-  spec-id\":0,\"fields\":[{\"name\":\"citizen_idty_fk_bucket\",\"transform\":\"bucket[32]\"\
-  ,\"source-id\":2,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true',\
-  \ \n  'impala.events.catalogServiceId'='9776eab397964690:a6788b7b6e82cea7', \n \
-  \ 'impala.events.catalogVersion'='138392', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_master/metadata/00007-8c0a1902-06f9-4312-8a86-be61f2fe4968.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_master/metadata/00006-0a505150-4028-4d81-8818-8b2618d62cea.metadata.json',\
-  \ \n  'snapshot-count'='7', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778507150',\
-  \ \n  'uuid'='93613b0f-1fe2-4ee5-9c7f-e87a93495507', \n  'write.delete.mode'='merge-on-read',\
-  \ \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read',\
-  \ \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_master`(\n  `citizen_master_pk` bigint COMMENT 'from deserializer', \n  `citizen_idty_fk` bigint COMMENT 'from deserializer', \n  `first_name` string COMMENT 'from deserializer', \n  `middle_name` string COMMENT 'from deserializer', \n  `last_name` string COMMENT 'from deserializer', \n  `full_name` string COMMENT 'from deserializer', \n  `birth_date` string COMMENT 'from deserializer', \n  `gender` string COMMENT 'from deserializer', \n  `marital_status` string COMMENT 'from deserializer', \n  `residency_status` string COMMENT 'from deserializer', \n  `status_code` string COMMENT 'from deserializer', \n  `primary_language` string COMMENT 'from deserializer', \n  `image_url` string COMMENT 'from deserializer', \n  `deceased_date` string COMMENT 'from deserializer', \n  `religion` string COMMENT 'from deserializer', \n  `caste` string COMMENT 'from deserializer', \n  `source_system` string COMMENT 'from deserializer', \n  `created_date`\
+  \ timestamp with local time zone COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_master'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"citizen_master_pk\",\"required\":false,\"type\":\"long\"},{\"id\":2,\"name\":\"citizen_idty_fk\",\"required\":false,\"type\":\"long\"},{\"id\":3,\"name\":\"first_name\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"middle_name\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"last_name\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"full_name\",\"required\":false,\"\
+  type\":\"string\"},{\"id\":7,\"name\":\"birth_date\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"gender\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"marital_status\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"name\":\"residency_status\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"status_code\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\":\"primary_language\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\":\"image_url\",\"required\":false,\"type\":\"string\"},{\"id\":14,\"name\":\"deceased_date\",\"required\":false,\"type\":\"string\"},{\"id\":15,\"name\":\"religion\",\"required\":false,\"type\":\"string\"},{\"id\":16,\"name\":\"caste\",\"required\":false,\"type\":\"string\"},{\"id\":17,\"name\":\"source_system\",\"required\":false,\"type\":\"string\"},{\"id\":18,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":19,\"name\":\"updated_date\",\"required\":false,\"type\":\"\
+  timestamptz\"},{\"id\":20,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":21,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'current-snapshot-id'='6767371102140490421', \n  'current-snapshot-summary'='{\"spark.app.id\":\"application_1775893506593_3145\",\"added-data-files\":\"108\",\"added-position-delete-files\":\"42\",\"added-delete-files\":\"42\",\"added-records\":\"53024008\",\"added-files-size\":\"2234199300\",\"added-position-deletes\":\"53024008\",\"changed-partition-count\":\"32\",\"total-records\":\"106048016\",\"total-files-size\":\"4234009105\",\"total-data-files\":\"190\",\"total-delete-files\":\"42\",\"total-position-deletes\":\"53024008\",\"total-equality-deletes\":\"0\"}', \n  'current-snapshot-timestamp-ms'='1778507148887', \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"citizen_idty_fk_bucket\",\"transform\":\"bucket[32]\",\"source-id\":2,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true',\
+  \ \n  'impala.events.catalogServiceId'='9776eab397964690:a6788b7b6e82cea7', \n  'impala.events.catalogVersion'='138392', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_master/metadata/00007-8c0a1902-06f9-4312-8a86-be61f2fe4968.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_master/metadata/00006-0a505150-4028-4d81-8818-8b2618d62cea.metadata.json', \n  'snapshot-count'='7', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778507150', \n  'uuid'='93613b0f-1fe2-4ee5-9c7f-e87a93495507', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
 columns:
 - name: citizen_master_pk
   type: BIGINT
@@ -81,20 +32,19 @@ columns:
 - name: citizen_idty_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizenty dimension or master
-    table.'
+  description: 'Foreign Key: Links to the associated citizenty dimension or master table.'
 - name: first_name
   type: STRING
   nullable: true
-  description: First name.
+  description: The first name of the citizen.
 - name: middle_name
   type: STRING
   nullable: true
-  description: Middle name.
+  description: The middle name of the citizen (if applicable).
 - name: last_name
   type: STRING
   nullable: true
-  description: Last name.
+  description: The last name / family name of the citizen.
 - name: full_name
   type: STRING
   nullable: true
@@ -106,20 +56,19 @@ columns:
 - name: gender
   type: STRING
   nullable: true
-  description: The gender of the individual (e.g., 'M' for Male, 'F' for Female).
+  description: 'Gender of the individual. Categorical column. Distinct values: MALE, FEMALE.'
 - name: marital_status
   type: STRING
   nullable: true
-  description: Marital status.
+  description: 'Marital status code. Categorical column. Distinct values: 0 (Single/Unmarried), 1 (Married), 2 (Widowed), 3 (Divorced).'
 - name: residency_status
   type: STRING
   nullable: true
-  description: Residency status.
+  description: 'Categorical column. Distinct values: 1045735750, 1286552336, 1312143190, 1374783456, 1802477394.'
 - name: status_code
   type: STRING
   nullable: true
-  description: The current operational status code of the record (e.g., 'ACTIVE',
-    'INACTIVE', 'PENDING').
+  description: 'Code/ID column: The current operational status code of the record (e.g., ''ACTIVE'', ''INACTIVE'', ''PENDING''). Categorical column. Distinct values: 1. Top frequencies: 53024008. Categorical column.'
 - name: primary_language
   type: STRING
   nullable: true
@@ -127,7 +76,7 @@ columns:
 - name: image_url
   type: STRING
   nullable: true
-  description: Image url.
+  description: The URL/path pointing to the photograph or digital image of the citizen/student.
 - name: deceased_date
   type: STRING
   nullable: true
@@ -135,20 +84,19 @@ columns:
 - name: religion
   type: STRING
   nullable: true
-  description: Religion.
+  description: 'Religion of the individual. Categorical column. Distinct values: Hindu, Muslim, Christian, Sikh, Buddhist, Jain.'
 - name: caste
   type: STRING
   nullable: true
-  description: Caste.
+  description: 'Caste category. Categorical column. Distinct values: BC-A, BC-B, BC-C, BC-D, BC-E, SC, ST, OC.'
 - name: source_system
   type: STRING
   nullable: true
-  description: Source system.
+  description: The name of the source department database or application from which this data was ingested.
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: Timestamp indicating exactly when this record was originally created in the source system.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -156,13 +104,23 @@ columns:
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: The user ID or automated system process responsible for creating this record.
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  description: The user ID or automated system process responsible for the most recent update to this record.
+- name: primary_mobile
+  type: STRING
+  nullable: true
+  description: Primary mobile contact number.
+- name: secondary_mobile
+  type: STRING
+  nullable: true
+  description: Secondary mobile contact number.
+- name: email_address
+  type: STRING
+  nullable: true
+  description: Primary email address.
 primary_key:
 - citizen_master_pk
 relationships: []

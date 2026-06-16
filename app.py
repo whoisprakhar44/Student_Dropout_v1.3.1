@@ -144,13 +144,49 @@ def _extract_sql_and_result(messages: list[Any]) -> AskResponse:
         if payload.get("status") == "success":
             result = payload.get("rows") or []
 
-    if not sql or result is None:
-        raise HTTPException(
-            status_code=502,
-            detail="The agent did not return an executed SQL query.",
-        )
+    # If SQL was not found, default to empty string
+    if sql is None:
+        sql = ""
+
+    # If result was not found (meaning failure or no execution), build a fallback explanation result
+    if result is None:
+        error_msg = None
+        # Try to find an error status in execute_sql ToolMessages
+        for message in reversed(messages):
+            is_tool_msg = isinstance(message, LCToolMessage) or (
+                message.__class__.__name__ == "ToolMessage"
+            )
+            if is_tool_msg and getattr(message, "name", None) == "execute_sql":
+                raw_content = _extract_tool_content(message)
+                if raw_content:
+                    try:
+                        payload = json.loads(raw_content)
+                        if payload.get("status") == "error":
+                            error_msg = payload.get("error_msg") or payload.get("error_type")
+                            if error_msg:
+                                break
+                    except Exception:
+                        pass
+
+        # If no tool error, look for any final explanation AIMessage
+        if not error_msg:
+            for message in reversed(messages):
+                msg_class = message.__class__.__name__
+                if msg_class == "AIMessage" or getattr(message, "content", None):
+                    # Make sure it's not a tool call message
+                    if not getattr(message, "tool_calls", None):
+                        content = getattr(message, "content", None)
+                        if content and isinstance(content, str) and content.strip():
+                            error_msg = content.strip()
+                            break
+
+        if not error_msg:
+            error_msg = "The agent did not return an executed SQL query."
+
+        result = [{"error": error_msg, "status": "failed"}]
 
     return AskResponse(sql=sql, result=result)
+
 
 
 @asynccontextmanager

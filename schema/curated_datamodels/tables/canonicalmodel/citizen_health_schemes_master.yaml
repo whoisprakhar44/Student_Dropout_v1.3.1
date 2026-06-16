@@ -17,53 +17,19 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_health_schemes_master`(\n\
-  \  `citizen_health_schemes_master_pk` int COMMENT 'from deserializer', \n  `health_scheme_code_fk`\
-  \ string COMMENT 'from deserializer', \n  `scheme_name` string COMMENT 'from deserializer',\
-  \ \n  `scheme_type` string COMMENT 'from deserializer', \n  `category` string COMMENT\
-  \ 'from deserializer', \n  `sub_category` string COMMENT 'from deserializer', \n\
-  \  `scheme_code` string COMMENT 'from deserializer', \n  `scheme_create_date` date\
-  \ COMMENT 'from deserializer', \n  `scheme_start_date` date COMMENT 'from deserializer',\
-  \ \n  `scheme_end_date` date COMMENT 'from deserializer', \n  `scheme_active_status`\
-  \ string COMMENT 'from deserializer', \n  `scheme_benefits` string COMMENT 'from\
-  \ deserializer', \n  `create_date` date COMMENT 'from deserializer', \n  `create_by`\
-  \ string COMMENT 'from deserializer', \n  `updated_date` date COMMENT 'from deserializer',\
-  \ \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
-  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
-  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_health_schemes_master'\n\
-  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
-  :[{\"id\":1,\"name\":\"citizen_health_schemes_master_pk\",\"required\":false,\"\
-  type\":\"int\"},{\"id\":2,\"name\":\"health_scheme_code_fk\",\"required\":false,\"\
-  type\":\"string\"},{\"id\":3,\"name\":\"scheme_name\",\"required\":false,\"type\"\
-  :\"string\"},{\"id\":4,\"name\":\"scheme_type\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":5,\"name\":\"category\",\"required\":false,\"type\":\"string\"},{\"id\"\
-  :6,\"name\":\"sub_category\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"\
-  name\":\"scheme_code\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\"\
-  :\"scheme_create_date\",\"required\":false,\"type\":\"date\"},{\"id\":9,\"name\"\
-  :\"scheme_start_date\",\"required\":false,\"type\":\"date\"},{\"id\":10,\"name\"\
-  :\"scheme_end_date\",\"required\":false,\"type\":\"date\"},{\"id\":11,\"name\":\"\
-  scheme_active_status\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\"\
-  :\"scheme_benefits\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\"\
-  :\"create_date\",\"required\":false,\"type\":\"date\"},{\"id\":14,\"name\":\"create_by\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":15,\"name\":\"updated_date\",\"\
-  required\":false,\"type\":\"date\"},{\"id\":16,\"name\":\"updated_by\",\"required\"\
-  :false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true', \n  'external'='true',\
-  \ \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_health_schemes_master/metadata/00000-ededc07a-fd8a-4495-940a-018fad881110.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
-  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323392', \n  'uuid'='a8e478aa-a1e2-4791-ba23-92b3a9a463d7',\
-  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
-  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_health_schemes_master`(\n  `citizen_health_schemes_master_pk` int COMMENT 'from deserializer', \n  `health_scheme_code_fk` string COMMENT 'from deserializer', \n  `scheme_name` string COMMENT 'from deserializer', \n  `scheme_type` string COMMENT 'from deserializer', \n  `category` string COMMENT 'from deserializer', \n  `sub_category` string COMMENT 'from deserializer', \n  `scheme_code` string COMMENT 'from deserializer', \n  `scheme_create_date` date COMMENT 'from deserializer', \n  `scheme_start_date` date COMMENT 'from deserializer', \n  `scheme_end_date` date COMMENT 'from deserializer', \n  `scheme_active_status` string COMMENT 'from deserializer', \n  `scheme_benefits` string COMMENT 'from deserializer', \n  `create_date` date COMMENT 'from deserializer', \n  `create_by` string COMMENT 'from deserializer', \n  `updated_date` date COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT\
+  \ SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_health_schemes_master'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"citizen_health_schemes_master_pk\",\"required\":false,\"type\":\"int\"},{\"id\":2,\"name\":\"health_scheme_code_fk\",\"required\":false,\"type\":\"string\"},{\"id\":3,\"name\":\"scheme_name\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"scheme_type\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"category\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"sub_category\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"scheme_code\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"scheme_create_date\",\"required\":false,\"type\":\"date\"},{\"id\":9,\"name\":\"scheme_start_date\"\
+  ,\"required\":false,\"type\":\"date\"},{\"id\":10,\"name\":\"scheme_end_date\",\"required\":false,\"type\":\"date\"},{\"id\":11,\"name\":\"scheme_active_status\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\":\"scheme_benefits\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\":\"create_date\",\"required\":false,\"type\":\"date\"},{\"id\":14,\"name\":\"create_by\",\"required\":false,\"type\":\"string\"},{\"id\":15,\"name\":\"updated_date\",\"required\":false,\"type\":\"date\"},{\"id\":16,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_health_schemes_master/metadata/00000-ededc07a-fd8a-4495-940a-018fad881110.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323392', \n  'uuid'='a8e478aa-a1e2-4791-ba23-92b3a9a463d7',\
+  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
 columns:
 - name: citizen_health_schemes_master_pk
   type: INT
   nullable: true
-  description: 'Primary Key: Unique identifier for the citizen health schemes master
-    record.'
+  description: 'Primary Key: Unique identifier for the citizen health schemes master record.'
 - name: health_scheme_code_fk
   type: STRING
   nullable: true
-  description: 'Foreign Key: Links to the associated health scheme code dimension
-    or master table.'
+  description: 'Foreign Key: Links to the associated health scheme code dimension or master table.'
 - name: scheme_name
   type: STRING
   nullable: true
@@ -71,19 +37,19 @@ columns:
 - name: scheme_type
   type: STRING
   nullable: true
-  description: Scheme type.
+  description: Classification field defining the specific scheme type.
 - name: category
   type: STRING
   nullable: true
-  description: Category.
+  description: Classification field defining the specific category.
 - name: sub_category
   type: STRING
   nullable: true
-  description: Sub category.
+  description: Classification field defining the specific sub category.
 - name: scheme_code
   type: STRING
   nullable: true
-  description: Standardized system code representing the scheme.
+  description: 'Code/ID column: Standardized system code representing the scheme. Categorical column. Distinct values: 1. Top frequencies: 5. Categorical column.'
 - name: scheme_create_date
   type: DATE
   nullable: true
@@ -99,11 +65,11 @@ columns:
 - name: scheme_active_status
   type: STRING
   nullable: true
-  description: Scheme active status.
+  description: System field indicating the current scheme active status of the record.
 - name: scheme_benefits
   type: STRING
   nullable: true
-  description: Scheme benefits.
+  description: Field containing the scheme benefits details for the table.
 - name: create_date
   type: DATE
   nullable: true
@@ -111,7 +77,7 @@ columns:
 - name: create_by
   type: STRING
   nullable: true
-  description: Create by.
+  description: 'System field containing values such as: Curated_team.'
 - name: updated_date
   type: DATE
   nullable: true
@@ -119,8 +85,7 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  description: The user ID or automated system process responsible for the most recent update to this record.
 primary_key:
 - citizen_health_schemes_master_pk
 relationships: []

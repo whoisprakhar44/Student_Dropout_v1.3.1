@@ -17,34 +17,9 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_consent`(\n  `citizen_consent_id_pk`\
-  \ int COMMENT 'from deserializer', \n  `citizen_master_fk` int COMMENT 'from deserializer',\
-  \ \n  `allowed_purposes` string COMMENT 'from deserializer', \n  `valid_from` string\
-  \ COMMENT 'from deserializer', \n  `valid_to` string COMMENT 'from deserializer',\
-  \ \n  `is_revocable` string COMMENT 'from deserializer', \n  `consent_created_at`\
-  \ string COMMENT 'from deserializer', \n  `revoked_at` string COMMENT 'from deserializer',\
-  \ \n  `created_at` string COMMENT 'from deserializer', \n  `created_by` string COMMENT\
-  \ 'from deserializer', \n  `updated_at` string COMMENT 'from deserializer', \n \
-  \ `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
-  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
-  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_consent'\n\
-  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
-  :[{\"id\":1,\"name\":\"citizen_consent_id_pk\",\"required\":false,\"type\":\"int\"\
-  },{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"int\"},{\"\
-  id\":3,\"name\":\"allowed_purposes\",\"required\":false,\"type\":\"string\"},{\"\
-  id\":4,\"name\":\"valid_from\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"\
-  name\":\"valid_to\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"\
-  is_revocable\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"consent_created_at\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"revoked_at\",\"required\"\
-  :false,\"type\":\"string\"},{\"id\":9,\"name\":\"created_at\",\"required\":false,\"\
-  type\":\"string\"},{\"id\":10,\"name\":\"created_by\",\"required\":false,\"type\"\
-  :\"string\"},{\"id\":11,\"name\":\"updated_at\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":12,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}',\
-  \ \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_consent/metadata/00000-44459aa0-7d44-419a-b0cb-3ff77b3e223b.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
-  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323393', \n  'uuid'='95009e9f-03a8-4bad-bfb6-769aa42850f2',\
-  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
-  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_consent`(\n  `citizen_consent_id_pk` int COMMENT 'from deserializer', \n  `citizen_master_fk` int COMMENT 'from deserializer', \n  `allowed_purposes` string COMMENT 'from deserializer', \n  `valid_from` string COMMENT 'from deserializer', \n  `valid_to` string COMMENT 'from deserializer', \n  `is_revocable` string COMMENT 'from deserializer', \n  `consent_created_at` string COMMENT 'from deserializer', \n  `revoked_at` string COMMENT 'from deserializer', \n  `created_at` string COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_at` string COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_consent'\nTBLPROPERTIES (\n  'current-schema'='{\"\
+  type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"citizen_consent_id_pk\",\"required\":false,\"type\":\"int\"},{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"int\"},{\"id\":3,\"name\":\"allowed_purposes\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"valid_from\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"valid_to\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"is_revocable\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"consent_created_at\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"revoked_at\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"created_at\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"updated_at\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true',\
+  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_consent/metadata/00000-44459aa0-7d44-419a-b0cb-3ff77b3e223b.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323393', \n  'uuid'='95009e9f-03a8-4bad-bfb6-769aa42850f2', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
 columns:
 - name: citizen_consent_id_pk
   type: INT
@@ -53,8 +28,7 @@ columns:
 - name: citizen_master_fk
   type: INT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+  description: 'Foreign Key: Links to the associated citizen master dimension or master table.'
 - name: allowed_purposes
   type: STRING
   nullable: true
@@ -62,15 +36,15 @@ columns:
 - name: valid_from
   type: STRING
   nullable: true
-  description: Valid from.
+  description: Start date/timestamp for the validity period of this record (e.g. consent or document).
 - name: valid_to
   type: STRING
   nullable: true
-  description: Valid to.
+  description: End date/timestamp for the validity period of this record (e.g. consent or document).
 - name: is_revocable
   type: STRING
   nullable: true
-  description: Is revocable.
+  description: Field containing the is revocable details for the table.
 - name: consent_created_at
   type: STRING
   nullable: true
@@ -78,25 +52,23 @@ columns:
 - name: revoked_at
   type: STRING
   nullable: true
-  description: Revoked at.
+  description: Field containing the revoked at details for the table.
 - name: created_at
   type: STRING
   nullable: true
-  description: Created at.
+  description: Timestamp indicating exactly when this record was originally created in the database system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: The user ID or automated system process responsible for creating this record.
 - name: updated_at
   type: STRING
   nullable: true
-  description: Updated at.
+  description: Timestamp indicating the last time this record was modified or updated in the database system.
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  description: The user ID or automated system process responsible for the most recent update to this record.
 primary_key:
 - citizen_consent_id_pk
 relationships: []

@@ -19,44 +19,10 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`meal_type_dim`(\n  `meal_type_dim_id_pk`\
-  \ bigint COMMENT 'from deserializer', \n  `meal_type_code` string COMMENT 'from\
-  \ deserializer', \n  `meal_type_name` string COMMENT 'from deserializer', \n  `is_compulsory`\
-  \ string COMMENT 'from deserializer', \n  `is_active` string COMMENT 'from deserializer',\
-  \ \n  `is_current` string COMMENT 'from deserializer', \n  `effective_start_date`\
-  \ date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from\
-  \ deserializer', \n  `created_date` timestamp with local time zone COMMENT 'from\
-  \ deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date`\
-  \ timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string\
-  \ COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
-  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
-  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/meal_type_dim'\nTBLPROPERTIES\
-  \ (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\"\
-  :1,\"name\":\"meal_type_dim_id_pk\",\"required\":false,\"type\":\"long\"},{\"id\"\
-  :2,\"name\":\"meal_type_code\",\"required\":false,\"type\":\"string\"},{\"id\":3,\"\
-  name\":\"meal_type_name\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\"\
-  :\"is_compulsory\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"\
-  is_active\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"is_current\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"effective_start_date\"\
-  ,\"required\":false,\"type\":\"date\"},{\"id\":8,\"name\":\"effective_end_date\"\
-  ,\"required\":false,\"type\":\"date\"},{\"id\":9,\"name\":\"created_date\",\"required\"\
-  :false,\"type\":\"timestamptz\"},{\"id\":10,\"name\":\"created_by\",\"required\"\
-  :false,\"type\":\"string\"},{\"id\":11,\"name\":\"updated_date\",\"required\":false,\"\
-  type\":\"timestamptz\"},{\"id\":12,\"name\":\"updated_by\",\"required\":false,\"\
-  type\":\"string\"}]}', \n  'current-snapshot-id'='6371550919716756546', \n  'current-snapshot-summary'='{\"\
-  spark.app.id\":\"application_1775893506593_3215\",\"added-data-files\":\"22\",\"\
-  added-records\":\"46\",\"added-files-size\":\"76239\",\"changed-partition-count\"\
-  :\"22\",\"total-records\":\"46\",\"total-files-size\":\"76239\",\"total-data-files\"\
-  :\"22\",\"total-delete-files\":\"0\",\"total-position-deletes\":\"0\",\"total-equality-deletes\"\
-  :\"0\"}', \n  'current-snapshot-timestamp-ms'='1778581929930', \n  'default-partition-spec'='{\"\
-  spec-id\":0,\"fields\":[{\"name\":\"meal_type_dim_id_pk_bucket\",\"transform\":\"\
-  bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true',\
-  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/meal_type_dim/metadata/00001-c089ab3f-e5b4-4509-8e7e-1270a5c8102c.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/meal_type_dim/metadata/00000-d71472a9-f436-4557-bec4-72cc8583f9d4.metadata.json',\
-  \ \n  'snapshot-count'='1', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778581931',\
-  \ \n  'uuid'='5b8f2d5f-d264-4ebb-b2cb-75686e668cf5', \n  'write.delete.mode'='merge-on-read',\
-  \ \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read',\
-  \ \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`meal_type_dim`(\n  `meal_type_dim_id_pk` bigint COMMENT 'from deserializer', \n  `meal_type_code` string COMMENT 'from deserializer', \n  `meal_type_name` string COMMENT 'from deserializer', \n  `is_compulsory` string COMMENT 'from deserializer', \n  `is_active` string COMMENT 'from deserializer', \n  `is_current` string COMMENT 'from deserializer', \n  `effective_start_date` date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from deserializer', \n  `created_date` timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/meal_type_dim'\n\
+  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"meal_type_dim_id_pk\",\"required\":false,\"type\":\"long\"},{\"id\":2,\"name\":\"meal_type_code\",\"required\":false,\"type\":\"string\"},{\"id\":3,\"name\":\"meal_type_name\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"is_compulsory\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"is_active\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"is_current\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"effective_start_date\",\"required\":false,\"type\":\"date\"},{\"id\":8,\"name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"},{\"id\":9,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":10,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":12,\"name\":\"updated_by\",\"required\":false,\"\
+  type\":\"string\"}]}', \n  'current-snapshot-id'='6371550919716756546', \n  'current-snapshot-summary'='{\"spark.app.id\":\"application_1775893506593_3215\",\"added-data-files\":\"22\",\"added-records\":\"46\",\"added-files-size\":\"76239\",\"changed-partition-count\":\"22\",\"total-records\":\"46\",\"total-files-size\":\"76239\",\"total-data-files\":\"22\",\"total-delete-files\":\"0\",\"total-position-deletes\":\"0\",\"total-equality-deletes\":\"0\"}', \n  'current-snapshot-timestamp-ms'='1778581929930', \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"meal_type_dim_id_pk_bucket\",\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/meal_type_dim/metadata/00001-c089ab3f-e5b4-4509-8e7e-1270a5c8102c.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/meal_type_dim/metadata/00000-d71472a9-f436-4557-bec4-72cc8583f9d4.metadata.json',\
+  \ \n  'snapshot-count'='1', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778581931', \n  'uuid'='5b8f2d5f-d264-4ebb-b2cb-75686e668cf5', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
 columns:
 - name: meal_type_dim_id_pk
   type: BIGINT
@@ -65,7 +31,7 @@ columns:
 - name: meal_type_code
   type: STRING
   nullable: true
-  description: Standardized system code representing the meal type.
+  description: 'Code/ID column: Standardized system code representing the meal type. Categorical column. Distinct values: 46. Examples: 95, 104, 90, 108, 110. Top frequencies: 1, 1, 1, 1, 1. Categorical column.'
 - name: meal_type_name
   type: STRING
   nullable: true
@@ -73,16 +39,15 @@ columns:
 - name: is_compulsory
   type: STRING
   nullable: true
-  description: Is compulsory.
+  description: Field containing the is compulsory details for the table.
 - name: is_active
   type: STRING
   nullable: true
-  description: Indicates if the entity is currently active in the system ('Y' for
-    Yes, 'N' for No, or 'ACTIVE'/'INACTIVE').
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
 - name: is_current
   type: STRING
   nullable: true
-  description: Is current.
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
 - name: effective_start_date
   type: DATE
   nullable: true
@@ -94,13 +59,11 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: Timestamp indicating exactly when this record was originally created in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: The user ID or automated system process responsible for creating this record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -108,8 +71,7 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  description: The user ID or automated system process responsible for the most recent update to this record.
 primary_key:
 - meal_type_dim_id_pk
 relationships: []

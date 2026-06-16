@@ -19,58 +19,11 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_document_testing`(\n\
-  \  `citizen_document_pk` bigint COMMENT 'from deserializer', \n  `citizen_master_fk`\
-  \ bigint COMMENT 'from deserializer', \n  `citizen_document_type_fk` int COMMENT\
-  \ 'from deserializer', \n  `document_name` string COMMENT 'from deserializer', \n\
-  \  `file_name` string COMMENT 'from deserializer', \n  `issuing_authority` string\
-  \ COMMENT 'from deserializer', \n  `issuance_date` string COMMENT 'from deserializer',\
-  \ \n  `registration_date` string COMMENT 'from deserializer', \n  `place_of_event`\
-  \ string COMMENT 'from deserializer', \n  `status` string COMMENT 'from deserializer',\
-  \ \n  `last_amendment_date` string COMMENT 'from deserializer', \n  `digital_signature_hash`\
-  \ string COMMENT 'from deserializer', \n  `document_storage_path` string COMMENT\
-  \ 'from deserializer', \n  `valid_from` string COMMENT 'from deserializer', \n \
-  \ `coalesced_uid` string COMMENT 'from deserializer', \n  `uid_flag` string COMMENT\
-  \ 'from deserializer', \n  `valid_to` string COMMENT 'from deserializer', \n  `created_date`\
-  \ timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string\
-  \ COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone\
-  \ COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\n\
-  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
-  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document_testing'\n\
-  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
-  :[{\"id\":1,\"name\":\"citizen_document_pk\",\"required\":false,\"type\":\"long\"\
-  },{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"long\"\
-  },{\"id\":3,\"name\":\"citizen_document_type_fk\",\"required\":false,\"type\":\"\
-  int\"},{\"id\":4,\"name\":\"document_name\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":5,\"name\":\"file_name\",\"required\":false,\"type\":\"string\"},{\"id\"\
-  :6,\"name\":\"issuing_authority\",\"required\":false,\"type\":\"string\"},{\"id\"\
-  :7,\"name\":\"issuance_date\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"\
-  name\":\"registration_date\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"\
-  name\":\"place_of_event\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"\
-  name\":\"status\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"\
-  last_amendment_date\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\"\
-  :\"digital_signature_hash\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"\
-  name\":\"document_storage_path\",\"required\":false,\"type\":\"string\"},{\"id\"\
-  :14,\"name\":\"valid_from\",\"required\":false,\"type\":\"string\"},{\"id\":15,\"\
-  name\":\"coalesced_uid\",\"required\":false,\"type\":\"string\"},{\"id\":16,\"name\"\
-  :\"uid_flag\",\"required\":false,\"type\":\"string\"},{\"id\":17,\"name\":\"valid_to\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":18,\"name\":\"created_date\",\"\
-  required\":false,\"type\":\"timestamptz\"},{\"id\":19,\"name\":\"created_by\",\"\
-  required\":false,\"type\":\"string\"},{\"id\":20,\"name\":\"updated_date\",\"required\"\
-  :false,\"type\":\"timestamptz\"},{\"id\":21,\"name\":\"updated_by\",\"required\"\
-  :false,\"type\":\"string\"}]}', \n  'current-snapshot-id'='489204898753167786',\
-  \ \n  'current-snapshot-summary'='{\"spark.app.id\":\"application_1775893506593_2373\"\
-  ,\"added-data-files\":\"1\",\"added-records\":\"7118635\",\"added-files-size\":\"\
-  229117266\",\"changed-partition-count\":\"1\",\"total-records\":\"7118635\",\"total-files-size\"\
-  :\"229117266\",\"total-data-files\":\"1\",\"total-delete-files\":\"0\",\"total-position-deletes\"\
-  :\"0\",\"total-equality-deletes\":\"0\"}', \n  'current-snapshot-timestamp-ms'='1777615268249',\
-  \ \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'impala.events.catalogServiceId'='9776eab397964690:a6788b7b6e82cea7',\
-  \ \n  'impala.events.catalogVersion'='136873', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document_testing/metadata/00003-13876d13-28f0-4733-af65-c425f25613cd.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document_testing/metadata/00002-982a4c49-af44-464f-811f-baf1c42c1f67.metadata.json',\
-  \ \n  'snapshot-count'='3', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1777615269',\
-  \ \n  'uuid'='382683ea-c8a9-4480-b4d1-98df81d99978', \n  'write.delete.mode'='merge-on-read',\
-  \ \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read',\
-  \ \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_document_testing`(\n  `citizen_document_pk` bigint COMMENT 'from deserializer', \n  `citizen_master_fk` bigint COMMENT 'from deserializer', \n  `citizen_document_type_fk` int COMMENT 'from deserializer', \n  `document_name` string COMMENT 'from deserializer', \n  `file_name` string COMMENT 'from deserializer', \n  `issuing_authority` string COMMENT 'from deserializer', \n  `issuance_date` string COMMENT 'from deserializer', \n  `registration_date` string COMMENT 'from deserializer', \n  `place_of_event` string COMMENT 'from deserializer', \n  `status` string COMMENT 'from deserializer', \n  `last_amendment_date` string COMMENT 'from deserializer', \n  `digital_signature_hash` string COMMENT 'from deserializer', \n  `document_storage_path` string COMMENT 'from deserializer', \n  `valid_from` string COMMENT 'from deserializer', \n  `coalesced_uid` string COMMENT 'from deserializer', \n  `uid_flag` string COMMENT 'from deserializer',\
+  \ \n  `valid_to` string COMMENT 'from deserializer', \n  `created_date` timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document_testing'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"citizen_document_pk\",\"required\":false,\"type\":\"long\"},{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"long\"},{\"id\":3,\"name\":\"citizen_document_type_fk\",\"required\":false,\"type\":\"int\"},{\"id\":4,\"name\":\"document_name\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"file_name\"\
+  ,\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"issuing_authority\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"issuance_date\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"registration_date\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"place_of_event\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"name\":\"status\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"last_amendment_date\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\":\"digital_signature_hash\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\":\"document_storage_path\",\"required\":false,\"type\":\"string\"},{\"id\":14,\"name\":\"valid_from\",\"required\":false,\"type\":\"string\"},{\"id\":15,\"name\":\"coalesced_uid\",\"required\":false,\"type\":\"string\"},{\"id\":16,\"name\":\"uid_flag\",\"required\":false,\"type\":\"string\"},{\"id\":17,\"name\":\"valid_to\",\"required\":false,\"type\":\"string\"},{\"id\":18,\"name\"\
+  :\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":19,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":20,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":21,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'current-snapshot-id'='489204898753167786', \n  'current-snapshot-summary'='{\"spark.app.id\":\"application_1775893506593_2373\",\"added-data-files\":\"1\",\"added-records\":\"7118635\",\"added-files-size\":\"229117266\",\"changed-partition-count\":\"1\",\"total-records\":\"7118635\",\"total-files-size\":\"229117266\",\"total-data-files\":\"1\",\"total-delete-files\":\"0\",\"total-position-deletes\":\"0\",\"total-equality-deletes\":\"0\"}', \n  'current-snapshot-timestamp-ms'='1777615268249', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'impala.events.catalogServiceId'='9776eab397964690:a6788b7b6e82cea7', \n  'impala.events.catalogVersion'='136873', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document_testing/metadata/00003-13876d13-28f0-4733-af65-c425f25613cd.metadata.json',\
+  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document_testing/metadata/00002-982a4c49-af44-464f-811f-baf1c42c1f67.metadata.json', \n  'snapshot-count'='3', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1777615269', \n  'uuid'='382683ea-c8a9-4480-b4d1-98df81d99978', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
 columns:
 - name: citizen_document_pk
   type: BIGINT
@@ -79,21 +32,19 @@ columns:
 - name: citizen_master_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+  description: 'Foreign Key: Links to the associated citizen master dimension or master table.'
 - name: citizen_document_type_fk
   type: INT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen document type dimension
-    or master table.'
+  description: 'Foreign Key: Links to the associated citizen document type dimension or master table.'
 - name: document_name
   type: STRING
   nullable: true
-  description: Document name.
+  description: 'System field containing values such as: BA202128022240000203, BA201628151200004911, BA201628901470000217, BA202228160470000970, BA201628900410000053.'
 - name: file_name
   type: STRING
   nullable: true
-  description: File name.
+  description: Field containing the file name details for the table.
 - name: issuing_authority
   type: STRING
   nullable: true
@@ -113,7 +64,7 @@ columns:
 - name: status
   type: STRING
   nullable: true
-  description: Status.
+  description: System field indicating the current status of the record.
 - name: last_amendment_date
   type: STRING
   nullable: true
@@ -129,29 +80,27 @@ columns:
 - name: valid_from
   type: STRING
   nullable: true
-  description: Valid from.
+  description: Start date/timestamp for the validity period of this record (e.g. consent or document).
 - name: coalesced_uid
   type: STRING
   nullable: true
-  description: Coalesced uid.
+  description: A unified unique identifier coalesced from multiple source IDs to represent the citizen/document uniquely.
 - name: uid_flag
   type: STRING
   nullable: true
-  description: Boolean indicator flag for uid ('Y' for Yes, 'N' for No).
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
 - name: valid_to
   type: STRING
   nullable: true
-  description: Valid to.
+  description: End date/timestamp for the validity period of this record (e.g. consent or document).
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: Timestamp indicating exactly when this record was originally created in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: The user ID or automated system process responsible for creating this record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -159,8 +108,7 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  description: The user ID or automated system process responsible for the most recent update to this record.
 primary_key:
 - citizen_document_pk
 relationships: []

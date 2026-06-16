@@ -3,12 +3,14 @@ table: health_scheme_code
 department: canonicalmodel
 description: Curated Hive/Iceberg table for health scheme code.
 table_format: ICEBERG
-location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/health_scheme_code
+location: 
+  hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/health_scheme_code
 partitioned_by: ''
 tblproperties:
   engine.hive.enabled: 'true'
   external: 'true'
-  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/health_scheme_code/metadata/00000-61de8342-7268-446f-8b8a-bce0ad3cb67e.metadata.json
+  metadata_location: 
+    hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/health_scheme_code/metadata/00000-61de8342-7268-446f-8b8a-bce0ad3cb67e.metadata.json
   parquet.compression: SNAPPY
   snapshot-count: '0'
   table_type: ICEBERG
@@ -17,9 +19,9 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`health_scheme_code`(\n  `health_scheme_name`\
-  \ string COMMENT 'from deserializer', \n  `health_scheme_code` string COMMENT 'from\
-  \ deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`health_scheme_code`(\n  `health_scheme_name`
+  string COMMENT 'from deserializer', \n  `health_scheme_code` string COMMENT 'from
+  deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
   \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
   \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/health_scheme_code'\n\
   TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
@@ -31,21 +33,22 @@ raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`health_scheme_code`(\n  `h
   \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
   \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
 columns:
-- name: health_scheme_name
-  type: STRING
-  nullable: true
-  description: Health scheme name.
-- name: health_scheme_code
-  type: STRING
-  nullable: true
-  description: Standardized system code representing the health scheme.
+  - name: health_scheme_name
+    type: STRING
+    nullable: true
+    description: Health scheme name.
+  - name: health_scheme_code
+    type: STRING
+    nullable: true
+    description: 'Code/ID column: Standardized system code representing the health
+      scheme. Categorical column.'
 primary_key: []
 relationships: []
 business_terms:
-- curated datamodels
-- canonicalmodel
-- Hive
-- Iceberg
-- ICEBERG
+  - curated datamodels
+  - canonicalmodel
+  - Hive
+  - Iceberg
+  - ICEBERG
 common_operations:
-- profile records in health_scheme_code
+  - profile records in health_scheme_code

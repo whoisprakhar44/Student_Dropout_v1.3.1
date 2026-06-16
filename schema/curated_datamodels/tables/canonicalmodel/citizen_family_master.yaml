@@ -17,25 +17,23 @@ columns:
 - name: citizen_master_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+  description: 'Foreign Key: Links to the associated citizen master dimension or master table.'
 - name: household_id
   type: STRING
   nullable: true
-  description: Household id.
+  description: Identifier key referencing the associated household.
 - name: resident_id
   type: STRING
   nullable: true
-  description: Resident id.
+  description: Identifier key referencing the associated resident.
 - name: citizen_name
   type: STRING
   nullable: true
-  description: Citizen name.
+  description: 'System field containing values such as: PotnuruKushal, K Janardhan, Gonti Sai, Vadde Nagaraju, Kornu Govindarao.'
 - name: realtionship
   type: STRING
   nullable: true
-  description: The familial relationship of the individual to the head of the household
-    (e.g., 'HEAD', 'SPOUSE', 'CHILD').
+  description: The familial relationship of the individual to the head of the household (e.g., 'HEAD', 'SPOUSE', 'CHILD').
 - name: head_of_the_family
   type: STRING
   nullable: true
@@ -43,15 +41,15 @@ columns:
 - name: is_hofamily
   type: STRING
   nullable: true
-  description: Is head of the family.
+  description: Boolean indicator flag for whether the individual is the head of the family (0 for No, 1 for Yes).
 - name: is_memberadded
   type: STRING
   nullable: true
-  description: Is member added.
+  description: Boolean indicator flag for whether the member was added (0 for No, 1 for Yes).
 - name: is_memberdeleted
   type: STRING
   nullable: true
-  description: Is member deleted.
+  description: Boolean indicator flag for whether the member was deleted (0 for No, 1 for Yes).
 - name: relation_withhof
   type: STRING
   nullable: true
@@ -59,22 +57,19 @@ columns:
 - name: father_citizen_master_fk
   type: STRING
   nullable: true
-  description: 'Foreign Key: Links to the associated father citizen master dimension
-    or master table.'
+  description: 'Foreign Key: Links to the associated father citizen master dimension or master table.'
 - name: mother_citizen_master_fk
   type: STRING
   nullable: true
-  description: 'Foreign Key: Links to the associated mother citizen master dimension
-    or master table.'
+  description: 'Foreign Key: Links to the associated mother citizen master dimension or master table.'
 - name: spouse_citizen_master_fk
   type: STRING
   nullable: true
-  description: 'Foreign Key: Links to the associated spouse citizen master dimension
-    or master table.'
+  description: 'Foreign Key: Links to the associated spouse citizen master dimension or master table.'
 - name: is_married
   type: STRING
   nullable: true
-  description: Is married.
+  description: Boolean indicator flag for marriage status (0 for No, 1 for Yes).
 - name: new_hh_id
   type: STRING
   nullable: true
@@ -82,11 +77,11 @@ columns:
 - name: hh_update_status
   type: STRING
   nullable: true
-  description: Household update status.
+  description: System field indicating the current hh update status of the record.
 - name: careof
   type: STRING
   nullable: true
-  description: Care of.
+  description: 'System field containing values such as: S/O.'
 - name: effective_start_date
   type: DATE
   nullable: true
@@ -98,13 +93,11 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: Timestamp indicating exactly when this record was originally created in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: The user ID or automated system process responsible for creating this record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -112,8 +105,7 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  description: The user ID or automated system process responsible for the most recent update to this record.
 primary_key:
 - citizen_family_master_pk
 relationships: []

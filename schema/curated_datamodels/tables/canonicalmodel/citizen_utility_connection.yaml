@@ -13,21 +13,19 @@ columns:
 - name: citizen_utility_connection_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen utility connection dimension
-    or master table.'
+  description: 'Foreign Key: Links to the associated citizen utility connection dimension or master table.'
 - name: citizen_master_fk
   type: STRING
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+  description: 'Foreign Key: Links to the associated citizen master dimension or master table.'
 - name: gas_connection_status
   type: STRING
   nullable: true
-  description: Gas connection status.
+  description: 'Categorical column. Distinct values: LPG_GAS.'
 - name: electricity_connection_status
   type: STRING
   nullable: true
-  description: Electricity connection status.
+  description: 'Categorical column. Distinct values: Y.'
 - name: avg_monthly_kwh
   type: STRING
   nullable: true
@@ -35,24 +33,22 @@ columns:
 - name: water_connection_status
   type: STRING
   nullable: true
-  description: Water connection status.
+  description: 'Categorical column. Distinct values: MUNICIPAL_PANCHAYAT_TAP, PUBLIC_TAP.'
 - name: created_at
   type: TIMESTAMP
   nullable: true
-  description: Created at.
+  description: Timestamp indicating exactly when this record was originally created in the database system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: The user ID or automated system process responsible for creating this record.
 - name: updated_at
   type: TIMESTAMP
   nullable: true
-  description: Updated at.
+  description: Timestamp indicating the last time this record was modified or updated in the database system.
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  description: The user ID or automated system process responsible for the most recent update to this record.
 primary_key: []
 relationships: []
