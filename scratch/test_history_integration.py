@@ -97,23 +97,22 @@ async def run_tests_async():
             data = json.loads(final_chunk)
             print(f"Parsed response object: {data}")
             
-            assert "session_id" in data
+            assert "username" in data
+            assert data["username"] == username_test
             assert "sql" in data
             assert "result" in data
             
-            session_id = data["session_id"]
-            print(f"Generated Session ID: {session_id}")
-            
-            # 4. Check that /history now lists this session
+            # 4. Check that /history now lists this session and get session_id
             r = await client.get(f"/history?username={username_test}")
             assert r.status_code == 200
             sessions = r.json()
             assert len(sessions) == 1, f"Expected 1 session, got {len(sessions)}"
-            assert sessions[0]["id"] == session_id
+            session_id = sessions[0]["id"]
+            print(f"Retrieved Generated Session ID: {session_id}")
             print("History list displays newly created session: OK")
             
             # 5. Check session details
-            r = await client.get(f"/history/{session_id}")
+            r = await client.get(f"/history/{session_id}?username={username_test}")
             assert r.status_code == 200
             details = r.json()
             assert details["id"] == session_id
@@ -121,7 +120,7 @@ async def run_tests_async():
             print("Session detail verification: OK")
             
             # 6. Check deletion
-            r = await client.delete(f"/history/{session_id}")
+            r = await client.delete(f"/history/{session_id}?username={username_test}")
             assert r.status_code == 200
             
             # 7. Check session is gone

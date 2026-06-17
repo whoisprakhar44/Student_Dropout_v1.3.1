@@ -20,7 +20,7 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import HumanMessage, AIMessage
@@ -48,13 +48,13 @@ class AskRequest(BaseModel):
     )
     session_id: str | None = Field(default=None, description="Optional chat session ID for conversation memory.")
     thread_id: str | None = Field(default=None, description="Optional chat thread ID (alias for session_id) for conversation memory.")
-    username: str | None = Field(default=None, description="Optional username to scope the chat history.")
+    username: str = Field(..., min_length=1, description="Required username to scope the chat history.")
 
 
 class AskResponse(BaseModel):
     sql: str
     result: list[dict[str, Any]]
-    session_id: str | None = Field(default=None, description="The session ID associated with this chat.")
+    username: str = Field(..., description="The username associated with this chat.")
 
 
 class SessionSummary(BaseModel):
@@ -499,7 +499,7 @@ async def ask(payload: AskRequest):
                 username=username
             )
 
-            response_obj.session_id = session_id
+            response_obj.username = username
 
             yield json.dumps(response_obj.model_dump()).encode()
 
@@ -525,15 +525,12 @@ async def ask(payload: AskRequest):
 
 
 @app.get("/history", response_model=list[SessionSummary])
-async def get_history_sessions(username: str | None = None):
+async def get_history_sessions(username: str = Query(..., min_length=1, description="Username is required to retrieve history.")):
     conn = sqlite3.connect(HISTORY_DB_PATH)
     conn.row_factory = sqlite3.Row
     try:
         cursor = conn.cursor()
-        if username:
-            cursor.execute("SELECT id, title, created_at, updated_at FROM sessions WHERE username = ? ORDER BY updated_at DESC", (username,))
-        else:
-            cursor.execute("SELECT id, title, created_at, updated_at FROM sessions ORDER BY updated_at DESC")
+        cursor.execute("SELECT id, title, created_at, updated_at FROM sessions WHERE username = ? ORDER BY updated_at DESC", (username,))
         rows = cursor.fetchall()
         return [
             SessionSummary(
@@ -551,14 +548,14 @@ async def get_history_sessions(username: str | None = None):
 
 
 @app.get("/history/{session_id}", response_model=SessionDetail)
-async def get_history_session_detail(session_id: str):
+async def get_history_session_detail(session_id: str, username: str = Query(..., min_length=1, description="Username is required to verify ownership.")):
     conn = sqlite3.connect(HISTORY_DB_PATH)
     conn.row_factory = sqlite3.Row
     try:
         cursor = conn.cursor()
-        cursor.execute("SELECT id, title, created_at, updated_at FROM sessions WHERE id = ?", (session_id,))
+        cursor.execute("SELECT id, title, username, created_at, updated_at FROM sessions WHERE id = ?", (session_id,))
         session_row = cursor.fetchone()
-        if not session_row:
+        if not session_row or session_row["username"] != username:
             raise HTTPException(status_code=404, detail="Chat session not found")
 
         cursor.execute(
@@ -603,12 +600,13 @@ async def get_history_session_detail(session_id: str):
 
 
 @app.delete("/history/{session_id}")
-async def delete_history_session(session_id: str):
+async def delete_history_session(session_id: str, username: str = Query(..., min_length=1, description="Username is required to verify ownership.")):
     conn = sqlite3.connect(HISTORY_DB_PATH)
     try:
         cursor = conn.cursor()
-        cursor.execute("SELECT id FROM sessions WHERE id = ?", (session_id,))
-        if not cursor.fetchone():
+        cursor.execute("SELECT username FROM sessions WHERE id = ?", (session_id,))
+        row = cursor.fetchone()
+        if not row or row[0] != username:
             raise HTTPException(status_code=404, detail="Chat session not found")
 
         cursor.execute("DELETE FROM messages WHERE session_id = ?", (session_id,))
@@ -624,16 +622,12 @@ async def delete_history_session(session_id: str):
 
 
 @app.delete("/history")
-async def clear_all_history_sessions(username: str | None = None):
+async def clear_all_history_sessions(username: str = Query(..., min_length=1, description="Username is required to clear history.")):
     conn = sqlite3.connect(HISTORY_DB_PATH)
     try:
         cursor = conn.cursor()
-        if username:
-            cursor.execute("DELETE FROM messages WHERE session_id IN (SELECT id FROM sessions WHERE username = ?)", (username,))
-            cursor.execute("DELETE FROM sessions WHERE username = ?", (username,))
-        else:
-            cursor.execute("DELETE FROM messages")
-            cursor.execute("DELETE FROM sessions")
+        cursor.execute("DELETE FROM messages WHERE session_id IN (SELECT id FROM sessions WHERE username = ?)", (username,))
+        cursor.execute("DELETE FROM sessions WHERE username = ?", (username,))
         conn.commit()
         return {"status": "success", "message": "All sessions deleted successfully"}
     except Exception as e:

@@ -46,10 +46,10 @@ Request:
 ```json
 {
   "question": "How many students are in the database?",
+  "username": "required-username-to-scope-history",
   "request_id": "optional-custom-request-id-123",
   "session_id": "optional-session-id-for-memory",
-  "thread_id": "optional-alias-for-session-id",
-  "username": "optional-username-to-scope-history"
+  "thread_id": "optional-alias-for-session-id"
 }
 ```
 
@@ -63,7 +63,7 @@ Response:
       "total_students": 1000
     }
   ],
-  "session_id": "optional-session-id-for-memory"
+  "username": "required-username-to-scope-history"
 }
 ```
 
@@ -180,7 +180,7 @@ Response:
 Get session details:
 
 ```http
-GET /history/{session_id}
+GET /history/{session_id}?username=test_user
 ```
 
 Response:
@@ -219,7 +219,7 @@ Response:
 Delete a session:
 
 ```http
-DELETE /history/{session_id}
+DELETE /history/{session_id}?username=test_user
 ```
 
 Response:
