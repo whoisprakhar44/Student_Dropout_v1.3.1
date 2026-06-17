@@ -52,14 +52,21 @@ def after_tool_node(state: AgentState) -> Literal["verify_node", "llm_node"]:
     return "llm_node"
 
 
-def after_verify_node(state: AgentState) -> Literal["llm_node", "__end__"]:
+def after_verify_node(state: AgentState) -> Literal["llm_node", "tool_node", "__end__"]:
     """
     After verify_node:
     - CORRECT (verified=True) → stop; the final AIMessage is already in state.
-    - RETRY   (verified=False) → loop back to llm_node to re-generate SQL.
+    - RETRY with forced tool call (verified=False, last message has tool_calls) →
+        go to tool_node to execute the pending tool (e.g. forced RAG re-retrieval).
+    - RETRY plain correction (verified=False) → loop back to llm_node.
     """
     if state.get("verified", False):
         return END
+    # If verify_node emitted a forced tool call (e.g. RAG re-retrieval on SQL error),
+    # route directly to tool_node to execute it rather than passing through llm_node.
+    last_message = state["messages"][-1]
+    if getattr(last_message, "tool_calls", None):
+        return "tool_node"
     return "llm_node"
 
 
@@ -95,11 +102,11 @@ async def build_graph():
         ["verify_node", "llm_node"],
     )
 
-    # verify_node → END (correct) or llm_node (retry)
+    # verify_node → END (correct) or llm_node (retry plain) or tool_node (retry with forced tool call)
     builder.add_conditional_edges(
         "verify_node",
         after_verify_node,
-        ["llm_node", END],
+        ["llm_node", "tool_node", END],
     )
 
     graph = builder.compile()

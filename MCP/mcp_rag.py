@@ -154,6 +154,7 @@ class VectorDB:
                     "raw_ddl":       hit["entity"]["raw_ddl"],
                     "embedding_text":hit["entity"]["embedding_text"],
                     "score":         1.0 - hit["distance"],
+                    "chunk_type":    "schema_ddl",
                 }
                 for hit in schema_res[0]
             ]
@@ -175,14 +176,16 @@ class VectorDB:
                         "raw_ddl":       hit["entity"]["raw_ddl"],
                         "embedding_text":hit["entity"]["embedding_text"],
                         "score":         1.0 - hit["distance"],
+                        "chunk_type":    "few_shot_example",
                     }
                     for hit in fewshot_res[0]
                 ]
             except Exception:
                 fewshot_hits = []
 
-            # Schema DDL first so LLM always sees real columns before examples
-            return schema_hits + fewshot_hits
+            # Few-shot examples first (highest semantic signal),
+            # then schema DDLs so the LLM sees exact column names after examples.
+            return fewshot_hits + schema_hits
 
         else:
             raise ValueError(f"Unsupported vector_db provider: {self.provider}")
@@ -194,7 +197,10 @@ def dedupe(rows: List[Dict]):
     seen = set()
     out = []
     for r in rows:
-        key = (r["database_name"], r["table_name"])
+        if r.get("chunk_type") == "few_shot_example":
+            key = ("few_shot", r.get("embedding_text", ""))
+        else:
+            key = (r["database_name"], r["table_name"])
         if key not in seen:
             seen.add(key)
             out.append(r)
@@ -293,7 +299,36 @@ def retrive_schema_rag(query: str, top_k: int = 15):
             hit["database_name"] = "SQLite"
 
     logger.info(f"Returned {len(results)} chunks")
-    return results
+
+    # Format output as a structured string so the LLM clearly distinguishes
+    # few-shot SQL examples from schema DDL definitions.
+    # - few-shots  → raw_ddl   (contains the actual SQL example to follow)
+    # - schema DDL → embedding_text (compact curated summary; raw_ddl is ~3x
+    #   larger due to STORED AS / LOCATION / TBLPROPERTIES Hive boilerplate
+    #   that wastes context tokens without helping the LLM write SQL)
+    sections = []
+    fewshot_items = [r for r in results if r.get("chunk_type") == "few_shot_example"]
+    schema_items  = [r for r in results if r.get("chunk_type") != "few_shot_example"]
+
+    if fewshot_items:
+        sections.append("=== REFERENCE SQL EXAMPLES (use these as a pattern, but verify column names against the DDLs below) ===")
+        for r in fewshot_items:
+            question = r.get("embedding_text", "")
+            sql = r.get("raw_ddl", "")
+            if question and sql:
+                sections.append(f"[Example | score={r['score']:.3f}]\nQuestion: {question}\nSQL:\n{sql}")
+            else:
+                content = sql or question
+                sections.append(f"[Example | score={r['score']:.3f}]\n{content}")
+
+    if schema_items:
+        sections.append("=== SCHEMA DDLs (authoritative table and column names — use ONLY these names in your SQL) ===")
+        for r in schema_items:
+            # embedding_text is a compact summary (~100-150 tokens vs ~400 for raw_ddl)
+            content = r.get("embedding_text") or r.get("raw_ddl", "")
+            sections.append(f"[DDL: {r['database_name']}.{r['table_name']} | score={r['score']:.3f}]\n{content}")
+
+    return "\n\n".join(sections) if sections else str(results)
 
 
 # =========================

@@ -1,0 +1,15 @@
+ChatOllama model: qwen3.5:2b-mlx  |  thinking=off
+Chat history database initialized at /Users/prakhar/Downloads/Student_Dropout_v1.3.1/database/chat_history.db
+Ollama ready: qwen3.5:2b-mlx
+RAG tool loaded : retrive_schema_rag
+LLM tools loaded: ['retrive_schema_rag', 'execute_sql']
+Agent graph compiled successfully.
+LangGraph agent built successfully during startup.
+INFO:     127.0.0.1:55830 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55833 - "DELETE /history?username=test_user_dropout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55833 - "GET /history?username=test_user_dropout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55833 - "POST /ask HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55833 - "GET /history?username=test_user_dropout HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55833 - "GET /history/199e81ec-7aa8-40bc-ba82-6135e878428d HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55833 - "DELETE /history/199e81ec-7aa8-40bc-ba82-6135e878428d HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55833 - "GET /history?username=test_user_dropout HTTP/1.1" 200 OK

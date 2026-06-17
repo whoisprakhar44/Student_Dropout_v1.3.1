@@ -47,7 +47,7 @@ columns:
 - name: academic_year
   type: STRING
   nullable: true
-  description: The academic calendar year for the record (e.g., '2025').
+  description: "The academic calendar year for the record. The database stores academic years as single years (e.g. '2025', '2024'). If the user query refers to a range like '2025-26', '2025-2026', or '2024-25', map it to the single starting year (e.g. use '2025' or '2024') in your SQL. Do NOT write ranges like '2025-26' in the SQL."
 - name: attendance_date_id_fk
   type: BIGINT
   nullable: true

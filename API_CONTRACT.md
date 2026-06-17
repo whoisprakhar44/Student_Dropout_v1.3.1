@@ -46,7 +46,10 @@ Request:
 ```json
 {
   "question": "How many students are in the database?",
-  "request_id": "optional-custom-request-id-123"
+  "request_id": "optional-custom-request-id-123",
+  "session_id": "optional-session-id-for-memory",
+  "thread_id": "optional-alias-for-session-id",
+  "username": "optional-username-to-scope-history"
 }
 ```
 
@@ -59,7 +62,9 @@ Response:
     {
       "total_students": 1000
     }
-  ]
+  ],
+  "response": "There are **1,000** total students in the database.",
+  "session_id": "optional-session-id-for-memory"
 }
 ```
 
@@ -151,6 +156,96 @@ Row-returning questions use the same response shape:
 ```
 
 For count queries, `result` contains one row. For list/top queries, `result` contains the requested row objects.
+
+### History
+
+Get history sessions:
+
+```http
+GET /history?username=test_user
+```
+
+Response:
+
+```json
+[
+  {
+    "id": "8a31e847-5d21-4f11-9a7c-17b5f9226e69",
+    "title": "How many students are in the database?",
+    "created_at": "2026-06-13T03:40:00.123456",
+    "updated_at": "2026-06-13T03:41:30.987654"
+  }
+]
+```
+
+Get session details:
+
+```http
+GET /history/{session_id}
+```
+
+Response:
+
+```json
+{
+  "id": "8a31e847-5d21-4f11-9a7c-17b5f9226e69",
+  "title": "How many students are in the database?",
+  "created_at": "2026-06-13T03:40:00.123456",
+  "updated_at": "2026-06-13T03:41:30.987654",
+  "messages": [
+    {
+      "id": "1b2c3d4e-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
+      "role": "user",
+      "content": "How many students are in the database?",
+      "sql": null,
+      "result": null,
+      "created_at": "2026-06-13T03:40:00.123456"
+    },
+    {
+      "id": "9a8b7c6d-5e4f-3a2b-1c0d-ef9876543210",
+      "role": "assistant",
+      "content": "There are **1,000** total students in the database.",
+      "sql": "SELECT COUNT(*) AS total_students FROM citizen_student",
+      "result": [
+        {
+          "total_students": 1000
+        }
+      ],
+      "created_at": "2026-06-13T03:40:05.654321"
+    }
+  ]
+}
+```
+
+Delete a session:
+
+```http
+DELETE /history/{session_id}
+```
+
+Response:
+
+```json
+{
+  "status": "success",
+  "message": "Session deleted successfully"
+}
+```
+
+Clear all sessions:
+
+```http
+DELETE /history?username=test_user
+```
+
+Response:
+
+```json
+{
+  "status": "success",
+  "message": "All sessions deleted successfully"
+}
+```
 
 ## CORS
 

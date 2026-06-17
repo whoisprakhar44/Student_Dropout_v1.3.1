@@ -43,6 +43,7 @@ _base_model = ChatOllama(
 _model_with_tools = None
 
 _HIVE_ENABLED = os.getenv("HIVE_MCP_ENABLED", "false").strip().lower() in ("true", "1", "yes")
+_RAG_TOP_K = int(os.getenv("RAG_TOP_K", "15"))
 
 if _HIVE_ENABLED:
     SYSTEM_PROMPT = """You are a SQL data assistant with a live Hive / Apache Spark SQL database for the curated_datamodels data model.
@@ -53,11 +54,12 @@ Available tools:
 
 STRICT RULES — follow every rule without exception:
 1. For ANY question about counts, totals, lists, averages, rates, trends, or data values — you MUST call execute_sql.
-2. If you do not know the table name or columns, call retrive_schema_rag first, then IMMEDIATELY call execute_sql with a SELECT query.
-3. NEVER describe DDL or schema to the user — always run execute_sql and report the actual data.
-4. NEVER answer without calling execute_sql for data questions.
-5. After execute_sql returns rows, summarize the result in plain language.
-6. The database is Hive/Impala - use Hive/Spark-compatible SQL only. Use the correct database prefix (e.g. write `curated_datamodels.citizen_student`).
+2. ALWAYS call retrive_schema_rag FIRST before writing any SQL. Use ONLY the exact table names and column names returned by retrive_schema_rag — never invent or guess names. If a table you need is not in the retrieved results, call retrive_schema_rag again with a more specific query describing what that table contains.
+3. If execute_sql fails with a table-not-found or column-not-found error, do NOT retry the same SQL. Call retrive_schema_rag again with a targeted query to find the correct table/column names, then rewrite the SQL.
+4. NEVER describe DDL or schema to the user — always run execute_sql and report the actual data.
+5. NEVER answer without calling execute_sql for data questions.
+6. After execute_sql returns rows, summarize the result in plain language.
+7. The database is Hive/Impala - use Hive/Spark-compatible SQL only. Always prefix table names with the database (e.g. `curated_datamodels.table_name`).
 """
 else:
     SYSTEM_PROMPT = """You are a SQL data assistant with a live SQLite sample database for the curated_datamodels school data model.
@@ -237,14 +239,27 @@ def llm_node(state: AgentState) -> dict:
 
     system_message = SystemMessage(content=SYSTEM_PROMPT)
     messages_for_llm = [system_message] + history
-    
+
     rag_results = _tool_messages(history, "retrive_schema_rag")
     if rag_results:
-        messages_for_llm.append(SystemMessage(content="You have already retrieved the schema context. You MUST call execute_sql now. Do NOT ask for schema again."))
-        sql_only_tools = [t for t in tool_registry.execution_tools if getattr(t, "name", getattr(t, "__name__", "")) == "execute_sql"]
-        model = _base_model.bind_tools(sql_only_tools)
-    else:
-        model = _get_model()
+        # Schema context is already in history — nudge the LLM toward SQL.
+        # The RAG result contains two clearly labelled sections:
+        #   "REFERENCE SQL EXAMPLES" — use as a query pattern
+        #   "SCHEMA DDLs"            — authoritative table/column names
+        # The LLM must use ONLY table and column names from the SCHEMA DDLs section.
+        # It may call retrive_schema_rag again if it needs schema for a different table.
+        messages_for_llm.append(SystemMessage(
+            content=(
+                "The schema context above contains two sections:\n"
+                "1. REFERENCE SQL EXAMPLES \u2014 use these as a structural pattern for your query.\n"
+                "2. SCHEMA DDLs \u2014 these are the authoritative table and column names. "
+                "You MUST use ONLY the exact table names and column names from the SCHEMA DDLs section. "
+                "Do NOT use any table name you do not see explicitly in a [DDL: ...] block. "
+                "Now call execute_sql with a correct Hive SQL query. "
+                "Only call retrive_schema_rag again if you need schema for a table not yet retrieved."
+            )
+        ))
+    model = _get_model()
         
     response = model.invoke(messages_for_llm)
     llm_steps = 1
@@ -442,21 +457,36 @@ def verify_node(state: AgentState) -> dict:
                 "verified": True,
             }
         
-        correction_msg = HumanMessage(
+        # Extract a targeted search term from the error (e.g. the bad table name)
+        # so the forced RAG re-retrieval is more specific than the original query.
+        rag_query = state["user_query"]
+        table_match = re.search(r"table reference: '([^']+)'", error_msg, re.IGNORECASE)
+        if table_match:
+            bad_table = table_match.group(1).split(".")[-1]  # strip db prefix
+            rag_query = f"{state['user_query']} (looking for table similar to: {bad_table})"
+
+        import uuid
+        tool_call_id = f"call_{uuid.uuid4().hex}"
+        forced_rag_msg = AIMessage(
             content=(
-                f"The previous SQL query failed to execute with the following error:\n"
-                f"{error_msg}\n\n"
-                f"The SQL that was run:\n{sql}\n\n"
-                "Please correct the query syntax or column names, verify them against the schema, "
-                "and call execute_sql again with the corrected query."
-            )
+                f"SQL failed: {error_msg}. "
+                "Calling schema retrieval to find the correct table and column names before retrying."
+            ),
+            tool_calls=[{
+                "id": tool_call_id,
+                "name": "retrive_schema_rag",
+                "args": {
+                    "query": rag_query,
+                    "top_k": _RAG_TOP_K,
+                }
+            }]
         )
         logger.warning(
-            "verify_node: SQL failed execution (error: %s). Routing back to LLM for correction.",
+            "verify_node: SQL failed execution (error: %s). Forcing RAG re-retrieval before correction.",
             error_msg,
         )
         return {
-            "messages": [correction_msg],
+            "messages": [forced_rag_msg],
             "verify_calls": verify_calls + 1,
             "verified": False,
         }
@@ -553,7 +583,7 @@ def initialize_node(state: AgentState) -> dict:
             "name": "retrive_schema_rag",
             "args": {
                 "query": state["user_query"],
-                "top_k": 15
+                "top_k": _RAG_TOP_K
             }
         }]
     )
