@@ -1,76 +1,257 @@
-INFO:     Started server process [81750]
+INFO:     Started server process [82798]
 INFO:     Waiting for application startup.
-2026-06-17 14:51:38,489 [INFO] schema-retrieval: Startup successful
-2026-06-17 14:51:38,841 [INFO] SQLAlchemy engine created → SQLite /Users/prakhar/Downloads/Student_Dropout_v1.3.1/database/schema.db
-2026-06-17 14:51:38,855 [INFO] mcp.server.lowlevel.server: Processing request of type ListToolsRequest
-2026-06-17 14:51:38,857 [INFO] Processing request of type ListToolsRequest
+2026-06-17 15:21:16,171 [ERROR] milvus_lite.server_manager: Failed to start MilvusLite server for /Users/prakhar/Downloads/Student_Dropout_v1.3.1/milvus_schemas.db
+Traceback (most recent call last):
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/milvus_lite/db.py", line 412, in _acquire_lock
+    fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BlockingIOError: [Errno 35] Resource temporarily unavailable
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/milvus_lite/server_manager.py", line 61, in start_and_get_uri
+    server, db, port = start_server_in_thread(
+                       ~~~~~~~~~~~~~~~~~~~~~~^
+        data_dir=abs_path,
+        ^^^^^^^^^^^^^^^^^^
+        host="127.0.0.1",
+        ^^^^^^^^^^^^^^^^^
+        port=0,  # auto-select free port
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/milvus_lite/adapter/grpc/server.py", line 93, in start_server_in_thread
+    db = MilvusLite(data_dir)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/milvus_lite/db.py", line 81, in __init__
+    self._acquire_lock()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/milvus_lite/db.py", line 415, in _acquire_lock
+    raise DataDirLockedError(
+        f"another process holds the lock on {self._data_dir!r}: {e}"
+    ) from e
+milvus_lite.exceptions.DataDirLockedError: another process holds the lock on '/Users/prakhar/Downloads/Student_Dropout_v1.3.1/milvus_schemas.db': [Errno 35] Resource temporarily unavailable
+2026-06-17 15:21:16,173 [ERROR] schema-retrieval: Startup failed
+Traceback (most recent call last):
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/MCP/mcp_rag.py", line 220, in <module>
+    vector_db = VectorDB(cfg)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/MCP/mcp_rag.py", line 113, in __init__
+    self.client = MilvusClient(uri=uri)
+                  ~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/pymilvus/milvus_client/milvus_client.py", line 86, in __init__
+    self._config = ConnectionConfig.from_uri(
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        uri,
+        ^^^^
+    ...<2 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/pymilvus/client/connection_manager.py", line 112, in from_uri
+    raise ConnectionConfigException(message="Open local milvus failed")
+pymilvus.exceptions.ConnectionConfigException: <ConnectionConfigException: (code=1, message=Open local milvus failed)>
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/app.py", line 356, in lifespan
+  |     app.state.graph = await build_graph()
+  |                       ^^^^^^^^^^^^^^^^^^^
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/my_agent/agent.py", line 78, in build_graph
+  |     await init_tools()
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/my_agent/utils/tools.py", line 76, in init_tools
+  |     rag_session  = await _rag_session_ctx.__aenter__()
+  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 214, in __aenter__
+  |     return await anext(self.gen)
+  |            ^^^^^^^^^^^^^^^^^^^^^
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/client.py", line 155, in session
+  |     async with create_session(
+  |                ~~~~~~~~~~~~~~^
+  |         self.connections[server_name], mcp_callbacks=mcp_callbacks
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |     ) as session:
+  |     ^
+  |   File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 235, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/sessions.py", line 464, in create_session
+  |     async with _create_stdio_session(**params) as session:
+  |                ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  |   File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 235, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/sessions.py", line 268, in _create_stdio_session
+  |     stdio_client(server_params) as (read, write),
+  |     ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  |   File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 235, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/mcp/client/stdio/__init__.py", line 183, in stdio_client
+  |     anyio.create_task_group() as tg,
+  |     ~~~~~~~~~~~~~~~~~~~~~~~^^
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 811, in __aexit__
+  |     raise BaseExceptionGroup(
+  |         "unhandled errors in a TaskGroup", self._exceptions
+  |     ) from None
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Exception Group Traceback (most recent call last):
+    |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/mcp/client/stdio/__init__.py", line 189, in stdio_client
+    |     yield read_stream, write_stream
+    |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/sessions.py", line 269, in _create_stdio_session
+    |     ClientSession(read, write, **(session_kwargs or {})) as session,
+    |     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/mcp/shared/session.py", line 238, in __aexit__
+    |     return await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 811, in __aexit__
+    |     raise BaseExceptionGroup(
+    |         "unhandled errors in a TaskGroup", self._exceptions
+    |     ) from None
+    | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+    +-+---------------- 1 ----------------
+      | Traceback (most recent call last):
+      |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/sessions.py", line 271, in _create_stdio_session
+      |     yield session
+      |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/sessions.py", line 465, in create_session
+      |     yield session
+      |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/client.py", line 159, in session
+      |     await session.initialize()
+      |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/mcp/client/session.py", line 183, in initialize
+      |     result = await self.send_request(
+      |              ^^^^^^^^^^^^^^^^^^^^^^^^
+      |     ...<16 lines>...
+      |     )
+      |     ^
+      |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/mcp/shared/session.py", line 306, in send_request
+      |     raise McpError(response_or_error.error)
+      | mcp.shared.exceptions.McpError: Connection closed
+      +------------------------------------
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8005 (Press CTRL+C to quit)
-2026-06-17 14:51:39,198 [INFO] mcp.server.lowlevel.server: Processing request of type CallToolRequest
-2026-06-17 14:51:39,198 [INFO] schema-retrieval: Query: How many schools are functional?
-2026-06-17 14:51:39,288 [INFO] schema-retrieval: RAG retrieved 4 chunks for query 'How many schools are functional?':
-2026-06-17 14:51:39,288 [INFO] schema-retrieval:   [1] Table: curated_datamodels.__join_relations__ | Similarity Score: 0.5099
-2026-06-17 14:51:39,288 [INFO] schema-retrieval:   [2] Table: curated_datamodels.mid_day_meal_serving_fact | Similarity Score: 0.4431
-2026-06-17 14:51:39,288 [INFO] schema-retrieval:   [3] Table: curated_datamodels.citizen_school | Similarity Score: 0.4076
-2026-06-17 14:51:39,288 [INFO] schema-retrieval:   [4] Table: curated_datamodels.ration_card_family | Similarity Score: 0.3961
-2026-06-17 14:51:39,290 [INFO] schema-retrieval: Returned 4 chunks
-2026-06-17 14:51:42,446 [INFO] Processing request of type CallToolRequest
-2026-06-17 14:51:42,446 [INFO] [execute_sql] SELECT COUNT(*) FROM citizen_school WHERE functional_status = 'Active' OR functional_status = 'Operational' OR functional_status = 'Functional';
+2026-06-17 15:21:17,145 [ERROR] milvus_lite.server_manager: Failed to start MilvusLite server for /Users/prakhar/Downloads/Student_Dropout_v1.3.1/milvus_schemas.db
+Traceback (most recent call last):
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/milvus_lite/db.py", line 412, in _acquire_lock
+    fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+BlockingIOError: [Errno 35] Resource temporarily unavailable
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/milvus_lite/server_manager.py", line 61, in start_and_get_uri
+    server, db, port = start_server_in_thread(
+                       ~~~~~~~~~~~~~~~~~~~~~~^
+        data_dir=abs_path,
+        ^^^^^^^^^^^^^^^^^^
+        host="127.0.0.1",
+        ^^^^^^^^^^^^^^^^^
+        port=0,  # auto-select free port
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/milvus_lite/adapter/grpc/server.py", line 93, in start_server_in_thread
+    db = MilvusLite(data_dir)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/milvus_lite/db.py", line 81, in __init__
+    self._acquire_lock()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/milvus_lite/db.py", line 415, in _acquire_lock
+    raise DataDirLockedError(
+        f"another process holds the lock on {self._data_dir!r}: {e}"
+    ) from e
+milvus_lite.exceptions.DataDirLockedError: another process holds the lock on '/Users/prakhar/Downloads/Student_Dropout_v1.3.1/milvus_schemas.db': [Errno 35] Resource temporarily unavailable
+2026-06-17 15:21:17,146 [ERROR] schema-retrieval: Startup failed
+Traceback (most recent call last):
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/MCP/mcp_rag.py", line 220, in <module>
+    vector_db = VectorDB(cfg)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/MCP/mcp_rag.py", line 113, in __init__
+    self.client = MilvusClient(uri=uri)
+                  ~~~~~~~~~~~~^^^^^^^^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/pymilvus/milvus_client/milvus_client.py", line 86, in __init__
+    self._config = ConnectionConfig.from_uri(
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~^
+        uri,
+        ^^^^
+    ...<2 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/pymilvus/client/connection_manager.py", line 112, in from_uri
+    raise ConnectionConfigException(message="Open local milvus failed")
+pymilvus.exceptions.ConnectionConfigException: <ConnectionConfigException: (code=1, message=Open local milvus failed)>
+  + Exception Group Traceback (most recent call last):
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/app.py", line 440, in _stream
+  |     graph = await _get_graph()
+  |             ^^^^^^^^^^^^^^^^^^
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/app.py", line 372, in _get_graph
+  |     app.state.graph = await build_graph()
+  |                       ^^^^^^^^^^^^^^^^^^^
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/my_agent/agent.py", line 78, in build_graph
+  |     await init_tools()
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/my_agent/utils/tools.py", line 76, in init_tools
+  |     rag_session  = await _rag_session_ctx.__aenter__()
+  |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 214, in __aenter__
+  |     return await anext(self.gen)
+  |            ^^^^^^^^^^^^^^^^^^^^^
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/client.py", line 155, in session
+  |     async with create_session(
+  |                ~~~~~~~~~~~~~~^
+  |         self.connections[server_name], mcp_callbacks=mcp_callbacks
+  |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |     ) as session:
+  |     ^
+  |   File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 235, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/sessions.py", line 464, in create_session
+  |     async with _create_stdio_session(**params) as session:
+  |                ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  |   File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 235, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/sessions.py", line 268, in _create_stdio_session
+  |     stdio_client(server_params) as (read, write),
+  |     ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  |   File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 235, in __aexit__
+  |     await self.gen.athrow(value)
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/mcp/client/stdio/__init__.py", line 183, in stdio_client
+  |     anyio.create_task_group() as tg,
+  |     ~~~~~~~~~~~~~~~~~~~~~~~^^
+  |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 811, in __aexit__
+  |     raise BaseExceptionGroup(
+  |         "unhandled errors in a TaskGroup", self._exceptions
+  |     ) from None
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Exception Group Traceback (most recent call last):
+    |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/mcp/client/stdio/__init__.py", line 189, in stdio_client
+    |     yield read_stream, write_stream
+    |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/sessions.py", line 269, in _create_stdio_session
+    |     ClientSession(read, write, **(session_kwargs or {})) as session,
+    |     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/mcp/shared/session.py", line 238, in __aexit__
+    |     return await self._task_group.__aexit__(exc_type, exc_val, exc_tb)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 811, in __aexit__
+    |     raise BaseExceptionGroup(
+    |         "unhandled errors in a TaskGroup", self._exceptions
+    |     ) from None
+    | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+    +-+---------------- 1 ----------------
+      | Traceback (most recent call last):
+      |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/sessions.py", line 271, in _create_stdio_session
+      |     yield session
+      |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/sessions.py", line 465, in create_session
+      |     yield session
+      |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/client.py", line 159, in session
+      |     await session.initialize()
+      |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/mcp/client/session.py", line 183, in initialize
+      |     result = await self.send_request(
+      |              ^^^^^^^^^^^^^^^^^^^^^^^^
+      |     ...<16 lines>...
+      |     )
+      |     ^
+      |   File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/mcp/shared/session.py", line 306, in send_request
+      |     raise McpError(response_or_error.error)
+      | mcp.shared.exceptions.McpError: Connection closed
+      +------------------------------------
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.
-ERROR:    Traceback (most recent call last):
-  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/routing.py", line 638, in lifespan
-    async with self.lifespan_context(app) as maybe_state:
-               ~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 221, in __aexit__
-    await anext(self.gen)
-  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/app.py", line 365, in lifespan
-    await cleanup_tools()
-  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/my_agent/utils/tools.py", line 104, in cleanup_tools
-    await ctx.__aexit__(None, None, None)
-  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 221, in __aexit__
-    await anext(self.gen)
-  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/client.py", line 155, in session
-    async with create_session(
-               ~~~~~~~~~~~~~~^
-        self.connections[server_name], mcp_callbacks=mcp_callbacks
-        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    ) as session:
-    ^
-  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 221, in __aexit__
-    await anext(self.gen)
-  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/sessions.py", line 464, in create_session
-    async with _create_stdio_session(**params) as session:
-               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
-  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 221, in __aexit__
-    await anext(self.gen)
-  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/langchain_mcp_adapters/sessions.py", line 268, in _create_stdio_session
-    stdio_client(server_params) as (read, write),
-    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
-  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/contextlib.py", line 221, in __aexit__
-    await anext(self.gen)
-  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/mcp/client/stdio/__init__.py", line 183, in stdio_client
-    anyio.create_task_group() as tg,
-    ~~~~~~~~~~~~~~~~~~~~~~~^^
-  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 815, in __aexit__
-    raise exc_val
-  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/mcp/client/stdio/__init__.py", line 184, in stdio_client
-    process,
-    ^^^^^^^
-  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/anyio/abc/_resources.py", line 29, in __aexit__
-    await self.aclose()
-  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 1131, in aclose
-    await self.wait()
-  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 1139, in wait
-    return await self._process.wait()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/subprocess.py", line 137, in wait
-    return await self._transport._wait()
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Library/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/base_subprocess.py", line 255, in _wait
-    return await waiter
-           ^^^^^^^^^^^^
-asyncio.exceptions.CancelledError: Cancelled via cancel scope 10fc43750 by <Task pending name='Task-2' coro=<LifespanOn.main() running at /Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/uvicorn/lifespan/on.py:86>>
-
-ERROR:    Application shutdown failed. Exiting.
-INFO:     Finished server process [81750]
+INFO:     Application shutdown complete.
+INFO:     Finished server process [82798]

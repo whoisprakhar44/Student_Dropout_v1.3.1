@@ -538,10 +538,7 @@ def verify_node(state: AgentState) -> dict:
     if clean_verdict.upper().startswith("CORRECT"):
         # Result is verified — produce the final pretty summary
         summary = _summarize_sql_result(state["user_query"], last_result_msg.content)
-        explanation = clean_verdict.split(":", 1)[-1].strip() if ":" in clean_verdict else ""
         final_answer = summary or result_table
-        if explanation:
-            final_answer += f"\n\n✅ *Verified: {explanation}*"
         logger.info("verify_node: result verified as CORRECT in round %d", verify_calls + 1)
         return {
             "messages": [AIMessage(content=final_answer)],

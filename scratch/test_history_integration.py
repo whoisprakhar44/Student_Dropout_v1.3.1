@@ -100,7 +100,6 @@ async def run_tests_async():
             assert "session_id" in data
             assert "sql" in data
             assert "result" in data
-            assert "response" in data
             
             session_id = data["session_id"]
             print(f"Generated Session ID: {session_id}")

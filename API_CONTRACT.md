@@ -63,7 +63,6 @@ Response:
       "total_students": 1000
     }
   ],
-  "response": "There are **1,000** total students in the database.",
   "session_id": "optional-session-id-for-memory"
 }
 ```

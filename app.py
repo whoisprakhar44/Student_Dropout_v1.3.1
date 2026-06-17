@@ -54,7 +54,6 @@ class AskRequest(BaseModel):
 class AskResponse(BaseModel):
     sql: str
     result: list[dict[str, Any]]
-    response: str | None = Field(default=None, description="Verbal explanation or summary response from the agent.")
     session_id: str | None = Field(default=None, description="The session ID associated with this chat.")
 
 
@@ -148,10 +147,11 @@ def get_session_messages(session_id: str) -> list[Any]:
     try:
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT role, content FROM messages WHERE session_id = ? ORDER BY created_at ASC",
+            "SELECT role, content FROM messages WHERE session_id = ? ORDER BY created_at DESC LIMIT 10",
             (session_id,)
         )
         rows = cursor.fetchall()
+        rows.reverse()
         messages = []
         for row in rows:
             if row["role"] == "user":
@@ -500,7 +500,6 @@ async def ask(payload: AskRequest):
             )
 
             response_obj.session_id = session_id
-            response_obj.response = response_text
 
             yield json.dumps(response_obj.model_dump()).encode()
 
