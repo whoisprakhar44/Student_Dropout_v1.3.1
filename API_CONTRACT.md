@@ -24,7 +24,7 @@ GET /docs
 
 ## Endpoints
 
-Only these application endpoints are supported.
+Only the following endpoints are supported.
 
 ### Health
 
@@ -34,27 +34,44 @@ GET /health
 
 Returns service status and Ollama model availability.
 
-### Ask
+### Ask (Unified Endpoint)
 
 ```http
 POST /ask
 Content-Type: application/json
 ```
 
-Request:
+All interactions (executing NL-to-SQL queries, canceling queries, listing history, deleting sessions, and clearing history) are multiplexed through the `/ask` endpoint using the `action` field.
 
+#### Fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `username` | `string` | **Required.** Scopes all operations. |
+| `action` | `string` | **Optional.** One of: `"ask"` (default), `"cancel"`, `"history"`, `"delete_session"`, `"clear_history"`. |
+| `question` | `string` | **Required only for `"ask"` action.** The natural-language database question. |
+| `request_id` | `string` | **Optional.** Custom identifier to track/cancel a running request. |
+| `session_id` | `string` | **Optional.** Chat session ID for conversation memory (used in `"ask"` and `"delete_session"`). |
+| `thread_id` | `string` | **Optional.** Alias for `session_id`. |
+
+---
+
+### 1. Action: `"ask"` (Default)
+
+Executes a natural-language SQL query and returns a streaming response.
+
+Request:
 ```json
 {
+  "action": "ask",
   "question": "How many students are in the database?",
-  "username": "required-username-to-scope-history",
-  "request_id": "optional-custom-request-id-123",
-  "session_id": "optional-session-id-for-memory",
-  "thread_id": "optional-alias-for-session-id"
+  "username": "test_user",
+  "request_id": "req_12345",
+  "session_id": "session_abc"
 }
 ```
 
 Response:
-
 ```json
 {
   "sql": "SELECT COUNT(*) AS total_students FROM citizen_student",
@@ -63,30 +80,12 @@ Response:
       "total_students": 1000
     }
   ],
-  "username": "required-username-to-scope-history"
+  "username": "test_user"
 }
 ```
 
-#### Query Failure / Fallback Response
-
-If query generation or execution fails (e.g. because of syntax errors, invalid tables/columns, or limit caps), the API will return a valid `AskResponse` with details of the failure inside the `result` block instead of throwing a HTTP error:
-
-Response (on SQL execution failure):
-
-```json
-{
-  "sql": "SELECT * FROM non_existent_table",
-  "result": [
-    {
-      "error": "no such table: non_existent_table",
-      "status": "failed"
-    }
-  ]
-}
-```
-
-Response (on SQL generation failure):
-
+#### Failures / Fallback Response
+If SQL generation or execution fails, a `failed` status will be included in the results object rather than throwing an HTTP 500 error:
 ```json
 {
   "sql": "",
@@ -95,135 +94,106 @@ Response (on SQL generation failure):
       "error": "The agent did not return an executed SQL query.",
       "status": "failed"
     }
-  ]
+  ],
+  "username": "test_user"
 }
 ```
 
-### Cancel
+---
 
-```http
-POST /cancel
-Content-Type: application/json
-```
+### 2. Action: `"cancel"`
+
+Cancels an active running query matching the provided `request_id`.
 
 Request:
-
 ```json
 {
-  "request_id": "optional-custom-request-id-123"
+  "action": "cancel",
+  "username": "test_user",
+  "request_id": "req_12345"
 }
 ```
 
-Response:
-
+Response (if active):
 ```json
 {
   "status": "success",
-  "message": "Request optional-custom-request-id-123 cancellation signal sent."
+  "message": "Request req_12345 cancellation signal sent."
 }
 ```
 
-Or if the request has already finished or is not active:
-
+Response (if not found or completed):
 ```json
 {
   "status": "not_found",
-  "message": "Request optional-custom-request-id-123 is not active or has already completed."
+  "message": "Request req_12345 is not active or has already completed."
 }
 ```
 
-The `sql` value is the SQL generated and executed by the agent. The `result` value is the raw row list returned by that SQL query.
+---
 
-Row-returning questions use the same response shape:
+### 3. Action: `"history"`
 
+Retrieves all session histories (including message logs) scoped to the provided username.
+
+Request:
 ```json
 {
-  "question": "Show 5 students"
+  "action": "history",
+  "username": "test_user"
 }
-```
-
-```json
-{
-  "question": "Show 20 schools"
-}
-```
-
-```json
-{
-  "question": "Show the top school"
-}
-```
-
-For count queries, `result` contains one row. For list/top queries, `result` contains the requested row objects.
-
-### History
-
-Get history sessions:
-
-```http
-GET /history?username=test_user
 ```
 
 Response:
-
 ```json
 [
   {
-    "id": "8a31e847-5d21-4f11-9a7c-17b5f9226e69",
+    "id": "session_abc",
     "title": "How many students are in the database?",
     "created_at": "2026-06-13T03:40:00.123456",
-    "updated_at": "2026-06-13T03:41:30.987654"
+    "updated_at": "2026-06-13T03:41:30.987654",
+    "messages": [
+      {
+        "id": "msg_001",
+        "role": "user",
+        "content": "How many students are in the database?",
+        "sql": null,
+        "result": null,
+        "created_at": "2026-06-13T03:40:00.123456"
+      },
+      {
+        "id": "msg_002",
+        "role": "assistant",
+        "content": "There are **1,000** total students in the database.",
+        "sql": "SELECT COUNT(*) AS total_students FROM citizen_student",
+        "result": [
+          {
+            "total_students": 1000
+          }
+        ],
+        "created_at": "2026-06-13T03:40:05.654321"
+      }
+    ]
   }
 ]
 ```
 
-Get session details:
+---
 
-```http
-GET /history/{session_id}?username=test_user
-```
+### 4. Action: `"delete_session"`
 
-Response:
+Deletes a specific session history thread for a username.
 
+Request:
 ```json
 {
-  "id": "8a31e847-5d21-4f11-9a7c-17b5f9226e69",
-  "title": "How many students are in the database?",
-  "created_at": "2026-06-13T03:40:00.123456",
-  "updated_at": "2026-06-13T03:41:30.987654",
-  "messages": [
-    {
-      "id": "1b2c3d4e-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
-      "role": "user",
-      "content": "How many students are in the database?",
-      "sql": null,
-      "result": null,
-      "created_at": "2026-06-13T03:40:00.123456"
-    },
-    {
-      "id": "9a8b7c6d-5e4f-3a2b-1c0d-ef9876543210",
-      "role": "assistant",
-      "content": "There are **1,000** total students in the database.",
-      "sql": "SELECT COUNT(*) AS total_students FROM citizen_student",
-      "result": [
-        {
-          "total_students": 1000
-        }
-      ],
-      "created_at": "2026-06-13T03:40:05.654321"
-    }
-  ]
+  "action": "delete_session",
+  "username": "test_user",
+  "session_id": "session_abc"
 }
 ```
 
-Delete a session:
-
-```http
-DELETE /history/{session_id}?username=test_user
-```
-
 Response:
-
 ```json
 {
   "status": "success",
@@ -231,14 +201,21 @@ Response:
 }
 ```
 
-Clear all sessions:
+---
 
-```http
-DELETE /history?username=test_user
+### 5. Action: `"clear_history"`
+
+Clears all session histories associated with a username.
+
+Request:
+```json
+{
+  "action": "clear_history",
+  "username": "test_user"
+}
 ```
 
 Response:
-
 ```json
 {
   "status": "success",
@@ -248,8 +225,7 @@ Response:
 
 ## CORS
 
-CORS is open for integration testing from another server:
-
+CORS is open for integration testing:
 ```text
 allow_origins=["*"]
 ```
