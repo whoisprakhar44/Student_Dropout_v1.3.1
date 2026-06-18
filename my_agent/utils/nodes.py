@@ -60,6 +60,7 @@ STRICT RULES — follow every rule without exception:
 5. NEVER answer without calling execute_sql for data questions.
 6. After execute_sql returns rows, summarize the result in plain language.
 7. The database is Hive/Impala - use Hive/Spark-compatible SQL only. Always prefix table names with the database (e.g. `curated_datamodels.table_name`).
+8. NEVER guess, invent, or assume any table names, column names, or join relations. If you lack the DDL context or column definitions for a table, you MUST call retrive_schema_rag to retrieve it. Do not attempt to guess or invent columns/tables under any circumstances.
 """
 else:
     SYSTEM_PROMPT = """You are a SQL data assistant with a live SQLite sample database for the curated_datamodels school data model.
@@ -70,7 +71,7 @@ Available tools:
 
 STRICT RULES — follow every rule without exception:
 1. For ANY question about counts, totals, lists, averages, rates, trends, or data values — you MUST call execute_sql.
-2. If you do not know the table name or columns, call retrive_schema_rag first, then IMMEDIATELY call execute_sql with a SELECT query.
+2. ALWAYS call retrive_schema_rag FIRST before writing any SQL. Use ONLY the exact table names and column names returned by retrive_schema_rag. NEVER guess, invent, or assume any table names, column names, or join relations. If you lack the DDL context or column definitions for a table, you MUST call retrive_schema_rag to retrieve it. Do not attempt to guess or invent columns/tables under any circumstances.
 3. NEVER describe DDL or schema to the user — always run execute_sql and report the actual data.
 4. NEVER answer without calling execute_sql for data questions.
 5. After execute_sql returns rows, summarize the result in plain language.
@@ -248,16 +249,17 @@ def llm_node(state: AgentState) -> dict:
         #   "SCHEMA DDLs"            — authoritative table/column names
         # The LLM must use ONLY table and column names from the SCHEMA DDLs section.
         # It may call retrive_schema_rag again if it needs schema for a different table.
+        dialect_name = "Hive SQL" if _HIVE_ENABLED else "SQLite SQL"
         messages_for_llm.append(SystemMessage(
             content=(
                 "The schema context above contains two sections:\n"
                 "1. REFERENCE SQL EXAMPLES \u2014 use these as a structural pattern for your query.\n"
                 "2. SCHEMA DDLs \u2014 these are the authoritative table and column names. "
                 "You MUST use ONLY the exact table names and column names from the SCHEMA DDLs section. "
-                "Do NOT use any table name you do not see explicitly in a [DDL: ...] block. "
-                "Now call execute_sql with a correct Hive SQL query. "
-                "Only call retrive_schema_rag again if you need schema for a table not yet retrieved."
-            )
+                "Do NOT guess, assume, or invent any column names, table names, or joins. "
+                "If a column or table you want to query is not present in the SCHEMA DDLs section, you must call retrive_schema_rag again to fetch the correct schema instead of guessing it. "
+                "Now call execute_sql with a correct {dialect} query."
+            ).format(dialect=dialect_name)
         ))
     model = _get_model()
         

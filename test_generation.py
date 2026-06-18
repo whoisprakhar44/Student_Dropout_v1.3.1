@@ -139,7 +139,7 @@ async def test_all_generations():
                 generation_time = elapsed
                 execution_time = 0.0
 
-            resp_obj = _extract_sql_and_result(state.get("messages", []))
+            resp_obj = _extract_sql_and_result(state.get("messages", []), "test_user")
             generated_sql = resp_obj.sql
             result_rows = resp_obj.result
             
