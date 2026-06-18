@@ -25,7 +25,7 @@ ROOT_DIR = Path(__file__).resolve().parent
 DB_PATH = ROOT_DIR / "database" / "schema.db"
 TABLES_DIR = ROOT_DIR / "schema" / "curated_datamodels" / "tables"
 
-ACADEMIC_YEARS = ["2021-22", "2022-23", "2023-24"]
+ACADEMIC_YEARS = ["2023", "2024", "2025"]
 FIRST_NAMES = [
     "Aarav", "Vivaan", "Aditya", "Arjun", "Ananya", "Diya", "Priya", "Neha",
     "Rohan", "Karan", "Rahul", "Aryan", "Nisha", "Pooja", "Zara", "Isha",
@@ -35,7 +35,7 @@ LAST_NAMES = [
     "Sharma", "Kumar", "Singh", "Patel", "Gupta", "Verma", "Reddy", "Nair",
     "Menon", "Desai", "Iyer", "Rao", "Bhatt", "Joshi", "Kapoor", "Malik",
 ]
-DISTRICTS = ["Guntur", "Krishna", "Nellore", "Visakhapatnam", "Chittoor", "Kurnool"]
+DISTRICTS = ["SRIKAKULAM", "Vizianagaram", "Krishna", "Prakasam", "Anantapur", "Annamayya", "Anakapalli", "Guntur", "East Godavari"]
 
 
 def _now_text() -> str:
@@ -146,19 +146,33 @@ def _seed_reference_data(cursor: sqlite3.Cursor, table_columns: dict[str, list[s
         _insert(cursor, table_columns, "school_category", row)
     seeded.add("school_category")
 
-    for row_id, class_name in enumerate(["Class 1", "Class 2", "Class 3", "Class 4", "Class 5", "Class 6", "Class 7", "Class 8", "Class 9", "Class 10"], 1):
+    classes = [
+        (1, "1", "Class I", "PRIMARY"),
+        (2, "2", "Class II", "PRIMARY"),
+        (3, "3", "Class III", "PRIMARY"),
+        (4, "4", "Class IV", "PRIMARY"),
+        (5, "5", "Class V", "PRIMARY"),
+        (6, "6", "Class VI", "UPPER_PRIMARY"),
+        (7, "7", "Class VII", "UPPER_PRIMARY"),
+        (8, "8", "Class VIII", "UPPER_PRIMARY"),
+        (9, "9", "Class IX", "SECONDARY"),
+        (10, "10", "Class X", "SECONDARY"),
+        (11, "11", "Class XI", "SECONDARY"),
+        (12, "12", "Class XII", "SECONDARY"),
+    ]
+    for row_id, code, name, stage in classes:
         _insert(cursor, table_columns, "student_class_dim", {
             "student_class_dim_id_pk": row_id,
-            "class_code": f"C{row_id:02d}",
-            "class_name": class_name,
-            "education_stage": "Primary" if row_id <= 5 else "Secondary",
-            "min_age": 5 + row_id,
-            "max_age": 6 + row_id,
+            "class_code": code,
+            "class_name": name,
+            "education_stage": stage,
+            "min_age": None,
+            "max_age": None,
             "is_active": "Y",
-            "effective_start_date": "2021-06-01",
-            "effective_end_date": "2099-12-31",
-            "created_date": "2026-05-28 00:00:00",
-            "created_by": "sample_loader",
+            "effective_start_date": None,
+            "effective_end_date": None,
+            "created_date": "2026-05-11 13:14:54.052487",
+            "created_by": "curated_team",
         })
     seeded.add("student_class_dim")
 
@@ -198,14 +212,21 @@ def _seed_reference_data(cursor: sqlite3.Cursor, table_columns: dict[str, list[s
         })
     seeded.add("assessment_dim")
 
-    for row_id, reason in enumerate(["Health", "Family Work", "Transport", "Seasonal Migration", "Unknown"], 1):
+    reasons = [
+        {"id": 1, "code": "0", "name": None},
+        {"id": 2, "code": "1", "name": "Not feeling well"},
+        {"id": 3, "code": "2", "name": "Duplicate Student"},
+        {"id": 4, "code": "3", "name": "Left the school"},
+        {"id": 5, "code": "4", "name": "School changed"},
+    ]
+    for row in reasons:
         _insert(cursor, table_columns, "absent_reason_dim", {
-            "absent_reason_dim_id_pk": row_id,
-            "reason_code": reason[:3].upper(),
-            "reason_name": reason,
-            "reason_category": "Student",
-            "is_govt_approved": "Y",
-            "is_active": "Y",
+            "absent_reason_dim_id_pk": row["id"],
+            "reason_code": row["code"],
+            "reason_name": row["name"],
+            "reason_category": None,
+            "is_govt_approved": None,
+            "is_active": "Yes",
         })
     seeded.add("absent_reason_dim")
 
@@ -223,7 +244,7 @@ def _seed_schools_and_people(cursor: sqlite3.Cursor, table_columns: dict[str, li
             "teacher_citizen_master_fk": 500000 + teacher_id,
             "teacher_emp_id": f"EMP{teacher_id:05d}",
             "teacher_name": name,
-            "gender": random.choice(["M", "F"]),
+            "gender": random.choice(["MALE", "FEMALE"]),
             "date_of_birth": (date(1980, 1, 1) + timedelta(days=random.randint(0, 7000))).isoformat(),
             "joining_date": (date(2010, 6, 1) + timedelta(days=random.randint(0, 4000))).isoformat(),
             "qualification": random.choice(["B.Ed", "M.Ed", "D.Ed"]),
@@ -263,14 +284,14 @@ def _seed_schools_and_people(cursor: sqlite3.Cursor, table_columns: dict[str, li
             "ict_enabled_flag": random.choice(["Y", "N"]),
             "playground_flag": random.choice(["Y", "Y", "N"]),
             "head_master_name": f"{random.choice(FIRST_NAMES)} {random.choice(LAST_NAMES)}",
-            "is_current": "Y",
+            "is_current": "YES",
         })
 
     for student_id in range(1, 1001):
         first = random.choice(FIRST_NAMES)
         last = random.choice(LAST_NAMES)
         school_id = random.randint(1, 50)
-        grade = random.randint(1, 10)
+        grade = random.choice([1, 2, 5, 6, 7, 9, 11, 12])
         _insert(cursor, table_columns, "citizen_student", {
             "citizen_student_id_pk": student_id,
             "citizen_school_id_fk": school_id,
@@ -278,24 +299,24 @@ def _seed_schools_and_people(cursor: sqlite3.Cursor, table_columns: dict[str, li
             "student_subject_id_fk": random.randint(1, 5),
             "student_aadhaar_id": str(900000000000 + student_id),
             "student_name": f"{first} {last}",
-            "gender": random.choice(["M", "F"]),
+            "gender": random.choice(["MALE", "FEMALE"]),
             "surname": last,
-            "mother_tongue": random.choice(["Telugu", "Urdu", "English"]),
+            "mother_tongue": "140",
             "date_of_birth": (date(2008, 1, 1) + timedelta(days=random.randint(0, 3650))).isoformat(),
-            "social_category": random.choice(["SC", "ST", "BC", "General", "Minority"]),
-            "minority_status": random.choice(["Y", "N"]),
-            "disability_flag": random.choice(["N", "N", "Y"]),
-            "disability_percentage": 0,
-            "admission_flag": "Y",
+            "social_category": random.choice(["OBC", "SC", "ST", "OC", "BC", "General"]),
+            "minority_status": random.choice(["Not Applicable", "Yes", "No"]),
+            "disability_flag": random.choice(["No", "No", "Yes"]),
+            "disability_percentage": 0.00,
+            "admission_flag": random.choice(["Yes", "Yes", "No"]),
             "current_grade": str(grade),
-            "medium_key": random.choice(["ENG", "TEL", "URD"]),
-            "is_current": "Y",
+            "medium_key": random.choice(["3", "5"]),
+            "is_current": "Yes",
             "mother_citizen_master_id_fk": 800000000000 + student_id,
             "father_citizen_master_id_fk": 700000000000 + student_id,
             "is_current_flag": "Y",
             "primary_mobile_no": str(9000000000 + student_id),
             "address": f"House {student_id}, Village Road",
-            "pincode": str(random.randint(500000, 599999)),
+            "pincode": random.choice(["532462", "532407", "532005", "530001", "531001"]),
             "effective_start_date": "2021-06-01",
             "effective_end_date": "2099-12-31",
         })
@@ -333,7 +354,7 @@ def _seed_facts(cursor: sqlite3.Cursor, table_columns: dict[str, list[str]]) -> 
                     "half_day_flag": "N",
                     "attendance_weight": 0.0 if is_absent else 1.0,
                     "attendance_status_code": "ABSENT" if is_absent else "PRESENT",
-                    "attendance_reason_code": random.choice(["HEA", "FAM", "TRN", "UNK"]) if is_absent else None,
+                    "attendance_reason_code": random.choice(["1", "2", "3", "4"]) if is_absent else None,
                     "marked_by_role": "Teacher",
                     "attendance_capture_method": "Mobile",
                     "mdm_eligible_flag": "Y",
@@ -359,8 +380,6 @@ def _seed_facts(cursor: sqlite3.Cursor, table_columns: dict[str, list[str]]) -> 
                 "student_roll_number": f"R{student_id:05d}",
                 "assessment_cycle": "Annual",
                 "marks_obtained": marks,
-                "maximum_marks": 100,
-                "percentage_score": marks,
                 "pass_flag": "Y" if marks >= 35 else "N",
                 "fail_flag": "N" if marks >= 35 else "Y",
                 "absent_flag": "N",
@@ -377,13 +396,13 @@ def _seed_facts(cursor: sqlite3.Cursor, table_columns: dict[str, list[str]]) -> 
             "scheme_benefits_fact_id_pk": benefit_id,
             "citizen_school_id_fk": school_id,
             "school_scheme_master_id_fk": random.randint(1, 5),
-            "academic_year": "2023-24",
+            "academic_year": "2023",
             "benefit_type_id_fk": random.randint(1, 5),
             "beneficiary_type_id_fk": random.randint(1, 5),
             "citizen_student_id_fk": student_id,
             "school_teacher_id_fk": None,
             "scheme_application_id": f"APP{benefit_id:06d}",
-            "social_category": random.choice(["SC", "ST", "BC", "General", "Minority"]),
+            "social_category": random.choice(["OBC", "SC", "ST", "OC", "BC", "General"]),
             "eligible_flag": "Y",
             "attendance_eligible_flag": random.choice(["Y", "N"]),
             "benefit_sanctioned_flag": random.choice(["Y", "Y", "N"]),
@@ -407,7 +426,7 @@ def _seed_facts(cursor: sqlite3.Cursor, table_columns: dict[str, list[str]]) -> 
             "meal_type_id_fk": random.randint(1, 5),
             "nutrition_item_dim_key_fk": random.randint(1, 5),
             "scheme_key_id_fk": random.randint(1, 5),
-            "academic_year": "2023-24",
+            "academic_year": "2023",
             "meal_served_flag": random.choice(["Y", "Y", "N"]),
             "created_date": _now_text(),
             "created_by": "sample_loader",
@@ -419,7 +438,7 @@ def _seed_facts(cursor: sqlite3.Cursor, table_columns: dict[str, list[str]]) -> 
             "reporting_date_key_fk": 20240500 + random.randint(1, 28),
             "infrastructure_component_id_fk": random.randint(1, 5),
             "infrastructure_category_id_fk": random.randint(1, 5),
-            "academic_year": "2023-24",
+            "academic_year": "2023",
             "total_units": random.randint(5, 50),
             "functional_units": random.randint(3, 45),
             "non_functional_units": random.randint(0, 5),
