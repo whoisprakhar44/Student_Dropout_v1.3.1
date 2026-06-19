@@ -17,10 +17,35 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_land`(\n  `citizen_land_id_pk` int COMMENT 'from deserializer', \n  `citizen_master_fk` int COMMENT 'from deserializer', \n  `land_id` string COMMENT 'from deserializer', \n  `land_type` string COMMENT 'from deserializer', \n  `acres` string COMMENT 'from deserializer', \n  `survey_no` string COMMENT 'from deserializer', \n  `location` string COMMENT 'from deserializer', \n  `district_id` string COMMENT 'from deserializer', \n  `mandal_id` string COMMENT 'from deserializer', \n  `village_name` string COMMENT 'from deserializer', \n  `registration_no` string COMMENT 'from deserializer', \n  `registration_date` string COMMENT 'from deserializer', \n  `market_value` string COMMENT 'from deserializer', \n  `soil_type` string COMMENT 'from deserializer', \n  `irrigation_type` string COMMENT 'from deserializer', \n  `encumbrance_status` string COMMENT 'from deserializer', \n  `created_date` string COMMENT 'from deserializer', \n  `created_by`\
-  \ string COMMENT 'from deserializer', \n  `updated_date` string COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_land'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"citizen_land_id_pk\",\"required\":false,\"type\":\"int\"},{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"int\"},{\"id\":3,\"name\":\"land_id\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"land_type\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"acres\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"survey_no\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"location\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\"\
-  :\"district_id\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"mandal_id\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"name\":\"village_name\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"registration_no\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\":\"registration_date\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\":\"market_value\",\"required\":false,\"type\":\"string\"},{\"id\":14,\"name\":\"soil_type\",\"required\":false,\"type\":\"string\"},{\"id\":15,\"name\":\"irrigation_type\",\"required\":false,\"type\":\"string\"},{\"id\":16,\"name\":\"encumbrance_status\",\"required\":false,\"type\":\"string\"},{\"id\":17,\"name\":\"created_date\",\"required\":false,\"type\":\"string\"},{\"id\":18,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":19,\"name\":\"updated_date\",\"required\":false,\"type\":\"string\"},{\"id\":20,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true',\
-  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_land/metadata/00000-db3f7abf-9ff0-4a8c-b6d5-c63a9f1b989c.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323392', \n  'uuid'='d6f215fb-d5e9-4bc3-a7bf-62f617b01a49', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_land`(\n  `citizen_land_id_pk`\
+  \ INT COMMENT 'Primary Key: Unique identifier for the citizen land record.', \n\
+  \  `citizen_master_fk` INT COMMENT 'Foreign Key: Links to the associated citizen\
+  \ master dimension or master table.', \n  `land_id` STRING COMMENT 'Identifier key\
+  \ referencing the associated land.', \n  `land_type` STRING COMMENT 'Classification\
+  \ field defining the specific land type.', \n  `acres` STRING COMMENT 'The area\
+  \ size of the land holding measured in acres.', \n  `survey_no` STRING COMMENT 'The\
+  \ official land survey number or sub-division number of the land parcel.', \n  `location`\
+  \ STRING COMMENT 'A text description or address of the physical location of the\
+  \ asset or land.', \n  `district_id` STRING COMMENT 'Identifier key referencing\
+  \ the associated district.', \n  `mandal_id` STRING COMMENT 'Identifier key referencing\
+  \ the associated mandal.', \n  `village_name` STRING COMMENT 'The official name\
+  \ of the village/habitation where the school or citizen address is located.', \n\
+  \  `registration_no` STRING COMMENT 'Registration no.', \n  `registration_date`\
+  \ STRING COMMENT 'The specific date or timestamp when the registration occurred.',\
+  \ \n  `market_value` STRING COMMENT 'The estimated or registered market value of\
+  \ the property or land parcel in INR.', \n  `soil_type` STRING COMMENT 'Classification\
+  \ field defining the specific soil type.', \n  `irrigation_type` STRING COMMENT\
+  \ 'Classification field defining the specific irrigation type.', \n  `encumbrance_status`\
+  \ STRING COMMENT 'System field indicating the current encumbrance status of the\
+  \ record.', \n  `created_date` STRING COMMENT 'Timestamp indicating exactly when\
+  \ this record was originally created in the source system.', \n  `created_by` STRING\
+  \ COMMENT 'The user ID or automated system process responsible for creating this\
+  \ record.', \n  `updated_date` STRING COMMENT 'Timestamp indicating the last time\
+  \ this record was modified or updated.', \n  `updated_by` STRING COMMENT 'The user\
+  \ ID or automated system process responsible for the most recent update to this\
+  \ record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_land'"
 columns:
 - name: citizen_land_id_pk
   type: INT
@@ -29,7 +54,8 @@ columns:
 - name: citizen_master_fk
   type: INT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen master dimension or master table.'
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table.'
 - name: land_id
   type: STRING
   nullable: true
@@ -45,11 +71,13 @@ columns:
 - name: survey_no
   type: STRING
   nullable: true
-  description: The official land survey number or sub-division number of the land parcel.
+  description: The official land survey number or sub-division number of the land
+    parcel.
 - name: location
   type: STRING
   nullable: true
-  description: A text description or address of the physical location of the asset or land.
+  description: A text description or address of the physical location of the asset
+    or land.
 - name: district_id
   type: STRING
   nullable: true
@@ -61,7 +89,8 @@ columns:
 - name: village_name
   type: STRING
   nullable: true
-  description: The official name of the village/habitation where the school or citizen address is located.
+  description: The official name of the village/habitation where the school or citizen
+    address is located.
 - name: registration_no
   type: STRING
   nullable: true
@@ -73,7 +102,8 @@ columns:
 - name: market_value
   type: STRING
   nullable: true
-  description: The estimated or registered market value of the property or land parcel in INR.
+  description: The estimated or registered market value of the property or land parcel
+    in INR.
 - name: soil_type
   type: STRING
   nullable: true
@@ -89,11 +119,13 @@ columns:
 - name: created_date
   type: STRING
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created in the source system.
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this record.
+  description: The user ID or automated system process responsible for creating this
+    record.
 - name: updated_date
   type: STRING
   nullable: true
@@ -101,7 +133,8 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent update to this record.
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key:
 - citizen_land_id_pk
 relationships: []

@@ -17,8 +17,14 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`ration_card_citizen_reason`(\n  `reason_id` string COMMENT 'from deserializer', \n  `reason_name` string COMMENT 'from deserializer', \n  `reason_description` string COMMENT 'from deserializer', \n  `reason_code` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen_reason'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"reason_id\",\"required\":false,\"type\":\"string\"},{\"id\":2,\"name\":\"reason_name\",\"required\":false,\"type\":\"string\"},{\"id\":3,\"name\":\"reason_description\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"reason_code\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true', \n  'external'='true',\
-  \ \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen_reason/metadata/00000-38991d30-7ae7-40f1-a118-26f0ac3192bf.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323392', \n  'uuid'='fa6dff6a-f990-4971-a6ec-83dda32add63', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`ration_card_citizen_reason`(\n\
+  \  `reason_id` STRING COMMENT 'Identifier key referencing the associated reason.',\
+  \ \n  `reason_name` STRING COMMENT 'Field containing the reason name details for\
+  \ the table.', \n  `reason_description` STRING COMMENT 'Field containing the reason\
+  \ description details for the table.', \n  `reason_code` STRING COMMENT 'Code/ID\
+  \ column: Standardized system code representing the reason. Categorical column.')\n\
+  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen_reason'"
 columns:
 - name: reason_id
   type: STRING
@@ -35,7 +41,8 @@ columns:
 - name: reason_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized system code representing the reason. Categorical column.'
+  description: 'Code/ID column: Standardized system code representing the reason.
+    Categorical column.'
 primary_key: []
 relationships: []
 business_terms:

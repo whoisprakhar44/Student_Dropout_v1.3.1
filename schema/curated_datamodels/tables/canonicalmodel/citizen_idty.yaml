@@ -19,10 +19,25 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_idty`(\n  `citizen_idty_pk` int COMMENT 'from deserializer', \n  `citizen_idty_type_fk` bigint COMMENT 'from deserializer', \n  `citizen_idty_value` bigint COMMENT 'from deserializer', \n  `issue_date` timestamp with local time zone COMMENT 'from deserializer', \n  `source_db` string COMMENT 'from deserializer', \n  `is_primary` string COMMENT 'from deserializer', \n  `is_verified` string COMMENT 'from deserializer', \n  `expiry_date` string COMMENT 'from deserializer', \n  `idty_status_code` string COMMENT 'from deserializer', \n  `created_date` timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\n\
-  LOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_idty'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"citizen_idty_pk\",\"required\":false,\"type\":\"int\"},{\"id\":2,\"name\":\"citizen_idty_type_fk\",\"required\":false,\"type\":\"long\"},{\"id\":3,\"name\":\"citizen_idty_value\",\"required\":false,\"type\":\"long\"},{\"id\":4,\"name\":\"issue_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":5,\"name\":\"source_db\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"is_primary\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"is_verified\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"expiry_date\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"idty_status_code\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":11,\"name\":\"created_by\",\"required\"\
-  :false,\"type\":\"string\"},{\"id\":12,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":13,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'current-snapshot-id'='6187849607898194373', \n  'current-snapshot-summary'='{\"spark.app.id\":\"application_1775893506593_3147\",\"added-data-files\":\"32\",\"added-position-delete-files\":\"32\",\"added-delete-files\":\"32\",\"added-records\":\"53024008\",\"added-files-size\":\"779521756\",\"added-position-deletes\":\"53024008\",\"changed-partition-count\":\"32\",\"total-records\":\"159072024\",\"total-files-size\":\"2092343962\",\"total-data-files\":\"96\",\"total-delete-files\":\"64\",\"total-position-deletes\":\"106048016\",\"total-equality-deletes\":\"0\"}', \n  'current-snapshot-timestamp-ms'='1778507644184', \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"citizen_idty_value_bucket\",\"transform\":\"bucket[32]\",\"source-id\":3,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true',\
-  \ \n  'external'='true', \n  'impala.events.catalogServiceId'='9776eab397964690:a6788b7b6e82cea7', \n  'impala.events.catalogVersion'='138064', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_idty/metadata/00008-59931368-fa27-4f95-bc69-bbf8fba53061.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_idty/metadata/00007-5c405f4b-a2e8-4314-995e-2dc1b3394339.metadata.json', \n  'snapshot-count'='8', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778507646', \n  'uuid'='a980ee15-c02c-4c54-a608-067bd9071595', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_idty`(\n  `citizen_idty_pk`\
+  \ INT COMMENT 'Primary Key: Unique identifier for the citizenty record.', \n  `citizen_idty_type_fk`\
+  \ BIGINT COMMENT 'Foreign Key: Links to the associated citizenty type dimension\
+  \ or master table.', \n  `citizen_idty_value` BIGINT COMMENT 'Citizen idty value.',\
+  \ \n  `issue_date` TIMESTAMP COMMENT 'The specific date or timestamp when the issue\
+  \ occurred.', \n  `source_db` STRING COMMENT 'Field containing the source db details\
+  \ for the table.', \n  `is_primary` STRING COMMENT 'Field containing the is primary\
+  \ details for the table.', \n  `is_verified` STRING COMMENT 'Field containing the\
+  \ is verified details for the table.', \n  `expiry_date` STRING COMMENT 'The specific\
+  \ date or timestamp when the expiry occurred.', \n  `idty_status_code` STRING COMMENT\
+  \ 'Standardized system code representing the idty status.', \n  `created_date` TIMESTAMP\
+  \ COMMENT 'Timestamp indicating exactly when this record was originally created\
+  \ in the source system.', \n  `created_by` STRING COMMENT 'The user ID or automated\
+  \ system process responsible for creating this record.', \n  `updated_date` TIMESTAMP\
+  \ COMMENT 'Timestamp indicating the last time this record was modified or updated.',\
+  \ \n  `updated_by` STRING COMMENT 'The user ID or automated system process responsible\
+  \ for the most recent update to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_idty'"
 columns:
 - name: citizen_idty_pk
   type: INT
@@ -31,7 +46,8 @@ columns:
 - name: citizen_idty_type_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizenty type dimension or master table.'
+  description: 'Foreign Key: Links to the associated citizenty type dimension or master
+    table.'
 - name: citizen_idty_value
   type: BIGINT
   nullable: true
@@ -63,11 +79,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created in the source system.
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this record.
+  description: The user ID or automated system process responsible for creating this
+    record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -75,7 +93,8 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent update to this record.
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key:
 - citizen_idty_pk
 relationships: []

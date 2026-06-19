@@ -3,14 +3,12 @@ table: beneficiary_type_dim
 department: school
 description: Dimension/master table for beneficiary type reference attributes.
 table_format: ICEBERG
-location: 
-  hdfs://datalakedev/user/CURATED/curated_datamodels/school/beneficiary_type_dim
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/beneficiary_type_dim
 partitioned_by: 'beneficiary_type_dim_id_pk_bucket: bucket[32]'
 tblproperties:
   engine.hive.enabled: 'true'
   external: 'true'
-  metadata_location: 
-    hdfs://datalakedev/user/CURATED/curated_datamodels/school/beneficiary_type_dim/metadata/00000-3daf0adc-91de-425f-886e-e1d7b37751c5.metadata.json
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/beneficiary_type_dim/metadata/00000-3daf0adc-91de-425f-886e-e1d7b37751c5.metadata.json
   parquet.compression: SNAPPY
   snapshot-count: '0'
   table_type: ICEBERG
@@ -19,95 +17,80 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`beneficiary_type_dim`(\n  `beneficiary_type_dim_id_pk`
-  bigint COMMENT 'from deserializer', \n  `beneficiary_type_code` string COMMENT 'from
-  deserializer', \n  `beneficiary_type_name` string COMMENT 'from deserializer', \n\
-  \  `is_active` string COMMENT 'from deserializer', \n  `effective_start_date` date
-  COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from deserializer',\
-  \ \n  `is_current` string COMMENT 'from deserializer', \n  `created_date` timestamp
-  with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT
-  'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from
-  deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT
-  SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\
-  \ \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/beneficiary_type_dim'\n\
-  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
-  :[{\"id\":1,\"name\":\"beneficiary_type_dim_id_pk\",\"required\":false,\"type\"\
-  :\"long\"},{\"id\":2,\"name\":\"beneficiary_type_code\",\"required\":false,\"type\"\
-  :\"string\"},{\"id\":3,\"name\":\"beneficiary_type_name\",\"required\":false,\"\
-  type\":\"string\"},{\"id\":4,\"name\":\"is_active\",\"required\":false,\"type\"\
-  :\"string\"},{\"id\":5,\"name\":\"effective_start_date\",\"required\":false,\"type\"\
-  :\"date\"},{\"id\":6,\"name\":\"effective_end_date\",\"required\":false,\"type\"\
-  :\"date\"},{\"id\":7,\"name\":\"is_current\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":8,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"\
-  },{\"id\":9,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"\
-  id\":10,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"\
-  id\":11,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n \
-  \ 'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"beneficiary_type_dim_id_pk_bucket\"\
-  ,\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true',\
-  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/beneficiary_type_dim/metadata/00000-3daf0adc-91de-425f-886e-e1d7b37751c5.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
-  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778658263', \n  'uuid'='75aed234-a934-440b-8502-d22b2476a452',\
-  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
-  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`beneficiary_type_dim`(\n  `beneficiary_type_dim_id_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the beneficiary type dim record.',\
+  \ \n  `beneficiary_type_code` STRING COMMENT 'Code/ID column: Standardized system\
+  \ code representing the beneficiary type. Categorical column.', \n  `beneficiary_type_name`\
+  \ STRING COMMENT 'Beneficiary type name.', \n  `is_active` STRING COMMENT 'Boolean\
+  \ indicator flag (values: ''Y''/''N'').', \n  `effective_start_date` DATE COMMENT\
+  \ 'The specific date or timestamp when the effective start occurred.', \n  `effective_end_date`\
+  \ DATE COMMENT 'The specific date or timestamp when the effective end occurred.',\
+  \ \n  `is_current` STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').',\
+  \ \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating exactly when this record\
+  \ was originally created in the source system.', \n  `created_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for creating this record.',\
+  \ \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the last time this\
+  \ record was modified or updated.', \n  `updated_by` STRING COMMENT 'The user ID\
+  \ or automated system process responsible for the most recent update to this record.')\n\
+  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/beneficiary_type_dim'"
 columns:
-  - name: beneficiary_type_dim_id_pk
-    type: BIGINT
-    nullable: true
-    description: 'Primary Key: Unique identifier for the beneficiary type dim record.'
-  - name: beneficiary_type_code
-    type: STRING
-    nullable: true
-    description: 'Code/ID column: Standardized system code representing the beneficiary
-      type. Categorical column.'
-  - name: beneficiary_type_name
-    type: STRING
-    nullable: true
-    description: Beneficiary type name.
-  - name: is_active
-    type: STRING
-    nullable: true
-    description: "Boolean indicator flag (values: 'Y'/'N')."
-  - name: effective_start_date
-    type: DATE
-    nullable: true
-    description: The specific date or timestamp when the effective start 
-      occurred.
-  - name: effective_end_date
-    type: DATE
-    nullable: true
-    description: The specific date or timestamp when the effective end occurred.
-  - name: is_current
-    type: STRING
-    nullable: true
-    description: "Boolean indicator flag (values: 'Y'/'N')."
-  - name: created_date
-    type: TIMESTAMP
-    nullable: true
-    description: Timestamp indicating exactly when this record was originally 
-      created in the source system.
-  - name: created_by
-    type: STRING
-    nullable: true
-    description: The user ID or automated system process responsible for 
-      creating this record.
-  - name: updated_date
-    type: TIMESTAMP
-    nullable: true
-    description: Timestamp indicating the last time this record was modified or 
-      updated.
-  - name: updated_by
-    type: STRING
-    nullable: true
-    description: The user ID or automated system process responsible for the 
-      most recent update to this record.
+- name: beneficiary_type_dim_id_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the beneficiary type dim record.'
+- name: beneficiary_type_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the beneficiary
+    type. Categorical column.'
+- name: beneficiary_type_name
+  type: STRING
+  nullable: true
+  description: Beneficiary type name.
+- name: is_active
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective start occurred.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective end occurred.
+- name: is_current
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for creating this
+    record.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key:
-  - beneficiary_type_dim_id_pk
+- beneficiary_type_dim_id_pk
 relationships: []
 business_terms:
-  - dimension table
-  - reference lookup
-  - Hive
-  - Iceberg
-  - ICEBERG
+- dimension table
+- reference lookup
+- Hive
+- Iceberg
+- ICEBERG
 common_operations:
-  - profile records in beneficiary_type_dim
+- profile records in beneficiary_type_dim

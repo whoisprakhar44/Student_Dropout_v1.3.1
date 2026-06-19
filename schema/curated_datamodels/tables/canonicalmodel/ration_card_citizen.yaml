@@ -3,14 +3,12 @@ table: ration_card_citizen
 department: canonicalmodel
 description: Curated Hive/Iceberg table for ration card citizen.
 table_format: ICEBERG
-location: 
-  hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen
 partitioned_by: ''
 tblproperties:
   engine.hive.enabled: 'true'
   external: 'true'
-  metadata_location: 
-    hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen/metadata/00000-11acfc35-73b2-478f-9d9a-efb0018cb173.metadata.json
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen/metadata/00000-11acfc35-73b2-478f-9d9a-efb0018cb173.metadata.json
   parquet.compression: SNAPPY
   snapshot-count: '0'
   table_type: ICEBERG
@@ -19,94 +17,81 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`ration_card_citizen`(\n  `citizen_ration_card_pk`
-  int COMMENT 'from deserializer', \n  `citizen_master_fk` int COMMENT 'from deserializer',\
-  \ \n  `citizen_reason_fk` string COMMENT 'from deserializer', \n  `ration_card_family_fk`
-  int COMMENT 'from deserializer', \n  `status_code` string COMMENT 'from deserializer',\
-  \ \n  `status_reason_code` string COMMENT 'from deserializer', \n  `effective_start_date`
-  date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from deserializer',\
-  \ \n  `created_date` timestamp with local time zone COMMENT 'from deserializer',\
-  \ \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp
-  with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT
-  'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
-  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
-  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen'\n\
-  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
-  :[{\"id\":1,\"name\":\"citizen_ration_card_pk\",\"required\":false,\"type\":\"int\"\
-  },{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"int\"},{\"\
-  id\":3,\"name\":\"citizen_reason_fk\",\"required\":false,\"type\":\"string\"},{\"\
-  id\":4,\"name\":\"ration_card_family_fk\",\"required\":false,\"type\":\"int\"},{\"\
-  id\":5,\"name\":\"status_code\",\"required\":false,\"type\":\"string\"},{\"id\"\
-  :6,\"name\":\"status_reason_code\",\"required\":false,\"type\":\"string\"},{\"id\"\
-  :7,\"name\":\"effective_start_date\",\"required\":false,\"type\":\"date\"},{\"id\"\
-  :8,\"name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"},{\"id\"\
-  :9,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\"\
-  :10,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"\
-  name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":12,\"\
-  name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true',\
-  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen/metadata/00000-11acfc35-73b2-478f-9d9a-efb0018cb173.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0',\
-  \ \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323391', \n  'uuid'='cee5d669-a022-4bbe-a1a2-3095e7c8706f',\
-  \ \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
-  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`ration_card_citizen`(\n  `citizen_ration_card_pk`\
+  \ INT COMMENT 'Primary Key: Unique identifier for the citizen ration card record.',\
+  \ \n  `citizen_master_fk` INT COMMENT 'Foreign Key: Links to the associated citizen\
+  \ master dimension or master table.', \n  `ration_card_family_fk` INT COMMENT 'Foreign\
+  \ Key: Links to the associated ration card family dimension or master table.', \n\
+  \  `status_code` STRING COMMENT 'Code/ID column: The current operational status\
+  \ code of the record (e.g., ''ACTIVE'', ''INACTIVE'', ''PENDING''). Categorical\
+  \ column. Distinct values: 1. Examples: A. Top frequencies: 151275760. Categorical\
+  \ column.', \n  `effective_start_date` DATE COMMENT 'The specific date or timestamp\
+  \ when the effective start occurred.', \n  `effective_end_date` DATE COMMENT 'The\
+  \ specific date or timestamp when the effective end occurred.', \n  `created_date`\
+  \ TIMESTAMP COMMENT 'Timestamp indicating exactly when this record was originally\
+  \ created in the source system.', \n  `created_by` STRING COMMENT 'The user ID or\
+  \ automated system process responsible for creating this record.', \n  `updated_date`\
+  \ TIMESTAMP COMMENT 'Timestamp indicating the last time this record was modified\
+  \ or updated.', \n  `updated_by` STRING COMMENT 'The user ID or automated system\
+  \ process responsible for the most recent update to this record.')\nROW FORMAT SERDE\
+  \ \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  \nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen'"
 columns:
-  - name: citizen_ration_card_pk
-    type: INT
-    nullable: true
-    description: 'Primary Key: Unique identifier for the citizen ration card record.'
-  - name: citizen_master_fk
-    type: INT
-    nullable: true
-    description: 'Foreign Key: Links to the associated citizen master dimension or
-      master table.'
-  - name: ration_card_family_fk
-    type: INT
-    nullable: true
-    description: 'Foreign Key: Links to the associated ration card family dimension
-      or master table.'
-  - name: status_code
-    type: STRING
-    nullable: true
-    description: "Code/ID column: The current operational status code of the record
-      (e.g., 'ACTIVE', 'INACTIVE', 'PENDING'). Categorical column. Distinct values:
-      1. Examples: A. Top frequencies: 151275760. Categorical column."
-  - name: effective_start_date
-    type: DATE
-    nullable: true
-    description: The specific date or timestamp when the effective start 
-      occurred.
-  - name: effective_end_date
-    type: DATE
-    nullable: true
-    description: The specific date or timestamp when the effective end occurred.
-  - name: created_date
-    type: TIMESTAMP
-    nullable: true
-    description: Timestamp indicating exactly when this record was originally 
-      created in the source system.
-  - name: created_by
-    type: STRING
-    nullable: true
-    description: The user ID or automated system process responsible for 
-      creating this record.
-  - name: updated_date
-    type: TIMESTAMP
-    nullable: true
-    description: Timestamp indicating the last time this record was modified or 
-      updated.
-  - name: updated_by
-    type: STRING
-    nullable: true
-    description: The user ID or automated system process responsible for the 
-      most recent update to this record.
+- name: citizen_ration_card_pk
+  type: INT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the citizen ration card record.'
+- name: citizen_master_fk
+  type: INT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table.'
+- name: ration_card_family_fk
+  type: INT
+  nullable: true
+  description: 'Foreign Key: Links to the associated ration card family dimension
+    or master table.'
+- name: status_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: The current operational status code of the record
+    (e.g., ''ACTIVE'', ''INACTIVE'', ''PENDING''). Categorical column. Distinct values:
+    1. Examples: A. Top frequencies: 151275760. Categorical column.'
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective start occurred.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective end occurred.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for creating this
+    record.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key:
-  - citizen_ration_card_pk
+- citizen_ration_card_pk
 relationships: []
 business_terms:
-  - curated datamodels
-  - canonicalmodel
-  - Hive
-  - Iceberg
-  - ICEBERG
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
 common_operations:
-  - profile records in ration_card_citizen
+- profile records in ration_card_citizen

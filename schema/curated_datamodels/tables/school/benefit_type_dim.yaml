@@ -17,9 +17,26 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`benefit_type_dim`(\n  `benefit_type_dim_id_pk` bigint COMMENT 'from deserializer', \n  `benefit_type_code` string COMMENT 'from deserializer', \n  `benefit_type_name` string COMMENT 'from deserializer', \n  `delivery_mode` string COMMENT 'from deserializer', \n  `is_monetary` string COMMENT 'from deserializer', \n  `is_active` string COMMENT 'from deserializer', \n  `effective_start_date` date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from deserializer', \n  `is_current` string COMMENT 'from deserializer', \n  `created_date` timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n\
-  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/benefit_type_dim'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"benefit_type_dim_id_pk\",\"required\":false,\"type\":\"long\"},{\"id\":2,\"name\":\"benefit_type_code\",\"required\":false,\"type\":\"string\"},{\"id\":3,\"name\":\"benefit_type_name\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"delivery_mode\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"is_monetary\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"is_active\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"effective_start_date\",\"required\":false,\"type\":\"date\"},{\"id\":8,\"name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"},{\"id\":9,\"name\":\"is_current\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":11,\"name\":\"created_by\",\"required\"\
-  :false,\"type\":\"string\"},{\"id\":12,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":13,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"benefit_type_dim_id_pk_bucket\",\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/benefit_type_dim/metadata/00000-81728355-c262-459d-a173-a93a35da458f.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778658264', \n  'uuid'='4bb3da49-e6af-45ac-b0c0-d865013ecce9', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`benefit_type_dim`(\n  `benefit_type_dim_id_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the benefit type dim record.',\
+  \ \n  `benefit_type_code` STRING COMMENT 'Code/ID column: Standardized system code\
+  \ representing the benefit type. Categorical column.', \n  `benefit_type_name` STRING\
+  \ COMMENT 'Benefit type name.', \n  `delivery_mode` STRING COMMENT 'Classification\
+  \ field defining the specific delivery mode.', \n  `is_monetary` STRING COMMENT\
+  \ 'Field containing the is monetary details for the table.', \n  `is_active` STRING\
+  \ COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `effective_start_date`\
+  \ DATE COMMENT 'The specific date or timestamp when the effective start occurred.',\
+  \ \n  `effective_end_date` DATE COMMENT 'The specific date or timestamp when the\
+  \ effective end occurred.', \n  `is_current` STRING COMMENT 'Boolean indicator flag\
+  \ (values: ''Y''/''N'').', \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating\
+  \ exactly when this record was originally created in the source system.', \n  `created_by`\
+  \ STRING COMMENT 'The user ID or automated system process responsible for creating\
+  \ this record.', \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the\
+  \ last time this record was modified or updated.', \n  `updated_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for the most recent update\
+  \ to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/benefit_type_dim'"
 columns:
 - name: benefit_type_dim_id_pk
   type: BIGINT
@@ -28,7 +45,8 @@ columns:
 - name: benefit_type_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized system code representing the benefit type. Categorical column.'
+  description: 'Code/ID column: Standardized system code representing the benefit
+    type. Categorical column.'
 - name: benefit_type_name
   type: STRING
   nullable: true
@@ -60,11 +78,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created in the source system.
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this record.
+  description: The user ID or automated system process responsible for creating this
+    record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -72,7 +92,8 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent update to this record.
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key:
 - benefit_type_dim_id_pk
 relationships: []

@@ -17,10 +17,26 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`nutrition_item_dim`(\n  `nutrition_item_dim_id_pk` bigint COMMENT 'from deserializer', \n  `item_code` string COMMENT 'from deserializer', \n  `item_name` string COMMENT 'from deserializer', \n  `nutrition_category` string COMMENT 'from deserializer', \n  `unit_of_measure` string COMMENT 'from deserializer', \n  `default_quantity` decimal(10,2) COMMENT 'from deserializer', \n  `is_active` string COMMENT 'from deserializer', \n  `effective_start_date` date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from deserializer', \n  `is_current` string COMMENT 'from deserializer', \n  `created_date` timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
-  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/nutrition_item_dim'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"nutrition_item_dim_id_pk\",\"required\":false,\"type\":\"long\"},{\"id\":2,\"name\":\"item_code\",\"required\":false,\"type\":\"string\"},{\"id\":3,\"name\":\"item_name\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"nutrition_category\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"unit_of_measure\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"default_quantity\",\"required\":false,\"type\":\"decimal(10, 2)\"},{\"id\":7,\"name\":\"is_active\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"effective_start_date\",\"required\":false,\"type\":\"date\"},{\"id\":9,\"name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"},{\"id\":10,\"name\":\"is_current\",\"required\"\
-  :false,\"type\":\"string\"},{\"id\":11,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":12,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":14,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"nutrition_item_dim_id_pk_bucket\",\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/nutrition_item_dim/metadata/00000-c81eb4f6-a815-40d9-a80a-6a33ef55be60.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1777896598', \n  'uuid'='7575d981-4192-4ac4-a130-9218ed7500e6', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet',\
-  \ \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`nutrition_item_dim`(\n  `nutrition_item_dim_id_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the nutrition item dim record.',\
+  \ \n  `item_code` STRING COMMENT 'Code/ID column: Standardized system code representing\
+  \ the item. Categorical column.', \n  `item_name` STRING COMMENT 'The name of the\
+  \ nutritional item or food product served in mid-day meals.', \n  `nutrition_category`\
+  \ STRING COMMENT 'Classification field defining the specific nutrition category.',\
+  \ \n  `unit_of_measure` STRING COMMENT 'Unit of measure.', \n  `default_quantity`\
+  \ DECIMAL(10,2) COMMENT 'Default quantity.', \n  `is_active` STRING COMMENT 'Boolean\
+  \ indicator flag (values: ''Y''/''N'').', \n  `effective_start_date` DATE COMMENT\
+  \ 'The specific date or timestamp when the effective start occurred.', \n  `effective_end_date`\
+  \ DATE COMMENT 'The specific date or timestamp when the effective end occurred.',\
+  \ \n  `is_current` STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').',\
+  \ \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating exactly when this record\
+  \ was originally created in the source system.', \n  `created_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for creating this record.',\
+  \ \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the last time this\
+  \ record was modified or updated.', \n  `updated_by` STRING COMMENT 'The user ID\
+  \ or automated system process responsible for the most recent update to this record.')\n\
+  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/nutrition_item_dim'"
 columns:
 - name: nutrition_item_dim_id_pk
   type: BIGINT
@@ -29,11 +45,13 @@ columns:
 - name: item_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized system code representing the item. Categorical column.'
+  description: 'Code/ID column: Standardized system code representing the item. Categorical
+    column.'
 - name: item_name
   type: STRING
   nullable: true
-  description: The name of the nutritional item or food product served in mid-day meals.
+  description: The name of the nutritional item or food product served in mid-day
+    meals.
 - name: nutrition_category
   type: STRING
   nullable: true
@@ -65,11 +83,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created in the source system.
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this record.
+  description: The user ID or automated system process responsible for creating this
+    record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -77,7 +97,8 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent update to this record.
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key:
 - nutrition_item_dim_id_pk
 relationships: []

@@ -13,11 +13,13 @@ columns:
 - name: citizen_utility_connection_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen utility connection dimension or master table.'
+  description: 'Foreign Key: Links to the associated citizen utility connection dimension
+    or master table.'
 - name: citizen_master_fk
   type: STRING
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen master dimension or master table.'
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table.'
 - name: gas_connection_status
   type: STRING
   nullable: true
@@ -37,18 +39,40 @@ columns:
 - name: created_at
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created in the database system.
+  description: Timestamp indicating exactly when this record was originally created
+    in the database system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this record.
+  description: The user ID or automated system process responsible for creating this
+    record.
 - name: updated_at
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating the last time this record was modified or updated in the database system.
+  description: Timestamp indicating the last time this record was modified or updated
+    in the database system.
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent update to this record.
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key: []
 relationships: []
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_utility_connection`(\n\
+  \  `citizen_utility_connection_fk` BIGINT COMMENT 'Foreign Key: Links to the associated\
+  \ citizen utility connection dimension or master table.', \n  `citizen_master_fk`\
+  \ STRING COMMENT 'Foreign Key: Links to the associated citizen master dimension\
+  \ or master table.', \n  `gas_connection_status` STRING COMMENT 'Categorical column.\
+  \ Distinct values: LPG_GAS.', \n  `electricity_connection_status` STRING COMMENT\
+  \ 'Categorical column. Distinct values: Y.', \n  `avg_monthly_kwh` STRING COMMENT\
+  \ 'Avg monthly kwh.', \n  `water_connection_status` STRING COMMENT 'Categorical\
+  \ column. Distinct values: MUNICIPAL_PANCHAYAT_TAP, PUBLIC_TAP.', \n  `created_at`\
+  \ TIMESTAMP COMMENT 'Timestamp indicating exactly when this record was originally\
+  \ created in the database system.', \n  `created_by` STRING COMMENT 'The user ID\
+  \ or automated system process responsible for creating this record.', \n  `updated_at`\
+  \ TIMESTAMP COMMENT 'Timestamp indicating the last time this record was modified\
+  \ or updated in the database system.', \n  `updated_by` STRING COMMENT 'The user\
+  \ ID or automated system process responsible for the most recent update to this\
+  \ record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_utility_connection'"

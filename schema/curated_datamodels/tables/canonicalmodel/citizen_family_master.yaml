@@ -17,7 +17,8 @@ columns:
 - name: citizen_master_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen master dimension or master table.'
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table.'
 - name: household_id
   type: STRING
   nullable: true
@@ -29,11 +30,13 @@ columns:
 - name: citizen_name
   type: STRING
   nullable: true
-  description: 'System field containing values such as: PotnuruKushal, K Janardhan, Gonti Sai, Vadde Nagaraju, Kornu Govindarao.'
+  description: 'System field containing values such as: PotnuruKushal, K Janardhan,
+    Gonti Sai, Vadde Nagaraju, Kornu Govindarao.'
 - name: realtionship
   type: STRING
   nullable: true
-  description: The familial relationship of the individual to the head of the household (e.g., 'HEAD', 'SPOUSE', 'CHILD').
+  description: The familial relationship of the individual to the head of the household
+    (e.g., 'HEAD', 'SPOUSE', 'CHILD').
 - name: head_of_the_family
   type: STRING
   nullable: true
@@ -41,15 +44,18 @@ columns:
 - name: is_hofamily
   type: STRING
   nullable: true
-  description: Boolean indicator flag for whether the individual is the head of the family (0 for No, 1 for Yes).
+  description: Boolean indicator flag for whether the individual is the head of the
+    family (0 for No, 1 for Yes).
 - name: is_memberadded
   type: STRING
   nullable: true
-  description: Boolean indicator flag for whether the member was added (0 for No, 1 for Yes).
+  description: Boolean indicator flag for whether the member was added (0 for No,
+    1 for Yes).
 - name: is_memberdeleted
   type: STRING
   nullable: true
-  description: Boolean indicator flag for whether the member was deleted (0 for No, 1 for Yes).
+  description: Boolean indicator flag for whether the member was deleted (0 for No,
+    1 for Yes).
 - name: relation_withhof
   type: STRING
   nullable: true
@@ -57,15 +63,18 @@ columns:
 - name: father_citizen_master_fk
   type: STRING
   nullable: true
-  description: 'Foreign Key: Links to the associated father citizen master dimension or master table.'
+  description: 'Foreign Key: Links to the associated father citizen master dimension
+    or master table.'
 - name: mother_citizen_master_fk
   type: STRING
   nullable: true
-  description: 'Foreign Key: Links to the associated mother citizen master dimension or master table.'
+  description: 'Foreign Key: Links to the associated mother citizen master dimension
+    or master table.'
 - name: spouse_citizen_master_fk
   type: STRING
   nullable: true
-  description: 'Foreign Key: Links to the associated spouse citizen master dimension or master table.'
+  description: 'Foreign Key: Links to the associated spouse citizen master dimension
+    or master table.'
 - name: is_married
   type: STRING
   nullable: true
@@ -93,11 +102,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created in the source system.
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this record.
+  description: The user ID or automated system process responsible for creating this
+    record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -105,7 +116,43 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent update to this record.
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key:
 - citizen_family_master_pk
 relationships: []
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_family_master`(\n  `citizen_family_master_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the citizen family master record.',\
+  \ \n  `citizen_master_fk` BIGINT COMMENT 'Foreign Key: Links to the associated citizen\
+  \ master dimension or master table.', \n  `household_id` STRING COMMENT 'Identifier\
+  \ key referencing the associated household.', \n  `resident_id` STRING COMMENT 'Identifier\
+  \ key referencing the associated resident.', \n  `citizen_name` STRING COMMENT 'System\
+  \ field containing values such as: PotnuruKushal, K Janardhan, Gonti Sai, Vadde\
+  \ Nagaraju, Kornu Govindarao.', \n  `realtionship` STRING COMMENT 'The familial\
+  \ relationship of the individual to the head of the household (e.g., ''HEAD'', ''SPOUSE'',\
+  \ ''CHILD'').', \n  `head_of_the_family` STRING COMMENT 'Head of the family.', \n\
+  \  `is_hofamily` STRING COMMENT 'Boolean indicator flag for whether the individual\
+  \ is the head of the family (0 for No, 1 for Yes).', \n  `is_memberadded` STRING\
+  \ COMMENT 'Boolean indicator flag for whether the member was added (0 for No, 1\
+  \ for Yes).', \n  `is_memberdeleted` STRING COMMENT 'Boolean indicator flag for\
+  \ whether the member was deleted (0 for No, 1 for Yes).', \n  `relation_withhof`\
+  \ STRING COMMENT 'Relation with HOF.', \n  `father_citizen_master_fk` STRING COMMENT\
+  \ 'Foreign Key: Links to the associated father citizen master dimension or master\
+  \ table.', \n  `mother_citizen_master_fk` STRING COMMENT 'Foreign Key: Links to\
+  \ the associated mother citizen master dimension or master table.', \n  `spouse_citizen_master_fk`\
+  \ STRING COMMENT 'Foreign Key: Links to the associated spouse citizen master dimension\
+  \ or master table.', \n  `is_married` STRING COMMENT 'Boolean indicator flag for\
+  \ marriage status (0 for No, 1 for Yes).', \n  `new_hh_id` STRING COMMENT 'New household\
+  \ id.', \n  `hh_update_status` STRING COMMENT 'System field indicating the current\
+  \ hh update status of the record.', \n  `careof` STRING COMMENT 'System field containing\
+  \ values such as: S/O.', \n  `effective_start_date` DATE COMMENT 'The specific date\
+  \ or timestamp when the effective start occurred.', \n  `effective_end_date` DATE\
+  \ COMMENT 'The specific date or timestamp when the effective end occurred.', \n\
+  \  `created_date` TIMESTAMP COMMENT 'Timestamp indicating exactly when this record\
+  \ was originally created in the source system.', \n  `created_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for creating this record.',\
+  \ \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the last time this\
+  \ record was modified or updated.', \n  `updated_by` STRING COMMENT 'The user ID\
+  \ or automated system process responsible for the most recent update to this record.')\n\
+  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_family_master'"

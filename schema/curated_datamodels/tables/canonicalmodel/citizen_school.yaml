@@ -17,14 +17,73 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_school`(\n  `citizen_school_id_pk` bigint COMMENT 'from deserializer', \n  `school_medium_id_fk` bigint COMMENT 'from deserializer', \n  `school_teacher_id_fk` bigint COMMENT 'from deserializer', \n  `school_category_id_fk` bigint COMMENT 'from deserializer', \n  `school_management_id_fk` bigint COMMENT 'from deserializer', \n  `school_dept_code` string COMMENT 'from deserializer', \n  `school_udise_code` string COMMENT 'from deserializer', \n  `school_name` string COMMENT 'from deserializer', \n  `school_address` string COMMENT 'from deserializer', \n  `district_name` string COMMENT 'from deserializer', \n  `district_lgd_code` string COMMENT 'from deserializer', \n  `mandal_name` string COMMENT 'from deserializer', \n  `mandal_lgd_code` string COMMENT 'from deserializer', \n  `village_name` string COMMENT 'from deserializer', \n  `village_lgd_code` string COMMENT 'from deserializer', \n  `urban_rural_flag` string COMMENT 'from\
-  \ deserializer', \n  `latitude` decimal(9,6) COMMENT 'from deserializer', \n  `longitude` decimal(9,6) COMMENT 'from deserializer', \n  `school_pincode` string COMMENT 'from deserializer', \n  `functional_status` string COMMENT 'from deserializer', \n  `academic_year_opened` string COMMENT 'from deserializer', \n  `min_class` int COMMENT 'from deserializer', \n  `max_class` int COMMENT 'from deserializer', \n  `pre_primary_flag` string COMMENT 'from deserializer', \n  `vocational_flag` string COMMENT 'from deserializer', \n  `building_status` string COMMENT 'from deserializer', \n  `electricity_availability_flag` string COMMENT 'from deserializer', \n  `drinking_water_availability_flag` string COMMENT 'from deserializer', \n  `toilet_boys_flag` string COMMENT 'from deserializer', \n  `toilet_girls_flag` string COMMENT 'from deserializer', \n  `ict_enabled_flag` string COMMENT 'from deserializer', \n  `playground_flag` string COMMENT 'from deserializer', \n  `head_master_name` string COMMENT\
-  \ 'from deserializer', \n  `head_master_mobile` string COMMENT 'from deserializer', \n  `school_contact_no` string COMMENT 'from deserializer', \n  `school_email_id` string COMMENT 'from deserializer', \n  `noc_required_flag` string COMMENT 'from deserializer', \n  `noc_available_flag` string COMMENT 'from deserializer', \n  `fire_safety_flag` string COMMENT 'from deserializer', \n  `health_safety_flag` string COMMENT 'from deserializer', \n  `effective_start_date` date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from deserializer', \n  `is_current` string COMMENT 'from deserializer', \n  `created_date` timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\
-  \ \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"citizen_school_id_pk\",\"required\":false,\"type\":\"long\"},{\"id\":2,\"name\":\"school_medium_id_fk\",\"required\":false,\"type\":\"long\"},{\"id\":3,\"name\":\"school_teacher_id_fk\",\"required\":false,\"type\":\"long\"},{\"id\":4,\"name\":\"school_category_id_fk\",\"required\":false,\"type\":\"long\"},{\"id\":5,\"name\":\"school_management_id_fk\",\"required\":false,\"type\":\"long\"},{\"id\":6,\"name\":\"school_dept_code\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"school_udise_code\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"school_name\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"school_address\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"name\":\"district_name\",\"required\":false,\"type\":\"string\"},{\"id\"\
-  :11,\"name\":\"district_lgd_code\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\":\"mandal_name\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\":\"mandal_lgd_code\",\"required\":false,\"type\":\"string\"},{\"id\":14,\"name\":\"village_name\",\"required\":false,\"type\":\"string\"},{\"id\":15,\"name\":\"village_lgd_code\",\"required\":false,\"type\":\"string\"},{\"id\":16,\"name\":\"urban_rural_flag\",\"required\":false,\"type\":\"string\"},{\"id\":17,\"name\":\"latitude\",\"required\":false,\"type\":\"decimal(9, 6)\"},{\"id\":18,\"name\":\"longitude\",\"required\":false,\"type\":\"decimal(9, 6)\"},{\"id\":19,\"name\":\"school_pincode\",\"required\":false,\"type\":\"string\"},{\"id\":20,\"name\":\"functional_status\",\"required\":false,\"type\":\"string\"},{\"id\":21,\"name\":\"academic_year_opened\",\"required\":false,\"type\":\"string\"},{\"id\":22,\"name\":\"min_class\",\"required\":false,\"type\":\"int\"},{\"id\":23,\"name\":\"max_class\",\"required\":false,\"\
-  type\":\"int\"},{\"id\":24,\"name\":\"pre_primary_flag\",\"required\":false,\"type\":\"string\"},{\"id\":25,\"name\":\"vocational_flag\",\"required\":false,\"type\":\"string\"},{\"id\":26,\"name\":\"building_status\",\"required\":false,\"type\":\"string\"},{\"id\":27,\"name\":\"electricity_availability_flag\",\"required\":false,\"type\":\"string\"},{\"id\":28,\"name\":\"drinking_water_availability_flag\",\"required\":false,\"type\":\"string\"},{\"id\":29,\"name\":\"toilet_boys_flag\",\"required\":false,\"type\":\"string\"},{\"id\":30,\"name\":\"toilet_girls_flag\",\"required\":false,\"type\":\"string\"},{\"id\":31,\"name\":\"ict_enabled_flag\",\"required\":false,\"type\":\"string\"},{\"id\":32,\"name\":\"playground_flag\",\"required\":false,\"type\":\"string\"},{\"id\":33,\"name\":\"head_master_name\",\"required\":false,\"type\":\"string\"},{\"id\":34,\"name\":\"head_master_mobile\",\"required\":false,\"type\":\"string\"},{\"id\":35,\"name\":\"school_contact_no\",\"required\":false,\"\
-  type\":\"string\"},{\"id\":36,\"name\":\"school_email_id\",\"required\":false,\"type\":\"string\"},{\"id\":37,\"name\":\"noc_required_flag\",\"required\":false,\"type\":\"string\"},{\"id\":38,\"name\":\"noc_available_flag\",\"required\":false,\"type\":\"string\"},{\"id\":39,\"name\":\"fire_safety_flag\",\"required\":false,\"type\":\"string\"},{\"id\":40,\"name\":\"health_safety_flag\",\"required\":false,\"type\":\"string\"},{\"id\":41,\"name\":\"effective_start_date\",\"required\":false,\"type\":\"date\"},{\"id\":42,\"name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"},{\"id\":43,\"name\":\"is_current\",\"required\":false,\"type\":\"string\"},{\"id\":44,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":45,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":46,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":47,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'default-partition-spec'='{\"\
-  spec-id\":0,\"fields\":[{\"name\":\"citizen_school_id_pk_bucket\",\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school/metadata/00000-133a26f4-6450-4595-b73d-c6b22e47c17b.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778484932', \n  'uuid'='78ebf7d3-de50-4287-9c98-3889c92566e0', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_school`(\n  `citizen_school_id_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the citizen school record.',\
+  \ \n  `school_medium_id_fk` BIGINT COMMENT 'Foreign Key: Links to the associated\
+  \ school medium dimension or master table.', \n  `school_teacher_id_fk` BIGINT COMMENT\
+  \ 'Foreign Key: Links to the associated school teacher dimension or master table.',\
+  \ \n  `school_category_id_fk` BIGINT COMMENT 'Foreign Key: Links to the associated\
+  \ school category dimension or master table.', \n  `school_management_id_fk` BIGINT\
+  \ COMMENT 'Foreign Key: Links to the associated school management dimension or master\
+  \ table.', \n  `school_dept_code` STRING COMMENT 'Code/ID column: Standardized system\
+  \ code representing the school dept. Categorical column. Distinct values: 1. Top\
+  \ frequencies: 73686. Categorical column.', \n  `school_udise_code` STRING COMMENT\
+  \ 'Code/ID column: The 11-digit Unified District Information System for Education\
+  \ (UDISE) code uniquely identifying the school. Categorical column. Distinct values:\
+  \ 200. Top frequencies: 1222, 1, 1, 1, 1. Categorical column.', \n  `school_name`\
+  \ STRING COMMENT 'The official name of the educational institution or school.',\
+  \ \n  `school_address` STRING COMMENT 'School address.', \n  `district_name` STRING\
+  \ COMMENT 'The official name of the administrative district in Andhra Pradesh.',\
+  \ \n  `district_lgd_code` STRING COMMENT 'Code/ID column: Standardized system code\
+  \ representing the district lgd. Categorical column. Distinct values: 27. Top frequencies:\
+  \ 4206, 3736, 3665, 3625, 3619. Categorical column.', \n  `mandal_name` STRING COMMENT\
+  \ 'The official name of the Mandal (sub-district administrative division).', \n\
+  \  `mandal_lgd_code` STRING COMMENT 'Code/ID column: Standardized system code representing\
+  \ the mandal lgd. Categorical column. Distinct values: 200. Top frequencies: 16018,\
+  \ 1222, 427, 237, 224. Categorical column.', \n  `village_name` STRING COMMENT 'The\
+  \ official name of the village/habitation where the school or citizen address is\
+  \ located.', \n  `village_lgd_code` STRING COMMENT 'Code/ID column: Standardized\
+  \ system code representing the village lgd. Categorical column. Distinct values:\
+  \ 200. Top frequencies: 22025, 1222, 89, 62, 61. Categorical column.', \n  `urban_rural_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `latitude`\
+  \ DECIMAL(9,6) COMMENT 'The geographical latitude coordinate of the location.',\
+  \ \n  `longitude` DECIMAL(9,6) COMMENT 'The geographical longitude coordinate of\
+  \ the location.', \n  `school_pincode` STRING COMMENT 'School pincode.', \n  `functional_status`\
+  \ STRING COMMENT 'Functional status of the school. Categorical column. Distinct\
+  \ values: Active, Operational, Closed.', \n  `academic_year_opened` STRING COMMENT\
+  \ 'Academic year opened.', \n  `min_class` INT COMMENT 'The minimum class or grade\
+  \ level (e.g. Class 1 or Class 6) for which this category/subject is applicable.',\
+  \ \n  `max_class` INT COMMENT 'The maximum class or grade level (e.g. Class 5 or\
+  \ Class 10) for which this category/subject is applicable.', \n  `pre_primary_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `vocational_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `building_status`\
+  \ STRING COMMENT 'System field indicating the current building status of the record.',\
+  \ \n  `electricity_availability_flag` STRING COMMENT 'Boolean indicator flag (values:\
+  \ ''Y''/''N'').', \n  `drinking_water_availability_flag` STRING COMMENT 'Boolean\
+  \ indicator flag (values: ''Y''/''N'').', \n  `toilet_boys_flag` STRING COMMENT\
+  \ 'Boolean indicator flag (values: ''Y''/''N'').', \n  `toilet_girls_flag` STRING\
+  \ COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `ict_enabled_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `playground_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `head_master_name`\
+  \ STRING COMMENT 'Head master name.', \n  `head_master_mobile` STRING COMMENT 'Head\
+  \ master mobile.', \n  `school_contact_no` STRING COMMENT 'School contact no.',\
+  \ \n  `school_email_id` STRING COMMENT 'School email identifier.', \n  `noc_required_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `noc_available_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `fire_safety_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `health_safety_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `effective_start_date`\
+  \ DATE COMMENT 'The specific date or timestamp when the effective start occurred.',\
+  \ \n  `effective_end_date` DATE COMMENT 'The specific date or timestamp when the\
+  \ effective end occurred.', \n  `is_current` STRING COMMENT 'Boolean indicator flag\
+  \ (values: ''Yes''/''No'').', \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating\
+  \ exactly when this record was originally created in the source system.', \n  `created_by`\
+  \ STRING COMMENT 'The user ID or automated system process responsible for creating\
+  \ this record.', \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the\
+  \ last time this record was modified or updated.', \n  `updated_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for the most recent update\
+  \ to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school'"
 columns:
 - name: citizen_school_id_pk
   type: BIGINT
@@ -33,27 +92,34 @@ columns:
 - name: school_medium_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated school medium dimension or master table.'
+  description: 'Foreign Key: Links to the associated school medium dimension or master
+    table.'
 - name: school_teacher_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated school teacher dimension or master table.'
+  description: 'Foreign Key: Links to the associated school teacher dimension or master
+    table.'
 - name: school_category_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated school category dimension or master table.'
+  description: 'Foreign Key: Links to the associated school category dimension or
+    master table.'
 - name: school_management_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated school management dimension or master table.'
+  description: 'Foreign Key: Links to the associated school management dimension or
+    master table.'
 - name: school_dept_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized system code representing the school dept. Categorical column. Distinct values: 1. Top frequencies: 73686. Categorical column.'
+  description: 'Code/ID column: Standardized system code representing the school dept.
+    Categorical column. Distinct values: 1. Top frequencies: 73686. Categorical column.'
 - name: school_udise_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: The 11-digit Unified District Information System for Education (UDISE) code uniquely identifying the school. Categorical column. Distinct values: 200. Top frequencies: 1222, 1, 1, 1, 1. Categorical column.'
+  description: 'Code/ID column: The 11-digit Unified District Information System for
+    Education (UDISE) code uniquely identifying the school. Categorical column. Distinct
+    values: 200. Top frequencies: 1222, 1, 1, 1, 1. Categorical column.'
 - name: school_name
   type: STRING
   nullable: true
@@ -69,7 +135,9 @@ columns:
 - name: district_lgd_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized system code representing the district lgd. Categorical column. Distinct values: 27. Top frequencies: 4206, 3736, 3665, 3625, 3619. Categorical column.'
+  description: 'Code/ID column: Standardized system code representing the district
+    lgd. Categorical column. Distinct values: 27. Top frequencies: 4206, 3736, 3665,
+    3625, 3619. Categorical column.'
 - name: mandal_name
   type: STRING
   nullable: true
@@ -77,15 +145,20 @@ columns:
 - name: mandal_lgd_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized system code representing the mandal lgd. Categorical column. Distinct values: 200. Top frequencies: 16018, 1222, 427, 237, 224. Categorical column.'
+  description: 'Code/ID column: Standardized system code representing the mandal lgd.
+    Categorical column. Distinct values: 200. Top frequencies: 16018, 1222, 427, 237,
+    224. Categorical column.'
 - name: village_name
   type: STRING
   nullable: true
-  description: The official name of the village/habitation where the school or citizen address is located.
+  description: The official name of the village/habitation where the school or citizen
+    address is located.
 - name: village_lgd_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized system code representing the village lgd. Categorical column. Distinct values: 200. Top frequencies: 22025, 1222, 89, 62, 61. Categorical column.'
+  description: 'Code/ID column: Standardized system code representing the village
+    lgd. Categorical column. Distinct values: 200. Top frequencies: 22025, 1222, 89,
+    62, 61. Categorical column.'
 - name: urban_rural_flag
   type: STRING
   nullable: true
@@ -105,7 +178,8 @@ columns:
 - name: functional_status
   type: STRING
   nullable: true
-  description: 'Functional status of the school. Categorical column. Distinct values: Active, Operational, Closed.'
+  description: 'Functional status of the school. Categorical column. Distinct values:
+    Active, Operational, Closed.'
 - name: academic_year_opened
   type: STRING
   nullable: true
@@ -113,11 +187,13 @@ columns:
 - name: min_class
   type: INT
   nullable: true
-  description: The minimum class or grade level (e.g. Class 1 or Class 6) for which this category/subject is applicable.
+  description: The minimum class or grade level (e.g. Class 1 or Class 6) for which
+    this category/subject is applicable.
 - name: max_class
   type: INT
   nullable: true
-  description: The maximum class or grade level (e.g. Class 5 or Class 10) for which this category/subject is applicable.
+  description: The maximum class or grade level (e.g. Class 5 or Class 10) for which
+    this category/subject is applicable.
 - name: pre_primary_flag
   type: STRING
   nullable: true
@@ -201,11 +277,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created in the source system.
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this record.
+  description: The user ID or automated system process responsible for creating this
+    record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -213,7 +291,8 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent update to this record.
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key:
 - citizen_school_id_pk
 relationships:

@@ -17,9 +17,25 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_bank_accounts`(\n  `citizen_bank_accounts_pk` int COMMENT 'from deserializer', \n  `citizen_master_fk` int COMMENT 'from deserializer', \n  `account_name` string COMMENT 'from deserializer', \n  `account_number` string COMMENT 'from deserializer', \n  `bank_name` string COMMENT 'from deserializer', \n  `bank_type` string COMMENT 'from deserializer', \n  `bank_branch` string COMMENT 'from deserializer', \n  `bank_ifsc_code` string COMMENT 'from deserializer', \n  `created_date` timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_bank_accounts'\n\
-  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"citizen_bank_accounts_pk\",\"required\":false,\"type\":\"int\"},{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"int\"},{\"id\":3,\"name\":\"account_name\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"account_number\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"bank_name\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"bank_type\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"bank_branch\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"bank_ifsc_code\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":10,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":12,\"name\":\"updated_by\",\"required\":false,\"type\"\
-  :\"string\"}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_bank_accounts/metadata/00000-d24046bb-b8e5-48db-aef8-30b28dfc2d44.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778658265', \n  'uuid'='e93d57f8-54b3-44da-bc6b-85809ced3643', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_bank_accounts`(\n  `citizen_bank_accounts_pk`\
+  \ INT COMMENT 'Primary Key: Unique identifier for the citizen bank accounts record.',\
+  \ \n  `citizen_master_fk` INT COMMENT 'Foreign Key: Links to the associated citizen\
+  \ master dimension or master table.', \n  `account_name` STRING COMMENT 'The official\
+  \ name of the bank account holder.', \n  `account_number` STRING COMMENT 'Account\
+  \ number.', \n  `bank_name` STRING COMMENT 'The name of the banking institution\
+  \ (e.g. State Bank of India, Andhra Pragathi Grameena Bank).', \n  `bank_type` STRING\
+  \ COMMENT 'Classification field defining the specific bank type.', \n  `bank_branch`\
+  \ STRING COMMENT 'The specific branch name of the bank where the account is held.',\
+  \ \n  `bank_ifsc_code` STRING COMMENT 'Code/ID column: Standardized system code\
+  \ representing the bank ifsc. Categorical column.', \n  `created_date` TIMESTAMP\
+  \ COMMENT 'Timestamp indicating exactly when this record was originally created\
+  \ in the source system.', \n  `created_by` STRING COMMENT 'The user ID or automated\
+  \ system process responsible for creating this record.', \n  `updated_date` TIMESTAMP\
+  \ COMMENT 'Timestamp indicating the last time this record was modified or updated.',\
+  \ \n  `updated_by` STRING COMMENT 'The user ID or automated system process responsible\
+  \ for the most recent update to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_bank_accounts'"
 columns:
 - name: citizen_bank_accounts_pk
   type: INT
@@ -28,7 +44,8 @@ columns:
 - name: citizen_master_fk
   type: INT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen master dimension or master table.'
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table.'
 - name: account_name
   type: STRING
   nullable: true
@@ -40,7 +57,8 @@ columns:
 - name: bank_name
   type: STRING
   nullable: true
-  description: The name of the banking institution (e.g. State Bank of India, Andhra Pragathi Grameena Bank).
+  description: The name of the banking institution (e.g. State Bank of India, Andhra
+    Pragathi Grameena Bank).
 - name: bank_type
   type: STRING
   nullable: true
@@ -52,15 +70,18 @@ columns:
 - name: bank_ifsc_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized system code representing the bank ifsc. Categorical column.'
+  description: 'Code/ID column: Standardized system code representing the bank ifsc.
+    Categorical column.'
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created in the source system.
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this record.
+  description: The user ID or automated system process responsible for creating this
+    record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -68,7 +89,8 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent update to this record.
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key:
 - citizen_bank_accounts_pk
 relationships: []

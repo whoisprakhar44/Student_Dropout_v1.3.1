@@ -17,15 +17,39 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_welfare_schemes_master`(\n  `citizen_welfare_schemes_master_pk` int COMMENT 'from deserializer', \n  `welfare_schemes_life_cycle_fk` int COMMENT 'from deserializer', \n  `welfare_schemes_life_cycle_id` int COMMENT 'from deserializer', \n  `scheme_name` string COMMENT 'from deserializer', \n  `scheme_code` string COMMENT 'from deserializer', \n  `scheme_description` string COMMENT 'from deserializer', \n  `target_beneficiary_category` string COMMENT 'from deserializer', \n  `scheme_create_date` date COMMENT 'from deserializer', \n  `scheme_start_date` date COMMENT 'from deserializer', \n  `scheme_end_date` date COMMENT 'from deserializer', \n  `is_active` int COMMENT 'from deserializer', \n  `scheme_amount` string COMMENT 'from deserializer', \n  `scheme_dept` string COMMENT 'from deserializer', \n  `created_date` timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n\
-  \  `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes_master'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"citizen_welfare_schemes_master_pk\",\"required\":false,\"type\":\"int\"},{\"id\":2,\"name\":\"welfare_schemes_life_cycle_fk\",\"required\":false,\"type\":\"int\"},{\"id\":3,\"name\":\"welfare_schemes_life_cycle_id\",\"required\":false,\"type\":\"int\"},{\"id\":4,\"name\":\"scheme_name\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"scheme_code\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"scheme_description\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"\
-  target_beneficiary_category\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"scheme_create_date\",\"required\":false,\"type\":\"date\"},{\"id\":9,\"name\":\"scheme_start_date\",\"required\":false,\"type\":\"date\"},{\"id\":10,\"name\":\"scheme_end_date\",\"required\":false,\"type\":\"date\"},{\"id\":11,\"name\":\"is_active\",\"required\":false,\"type\":\"int\"},{\"id\":12,\"name\":\"scheme_amount\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\":\"scheme_dept\",\"required\":false,\"type\":\"string\"},{\"id\":14,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":15,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":16,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":17,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes_master/metadata/00000-8c1073a0-17bf-46e5-9d44-54583d7ffc81.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778658266', \n  'uuid'='afc17353-3136-475f-9e89-076a9df80f4b', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_welfare_schemes_master`(\n\
+  \  `citizen_welfare_schemes_master_pk` INT COMMENT 'Primary Key: Unique identifier\
+  \ for the citizen welfare schemes master record.', \n  `scheme_name` STRING COMMENT\
+  \ 'The official name of the government welfare scheme or benefit program.', \n \
+  \ `category` STRING COMMENT 'Classification field defining the specific category.',\
+  \ \n  `sub_category` STRING COMMENT 'Classification field defining the specific\
+  \ sub category.', \n  `scheme_code` STRING COMMENT 'Code/ID column: Standardized\
+  \ system code representing the scheme. Categorical column. Distinct values: 30.\
+  \ Examples: S22, S30, S4, S14. Top frequencies: 2, 1, 1, 1, 1. Categorical column.',\
+  \ \n  `scheme_create_date` DATE COMMENT 'The specific date or timestamp when the\
+  \ scheme create occurred.', \n  `scheme_start_date` DATE COMMENT 'The specific date\
+  \ or timestamp when the scheme start occurred.', \n  `scheme_end_date` DATE COMMENT\
+  \ 'The specific date or timestamp when the scheme end occurred.', \n  `scheme_active_status`\
+  \ STRING COMMENT 'Categorical column. Distinct values: N, Y.', \n  `scheme_benefits`\
+  \ STRING COMMENT 'Field containing the scheme benefits details for the table.',\
+  \ \n  `scheme_eligibility_condition1` STRING COMMENT 'Field containing the scheme\
+  \ eligibility condition1 details for the table.', \n  `scheme_eligibility_condition2`\
+  \ STRING COMMENT 'Field containing the scheme eligibility condition2 details for\
+  \ the table.', \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating exactly\
+  \ when this record was originally created in the source system.', \n  `created_by`\
+  \ STRING COMMENT 'The user ID or automated system process responsible for creating\
+  \ this record.', \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the\
+  \ last time this record was modified or updated.', \n  `updated_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for the most recent update\
+  \ to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes_master'"
 columns:
 - name: citizen_welfare_schemes_master_pk
   type: INT
   nullable: true
-  description: 'Primary Key: Unique identifier for the citizen welfare schemes master record.'
+  description: 'Primary Key: Unique identifier for the citizen welfare schemes master
+    record.'
 - name: scheme_name
   type: STRING
   nullable: true
@@ -41,7 +65,9 @@ columns:
 - name: scheme_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized system code representing the scheme. Categorical column. Distinct values: 30. Examples: S22, S30, S4, S14. Top frequencies: 2, 1, 1, 1, 1. Categorical column.'
+  description: 'Code/ID column: Standardized system code representing the scheme.
+    Categorical column. Distinct values: 30. Examples: S22, S30, S4, S14. Top frequencies:
+    2, 1, 1, 1, 1. Categorical column.'
 - name: scheme_create_date
   type: DATE
   nullable: true
@@ -65,19 +91,23 @@ columns:
 - name: scheme_eligibility_condition1
   type: STRING
   nullable: true
-  description: Field containing the scheme eligibility condition1 details for the table.
+  description: Field containing the scheme eligibility condition1 details for the
+    table.
 - name: scheme_eligibility_condition2
   type: STRING
   nullable: true
-  description: Field containing the scheme eligibility condition2 details for the table.
+  description: Field containing the scheme eligibility condition2 details for the
+    table.
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created in the source system.
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this record.
+  description: The user ID or automated system process responsible for creating this
+    record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -85,7 +115,8 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent update to this record.
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key:
 - citizen_welfare_schemes_master_pk
 relationships: []

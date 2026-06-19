@@ -17,15 +17,69 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`scheme_benefits_fact`(\n  `scheme_benefits_fact_id_pk` bigint COMMENT 'from deserializer', \n  `citizen_school_id_fk` bigint COMMENT 'from deserializer', \n  `school_scheme_master_id_fk` bigint COMMENT 'from deserializer', \n  `academic_year` string COMMENT 'from deserializer', \n  `benefit_type_id_fk` bigint COMMENT 'from deserializer', \n  `beneficiary_type_id_fk` bigint COMMENT 'from deserializer', \n  `citizen_student_id_fk` bigint COMMENT 'from deserializer', \n  `school_teacher_id_fk` bigint COMMENT 'from deserializer', \n  `scheme_application_id` string COMMENT 'from deserializer', \n  `social_category` string COMMENT 'from deserializer', \n  `eligible_flag` string COMMENT 'from deserializer', \n  `attendance_eligible_flag` string COMMENT 'from deserializer', \n  `benefit_delivered_flag` string COMMENT 'from deserializer', \n  `delivery_mode` string COMMENT 'from deserializer', \n  `sanction_order_number` string COMMENT 'from deserializer',\
-  \ \n  `eligible_beneficiary_flag` string COMMENT 'from deserializer', \n  `benefit_sanctioned_flag` string COMMENT 'from deserializer', \n  `benefit_disbursed_flag` string COMMENT 'from deserializer', \n  `scheme_benefits_factcol` string COMMENT 'from deserializer', \n  `benefit_rejected_flag` string COMMENT 'from deserializer', \n  `benefit_withheld_flag` string COMMENT 'from deserializer', \n  `benefit_amount_sanctioned` decimal(12,2) COMMENT 'from deserializer', \n  `benefit_amount_disbursed` decimal(12,2) COMMENT 'from deserializer', \n  `benefit_amount_pending` decimal(12,2) COMMENT 'from deserializer', \n  `central_share_amount` decimal(12,2) COMMENT 'from deserializer', \n  `state_share_amount` decimal(12,2) COMMENT 'from deserializer', \n  `benefit_quantity` decimal(10,2) COMMENT 'from deserializer', \n  `benefit_event_count` int COMMENT 'from deserializer', \n  `benefit_amount` decimal(12,2) COMMENT 'from deserializer', \n  `beneficiary_count` int COMMENT 'from deserializer',\
-  \ \n  `application_date` date COMMENT 'from deserializer', \n  `sanction_date` date COMMENT 'from deserializer', \n  `disbursement_date` date COMMENT 'from deserializer', \n  `expected_disbursement_date` date COMMENT 'from deserializer', \n  `delay_days` int COMMENT 'from deserializer', \n  `rejection_reason_code` string COMMENT 'from deserializer', \n  `payment_failure_reason_code` string COMMENT 'from deserializer', \n  `aadhaar_seeded_flag` string COMMENT 'from deserializer', \n  `bank_account_verified_flag` string COMMENT 'from deserializer', \n  `kyc_completed_flag` string COMMENT 'from deserializer', \n  `girl_child_flag` string COMMENT 'from deserializer', \n  `sc_st_minority_flag` string COMMENT 'from deserializer', \n  `cwsn_flag` string COMMENT 'from deserializer', \n  `bgm_eligible_flag` string COMMENT 'from deserializer', \n  `below_poverty_line_flag` string COMMENT 'from deserializer', \n  `scheme_uptake_rate` decimal(5,2) COMMENT 'from deserializer', \n  `created_date` timestamp\
-  \ with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/scheme_benefits_fact'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"scheme_benefits_fact_id_pk\",\"required\":false,\"type\":\"long\"},{\"id\":2,\"name\":\"citizen_school_id_fk\",\"required\":false,\"type\":\"long\"},{\"id\":3,\"name\":\"school_scheme_master_id_fk\",\"required\":false,\"type\":\"long\"},{\"id\":4,\"name\":\"academic_year\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"benefit_type_id_fk\",\"required\":false,\"type\":\"long\"},{\"id\":6,\"name\":\"beneficiary_type_id_fk\"\
-  ,\"required\":false,\"type\":\"long\"},{\"id\":7,\"name\":\"citizen_student_id_fk\",\"required\":false,\"type\":\"long\"},{\"id\":8,\"name\":\"school_teacher_id_fk\",\"required\":false,\"type\":\"long\"},{\"id\":9,\"name\":\"scheme_application_id\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"name\":\"social_category\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"eligible_flag\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\":\"attendance_eligible_flag\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\":\"benefit_delivered_flag\",\"required\":false,\"type\":\"string\"},{\"id\":14,\"name\":\"delivery_mode\",\"required\":false,\"type\":\"string\"},{\"id\":15,\"name\":\"sanction_order_number\",\"required\":false,\"type\":\"string\"},{\"id\":16,\"name\":\"eligible_beneficiary_flag\",\"required\":false,\"type\":\"string\"},{\"id\":17,\"name\":\"benefit_sanctioned_flag\",\"required\":false,\"type\":\"string\"},{\"id\":18,\"name\":\"benefit_disbursed_flag\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":19,\"name\":\"scheme_benefits_factcol\",\"required\":false,\"type\":\"string\"},{\"id\":20,\"name\":\"benefit_rejected_flag\",\"required\":false,\"type\":\"string\"},{\"id\":21,\"name\":\"benefit_withheld_flag\",\"required\":false,\"type\":\"string\"},{\"id\":22,\"name\":\"benefit_amount_sanctioned\",\"required\":false,\"type\":\"decimal(12, 2)\"},{\"id\":23,\"name\":\"benefit_amount_disbursed\",\"required\":false,\"type\":\"decimal(12, 2)\"},{\"id\":24,\"name\":\"benefit_amount_pending\",\"required\":false,\"type\":\"decimal(12, 2)\"},{\"id\":25,\"name\":\"central_share_amount\",\"required\":false,\"type\":\"decimal(12, 2)\"},{\"id\":26,\"name\":\"state_share_amount\",\"required\":false,\"type\":\"decimal(12, 2)\"},{\"id\":27,\"name\":\"benefit_quantity\",\"required\":false,\"type\":\"decimal(10, 2)\"},{\"id\":28,\"name\":\"benefit_event_count\",\"required\":false,\"type\":\"int\"},{\"id\":29,\"name\":\"benefit_amount\",\"required\":false,\"\
-  type\":\"decimal(12, 2)\"},{\"id\":30,\"name\":\"beneficiary_count\",\"required\":false,\"type\":\"int\"},{\"id\":31,\"name\":\"application_date\",\"required\":false,\"type\":\"date\"},{\"id\":32,\"name\":\"sanction_date\",\"required\":false,\"type\":\"date\"},{\"id\":33,\"name\":\"disbursement_date\",\"required\":false,\"type\":\"date\"},{\"id\":34,\"name\":\"expected_disbursement_date\",\"required\":false,\"type\":\"date\"},{\"id\":35,\"name\":\"delay_days\",\"required\":false,\"type\":\"int\"},{\"id\":36,\"name\":\"rejection_reason_code\",\"required\":false,\"type\":\"string\"},{\"id\":37,\"name\":\"payment_failure_reason_code\",\"required\":false,\"type\":\"string\"},{\"id\":38,\"name\":\"aadhaar_seeded_flag\",\"required\":false,\"type\":\"string\"},{\"id\":39,\"name\":\"bank_account_verified_flag\",\"required\":false,\"type\":\"string\"},{\"id\":40,\"name\":\"kyc_completed_flag\",\"required\":false,\"type\":\"string\"},{\"id\":41,\"name\":\"girl_child_flag\",\"required\":false,\"\
-  type\":\"string\"},{\"id\":42,\"name\":\"sc_st_minority_flag\",\"required\":false,\"type\":\"string\"},{\"id\":43,\"name\":\"cwsn_flag\",\"required\":false,\"type\":\"string\"},{\"id\":44,\"name\":\"bgm_eligible_flag\",\"required\":false,\"type\":\"string\"},{\"id\":45,\"name\":\"below_poverty_line_flag\",\"required\":false,\"type\":\"string\"},{\"id\":46,\"name\":\"scheme_uptake_rate\",\"required\":false,\"type\":\"decimal(5, 2)\"},{\"id\":47,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":48,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":49,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":50,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"scheme_benefits_fact_id_pk_bucket\",\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/scheme_benefits_fact/metadata/00000-775f7944-6196-4832-8b1b-116f8dc0337a.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1777972239', \n  'uuid'='c6b1f839-f030-497e-b238-de5ae7749fbc', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`scheme_benefits_fact`(\n  `scheme_benefits_fact_id_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the scheme benefits fact record.',\
+  \ \n  `citizen_school_id_fk` BIGINT COMMENT 'Foreign Key: Links to the associated\
+  \ citizen school dimension or master table.', \n  `school_scheme_master_id_fk` BIGINT\
+  \ COMMENT 'Foreign Key: Links to the associated school scheme master dimension or\
+  \ master table.', \n  `academic_year` STRING COMMENT 'The academic calendar year\
+  \ for the record (e.g., ''2024-25'').', \n  `benefit_type_id_fk` BIGINT COMMENT\
+  \ 'Foreign Key: Links to the associated benefit type dimension or master table.',\
+  \ \n  `beneficiary_type_id_fk` BIGINT COMMENT 'Foreign Key: Links to the associated\
+  \ beneficiary type dimension or master table.', \n  `citizen_student_id_fk` BIGINT\
+  \ COMMENT 'Foreign Key: Links to the associated citizen student dimension or master\
+  \ table.', \n  `school_teacher_id_fk` BIGINT COMMENT 'Foreign Key: Links to the\
+  \ associated school teacher dimension or master table.', \n  `scheme_application_id`\
+  \ STRING COMMENT 'Scheme application identifier.', \n  `social_category` STRING\
+  \ COMMENT 'Social category classification. Categorical column. Distinct values:\
+  \ General, OBC, SC, ST, BC, Minority.', \n  `eligible_flag` STRING COMMENT 'Boolean\
+  \ indicator flag (values: ''Y''/''N'').', \n  `attendance_eligible_flag` STRING\
+  \ COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `benefit_delivered_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `delivery_mode`\
+  \ STRING COMMENT 'Classification field defining the specific delivery mode.', \n\
+  \  `sanction_order_number` STRING COMMENT 'Sanction order number.', \n  `eligible_beneficiary_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `benefit_sanctioned_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `benefit_disbursed_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `scheme_benefits_factcol`\
+  \ STRING COMMENT 'Scheme benefits factcol.', \n  `benefit_rejected_flag` STRING\
+  \ COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `benefit_withheld_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `benefit_amount_sanctioned`\
+  \ DECIMAL(12,2) COMMENT 'Benefit amount sanctioned.', \n  `benefit_amount_disbursed`\
+  \ DECIMAL(12,2) COMMENT 'Benefit amount disbursed.', \n  `benefit_amount_pending`\
+  \ DECIMAL(12,2) COMMENT 'Benefit amount pending.', \n  `central_share_amount` DECIMAL(12,2)\
+  \ COMMENT 'Central share amount.', \n  `state_share_amount` DECIMAL(12,2) COMMENT\
+  \ 'State share amount.', \n  `benefit_quantity` DECIMAL(10,2) COMMENT 'Benefit quantity.',\
+  \ \n  `benefit_event_count` INT COMMENT 'Benefit event count.', \n  `benefit_amount`\
+  \ DECIMAL(12,2) COMMENT 'Benefit amount.', \n  `beneficiary_count` INT COMMENT 'Beneficiary\
+  \ count.', \n  `application_date` DATE COMMENT 'The specific date or timestamp when\
+  \ the application occurred.', \n  `sanction_date` DATE COMMENT 'The specific date\
+  \ or timestamp when the sanction occurred.', \n  `disbursement_date` DATE COMMENT\
+  \ 'The specific date or timestamp when the disbursement occurred.', \n  `expected_disbursement_date`\
+  \ DATE COMMENT 'The specific date or timestamp when the expected disbursement occurred.',\
+  \ \n  `delay_days` INT COMMENT 'The number of days the project or benefit delivery\
+  \ has been delayed relative to schedule.', \n  `rejection_reason_code` STRING COMMENT\
+  \ 'Code/ID column: Standardized reason code explaining why a scheme application\
+  \ was rejected. Categorical column.', \n  `payment_failure_reason_code` STRING COMMENT\
+  \ 'Code/ID column: Standardized reason code explaining why a financial disbursement\
+  \ failed. Categorical column.', \n  `aadhaar_seeded_flag` STRING COMMENT 'Boolean\
+  \ indicator flag (values: ''Y''/''N'').', \n  `bank_account_verified_flag` STRING\
+  \ COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `kyc_completed_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `girl_child_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `sc_st_minority_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `cwsn_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `bgm_eligible_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `below_poverty_line_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `scheme_uptake_rate`\
+  \ DECIMAL(5,2) COMMENT 'Field containing the scheme uptake rate details for the\
+  \ table.', \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating exactly when\
+  \ this record was originally created in the source system.', \n  `created_by` STRING\
+  \ COMMENT 'The user ID or automated system process responsible for creating this\
+  \ record.', \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the last\
+  \ time this record was modified or updated.', \n  `updated_by` STRING COMMENT 'The\
+  \ user ID or automated system process responsible for the most recent update to\
+  \ this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/scheme_benefits_fact'"
 columns:
 - name: scheme_benefits_fact_id_pk
   type: BIGINT
@@ -34,11 +88,13 @@ columns:
 - name: citizen_school_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen school dimension or master table.'
+  description: 'Foreign Key: Links to the associated citizen school dimension or master
+    table.'
 - name: school_scheme_master_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated school scheme master dimension or master table.'
+  description: 'Foreign Key: Links to the associated school scheme master dimension
+    or master table.'
 - name: academic_year
   type: STRING
   nullable: true
@@ -46,19 +102,23 @@ columns:
 - name: benefit_type_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated benefit type dimension or master table.'
+  description: 'Foreign Key: Links to the associated benefit type dimension or master
+    table.'
 - name: beneficiary_type_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated beneficiary type dimension or master table.'
+  description: 'Foreign Key: Links to the associated beneficiary type dimension or
+    master table.'
 - name: citizen_student_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen student dimension or master table.'
+  description: 'Foreign Key: Links to the associated citizen student dimension or
+    master table.'
 - name: school_teacher_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated school teacher dimension or master table.'
+  description: 'Foreign Key: Links to the associated school teacher dimension or master
+    table.'
 - name: scheme_application_id
   type: STRING
   nullable: true
@@ -66,7 +126,8 @@ columns:
 - name: social_category
   type: STRING
   nullable: true
-  description: 'Social category classification. Categorical column. Distinct values: General, OBC, SC, ST, BC, Minority.'
+  description: 'Social category classification. Categorical column. Distinct values:
+    General, OBC, SC, ST, BC, Minority.'
 - name: eligible_flag
   type: STRING
   nullable: true
@@ -166,15 +227,18 @@ columns:
 - name: delay_days
   type: INT
   nullable: true
-  description: The number of days the project or benefit delivery has been delayed relative to schedule.
+  description: The number of days the project or benefit delivery has been delayed
+    relative to schedule.
 - name: rejection_reason_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized reason code explaining why a scheme application was rejected. Categorical column.'
+  description: 'Code/ID column: Standardized reason code explaining why a scheme application
+    was rejected. Categorical column.'
 - name: payment_failure_reason_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized reason code explaining why a financial disbursement failed. Categorical column.'
+  description: 'Code/ID column: Standardized reason code explaining why a financial
+    disbursement failed. Categorical column.'
 - name: aadhaar_seeded_flag
   type: STRING
   nullable: true
@@ -214,11 +278,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created in the source system.
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this record.
+  description: The user ID or automated system process responsible for creating this
+    record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -226,14 +292,17 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent update to this record.
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key:
 - scheme_benefits_fact_id_pk
 relationships:
 - scheme_benefits_fact.citizen_school_id_fk is a foreign-key-style reference to citizen_school_id.
-- scheme_benefits_fact.school_scheme_master_id_fk is a foreign-key-style reference to school_scheme_master_id.
+- scheme_benefits_fact.school_scheme_master_id_fk is a foreign-key-style reference
+  to school_scheme_master_id.
 - scheme_benefits_fact.benefit_type_id_fk is a foreign-key-style reference to benefit_type_id.
-- scheme_benefits_fact.beneficiary_type_id_fk is a foreign-key-style reference to beneficiary_type_id.
+- scheme_benefits_fact.beneficiary_type_id_fk is a foreign-key-style reference to
+  beneficiary_type_id.
 - scheme_benefits_fact.citizen_student_id_fk is a foreign-key-style reference to citizen_student_id.
 - scheme_benefits_fact.school_teacher_id_fk is a foreign-key-style reference to school_teacher_id.
 business_terms:

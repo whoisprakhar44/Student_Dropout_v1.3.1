@@ -17,9 +17,22 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`welfare_schemes_life_cycle`(\n  `welfare_schemes_life_cycle_id` int COMMENT 'from deserializer', \n  `academic_year` string COMMENT 'from deserializer', \n  `term` string COMMENT 'from deserializer', \n  `disbursement_window` string COMMENT 'from deserializer', \n  `effective_start_date` date COMMENT 'from deserializer', \n  `effective_end_date` date COMMENT 'from deserializer', \n  `created_date` timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/welfare_schemes_life_cycle'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\"\
-  ,\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"welfare_schemes_life_cycle_id\",\"required\":false,\"type\":\"int\"},{\"id\":2,\"name\":\"academic_year\",\"required\":false,\"type\":\"string\"},{\"id\":3,\"name\":\"term\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"disbursement_window\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"effective_start_date\",\"required\":false,\"type\":\"date\"},{\"id\":6,\"name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"},{\"id\":7,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":8,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"id\":10,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/welfare_schemes_life_cycle/metadata/00000-4567d210-d422-46b1-9c3d-4c6bec95761b.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323394', \n  'uuid'='07d8d758-ebc3-43c9-9c8b-9eee712aaf1c', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`welfare_schemes_life_cycle`(\n\
+  \  `welfare_schemes_life_cycle_id` INT COMMENT 'Welfare schemes life cycle id.',\
+  \ \n  `academic_year` STRING COMMENT 'The academic calendar year for the record\
+  \ (e.g., ''2024-25'').', \n  `term` STRING COMMENT 'Field containing the term details\
+  \ for the table.', \n  `disbursement_window` STRING COMMENT 'Disbursement window.',\
+  \ \n  `effective_start_date` DATE COMMENT 'The specific date or timestamp when the\
+  \ effective start occurred.', \n  `effective_end_date` DATE COMMENT 'The specific\
+  \ date or timestamp when the effective end occurred.', \n  `created_date` TIMESTAMP\
+  \ COMMENT 'Timestamp indicating exactly when this record was originally created\
+  \ in the source system.', \n  `created_by` STRING COMMENT 'The user ID or automated\
+  \ system process responsible for creating this record.', \n  `updated_date` TIMESTAMP\
+  \ COMMENT 'Timestamp indicating the last time this record was modified or updated.',\
+  \ \n  `updated_by` STRING COMMENT 'The user ID or automated system process responsible\
+  \ for the most recent update to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/welfare_schemes_life_cycle'"
 columns:
 - name: welfare_schemes_life_cycle_id
   type: INT
@@ -48,11 +61,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created in the source system.
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this record.
+  description: The user ID or automated system process responsible for creating this
+    record.
 - name: updated_date
   type: TIMESTAMP
   nullable: true
@@ -60,7 +75,8 @@ columns:
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent update to this record.
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key: []
 relationships: []
 business_terms:

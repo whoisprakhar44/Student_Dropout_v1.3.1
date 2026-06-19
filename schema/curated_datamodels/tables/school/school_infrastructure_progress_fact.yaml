@@ -17,19 +17,63 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_infrastructure_progress_fact`(\n  `school_infrastructure_progress_fact_id_pk` bigint COMMENT 'from deserializer', \n  `citizen_school_id_pk` bigint COMMENT 'from deserializer', \n  `reporting_date_key_fk` bigint COMMENT 'from deserializer', \n  `infrastructure_component_id_fk` bigint COMMENT 'from deserializer', \n  `infrastructure_category_id_fk` bigint COMMENT 'from deserializer', \n  `reporting_period_id_fk` bigint COMMENT 'from deserializer', \n  `academic_year` string COMMENT 'from deserializer', \n  `scheme_id_fk` bigint COMMENT 'from deserializer', \n  `work_order_no` string COMMENT 'from deserializer', \n  `estimate_id` string COMMENT 'from deserializer', \n  `total_units` int COMMENT 'from deserializer', \n  `functional_units` int COMMENT 'from deserializer', \n  `non_functional_units` int COMMENT 'from deserializer', \n  `under_construction_units` int COMMENT 'from deserializer', \n  `planned_unit_count` int COMMENT 'from\
-  \ deserializer', \n  `completed_unit_count` int COMMENT 'from deserializer', \n  `in_progress_unit_count` int COMMENT 'from deserializer', \n  `pending_unit_count` int COMMENT 'from deserializer', \n  `physical_progress_percentage` decimal(5,2) COMMENT 'from deserializer', \n  `financial_progress_percentage` decimal(5,2) COMMENT 'from deserializer', \n  `estimated_cost_amount` decimal(12,2) COMMENT 'from deserializer', \n  `sanctioned_amount` decimal(12,2) COMMENT 'from deserializer', \n  `released_amount` decimal(12,2) COMMENT 'from deserializer', \n  `utilized_amount` decimal(12,2) COMMENT 'from deserializer', \n  `balance_amount` decimal(12,2) COMMENT 'from deserializer', \n  `work_status` string COMMENT 'from deserializer', \n  `start_date` date COMMENT 'from deserializer', \n  `expected_completion_date` date COMMENT 'from deserializer', \n  `actual_completion_date` date COMMENT 'from deserializer', \n  `delay_days` int COMMENT 'from deserializer', \n  `delay_reason_code` string COMMENT\
-  \ 'from deserializer', \n  `school_infrastructure_progress_factcol2` string COMMENT 'from deserializer', \n  `is_structurally_certified_flag` string COMMENT 'from deserializer', \n  `is_safety_compliant_flag` string COMMENT 'from deserializer', \n  `is_functional_flag` string COMMENT 'from deserializer', \n  `maintenance_required_flag` string COMMENT 'from deserializer', \n  `geo_tagged_flag` string COMMENT 'from deserializer', \n  `geo_latitude` decimal(9,6) COMMENT 'from deserializer', \n  `geo_longitude` decimal(9,6) COMMENT 'from deserializer', \n  `last_inspection_date` date COMMENT 'from deserializer', \n  `inspection_score` decimal(5,2) COMMENT 'from deserializer', \n  `inspection_remarks_code` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_infrastructure_progress_fact'\n\
-  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"school_infrastructure_progress_fact_id_pk\",\"required\":false,\"type\":\"long\"},{\"id\":2,\"name\":\"citizen_school_id_pk\",\"required\":false,\"type\":\"long\"},{\"id\":3,\"name\":\"reporting_date_key_fk\",\"required\":false,\"type\":\"long\"},{\"id\":4,\"name\":\"infrastructure_component_id_fk\",\"required\":false,\"type\":\"long\"},{\"id\":5,\"name\":\"infrastructure_category_id_fk\",\"required\":false,\"type\":\"long\"},{\"id\":6,\"name\":\"reporting_period_id_fk\",\"required\":false,\"type\":\"long\"},{\"id\":7,\"name\":\"academic_year\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"scheme_id_fk\",\"required\":false,\"type\":\"long\"},{\"id\":9,\"name\":\"work_order_no\",\"required\":false,\"type\":\"string\"},{\"id\":10,\"name\":\"estimate_id\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"total_units\",\"required\":false,\"type\":\"int\"},{\"\
-  id\":12,\"name\":\"functional_units\",\"required\":false,\"type\":\"int\"},{\"id\":13,\"name\":\"non_functional_units\",\"required\":false,\"type\":\"int\"},{\"id\":14,\"name\":\"under_construction_units\",\"required\":false,\"type\":\"int\"},{\"id\":15,\"name\":\"planned_unit_count\",\"required\":false,\"type\":\"int\"},{\"id\":16,\"name\":\"completed_unit_count\",\"required\":false,\"type\":\"int\"},{\"id\":17,\"name\":\"in_progress_unit_count\",\"required\":false,\"type\":\"int\"},{\"id\":18,\"name\":\"pending_unit_count\",\"required\":false,\"type\":\"int\"},{\"id\":19,\"name\":\"physical_progress_percentage\",\"required\":false,\"type\":\"decimal(5, 2)\"},{\"id\":20,\"name\":\"financial_progress_percentage\",\"required\":false,\"type\":\"decimal(5, 2)\"},{\"id\":21,\"name\":\"estimated_cost_amount\",\"required\":false,\"type\":\"decimal(12, 2)\"},{\"id\":22,\"name\":\"sanctioned_amount\",\"required\":false,\"type\":\"decimal(12, 2)\"},{\"id\":23,\"name\":\"released_amount\",\"required\"\
-  :false,\"type\":\"decimal(12, 2)\"},{\"id\":24,\"name\":\"utilized_amount\",\"required\":false,\"type\":\"decimal(12, 2)\"},{\"id\":25,\"name\":\"balance_amount\",\"required\":false,\"type\":\"decimal(12, 2)\"},{\"id\":26,\"name\":\"work_status\",\"required\":false,\"type\":\"string\"},{\"id\":27,\"name\":\"start_date\",\"required\":false,\"type\":\"date\"},{\"id\":28,\"name\":\"expected_completion_date\",\"required\":false,\"type\":\"date\"},{\"id\":29,\"name\":\"actual_completion_date\",\"required\":false,\"type\":\"date\"},{\"id\":30,\"name\":\"delay_days\",\"required\":false,\"type\":\"int\"},{\"id\":31,\"name\":\"delay_reason_code\",\"required\":false,\"type\":\"string\"},{\"id\":32,\"name\":\"school_infrastructure_progress_factcol2\",\"required\":false,\"type\":\"string\"},{\"id\":33,\"name\":\"is_structurally_certified_flag\",\"required\":false,\"type\":\"string\"},{\"id\":34,\"name\":\"is_safety_compliant_flag\",\"required\":false,\"type\":\"string\"},{\"id\":35,\"name\":\"is_functional_flag\"\
-  ,\"required\":false,\"type\":\"string\"},{\"id\":36,\"name\":\"maintenance_required_flag\",\"required\":false,\"type\":\"string\"},{\"id\":37,\"name\":\"geo_tagged_flag\",\"required\":false,\"type\":\"string\"},{\"id\":38,\"name\":\"geo_latitude\",\"required\":false,\"type\":\"decimal(9, 6)\"},{\"id\":39,\"name\":\"geo_longitude\",\"required\":false,\"type\":\"decimal(9, 6)\"},{\"id\":40,\"name\":\"last_inspection_date\",\"required\":false,\"type\":\"date\"},{\"id\":41,\"name\":\"inspection_score\",\"required\":false,\"type\":\"decimal(5, 2)\"},{\"id\":42,\"name\":\"inspection_remarks_code\",\"required\":false,\"type\":\"string\"}]}', \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"school_infrastructure_progress_fact_id_pk_bucket\",\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_infrastructure_progress_fact/metadata/00000-e6615b76-de05-414f-863d-3eca9569b44f.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1777972242', \n  'uuid'='524bae19-8602-4526-b25e-b0b3a580a1b1', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_infrastructure_progress_fact`(\n\
+  \  `school_infrastructure_progress_fact_id_pk` BIGINT COMMENT 'Primary Key: Unique\
+  \ identifier for the school infrastructure progress fact record.', \n  `citizen_school_id_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the citizen school record.',\
+  \ \n  `reporting_date_key_fk` BIGINT COMMENT 'Foreign Key: Links to the associated\
+  \ reporting date key dimension or master table.', \n  `infrastructure_component_id_fk`\
+  \ BIGINT COMMENT 'Foreign Key: Links to the associated infrastructure component\
+  \ dimension or master table.', \n  `infrastructure_category_id_fk` BIGINT COMMENT\
+  \ 'Foreign Key: Links to the associated infrastructure category dimension or master\
+  \ table.', \n  `reporting_period_id_fk` BIGINT COMMENT 'Foreign Key: Links to the\
+  \ associated reporting period dimension or master table.', \n  `academic_year` STRING\
+  \ COMMENT 'The academic calendar year for the record (e.g., ''2024-25'').', \n \
+  \ `scheme_id_fk` BIGINT COMMENT 'Foreign Key: Links to the associated scheme dimension\
+  \ or master table.', \n  `work_order_no` STRING COMMENT 'The unique work order number\
+  \ assigned to the school infrastructure project.', \n  `estimate_id` STRING COMMENT\
+  \ 'Estimate identifier.', \n  `total_units` INT COMMENT 'The total number of units\
+  \ or facilities planned/constructed in the infrastructure project.', \n  `functional_units`\
+  \ INT COMMENT 'Functional units.', \n  `non_functional_units` INT COMMENT 'Non functional\
+  \ units.', \n  `under_construction_units` INT COMMENT 'Under construction units.',\
+  \ \n  `planned_unit_count` INT COMMENT 'Planned unit count.', \n  `completed_unit_count`\
+  \ INT COMMENT 'Completed unit count.', \n  `in_progress_unit_count` INT COMMENT\
+  \ 'In progress unit count.', \n  `pending_unit_count` INT COMMENT 'Pending unit\
+  \ count.', \n  `physical_progress_percentage` DECIMAL(5,2) COMMENT 'Physical progress\
+  \ percentage.', \n  `financial_progress_percentage` DECIMAL(5,2) COMMENT 'Financial\
+  \ progress percentage.', \n  `estimated_cost_amount` DECIMAL(12,2) COMMENT 'Estimated\
+  \ cost amount.', \n  `sanctioned_amount` DECIMAL(12,2) COMMENT 'Sanctioned amount.',\
+  \ \n  `released_amount` DECIMAL(12,2) COMMENT 'Released amount.', \n  `utilized_amount`\
+  \ DECIMAL(12,2) COMMENT 'Utilized amount.', \n  `balance_amount` DECIMAL(12,2) COMMENT\
+  \ 'Balance amount.', \n  `work_status` STRING COMMENT 'System field indicating the\
+  \ current work status of the record.', \n  `start_date` DATE COMMENT 'The specific\
+  \ date or timestamp when the start occurred.', \n  `expected_completion_date` DATE\
+  \ COMMENT 'The specific date or timestamp when the expected completion occurred.',\
+  \ \n  `actual_completion_date` DATE COMMENT 'The specific date or timestamp when\
+  \ the actual completion occurred.', \n  `delay_days` INT COMMENT 'The number of\
+  \ days the project or benefit delivery has been delayed relative to schedule.',\
+  \ \n  `delay_reason_code` STRING COMMENT 'Code/ID column: Standardized system code\
+  \ representing the delay reason. Categorical column.', \n  `school_infrastructure_progress_factcol2`\
+  \ STRING COMMENT 'School infrastructure progress factcol2.', \n  `is_structurally_certified_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `is_safety_compliant_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `is_functional_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `maintenance_required_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `geo_tagged_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `geo_latitude`\
+  \ DECIMAL(9,6) COMMENT 'Geographic latitude.', \n  `geo_longitude` DECIMAL(9,6)\
+  \ COMMENT 'Geographic longitude.', \n  `last_inspection_date` DATE COMMENT 'The\
+  \ specific date or timestamp when the last inspection occurred.', \n  `inspection_score`\
+  \ DECIMAL(5,2) COMMENT 'Inspection score.', \n  `inspection_remarks_code` STRING\
+  \ COMMENT 'Code/ID column: Standardized system code representing the inspection\
+  \ remarks. Categorical column.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_infrastructure_progress_fact'"
 columns:
 - name: school_infrastructure_progress_fact_id_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for the school infrastructure progress fact record.'
+  description: 'Primary Key: Unique identifier for the school infrastructure progress
+    fact record.'
 - name: citizen_school_id_pk
   type: BIGINT
   nullable: true
@@ -37,19 +81,23 @@ columns:
 - name: reporting_date_key_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated reporting date key dimension or master table.'
+  description: 'Foreign Key: Links to the associated reporting date key dimension
+    or master table.'
 - name: infrastructure_component_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated infrastructure component dimension or master table.'
+  description: 'Foreign Key: Links to the associated infrastructure component dimension
+    or master table.'
 - name: infrastructure_category_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated infrastructure category dimension or master table.'
+  description: 'Foreign Key: Links to the associated infrastructure category dimension
+    or master table.'
 - name: reporting_period_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated reporting period dimension or master table.'
+  description: 'Foreign Key: Links to the associated reporting period dimension or
+    master table.'
 - name: academic_year
   type: STRING
   nullable: true
@@ -61,7 +109,8 @@ columns:
 - name: work_order_no
   type: STRING
   nullable: true
-  description: The unique work order number assigned to the school infrastructure project.
+  description: The unique work order number assigned to the school infrastructure
+    project.
 - name: estimate_id
   type: STRING
   nullable: true
@@ -69,7 +118,8 @@ columns:
 - name: total_units
   type: INT
   nullable: true
-  description: The total number of units or facilities planned/constructed in the infrastructure project.
+  description: The total number of units or facilities planned/constructed in the
+    infrastructure project.
 - name: functional_units
   type: INT
   nullable: true
@@ -145,11 +195,13 @@ columns:
 - name: delay_days
   type: INT
   nullable: true
-  description: The number of days the project or benefit delivery has been delayed relative to schedule.
+  description: The number of days the project or benefit delivery has been delayed
+    relative to schedule.
 - name: delay_reason_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized system code representing the delay reason. Categorical column.'
+  description: 'Code/ID column: Standardized system code representing the delay reason.
+    Categorical column.'
 - name: school_infrastructure_progress_factcol2
   type: STRING
   nullable: true
@@ -193,16 +245,22 @@ columns:
 - name: inspection_remarks_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized system code representing the inspection remarks. Categorical column.'
+  description: 'Code/ID column: Standardized system code representing the inspection
+    remarks. Categorical column.'
 primary_key:
 - school_infrastructure_progress_fact_id_pk
 - citizen_school_id_pk
 relationships:
-- school_infrastructure_progress_fact.reporting_date_key_fk is a foreign-key-style reference to reporting_date_key.
-- school_infrastructure_progress_fact.infrastructure_component_id_fk is a foreign-key-style reference to infrastructure_component_id.
-- school_infrastructure_progress_fact.infrastructure_category_id_fk is a foreign-key-style reference to infrastructure_category_id.
-- school_infrastructure_progress_fact.reporting_period_id_fk is a foreign-key-style reference to reporting_period_id.
-- school_infrastructure_progress_fact.scheme_id_fk is a foreign-key-style reference to scheme_id.
+- school_infrastructure_progress_fact.reporting_date_key_fk is a foreign-key-style
+  reference to reporting_date_key.
+- school_infrastructure_progress_fact.infrastructure_component_id_fk is a foreign-key-style
+  reference to infrastructure_component_id.
+- school_infrastructure_progress_fact.infrastructure_category_id_fk is a foreign-key-style
+  reference to infrastructure_category_id.
+- school_infrastructure_progress_fact.reporting_period_id_fk is a foreign-key-style
+  reference to reporting_period_id.
+- school_infrastructure_progress_fact.scheme_id_fk is a foreign-key-style reference
+  to scheme_id.
 business_terms:
 - fact table
 - event and metric analysis

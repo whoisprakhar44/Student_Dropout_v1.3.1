@@ -19,9 +19,15 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_medium`(\n  `school_medium_pk` bigint COMMENT 'from deserializer', \n  `medium_code` string COMMENT 'from deserializer', \n  `medium_name` string COMMENT 'from deserializer', \n  `language_family` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_medium'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"school_medium_pk\",\"required\":false,\"type\":\"long\"},{\"id\":2,\"name\":\"medium_code\",\"required\":false,\"type\":\"string\"},{\"id\":3,\"name\":\"medium_name\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"language_family\",\"required\":false,\"type\":\"string\"}]}', \n  'current-snapshot-id'='6749712600941293892', \n  'current-snapshot-summary'='{\"\
-  spark.app.id\":\"application_1775893506593_2953\",\"added-data-files\":\"7\",\"added-records\":\"7\",\"added-files-size\":\"9013\",\"changed-partition-count\":\"7\",\"total-records\":\"7\",\"total-files-size\":\"9013\",\"total-data-files\":\"7\",\"total-delete-files\":\"0\",\"total-position-deletes\":\"0\",\"total-equality-deletes\":\"0\"}', \n  'current-snapshot-timestamp-ms'='1778315019132', \n  'default-partition-spec'='{\"spec-id\":0,\"fields\":[{\"name\":\"school_medium_pk_bucket\",\"transform\":\"bucket[32]\",\"source-id\":1,\"field-id\":1000}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_medium/metadata/00001-6e038ed8-560a-4a54-beae-fc47aae72ebc.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_medium/metadata/00000-205d3dc0-7e9c-430e-9976-028d0546af69.metadata.json',\
-  \ \n  'snapshot-count'='1', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1777885984', \n  'uuid'='dea041f2-5028-4dd3-ae0e-d52b4aa18828', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read', \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_medium`(\n  `school_medium_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the school medium record.',\
+  \ \n  `medium_code` STRING COMMENT 'Code/ID column: Standardized system code representing\
+  \ the medium. Categorical column. Distinct values: 7. Examples: 17, 31, 19, 18,\
+  \ 16. Top frequencies: 1, 1, 1, 1, 1. Categorical column.', \n  `medium_name` STRING\
+  \ COMMENT 'System field containing values such as: State Govt.EM(SSC), Urdu, English,\
+  \ Tamil, Telugu.', \n  `language_family` STRING COMMENT 'Language family.')\nROW\
+  \ FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_medium'"
 columns:
 - name: school_medium_pk
   type: BIGINT
@@ -30,11 +36,14 @@ columns:
 - name: medium_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized system code representing the medium. Categorical column. Distinct values: 7. Examples: 17, 31, 19, 18, 16. Top frequencies: 1, 1, 1, 1, 1. Categorical column.'
+  description: 'Code/ID column: Standardized system code representing the medium.
+    Categorical column. Distinct values: 7. Examples: 17, 31, 19, 18, 16. Top frequencies:
+    1, 1, 1, 1, 1. Categorical column.'
 - name: medium_name
   type: STRING
   nullable: true
-  description: 'System field containing values such as: State Govt.EM(SSC), Urdu, English, Tamil, Telugu.'
+  description: 'System field containing values such as: State Govt.EM(SSC), Urdu,
+    English, Tamil, Telugu.'
 - name: language_family
   type: STRING
   nullable: true

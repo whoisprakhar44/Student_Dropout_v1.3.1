@@ -17,10 +17,30 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_education`(\n  `citizen_education_id_pk` int COMMENT 'from deserializer', \n  `citizen_master_fk` int COMMENT 'from deserializer', \n  `qualification_name` string COMMENT 'from deserializer', \n  `qualification_level` string COMMENT 'from deserializer', \n  `course_name` string COMMENT 'from deserializer', \n  `institution_code` string COMMENT 'from deserializer', \n  `scholarship_scheme` string COMMENT 'from deserializer', \n  `department_id` string COMMENT 'from deserializer', \n  `current_qualification_flag` string COMMENT 'from deserializer', \n  `mode_of_study` string COMMENT 'from deserializer', \n  `medium_of_instruction` string COMMENT 'from deserializer', \n  `created_at` string COMMENT 'from deserializer', \n  `created_by` string COMMENT 'from deserializer', \n  `updated_at` string COMMENT 'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
-  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler' \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_education'\nTBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\":[{\"id\":1,\"name\":\"citizen_education_id_pk\",\"required\":false,\"type\":\"int\"},{\"id\":2,\"name\":\"citizen_master_fk\",\"required\":false,\"type\":\"int\"},{\"id\":3,\"name\":\"qualification_name\",\"required\":false,\"type\":\"string\"},{\"id\":4,\"name\":\"qualification_level\",\"required\":false,\"type\":\"string\"},{\"id\":5,\"name\":\"course_name\",\"required\":false,\"type\":\"string\"},{\"id\":6,\"name\":\"institution_code\",\"required\":false,\"type\":\"string\"},{\"id\":7,\"name\":\"scholarship_scheme\",\"required\":false,\"type\":\"string\"},{\"id\":8,\"name\":\"department_id\",\"required\":false,\"type\":\"string\"},{\"id\":9,\"name\":\"current_qualification_flag\",\"required\":false,\"type\":\"string\"},{\"id\"\
-  :10,\"name\":\"mode_of_study\",\"required\":false,\"type\":\"string\"},{\"id\":11,\"name\":\"medium_of_instruction\",\"required\":false,\"type\":\"string\"},{\"id\":12,\"name\":\"created_at\",\"required\":false,\"type\":\"string\"},{\"id\":13,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"id\":14,\"name\":\"updated_at\",\"required\":false,\"type\":\"string\"},{\"id\":15,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n  'engine.hive.enabled'='true', \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_education/metadata/00000-9759873a-af8e-4cbc-94aa-99ec399b2573.metadata.json', \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'snapshot-count'='0', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1776323393', \n  'uuid'='aef68fc7-04c0-474e-9f55-f75d5e986966', \n  'write.delete.mode'='merge-on-read', \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read',\
-  \ \n  'write.update.mode'='merge-on-read')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_education`(\n  `citizen_education_id_pk`\
+  \ INT COMMENT 'Primary Key: Unique identifier for the citizen education record.',\
+  \ \n  `citizen_master_fk` INT COMMENT 'Foreign Key: Links to the associated citizen\
+  \ master dimension or master table.', \n  `qualification_name` STRING COMMENT 'Qualification\
+  \ name.', \n  `qualification_level` STRING COMMENT 'Field containing the qualification\
+  \ level details for the table.', \n  `course_name` STRING COMMENT 'Field containing\
+  \ the course name details for the table.', \n  `institution_code` STRING COMMENT\
+  \ 'Code/ID column: Standardized system code representing the institution. Categorical\
+  \ column. Distinct values: 200. Top frequencies: 44998158, 13420, 10154, 8601, 8196.\
+  \ Categorical column.', \n  `scholarship_scheme` STRING COMMENT 'Field containing\
+  \ the scholarship scheme details for the table.', \n  `department_id` STRING COMMENT\
+  \ 'Identifier key referencing the associated department.', \n  `current_qualification_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `mode_of_study`\
+  \ STRING COMMENT 'Classification field defining the specific mode of study.', \n\
+  \  `medium_of_instruction` STRING COMMENT 'Field containing the medium of instruction\
+  \ details for the table.', \n  `created_at` STRING COMMENT 'Timestamp indicating\
+  \ exactly when this record was originally created in the database system.', \n \
+  \ `created_by` STRING COMMENT 'The user ID or automated system process responsible\
+  \ for creating this record.', \n  `updated_at` STRING COMMENT 'Timestamp indicating\
+  \ the last time this record was modified or updated in the database system.', \n\
+  \  `updated_by` STRING COMMENT 'The user ID or automated system process responsible\
+  \ for the most recent update to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_education'"
 columns:
 - name: citizen_education_id_pk
   type: INT
@@ -29,7 +49,8 @@ columns:
 - name: citizen_master_fk
   type: INT
   nullable: true
-  description: 'Foreign Key: Links to the associated citizen master dimension or master table.'
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table.'
 - name: qualification_name
   type: STRING
   nullable: true
@@ -45,7 +66,9 @@ columns:
 - name: institution_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: Standardized system code representing the institution. Categorical column. Distinct values: 200. Top frequencies: 44998158, 13420, 10154, 8601, 8196. Categorical column.'
+  description: 'Code/ID column: Standardized system code representing the institution.
+    Categorical column. Distinct values: 200. Top frequencies: 44998158, 13420, 10154,
+    8601, 8196. Categorical column.'
 - name: scholarship_scheme
   type: STRING
   nullable: true
@@ -69,19 +92,23 @@ columns:
 - name: created_at
   type: STRING
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created in the database system.
+  description: Timestamp indicating exactly when this record was originally created
+    in the database system.
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this record.
+  description: The user ID or automated system process responsible for creating this
+    record.
 - name: updated_at
   type: STRING
   nullable: true
-  description: Timestamp indicating the last time this record was modified or updated in the database system.
+  description: Timestamp indicating the last time this record was modified or updated
+    in the database system.
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent update to this record.
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key:
 - citizen_education_id_pk
 relationships: []

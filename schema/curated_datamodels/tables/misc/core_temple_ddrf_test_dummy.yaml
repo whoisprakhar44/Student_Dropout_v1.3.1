@@ -3,96 +3,95 @@ table: core_temple_ddrf_test_dummy
 department: misc
 description: Curated Hive table for core temple ddrf test dummy.
 table_format: HIVE_PARQUET
-location: 
-  hdfs://datalakedev/warehouse/tablespace/managed/hive/curated_datamodels.db/core_temple_ddrf_test_dummy
+location: hdfs://datalakedev/warehouse/tablespace/managed/hive/curated_datamodels.db/core_temple_ddrf_test_dummy
 partitioned_by: ''
 tblproperties: {}
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
-raw_ddl: "CREATE TABLE `curated_datamodels`.`core_temple_ddrf_test_dummy`(\n  `district_id`
-  int, \n  `mandal_id` int, \n  `village_id` int, \n  `district_name` string, \n \
-  \ `mandal_name` string, \n  `village_name` string, \n  `temple_id` int, \n  `temple_nm`
-  string, \n  `archaka_name` string, \n  `mobile_no` string, \n  `aadhaar_number`
-  string, \n  `amount` double, \n  `inserted_date` string, \n  `op` string, \n  `ts_ms`
-  string, \n  `deleted_flag` boolean)\nROW FORMAT SERDE \n  'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'\
-  \ \nSTORED AS INPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat'\
-  \ \nOUTPUTFORMAT \n  'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'\n\
-  LOCATION\n  'hdfs://datalakedev/warehouse/tablespace/managed/hive/curated_datamodels.db/core_temple_ddrf_test_dummy'\n\
-  TBLPROPERTIES (\n  'OBJCAPABILITIES'='HIVEMANAGEDINSERTREAD,HIVEMANAGEDINSERTWRITE',\
-  \ \n  'transactional'='true', \n  'transactional_properties'='insert_only', \n \
-  \ 'transient_lastDdlTime'='1775733078')"
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`core_temple_ddrf_test_dummy`(\n\
+  \  `district_id` INT COMMENT 'District id.', \n  `mandal_id` INT COMMENT 'Mandal\
+  \ id.', \n  `village_id` INT COMMENT 'Village id.', \n  `district_name` STRING COMMENT\
+  \ 'The official name of the administrative district in Andhra Pradesh.', \n  `mandal_name`\
+  \ STRING COMMENT 'The official name of the Mandal (sub-district administrative division).',\
+  \ \n  `village_name` STRING COMMENT 'Village name.', \n  `temple_id` INT COMMENT\
+  \ 'Temple id.', \n  `temple_nm` STRING COMMENT 'Temple nm.', \n  `archaka_name`\
+  \ STRING COMMENT 'Archaka name.', \n  `mobile_no` STRING COMMENT 'Mobile no.', \n\
+  \  `aadhaar_number` STRING COMMENT 'Aadhaar number.', \n  `amount` DOUBLE COMMENT\
+  \ 'Numeric measurement or financial value representing the amount.', \n  `inserted_date`\
+  \ STRING COMMENT 'The specific date or timestamp when the inserted occurred.', \n\
+  \  `op` STRING COMMENT 'Op.', \n  `ts_ms` STRING COMMENT 'Ts ms.', \n  `deleted_flag`\
+  \ BOOLEAN COMMENT 'Boolean indicator flag (values: ''Y''/''N'').')\n\nLOCATION\n\
+  \  'hdfs://datalakedev/warehouse/tablespace/managed/hive/curated_datamodels.db/core_temple_ddrf_test_dummy'"
 columns:
-  - name: district_id
-    type: INT
-    nullable: true
-    description: District id.
-  - name: mandal_id
-    type: INT
-    nullable: true
-    description: Mandal id.
-  - name: village_id
-    type: INT
-    nullable: true
-    description: Village id.
-  - name: district_name
-    type: STRING
-    nullable: true
-    description: The official name of the administrative district in Andhra 
-      Pradesh.
-  - name: mandal_name
-    type: STRING
-    nullable: true
-    description: The official name of the Mandal (sub-district administrative 
-      division).
-  - name: village_name
-    type: STRING
-    nullable: true
-    description: Village name.
-  - name: temple_id
-    type: INT
-    nullable: true
-    description: Temple id.
-  - name: temple_nm
-    type: STRING
-    nullable: true
-    description: Temple nm.
-  - name: archaka_name
-    type: STRING
-    nullable: true
-    description: Archaka name.
-  - name: mobile_no
-    type: STRING
-    nullable: true
-    description: Mobile no.
-  - name: aadhaar_number
-    type: STRING
-    nullable: true
-    description: Aadhaar number.
-  - name: amount
-    type: DOUBLE
-    nullable: true
-    description: Numeric measurement or financial value representing the amount.
-  - name: inserted_date
-    type: STRING
-    nullable: true
-    description: The specific date or timestamp when the inserted occurred.
-  - name: op
-    type: STRING
-    nullable: true
-    description: Op.
-  - name: ts_ms
-    type: STRING
-    nullable: true
-    description: Ts ms.
-  - name: deleted_flag
-    type: BOOLEAN
-    nullable: true
-    description: "Boolean indicator flag (values: 'Y'/'N')."
+- name: district_id
+  type: INT
+  nullable: true
+  description: District id.
+- name: mandal_id
+  type: INT
+  nullable: true
+  description: Mandal id.
+- name: village_id
+  type: INT
+  nullable: true
+  description: Village id.
+- name: district_name
+  type: STRING
+  nullable: true
+  description: The official name of the administrative district in Andhra Pradesh.
+- name: mandal_name
+  type: STRING
+  nullable: true
+  description: The official name of the Mandal (sub-district administrative division).
+- name: village_name
+  type: STRING
+  nullable: true
+  description: Village name.
+- name: temple_id
+  type: INT
+  nullable: true
+  description: Temple id.
+- name: temple_nm
+  type: STRING
+  nullable: true
+  description: Temple nm.
+- name: archaka_name
+  type: STRING
+  nullable: true
+  description: Archaka name.
+- name: mobile_no
+  type: STRING
+  nullable: true
+  description: Mobile no.
+- name: aadhaar_number
+  type: STRING
+  nullable: true
+  description: Aadhaar number.
+- name: amount
+  type: DOUBLE
+  nullable: true
+  description: Numeric measurement or financial value representing the amount.
+- name: inserted_date
+  type: STRING
+  nullable: true
+  description: The specific date or timestamp when the inserted occurred.
+- name: op
+  type: STRING
+  nullable: true
+  description: Op.
+- name: ts_ms
+  type: STRING
+  nullable: true
+  description: Ts ms.
+- name: deleted_flag
+  type: BOOLEAN
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
 primary_key: []
 relationships: []
 business_terms:
-  - curated datamodels
-  - misc
-  - Hive
-  - HIVE_PARQUET
+- curated datamodels
+- misc
+- Hive
+- HIVE_PARQUET
 common_operations:
-  - profile records in core_temple_ddrf_test_dummy
+- profile records in core_temple_ddrf_test_dummy

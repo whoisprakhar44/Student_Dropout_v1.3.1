@@ -3,16 +3,14 @@ table: citizen_asset_vaahan_type
 department: canonicalmodel
 description: Curated Hive/Iceberg table for citizen asset vaahan type.
 table_format: ICEBERG
-location: 
-  hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_vaahan_type
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_vaahan_type
 partitioned_by: ''
 tblproperties:
   current-snapshot-id: '8434127813050782042'
   current-snapshot-timestamp-ms: '1777012344395'
   engine.hive.enabled: 'true'
   external: 'true'
-  metadata_location: 
-    hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_vaahan_type/metadata/00001-6a3584d3-4e8c-4a16-9180-001d483ecb9c.metadata.json
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_vaahan_type/metadata/00001-6a3584d3-4e8c-4a16-9180-001d483ecb9c.metadata.json
   parquet.compression: SNAPPY
   snapshot-count: '1'
   table_type: ICEBERG
@@ -22,105 +20,83 @@ tblproperties:
   write.update.mode: merge-on-read
 source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
 raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_asset_vaahan_type`(\n\
-  \  `citizen_asset_vaahan_type_pk` int COMMENT 'from deserializer', \n  `class_type`
-  string COMMENT 'from deserializer', \n  `class_description` string COMMENT 'from
-  deserializer', \n  `transport_category` string COMMENT 'from deserializer', \n \
-  \ `convertible_classes` string COMMENT 'from deserializer', \n  `min_insurance_validity`
-  string COMMENT 'from deserializer', \n  `effective_start_date` date COMMENT 'from
-  deserializer', \n  `effective_end_date` date COMMENT 'from deserializer', \n  `created_date`
-  timestamp with local time zone COMMENT 'from deserializer', \n  `created_by` string
-  COMMENT 'from deserializer', \n  `updated_date` timestamp with local time zone COMMENT
-  'from deserializer', \n  `updated_by` string COMMENT 'from deserializer')\nROW FORMAT
-  SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\
-  \ \n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_vaahan_type'\n\
-  TBLPROPERTIES (\n  'current-schema'='{\"type\":\"struct\",\"schema-id\":0,\"fields\"\
-  :[{\"id\":1,\"name\":\"citizen_asset_vaahan_type_pk\",\"required\":false,\"type\"\
-  :\"int\"},{\"id\":2,\"name\":\"class_type\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":3,\"name\":\"class_description\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":4,\"name\":\"transport_category\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":5,\"name\":\"convertible_classes\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":6,\"name\":\"min_insurance_validity\",\"required\":false,\"type\":\"string\"\
-  },{\"id\":7,\"name\":\"effective_start_date\",\"required\":false,\"type\":\"date\"\
-  },{\"id\":8,\"name\":\"effective_end_date\",\"required\":false,\"type\":\"date\"\
-  },{\"id\":9,\"name\":\"created_date\",\"required\":false,\"type\":\"timestamptz\"\
-  },{\"id\":10,\"name\":\"created_by\",\"required\":false,\"type\":\"string\"},{\"\
-  id\":11,\"name\":\"updated_date\",\"required\":false,\"type\":\"timestamptz\"},{\"\
-  id\":12,\"name\":\"updated_by\",\"required\":false,\"type\":\"string\"}]}', \n \
-  \ 'current-snapshot-id'='8434127813050782042', \n  'current-snapshot-summary'='{\"\
-  spark.app.id\":\"application_1775893506593_1504\",\"added-data-files\":\"1\",\"\
-  added-records\":\"76\",\"added-files-size\":\"5389\",\"changed-partition-count\"\
-  :\"1\",\"total-records\":\"76\",\"total-files-size\":\"5389\",\"total-data-files\"\
-  :\"1\",\"total-delete-files\":\"0\",\"total-position-deletes\":\"0\",\"total-equality-deletes\"\
-  :\"0\"}', \n  'current-snapshot-timestamp-ms'='1777012344395', \n  'engine.hive.enabled'='true',\
-  \ \n  'external'='true', \n  'metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_vaahan_type/metadata/00001-6a3584d3-4e8c-4a16-9180-001d483ecb9c.metadata.json',\
-  \ \n  'owner'='srikanthu', \n  'parquet.compression'='SNAPPY', \n  'previous_metadata_location'='hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_vaahan_type/metadata/00000-56974ddc-fa72-4f06-a8ba-751250cc1636.metadata.json',\
-  \ \n  'snapshot-count'='1', \n  'table_type'='ICEBERG', \n  'transient_lastDdlTime'='1778658264',\
-  \ \n  'uuid'='8e306f64-1432-4718-9273-cde370f03b31', \n  'write.delete.mode'='merge-on-read',\
-  \ \n  'write.format.default'='parquet', \n  'write.merge.mode'='merge-on-read',\
-  \ \n  'write.update.mode'='merge-on-read')"
+  \  `citizen_asset_vaahan_type_pk` INT COMMENT 'Primary Key: Unique identifier for\
+  \ the citizen asset vaahan type record.', \n  `class_type` STRING COMMENT 'Categorical\
+  \ column. Distinct values: 1.', \n  `class_description` STRING COMMENT 'Class description.',\
+  \ \n  `transport_category` STRING COMMENT 'Categorical column. Distinct values:\
+  \ G, P, S.', \n  `convertible_classes` STRING COMMENT 'Convertible classes.', \n\
+  \  `min_insurance_validity` STRING COMMENT 'Min insurance validity.', \n  `effective_start_date`\
+  \ DATE COMMENT 'The specific date or timestamp when the effective start occurred.',\
+  \ \n  `effective_end_date` DATE COMMENT 'The specific date or timestamp when the\
+  \ effective end occurred.', \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating\
+  \ exactly when this record was originally created in the source system.', \n  `created_by`\
+  \ STRING COMMENT 'The user ID or automated system process responsible for creating\
+  \ this record.', \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the\
+  \ last time this record was modified or updated.', \n  `updated_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for the most recent update\
+  \ to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_vaahan_type'"
 columns:
-  - name: citizen_asset_vaahan_type_pk
-    type: INT
-    nullable: true
-    description: 'Primary Key: Unique identifier for the citizen asset vaahan type
-      record.'
-  - name: class_type
-    type: STRING
-    nullable: true
-    description: 'Categorical column. Distinct values: 1.'
-  - name: class_description
-    type: STRING
-    nullable: true
-    description: Class description.
-  - name: transport_category
-    type: STRING
-    nullable: true
-    description: 'Categorical column. Distinct values: G, P, S.'
-  - name: convertible_classes
-    type: STRING
-    nullable: true
-    description: Convertible classes.
-  - name: min_insurance_validity
-    type: STRING
-    nullable: true
-    description: Min insurance validity.
-  - name: effective_start_date
-    type: DATE
-    nullable: true
-    description: The specific date or timestamp when the effective start 
-      occurred.
-  - name: effective_end_date
-    type: DATE
-    nullable: true
-    description: The specific date or timestamp when the effective end occurred.
-  - name: created_date
-    type: TIMESTAMP
-    nullable: true
-    description: Timestamp indicating exactly when this record was originally 
-      created in the source system.
-  - name: created_by
-    type: STRING
-    nullable: true
-    description: The user ID or automated system process responsible for 
-      creating this record.
-  - name: updated_date
-    type: TIMESTAMP
-    nullable: true
-    description: Timestamp indicating the last time this record was modified or 
-      updated.
-  - name: updated_by
-    type: STRING
-    nullable: true
-    description: The user ID or automated system process responsible for the 
-      most recent update to this record.
+- name: citizen_asset_vaahan_type_pk
+  type: INT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the citizen asset vaahan type record.'
+- name: class_type
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: 1.'
+- name: class_description
+  type: STRING
+  nullable: true
+  description: Class description.
+- name: transport_category
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: G, P, S.'
+- name: convertible_classes
+  type: STRING
+  nullable: true
+  description: Convertible classes.
+- name: min_insurance_validity
+  type: STRING
+  nullable: true
+  description: Min insurance validity.
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective start occurred.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective end occurred.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for creating this
+    record.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
 primary_key:
-  - citizen_asset_vaahan_type_pk
+- citizen_asset_vaahan_type_pk
 relationships: []
 business_terms:
-  - curated datamodels
-  - canonicalmodel
-  - Hive
-  - Iceberg
-  - ICEBERG
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
 common_operations:
-  - profile records in citizen_asset_vaahan_type
+- profile records in citizen_asset_vaahan_type
