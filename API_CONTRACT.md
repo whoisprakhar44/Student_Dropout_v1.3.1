@@ -48,10 +48,10 @@ All interactions (executing NL-to-SQL queries, canceling queries, listing histor
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | `username` | `string` | **Required.** Scopes all operations. |
-| `action` | `string` | **Optional.** One of: `"ask"` (default), `"cancel"`, `"history"`, `"delete_session"`, `"clear_history"`. |
+| `action` | `string` | **Optional.** One of: `"ask"` (default), `"cancel"`, `"history"`, `"history_session"`, `"delete_session"`, `"clear_history"`. |
 | `question` | `string` | **Required only for `"ask"` action.** The natural-language database question. |
 | `request_id` | `string` | **Optional.** Custom identifier to track/cancel a running request. |
-| `session_id` | `string` | **Optional.** Chat session ID for conversation memory (used in `"ask"` and `"delete_session"`). |
+| `session_id` | `string` | **Optional.** Chat session ID for conversation memory (used in `"ask"`, `"history_session"`, and `"delete_session"`). |
 | `thread_id` | `string` | **Optional.** Alias for `session_id`. |
 
 ---
@@ -134,7 +134,7 @@ Response (if not found or completed):
 
 ### 3. Action: `"history"`
 
-Retrieves all session histories (including message logs) scoped to the provided username.
+Retrieves all session summaries (titles and creation/update times only) scoped to the provided username.
 
 Request:
 ```json
@@ -151,31 +151,56 @@ Response:
     "id": "session_abc",
     "title": "How many students are in the database?",
     "created_at": "2026-06-13T03:40:00.123456",
-    "updated_at": "2026-06-13T03:41:30.987654",
-    "messages": [
-      {
-        "id": "msg_001",
-        "role": "user",
-        "content": "How many students are in the database?",
-        "sql": null,
-        "result": null,
-        "created_at": "2026-06-13T03:40:00.123456"
-      },
-      {
-        "id": "msg_002",
-        "role": "assistant",
-        "content": "There are **1,000** total students in the database.",
-        "sql": "SELECT COUNT(*) AS total_students FROM citizen_student",
-        "result": [
-          {
-            "total_students": 1000
-          }
-        ],
-        "created_at": "2026-06-13T03:40:05.654321"
-      }
-    ]
+    "updated_at": "2026-06-13T03:41:30.987654"
   }
 ]
+```
+
+---
+
+### 3b. Action: `"history_session"`
+
+Retrieves the full message context and history details for a specific session ID scoped to a username.
+
+Request:
+```json
+{
+  "action": "history_session",
+  "username": "test_user",
+  "session_id": "session_abc"
+}
+```
+
+Response:
+```json
+{
+  "id": "session_abc",
+  "title": "How many students are in the database?",
+  "created_at": "2026-06-13T03:40:00.123456",
+  "updated_at": "2026-06-13T03:41:30.987654",
+  "messages": [
+    {
+      "id": "msg_001",
+      "role": "user",
+      "content": "How many students are in the database?",
+      "sql": null,
+      "result": null,
+      "created_at": "2026-06-13T03:40:00.123456"
+    },
+    {
+      "id": "msg_002",
+      "role": "assistant",
+      "content": "There are **1,000** total students in the database.",
+      "sql": "SELECT COUNT(*) AS total_students FROM citizen_student",
+      "result": [
+        {
+          "total_students": 1000
+        }
+      ],
+      "created_at": "2026-06-13T03:40:05.654321"
+    }
+  ]
+}
 ```
 
 ---
