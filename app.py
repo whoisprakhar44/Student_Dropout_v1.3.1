@@ -41,7 +41,7 @@ active_tasks: dict[str, asyncio.Task] = {}
 
 
 class AskRequest(BaseModel):
-    action: str | None = Field(default=None, description="Action to perform: 'ask', 'cancel', 'history', 'delete_session', 'clear_history'")
+    action: str | None = Field(default=None, description="Action to perform: 'ask', 'cancel', 'history', 'history_session', 'delete_session', 'clear_history'")
     question: str | None = Field(default=None, description="Natural-language question.")
     request_id: str | None = Field(
         None,
@@ -420,54 +420,83 @@ async def ask(payload: AskRequest):
             "message": f"Request {req_id} is not active or has already completed.",
         }
 
-    # 2. Action: History (list all sessions)
+    # 2. Action: History (list all sessions — returns titles and dates only)
     elif action == "history":
         conn = sqlite3.connect(HISTORY_DB_PATH)
         conn.row_factory = sqlite3.Row
         try:
             cursor = conn.cursor()
-            cursor.execute("SELECT id, title, created_at, updated_at FROM sessions WHERE username = ? ORDER BY updated_at DESC", (username,))
+            cursor.execute(
+                "SELECT id, title, created_at, updated_at FROM sessions WHERE username = ? ORDER BY updated_at DESC",
+                (username,)
+            )
             session_rows = cursor.fetchall()
-            
-            sessions = []
-            for s_row in session_rows:
-                session_id = s_row["id"]
-                cursor.execute(
-                    "SELECT id, role, content, sql, result, created_at FROM messages WHERE session_id = ? ORDER BY created_at ASC",
-                    (session_id,)
+            sessions = [
+                SessionSummary(
+                    id=row["id"],
+                    title=row["title"],
+                    created_at=row["created_at"],
+                    updated_at=row["updated_at"],
                 )
-                msg_rows = cursor.fetchall()
-                messages = []
-                for r in msg_rows:
-                    sql_val = r["sql"]
-                    res_val = None
-                    if r["result"]:
-                        try:
-                            res_val = json.loads(r["result"])
-                        except Exception:
-                            res_val = []
-                    messages.append(
-                        MessageDetail(
-                            id=r["id"],
-                            role=r["role"],
-                            content=r["content"],
-                            sql=sql_val,
-                            result=res_val,
-                            created_at=r["created_at"]
-                        )
-                    )
-                sessions.append(
-                    SessionDetail(
-                        id=s_row["id"],
-                        title=s_row["title"],
-                        created_at=s_row["created_at"],
-                        updated_at=s_row["updated_at"],
-                        messages=messages
-                    )
-                )
+                for row in session_rows
+            ]
             return sessions
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to fetch chat history: {e}")
+        finally:
+            conn.close()
+
+    # 2b. Action: History Session (fetch full message context for a given session_id)
+    elif action == "history_session":
+        session_id = payload.session_id or payload.thread_id
+        if not session_id:
+            raise HTTPException(status_code=400, detail="session_id is required for history_session action")
+        conn = sqlite3.connect(HISTORY_DB_PATH)
+        conn.row_factory = sqlite3.Row
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT id, title, username, created_at, updated_at FROM sessions WHERE id = ? AND username = ?",
+                (session_id, username)
+            )
+            s_row = cursor.fetchone()
+            if not s_row:
+                raise HTTPException(status_code=404, detail="Session not found")
+
+            cursor.execute(
+                "SELECT id, role, content, sql, result, created_at FROM messages WHERE session_id = ? ORDER BY created_at ASC",
+                (session_id,)
+            )
+            msg_rows = cursor.fetchall()
+            messages = []
+            for r in msg_rows:
+                res_val = None
+                if r["result"]:
+                    try:
+                        res_val = json.loads(r["result"])
+                    except Exception:
+                        res_val = []
+                messages.append(
+                    MessageDetail(
+                        id=r["id"],
+                        role=r["role"],
+                        content=r["content"],
+                        sql=r["sql"],
+                        result=res_val,
+                        created_at=r["created_at"],
+                    )
+                )
+            return SessionDetail(
+                id=s_row["id"],
+                title=s_row["title"],
+                created_at=s_row["created_at"],
+                updated_at=s_row["updated_at"],
+                messages=messages,
+            )
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to fetch session context: {e}")
         finally:
             conn.close()
 
