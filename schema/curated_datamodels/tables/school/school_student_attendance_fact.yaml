@@ -1,7 +1,14 @@
 database: curated_datamodels
 table: school_student_attendance_fact
 department: school
-description: Fact table for school student attendance measures and events.
+description: 'Fact table for school student attendance measures and events. [Sample
+  records: {''academic_year'': ''2025'', ''attendance_month'': ''6'', ''present_flag'':
+  ''Y'', ''absent_flag'': ''N'', ''attendance_reason_code'': ''0'', ''mdm_eligible_flag'':
+  ''N''}, {''academic_year'': ''2025'', ''attendance_month'': ''6'', ''present_flag'':
+  ''Y'', ''absent_flag'': ''N'', ''attendance_reason_code'': ''0'', ''mdm_eligible_flag'':
+  ''N''}, {''academic_year'': ''2025'', ''attendance_month'': ''6'', ''present_flag'':
+  ''Y'', ''absent_flag'': ''N'', ''attendance_reason_code'': ''0'', ''mdm_eligible_flag'':
+  ''N''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_student_attendance_fact
 partitioned_by: 'school_student_attendance_fact_id_pk_bucket: bucket[32]'
@@ -68,52 +75,53 @@ columns:
   type: BIGINT
   nullable: true
   description: 'Primary Key: Unique identifier for the school student attendance fact
-    record.'
+    record. [Value Examples: ''1693'', ''35289880'', ''1694'', ''35289881'', ''1695'']'
 - name: citizen_student_id_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen student dimension or
-    master table.'
+    master table. [Value Examples: ''3156'', ''4937021'']'
 - name: school_medium_id_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated school medium dimension or master
-    table.'
+    table. [Value Examples: ''5'']'
 - name: student_class_dim_id_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated student class dim dimension or
-    master table.'
+    master table. [Value Examples: ''9'', ''7'']'
 - name: student_school_id_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated student school dimension or master
-    table.'
+    table. [Value Examples: ''1471'', ''62508'']'
 - name: academic_year
   type: STRING
   nullable: true
-  description: The academic calendar year for the record. The database stores academic
-    years as single years (e.g. '2025', '2024'). If the user query refers to a range
-    like '2025-26', '2025-2026', or '2024-25', map it to the single starting year
-    (e.g. use '2025' or '2024') in your SQL. Do NOT write ranges like '2025-26' in
-    the SQL.
+  description: 'The academic calendar year for the record. The database stores academic
+    years as single years (e.g. ''2025'', ''2024''). If the user query refers to a
+    range like ''2025-26'', ''2025-2026'', or ''2024-25'', map it to the single starting
+    year (e.g. use ''2025'' or ''2024'') in your SQL. Do NOT write ranges like ''2025-26''
+    in the SQL. [Value Examples: ''2025'']'
 - name: attendance_date_id_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated attendance date dimension or
-    master table.'
+    master table. [Value Examples: ''20250623'', ''20250620'', ''20250624'', ''20250621'',
+    ''20250625'']'
 - name: attendance_month
   type: INT
   nullable: true
-  description: The calendar month of the attendance record.
+  description: 'The calendar month of the attendance record. [Value Examples: ''6'']'
 - name: present_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''Y'']'
 - name: absent_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''N'']'
 - name: half_day_flag
   type: STRING
   nullable: true
@@ -133,7 +141,7 @@ columns:
   nullable: true
   description: 'Code/ID column: The reason code explaining why an absence occurred.
     Categorical column. Distinct values: 5. Examples: 0. Top frequencies: 68291933,
-    12639606, 613303, 246417, 24627. Categorical column.'
+    12639606, 613303, 246417, 24627. Categorical column. [Value Examples: ''0'']'
 - name: marked_by_role
   type: STRING
   nullable: true
@@ -145,7 +153,7 @@ columns:
 - name: mdm_eligible_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''N'']'
 - name: meals_consumed_flag
   type: STRING
   nullable: true
@@ -178,7 +186,7 @@ columns:
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated absence reason dim dimension
-    or master table.'
+    or master table. [Value Examples: ''1'']'
 - name: image_available_flag
   type: STRING
   nullable: true
@@ -194,13 +202,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-29 12:31:44.583207'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
 primary_key:
 - school_student_attendance_fact_id_pk
 relationships:

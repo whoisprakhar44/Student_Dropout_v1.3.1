@@ -1,7 +1,17 @@
 database: curated_datamodels
 table: citizen_document
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen document.
+description: 'Curated Hive/Iceberg table for citizen document. [Sample records: {''document_name'':
+  ''BA202228900540094297'', ''issuing_authority'': ''Dr.S.Shareena (Vennela Hospital)Nello...'',
+  ''issuance_date'': ''2022-10-02 00:00:00'', ''registration_date'': ''2022-10-02
+  00:00:00'', ''place_of_event'': ''Hospital/Institution'', ''valid_from'': ''2022-10-02
+  00:00:00''}, {''document_name'': ''BA202228902270016319'', ''issuing_authority'':
+  ''AMAVM HOSPITAL GAVARAPALEM ANAKAPALLI...'', ''issuance_date'': ''2022-08-19 00:00:00'',
+  ''registration_date'': ''2022-08-19 00:00:00'', ''place_of_event'': ''Hospital/Institution'',
+  ''valid_from'': ''2022-08-19 00:00:00''}, {''document_name'': ''BA202228900990048084'',
+  ''issuing_authority'': ''SAIVEENA CHILDRENS HOSPITAL , 60 FEET...'', ''issuance_date'':
+  ''2022-10-11 00:00:00'', ''registration_date'': ''2022-10-11 00:00:00'', ''place_of_event'':
+  ''Hospital/Institution'', ''valid_from'': ''2022-10-11 00:00:00''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document
 partitioned_by: ''
@@ -58,17 +68,20 @@ columns:
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+    table. [Value Examples: ''233883689711'', ''287627567646'', ''717720347655'',
+    ''974581428146'']'
 - name: citizen_document_type_fk
   type: INT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen document type dimension
-    or master table.'
+    or master table. [Value Examples: ''1'']'
 - name: document_name
   type: STRING
   nullable: true
   description: 'System field containing values such as: BA202228900540094297, BA202228902270016319,
-    BA202228900990048084, BA202228900320096683, BA202228110040026204.'
+    BA202228900990048084, BA202228900320096683, BA202228110040026204. [Value Examples:
+    ''BA202228900540094297'', ''BA202228902270016319'', ''BA202228900990048084'',
+    ''BA202228900320096683'', ''BA202228110040026204'']'
 - name: file_name
   type: STRING
   nullable: true
@@ -76,19 +89,26 @@ columns:
 - name: issuing_authority
   type: STRING
   nullable: true
-  description: Issuing authority.
+  description: 'Issuing authority. [Value Examples: ''Dr.S.Shareena (Vennela Hospital)Nello...'',
+    ''AMAVM HOSPITAL GAVARAPALEM ANAKAPALLI...'', ''SAIVEENA CHILDRENS HOSPITAL ,
+    60 FEET...'', ''ST ANNS HOSPITAL M G ROAD, Vijayawada...'', ''RURAL DEVELOPMENT
+    TRUST HOSPITAL, BAT...'']'
 - name: issuance_date
   type: STRING
   nullable: true
-  description: The specific date or timestamp when the issuance occurred.
+  description: 'The specific date or timestamp when the issuance occurred. [Value
+    Examples: ''2022-10-02 00:00:00'', ''2022-08-19 00:00:00'', ''2022-10-11 00:00:00'',
+    ''2022-08-23 00:00:00'']'
 - name: registration_date
   type: STRING
   nullable: true
-  description: The specific date or timestamp when the registration occurred.
+  description: 'The specific date or timestamp when the registration occurred. [Value
+    Examples: ''2022-10-02 00:00:00'', ''2022-08-19 00:00:00'', ''2022-10-11 00:00:00'',
+    ''2022-08-23 00:00:00'']'
 - name: place_of_event
   type: STRING
   nullable: true
-  description: Place of event.
+  description: 'Place of event. [Value Examples: ''Hospital/Institution'']'
 - name: status
   type: STRING
   nullable: true
@@ -108,17 +128,19 @@ columns:
 - name: valid_from
   type: STRING
   nullable: true
-  description: Start date/timestamp for the validity period of this record (e.g. consent
-    or document).
+  description: 'Start date/timestamp for the validity period of this record (e.g.
+    consent or document). [Value Examples: ''2022-10-02 00:00:00'', ''2022-08-19 00:00:00'',
+    ''2022-10-11 00:00:00'', ''2022-08-23 00:00:00'']'
 - name: coalesced_uid
   type: STRING
   nullable: true
-  description: A unified unique identifier coalesced from multiple source IDs to represent
-    the citizen/document uniquely.
+  description: 'A unified unique identifier coalesced from multiple source IDs to
+    represent the citizen/document uniquely. [Value Examples: ''233883689711'', ''287627567646'',
+    ''717720347655'', ''974581428146'']'
 - name: uid_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''M'']'
 - name: valid_to
   type: STRING
   nullable: true
@@ -127,13 +149,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-22 20:43:06.866508'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true

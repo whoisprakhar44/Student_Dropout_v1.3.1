@@ -1,7 +1,14 @@
 database: curated_datamodels
 table: core_temple_ddns
 department: misc
-description: Curated Hive/Iceberg table for core temple ddns.
+description: 'Curated Hive/Iceberg table for core temple ddns. [Sample records: {''district_id'':
+  ''11'', ''mandal_id'': ''271'', ''village_id'': ''3116'', ''district_name'': ''Dr.
+  B. R. Ambedkar Konaseema'', ''mandal_name'': ''Amalapuram'', ''village_name'': ''Bandarulanka
+  (U)''}, {''district_id'': ''11'', ''mandal_id'': ''271'', ''village_id'': ''3115'',
+  ''district_name'': ''Dr. B. R. Ambedkar Konaseema'', ''mandal_name'': ''Amalapuram'',
+  ''village_name'': ''Amalapuram (Rural)''}, {''district_id'': ''11'', ''mandal_id'':
+  ''279'', ''village_id'': ''3213'', ''district_name'': ''Dr. B. R. Ambedkar Konaseema'',
+  ''mandal_name'': ''Mamidikuduru'', ''village_name'': ''Edarada''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/warehouse/tablespace/external/hive/curated_datamodels.db/core_temple_ddns
 partitioned_by: ''
@@ -31,71 +38,83 @@ columns:
 - name: district_id
   type: INT
   nullable: true
-  description: District id.
+  description: 'District id. [Value Examples: ''11'']'
 - name: mandal_id
   type: INT
   nullable: true
-  description: Mandal id.
+  description: 'Mandal id. [Value Examples: ''271'', ''279'', ''278'']'
 - name: village_id
   type: INT
   nullable: true
-  description: Village id.
+  description: 'Village id. [Value Examples: ''3116'', ''3115'', ''3213'', ''3203'',
+    ''3210'']'
 - name: district_name
   type: STRING
   nullable: true
-  description: The official name of the administrative district in Andhra Pradesh.
+  description: 'The official name of the administrative district in Andhra Pradesh.
+    [Value Examples: ''Dr. B. R. Ambedkar Konaseema'']'
 - name: mandal_name
   type: STRING
   nullable: true
-  description: The official name of the Mandal (sub-district administrative division).
+  description: 'The official name of the Mandal (sub-district administrative division).
+    [Value Examples: ''Amalapuram'', ''Mamidikuduru'', ''Malikipuram'']'
 - name: village_name
   type: STRING
   nullable: true
-  description: Village name.
+  description: 'Village name. [Value Examples: ''Bandarulanka (U)'', ''Amalapuram
+    (Rural)'', ''Edarada'', ''Kattimanda'', ''Adurru'']'
 - name: temple_id
   type: INT
   nullable: true
-  description: Temple id.
+  description: 'Temple id. [Value Examples: ''12009'', ''11986'', ''12316'', ''12299'',
+    ''12308'']'
 - name: temple_nm
   type: STRING
   nullable: true
-  description: Temple nm.
+  description: 'Temple nm. [Value Examples: ''Sri Gangadevi Ammavari Temple {Mulugu...'',
+    ''Sri Kalyana Ramalayam @ Peramma Agrah...'', ''Sri Laxminarasimha Swamy Temple'',
+    ''Sri Kodanda Ramalayam @ Battilanka'', ''Sri Kodanda Ramalayam'']'
 - name: archaka_name
   type: STRING
   nullable: true
-  description: Archaka name.
+  description: 'Archaka name. [Value Examples: ''Putsala Veera Bhadrudu'', ''Peddinti
+    Surya Naga Krishna Perumallu'', ''Meduri Valli Nadha Deekshitulu'', ''Sudarsanam
+    Satya Venkata Ranganadacha...'', ''Ravada Venkata Seshadri'']'
 - name: mobile_no
   type: STRING
   nullable: true
-  description: Mobile no.
+  description: 'Mobile no. [Value Examples: ''9989638317'', ''9502299958'', ''9491734756'',
+    ''9866662831'', ''6281152725'']'
 - name: aadhaar_number
   type: STRING
   nullable: true
-  description: Aadhaar number.
+  description: 'Aadhaar number. [Value Examples: ''489076339897'', ''882653197953'',
+    ''780954879040'', ''549458263289'', ''295996844569'']'
 - name: amount
   type: DECIMAL(12,3)
   nullable: true
-  description: Amount.
+  description: 'Amount. [Value Examples: ''10000.000'']'
 - name: inserted_date
   type: BIGINT
   nullable: true
-  description: The specific date or timestamp when the inserted occurred.
+  description: 'The specific date or timestamp when the inserted occurred. [Value
+    Examples: ''1771521143880'']'
 - name: inserted_ts
   type: TIMESTAMP
   nullable: true
-  description: Inserted ts.
+  description: 'Inserted ts. [Value Examples: ''2026-02-19 22:42:23.880000'']'
 - name: op
   type: STRING
   nullable: true
-  description: Op.
+  description: 'Op. [Value Examples: ''r'']'
 - name: event_ts
   type: BIGINT
   nullable: true
-  description: Event ts.
+  description: 'Event ts. [Value Examples: ''1774520144538'']'
 - name: deleted_flag
   type: BOOLEAN
   nullable: true
-  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''False'']'
 primary_key: []
 relationships: []
 business_terms:

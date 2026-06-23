@@ -1,7 +1,12 @@
 database: curated_datamodels
 table: citizen_welfare_schemes
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen welfare schemes.
+description: 'Curated Hive/Iceberg table for citizen welfare schemes. [Sample records:
+  {''scheme_name'': ''Disaster Management'', ''scheme_processed_date'': ''2024-09-26
+  00:00:00'', ''scheme_processed_amount'': ''4800.0''}, {''scheme_name'': ''Marine
+  fishing ban relief'', ''scheme_processed_date'': ''2025-04-26 00:00:00'', ''scheme_processed_amount'':
+  ''20000.0''}, {''scheme_name'': ''Cheyutha'', ''scheme_processed_date'': ''2022-10-01
+  00:00:00'', ''scheme_processed_amount'': ''18750.0''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes
 partitioned_by: ''
@@ -42,20 +47,24 @@ columns:
 - name: citizen_welfare_schemes_pk
   type: INT
   nullable: true
-  description: 'Primary Key: Unique identifier for the citizen welfare schemes record.'
+  description: 'Primary Key: Unique identifier for the citizen welfare schemes record.
+    [Value Examples: ''29'', ''43'', ''61'', ''89'', ''100'']'
 - name: citizen_welfare_scheme_master_fk
   type: INT
   nullable: true
-  description: 'Foreign Key: Links to welfare schemes master.'
+  description: 'Foreign Key: Links to welfare schemes master. [Value Examples: ''7'',
+    ''14'', ''6'', ''3'']'
 - name: citizen_master_fk
   type: INT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+    table. [Value Examples: ''200001066338'', ''200001588750'', ''200002097649'',
+    ''200002712793'', ''200003356604'']'
 - name: scheme_name
   type: STRING
   nullable: true
-  description: Name of the welfare/health scheme.
+  description: 'Name of the welfare/health scheme. [Value Examples: ''Disaster Management'',
+    ''Marine fishing ban relief'', ''Cheyutha'', ''Thalliki Vandanam'']'
 - name: scheme_registered_date
   type: STRING
   nullable: true
@@ -67,11 +76,14 @@ columns:
 - name: scheme_processed_date
   type: STRING
   nullable: true
-  description: The specific date or timestamp when the scheme processed occurred.
+  description: 'The specific date or timestamp when the scheme processed occurred.
+    [Value Examples: ''2024-09-26 00:00:00'', ''2025-04-26 00:00:00'', ''2022-10-01
+    00:00:00'', ''2023-07-03 00:00:00'', ''2022-09-29 00:00:00'']'
 - name: scheme_processed_amount
   type: STRING
   nullable: true
-  description: Amount processed under the welfare scheme.
+  description: 'Amount processed under the welfare scheme. [Value Examples: ''4800.0'',
+    ''20000.0'', ''18750.0'', ''13000.0'']'
 - name: scheme_unutilized_amount
   type: STRING
   nullable: true
@@ -79,13 +91,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-28 10:44:12.287868'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''Curated_team'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true

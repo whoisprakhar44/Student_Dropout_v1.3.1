@@ -1,7 +1,11 @@
 database: curated_datamodels
 table: citizen_education
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen education.
+description: 'Curated Hive/Iceberg table for citizen education. [Sample records: {''qualification_name'':
+  ''Other'', ''current_qualification_flag'': ''N'', ''created_at'': ''2026-05-26 15:51:19.993051''},
+  {''qualification_name'': ''Diploma & Other'', ''current_qualification_flag'': ''N'',
+  ''created_at'': ''2026-05-26 15:51:19.993051''}, {''current_qualification_flag'':
+  ''N'', ''created_at'': ''2026-05-26 15:51:19.993051''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_education
 partitioned_by: ''
@@ -45,7 +49,8 @@ columns:
 - name: citizen_education_id_pk
   type: INT
   nullable: true
-  description: 'Primary Key: Unique identifier for the citizen education record.'
+  description: 'Primary Key: Unique identifier for the citizen education record. [Value
+    Examples: ''1'']'
 - name: citizen_master_fk
   type: INT
   nullable: true
@@ -54,7 +59,8 @@ columns:
 - name: qualification_name
   type: STRING
   nullable: true
-  description: Qualification name.
+  description: 'Qualification name. [Value Examples: ''Other'', ''Diploma & Other'',
+    ''10th class'']'
 - name: qualification_level
   type: STRING
   nullable: true
@@ -80,7 +86,7 @@ columns:
 - name: current_qualification_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''N'']'
 - name: mode_of_study
   type: STRING
   nullable: true
@@ -92,13 +98,13 @@ columns:
 - name: created_at
   type: STRING
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the database system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the database system. [Value Examples: ''2026-05-26 15:51:19.993051'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
 - name: updated_at
   type: STRING
   nullable: true

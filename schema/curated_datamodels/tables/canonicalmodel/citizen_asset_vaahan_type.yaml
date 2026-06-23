@@ -1,7 +1,13 @@
 database: curated_datamodels
 table: citizen_asset_vaahan_type
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen asset vaahan type.
+description: 'Curated Hive/Iceberg table for citizen asset vaahan type. [Sample records:
+  {''class_type'': ''1'', ''class_description'': ''Modular Hydraulic Trailer'', ''transport_category'':
+  ''G'', ''min_insurance_validity'': ''0''}, {''class_type'': ''1'', ''class_description'':
+  ''Motor Cycle/Scooter-With Trailer'', ''transport_category'': ''G'', ''convertible_classes'':
+  ''1,2,3,4,53,51'', ''min_insurance_validity'': ''0''}, {''class_type'': ''1'', ''class_description'':
+  ''Hearses'', ''transport_category'': ''S'', ''convertible_classes'': ''76'', ''min_insurance_validity'':
+  ''0''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_vaahan_type
 partitioned_by: ''
@@ -41,31 +47,36 @@ columns:
 - name: citizen_asset_vaahan_type_pk
   type: INT
   nullable: true
-  description: 'Primary Key: Unique identifier for the citizen asset vaahan type record.'
+  description: 'Primary Key: Unique identifier for the citizen asset vaahan type record.
+    [Value Examples: ''1'', ''2'', ''3'', ''4'', ''5'']'
 - name: class_type
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: 1.'
+  description: 'Categorical column. Distinct values: 1. [Value Examples: ''1'']'
 - name: class_description
   type: STRING
   nullable: true
-  description: Class description.
+  description: 'Class description. [Value Examples: ''Modular Hydraulic Trailer'',
+    ''Motor Cycle/Scooter-With Trailer'', ''Hearses'', ''Luxury Cab'', ''Tractor (Commercial)'']'
 - name: transport_category
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: G, P, S.'
+  description: 'Categorical column. Distinct values: G, P, S. [Value Examples: ''G'',
+    ''S'', ''P'']'
 - name: convertible_classes
   type: STRING
   nullable: true
-  description: Convertible classes.
+  description: 'Convertible classes. [Value Examples: ''1,2,3,4,53,51'', ''76'', ''7,15,23,69,70,71,73,75,86'',
+    ''10,11,13,17,19,22,25,27'']'
 - name: min_insurance_validity
   type: STRING
   nullable: true
-  description: Min insurance validity.
+  description: 'Min insurance validity. [Value Examples: ''0'']'
 - name: effective_start_date
   type: DATE
   nullable: true
-  description: The specific date or timestamp when the effective start occurred.
+  description: 'The specific date or timestamp when the effective start occurred.
+    [Value Examples: ''2026-06-01'']'
 - name: effective_end_date
   type: DATE
   nullable: true
@@ -73,13 +84,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-06-01 17:21:49.268834'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true

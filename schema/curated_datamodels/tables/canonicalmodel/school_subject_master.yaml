@@ -1,7 +1,12 @@
 database: curated_datamodels
 table: school_subject_master
 department: canonicalmodel
-description: Dimension/master table for school subject reference attributes.
+description: 'Dimension/master table for school subject reference attributes. [Sample
+  records: {''subject_code'': ''S100'', ''subject_name'': ''IRPM'', ''subject_short_name'':
+  ''SA_SS'', ''subject_status'': ''Active''}, {''subject_code'': ''S113'', ''subject_name'':
+  ''DRAWING'', ''subject_short_name'': ''ART_DRAWING'', ''subject_status'': ''Active''},
+  {''subject_code'': ''S120'', ''subject_name'': ''WOODWORK'', ''subject_short_name'':
+  ''N.A.'', ''subject_status'': ''Active''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_subject_master
 partitioned_by: 'subject_pk_bucket: bucket[32]'
@@ -60,22 +65,25 @@ columns:
 - name: subject_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for the subject record.'
+  description: 'Primary Key: Unique identifier for the subject record. [Value Examples:
+    ''3'', ''17'', ''25'', ''34'', ''51'']'
 - name: subject_code
   type: STRING
   nullable: true
   description: 'Code/ID column: Standardized system code representing the subject.
     Categorical column. Distinct values: 136. Examples: S100, S129, S120, S113, S145.
-    Top frequencies: 1, 1, 1, 1, 1. Categorical column.'
+    Top frequencies: 1, 1, 1, 1, 1. Categorical column. [Value Examples: ''S100'',
+    ''S113'', ''S120'', ''S129'', ''S145'']'
 - name: subject_name
   type: STRING
   nullable: true
-  description: The official name of the academic subject (e.g., Mathematics, Science,
-    Social Studies).
+  description: 'The official name of the academic subject (e.g., Mathematics, Science,
+    Social Studies). [Value Examples: ''IRPM'', ''DRAWING'', ''WOODWORK'', ''BOOK
+    BINDING'', ''DRAWING/STILLLIFE'']'
 - name: subject_short_name
   type: STRING
   nullable: true
-  description: Subject short name.
+  description: 'Subject short name. [Value Examples: ''SA_SS'', ''ART_DRAWING'', ''N.A.'']'
 - name: subject_category
   type: STRING
   nullable: true
@@ -135,7 +143,7 @@ columns:
 - name: subject_status
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: Active.'
+  description: 'Categorical column. Distinct values: Active. [Value Examples: ''Active'']'
 - name: grade_applicability_from
   type: INT
   nullable: true
@@ -159,13 +167,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-09 12:33:05.928639'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true

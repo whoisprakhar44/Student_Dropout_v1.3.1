@@ -1,7 +1,12 @@
 database: curated_datamodels
 table: ration_card_type
 department: canonicalmodel
-description: Curated Hive/Iceberg table for ration card type.
+description: 'Curated Hive/Iceberg table for ration card type. [Sample records: {''ration_card_type_name'':
+  ''Above Poverty Line'', ''card_type_description'': ''Families above poverty line'',
+  ''card_type_code'': ''APL''}, {''ration_card_type_name'': ''Antyodaya Anna Yojana'',
+  ''card_type_description'': ''For poorest households with highest s...'', ''card_type_code'':
+  ''AAY''}, {''ration_card_type_name'': ''Below Poverty Line'', ''card_type_description'':
+  ''Economically weaker families'', ''card_type_code'': ''BPL''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_type
 partitioned_by: ''
@@ -32,23 +37,28 @@ columns:
 - name: card_type_id_pk
   type: INT
   nullable: true
-  description: 'Primary Key: Unique identifier for ration card type.'
+  description: 'Primary Key: Unique identifier for ration card type. [Value Examples:
+    ''1'', ''2'', ''3'', ''4'']'
 - name: ration_card_type_name
   type: STRING
   nullable: true
-  description: Ration card type name.
+  description: 'Ration card type name. [Value Examples: ''Above Poverty Line'', ''Antyodaya
+    Anna Yojana'', ''Below Poverty Line'', ''Annapurna Scheme'']'
 - name: card_type_description
   type: STRING
   nullable: true
   description: 'Categorical column. Distinct values: Economically weaker families,
     Families above poverty line, For poorest households with highest s..., For senior
-    citizens under Annapurna s....'
+    citizens under Annapurna s.... [Value Examples: ''Families above poverty line'',
+    ''For poorest households with highest s...'', ''Economically weaker families'',
+    ''For senior citizens under Annapurna s...'']'
 - name: card_type_code
   type: STRING
   nullable: true
   description: 'Code/ID column: The category of the ration card (e.g., ''LOW'' for
     Low Income/BPL). Categorical column. Distinct values: 4. Examples: AAY, BPL, AAP,
-    APL. Top frequencies: 1, 1, 1, 1. Categorical column.'
+    APL. Top frequencies: 1, 1, 1, 1. Categorical column. [Value Examples: ''APL'',
+    ''AAY'', ''BPL'', ''AAP'']'
 primary_key: []
 relationships: []
 business_terms:

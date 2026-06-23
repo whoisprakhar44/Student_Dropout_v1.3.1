@@ -1,7 +1,10 @@
 database: curated_datamodels
 table: absent_reason_dim
 department: school
-description: Dimension/master table for absent reason reference attributes.
+description: 'Dimension/master table for absent reason reference attributes. [Sample
+  records: {''reason_code'': ''4'', ''reason_name'': ''School changed'', ''is_active'':
+  ''Yes''}, {''reason_code'': ''0'', ''is_active'': ''Yes''}, {''reason_code'': ''2'',
+  ''reason_name'': ''Duplicate Student'', ''is_active'': ''Yes''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/absent_reason_dim
 partitioned_by: 'absent_reason_dim_id_pk_bucket: bucket[32]'
@@ -45,18 +48,22 @@ columns:
 - name: absent_reason_dim_id_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for the absent reason dim record.'
+  description: 'Primary Key: Unique identifier for the absent reason dim record. [Value
+    Examples: ''5'', ''1'', ''3'', ''4'', ''2'']'
 - name: reason_code
   type: STRING
   nullable: true
   description: 'Code/ID column: Standardized system code representing the reason.
     Categorical column. Distinct values: 5. Examples: 2, 4, 3, 1, 0. Top frequencies:
-    1, 1, 1, 1, 1. Categorical column.'
+    1, 1, 1, 1, 1. Categorical column. [Value Examples: ''4'', ''0'', ''2'', ''3'',
+    ''1'']'
 - name: reason_name
   type: STRING
   nullable: true
   description: 'Categorical classification column. Standardized values include: School
-    changed, Duplicate Student, Left the school, Not feeling well.'
+    changed, Duplicate Student, Left the school, Not feeling well. [Value Examples:
+    ''School changed'', ''Duplicate Student'', ''Left the school'', ''Not feeling
+    well'']'
 - name: reason_category
   type: STRING
   nullable: true
@@ -68,7 +75,8 @@ columns:
 - name: is_active
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Yes''/''No'').'
+  description: 'Boolean indicator flag (values: ''Yes''/''No''). [Value Examples:
+    ''Yes'']'
 - name: effective_start_date
   type: DATE
   nullable: true
@@ -84,13 +92,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-11 14:46:46.881376'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true

@@ -1,7 +1,14 @@
 database: curated_datamodels
 table: citizen_asset_electricity
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen asset electricity.
+description: 'Curated Hive/Iceberg table for citizen asset electricity. [Sample records:
+  {''aadhar_no'': ''008641569488'', ''meter_type'': ''SMART'', ''category_id'': ''LT2'',
+  ''phase'': ''3'', ''location'': ''null , null , null'', ''service_number'': ''6111200044613''},
+  {''aadhar_no'': ''012345678910'', ''meter_type'': ''SMART'', ''category_id'': ''LT2-1'',
+  ''category_description'': ''Commercial'', ''phase'': ''1'', ''location'': ''KADAPA
+  , CUDDAPAH-KAMALAPURAM , KAMAL...''}, {''aadhar_no'': ''012345678910'', ''meter_type'':
+  ''SMART'', ''category_id'': ''LT2-1'', ''category_description'': ''Commercial'',
+  ''phase'': ''1'', ''location'': ''ANNAMAYYA , CUDDAPAH-RAYACHOTI , TOWN''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_electricity
 partitioned_by: ''
@@ -41,7 +48,8 @@ columns:
 - name: citizen_asset_type_pk
   type: INT
   nullable: true
-  description: 'Primary Key: Unique identifier for the citizen asset type record.'
+  description: 'Primary Key: Unique identifier for the citizen asset type record.
+    [Value Examples: ''45'', ''398'', ''355'', ''334'', ''478'']'
 - name: citizen_master_fk
   type: INT
   nullable: true
@@ -50,54 +58,65 @@ columns:
 - name: aadhar_no
   type: STRING
   nullable: true
-  description: Aadhaar number associated with the service/account.
+  description: 'Aadhaar number associated with the service/account. [Value Examples:
+    ''008641569488'', ''012345678910'']'
 - name: meter_type
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: NON-SMART, SMART.'
+  description: 'Categorical column. Distinct values: NON-SMART, SMART. [Value Examples:
+    ''SMART'', ''NON-SMART'']'
 - name: category_id
   type: STRING
   nullable: true
-  description: Classification field defining the specific category id.
+  description: 'Classification field defining the specific category id. [Value Examples:
+    ''LT2'', ''LT2-1'']'
 - name: category_description
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: Commercial.'
+  description: 'Categorical column. Distinct values: Commercial. [Value Examples:
+    ''Commercial'']'
 - name: phase
   type: STRING
   nullable: true
-  description: 'System field containing values such as: 1, 3.'
+  description: 'System field containing values such as: 1, 3. [Value Examples: ''3'',
+    ''1'']'
 - name: location
   type: STRING
   nullable: true
-  description: Location description or coordinates.
+  description: 'Location description or coordinates. [Value Examples: ''null , null
+    , null'', ''KADAPA , CUDDAPAH-KAMALAPURAM , KAMAL...'', ''ANNAMAYYA , CUDDAPAH-RAYACHOTI
+    , TOWN'', ''NELLORE , NELLORE-DAGADARTHI , CHOWTA...'', ''TIRUPATI , NELLORE-VENKATAGIRI
+    , null'']'
 - name: service_number
   type: STRING
   nullable: true
-  description: Service/meter connection number.
+  description: 'Service/meter connection number. [Value Examples: ''6111200044613'',
+    ''2234101006619'', ''2411201035388'', ''3212304000467'', ''3621402001397'']'
 - name: discom_name
   type: STRING
   nullable: true
-  description: Name of electricity distribution company.
+  description: 'Name of electricity distribution company. [Value Examples: ''APCPDCL'',
+    ''APSPDCL'']'
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-21 16:06:51.887911'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating the last time this record was modified or updated.
+  description: 'Timestamp indicating the last time this record was modified or updated.
+    [Value Examples: ''2026-05-22 17:31:17.499839'']'
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  description: 'The user ID or automated system process responsible for the most recent
+    update to this record. [Value Examples: ''curated_team'']'
 primary_key:
 - citizen_asset_type_pk
 relationships: []

@@ -1,7 +1,9 @@
 database: curated_datamodels
 table: school_medium
 department: canonicalmodel
-description: Curated table containing school medium attributes.
+description: 'Curated table containing school medium attributes. [Sample records:
+  {''medium_code'': ''31'', ''medium_name'': ''State Govt.EM(SSC)''}, {''medium_code'':
+  ''18'', ''medium_name'': ''Urdu''}, {''medium_code'': ''19'', ''medium_name'': ''English''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_medium
 partitioned_by: 'school_medium_pk_bucket: bucket[32]'
@@ -32,18 +34,21 @@ columns:
 - name: school_medium_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for the school medium record.'
+  description: 'Primary Key: Unique identifier for the school medium record. [Value
+    Examples: ''7'', ''4'', ''5'', ''2'', ''3'']'
 - name: medium_code
   type: STRING
   nullable: true
   description: 'Code/ID column: Standardized system code representing the medium.
     Categorical column. Distinct values: 7. Examples: 17, 31, 19, 18, 16. Top frequencies:
-    1, 1, 1, 1, 1. Categorical column.'
+    1, 1, 1, 1, 1. Categorical column. [Value Examples: ''31'', ''18'', ''19'', ''16'',
+    ''17'']'
 - name: medium_name
   type: STRING
   nullable: true
   description: 'System field containing values such as: State Govt.EM(SSC), Urdu,
-    English, Tamil, Telugu.'
+    English, Tamil, Telugu. [Value Examples: ''State Govt.EM(SSC)'', ''Urdu'', ''English'',
+    ''Tamil'', ''Telugu'']'
 - name: language_family
   type: STRING
   nullable: true

@@ -1,7 +1,12 @@
 database: curated_datamodels
 table: student_class_dim
 department: school
-description: Dimension/master table for student class reference attributes.
+description: 'Dimension/master table for student class reference attributes. [Sample
+  records: {''class_code'': ''6'', ''class_name'': ''Class VI'', ''education_stage'':
+  ''UPPER_PRIMARY'', ''is_active'': ''Y''}, {''class_code'': ''5'', ''class_name'':
+  ''Class V'', ''education_stage'': ''PRIMARY'', ''is_active'': ''Y''}, {''class_code'':
+  ''9'', ''class_name'': ''Class IX'', ''education_stage'': ''SECONDARY'', ''is_active'':
+  ''Y''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/student_class_dim
 partitioned_by: 'student_class_dim_id_pk_bucket: bucket[32]'
@@ -44,22 +49,25 @@ columns:
 - name: student_class_dim_id_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for the student class dim record.'
+  description: 'Primary Key: Unique identifier for the student class dim record. [Value
+    Examples: ''6'', ''5'', ''9'', ''2'', ''1'']'
 - name: class_code
   type: STRING
   nullable: true
   description: 'Code/ID column: Standardized system code representing the class. Categorical
     column. Distinct values: 10. Examples: 5, 2, 6, 1, 9. Top frequencies: 1, 1, 1,
-    1, 1. Categorical column.'
+    1, 1. Categorical column. [Value Examples: ''6'', ''5'', ''9'', ''2'', ''1'']'
 - name: class_name
   type: STRING
   nullable: true
   description: 'System field containing values such as: Class VI, Class V, Class IX,
-    Class II, Class I.'
+    Class II, Class I. [Value Examples: ''Class VI'', ''Class V'', ''Class IX'', ''Class
+    II'', ''Class I'']'
 - name: education_stage
   type: STRING
   nullable: true
-  description: Education stage.
+  description: 'Education stage. [Value Examples: ''UPPER_PRIMARY'', ''PRIMARY'',
+    ''SECONDARY'']'
 - name: min_age
   type: INT
   nullable: true
@@ -71,7 +79,7 @@ columns:
 - name: is_active
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''Y'']'
 - name: effective_start_date
   type: DATE
   nullable: true
@@ -83,13 +91,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-11 13:14:54.052487'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true

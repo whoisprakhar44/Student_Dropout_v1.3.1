@@ -1,7 +1,11 @@
 database: curated_datamodels
 table: citizen_health_schemes_master
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen health schemes master.
+description: 'Curated Hive/Iceberg table for citizen health schemes master. [Sample
+  records: {''scheme_name'': ''Ayushman Bharat(PM-JAY)'', ''create_date'': ''2026-05-20'',
+  ''create_by'': ''Curated_team''}, {''scheme_name'': ''Dr.NTR Vaidya Seva'', ''create_date'':
+  ''2026-05-20'', ''create_by'': ''Curated_team''}, {''scheme_name'': ''Working journalist
+  Health'', ''create_date'': ''2026-05-20'', ''create_by'': ''Curated_team''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_health_schemes_master
 partitioned_by: ''
@@ -47,7 +51,7 @@ columns:
   type: INT
   nullable: true
   description: 'Primary Key: Unique identifier for the citizen health schemes master
-    record.'
+    record. [Value Examples: ''1'', ''2'', ''3'', ''4'', ''5'']'
 - name: health_scheme_code_fk
   type: STRING
   nullable: true
@@ -56,7 +60,9 @@ columns:
 - name: scheme_name
   type: STRING
   nullable: true
-  description: The official name of the government welfare scheme or benefit program.
+  description: 'The official name of the government welfare scheme or benefit program.
+    [Value Examples: ''Ayushman Bharat(PM-JAY)'', ''Dr.NTR Vaidya Seva'', ''Working
+    journalist Health'', ''Arogya Raksha'', ''Employee health'']'
 - name: scheme_type
   type: STRING
   nullable: true
@@ -97,11 +103,13 @@ columns:
 - name: create_date
   type: DATE
   nullable: true
-  description: The specific date or timestamp when the create occurred.
+  description: 'The specific date or timestamp when the create occurred. [Value Examples:
+    ''2026-05-20'']'
 - name: create_by
   type: STRING
   nullable: true
-  description: 'System field containing values such as: Curated_team.'
+  description: 'System field containing values such as: Curated_team. [Value Examples:
+    ''Curated_team'']'
 - name: updated_date
   type: DATE
   nullable: true

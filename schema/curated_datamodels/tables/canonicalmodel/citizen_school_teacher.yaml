@@ -1,7 +1,14 @@
 database: curated_datamodels
 table: citizen_school_teacher
 department: canonicalmodel
-description: Curated table containing citizen school teacher attributes.
+description: 'Curated table containing citizen school teacher attributes. [Sample
+  records: {''treasury_id'': ''0000238'', ''teacher_emp_id'': ''0000238'', ''teacher_name'':
+  ''G.RAGHAVa RAO'', ''gender'': ''M'', ''date_of_birth'': ''1965-01-09'', ''teacher_designation'':
+  ''Secondary Grade Teacher (Telugu)''}, {''treasury_id'': ''0000327'', ''cfms_id'':
+  ''1002264898'', ''national_teacher_code'': ''TS50010742'', ''teacher_emp_id'': ''0000327'',
+  ''teacher_name'': ''K KAVITHA'', ''gender'': ''F''}, {''treasury_id'': ''0000417'',
+  ''teacher_emp_id'': ''0000417'', ''teacher_name'': ''VENU gopal'', ''gender'': ''M'',
+  ''date_of_birth'': ''1963-10-30'', ''joining_date'': ''1998-05-10''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school_teacher
 partitioned_by: 'citizen_school_teacher_id_pk_bucket: bucket[32]'
@@ -70,49 +77,57 @@ columns:
 - name: citizen_school_teacher_id_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for the citizen school teacher record.'
+  description: 'Primary Key: Unique identifier for the citizen school teacher record.
+    [Value Examples: ''118'', ''150'', ''162'', ''184'', ''195'']'
 - name: treasury_id
   type: STRING
   nullable: true
-  description: Treasury identifier.
+  description: 'Treasury identifier. [Value Examples: ''0000238'', ''0000327'', ''0000417'',
+    ''0000479'', ''00005602'']'
 - name: cfms_id
   type: STRING
   nullable: true
-  description: Cfms identifier.
+  description: 'Cfms identifier. [Value Examples: ''1002264898'', ''1111111111'']'
 - name: national_teacher_code
   type: STRING
   nullable: true
   description: 'Code/ID column: Standardized system code representing the national
     teacher. Categorical column. Distinct values: 200. Examples: TS50010742, TR30931450.
-    Top frequencies: 153088, 2851, 935, 911, 820. Categorical column.'
+    Top frequencies: 153088, 2851, 935, 911, 820. Categorical column. [Value Examples:
+    ''TS50010742'', ''TR30931450'']'
 - name: teacher_citizen_master_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated teacher citizen master dimension
-    or master table.'
+    or master table. [Value Examples: ''975346618360'', ''618972324022'', ''506014272262'',
+    ''264626383667'', ''972160143191'']'
 - name: teacher_emp_id
   type: STRING
   nullable: true
-  description: Teacher emp identifier.
+  description: 'Teacher emp identifier. [Value Examples: ''0000238'', ''0000327'',
+    ''0000417'', ''0000479'', ''00005602'']'
 - name: teacher_name
   type: STRING
   nullable: true
   description: 'System field containing values such as: G.RAGHAVa RAO, K KAVITHA,
-    VENU gopal, MAHESH, SANDHYA RANI.'
+    VENU gopal, MAHESH, SANDHYA RANI. [Value Examples: ''G.RAGHAVa RAO'', ''K KAVITHA'',
+    ''VENU gopal'', ''MAHESH'', ''SANDHYA RANI'']'
 - name: gender
   type: STRING
   nullable: true
   description: 'Gender of the individual. Categorical column. Distinct values: MALE,
-    FEMALE.'
+    FEMALE. [Value Examples: ''M'', ''F'']'
 - name: date_of_birth
   type: DATE
   nullable: true
-  description: The birth date of the individual (citizen, student, or teacher) as
-    recorded in official records.
+  description: 'The birth date of the individual (citizen, student, or teacher) as
+    recorded in official records. [Value Examples: ''1965-01-09'', ''1988-05-01'',
+    ''1963-10-30'', ''1990-08-22'', ''1993-06-01'']'
 - name: joining_date
   type: DATE
   nullable: true
-  description: The specific date or timestamp when the joining occurred.
+  description: 'The specific date or timestamp when the joining occurred. [Value Examples:
+    ''2022-08-14'', ''1998-05-10'', ''2013-01-01'', ''2023-11-02'']'
 - name: qualification
   type: STRING
   nullable: true
@@ -124,7 +139,9 @@ columns:
 - name: teacher_designation
   type: STRING
   nullable: true
-  description: Teacher designation.
+  description: 'Teacher designation. [Value Examples: ''Secondary Grade Teacher (Telugu)'',
+    ''CRT-BIOLOGICAL SCIENCE'', ''School Asst./PGT / JL ( Mathematics )'', ''School
+    Asst./PGT ( Bio.Science )'', ''PGT PHYSICS'']'
 - name: subject_specialization_key
   type: BIGINT
   nullable: true
@@ -132,7 +149,8 @@ columns:
 - name: father_name
   type: STRING
   nullable: true
-  description: The full name of the individual's father.
+  description: 'The full name of the individual''s father. [Value Examples: ''raghavasubramanyam'',
+    ''k narasimhulu'', ''ramaraoks'', ''nagireddy'', ''SUBBARAYUDU'']'
 - name: father_citizen_master_id
   type: BIGINT
   nullable: true
@@ -172,7 +190,8 @@ columns:
 - name: tet_passed_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Yes''/''No'').'
+  description: 'Boolean indicator flag (values: ''Yes''/''No''). [Value Examples:
+    ''Yes'']'
 - name: tet_year_of_passing
   type: INT
   nullable: true
@@ -180,7 +199,7 @@ columns:
 - name: service_status
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: Active.'
+  description: 'Categorical column. Distinct values: Active. [Value Examples: ''Active'']'
 - name: date_of_first_appointment
   type: DATE
   nullable: true
@@ -188,7 +207,7 @@ columns:
 - name: present_designation_teaching_type
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: Teaching.'
+  description: 'Categorical column. Distinct values: Teaching. [Value Examples: ''Teaching'']'
 - name: effective_start_date
   type: DATE
   nullable: true
@@ -200,17 +219,18 @@ columns:
 - name: is_current
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Yes''/''No'').'
+  description: 'Boolean indicator flag (values: ''Yes''/''No''). [Value Examples:
+    ''Yes'']'
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-22 15:16:46.762430'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''CURATED_TEAM'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true

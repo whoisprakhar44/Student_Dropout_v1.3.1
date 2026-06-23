@@ -1,7 +1,15 @@
 database: curated_datamodels
 table: citizen_document_testing
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen document testing.
+description: 'Curated Hive/Iceberg table for citizen document testing. [Sample records:
+  {''document_name'': ''BA202128022240000203'', ''issuing_authority'': ''GRAMA PANCHAYAT
+  KUDUMSARAI'', ''issuance_date'': ''06-11-2023'', ''registration_date'': ''12-10-2022'',
+  ''place_of_event'': ''House'', ''valid_from'': ''06-11-2023''}, {''document_name'':
+  ''BA201628151200004911'', ''issuing_authority'': ''GGH Ananthapur'', ''issuance_date'':
+  ''13-12-2016'', ''registration_date'': ''13-12-2016'', ''place_of_event'': ''Hospital/Institution'',
+  ''valid_from'': ''13-12-2016''}, {''document_name'': ''BA201628901470000217'', ''issuing_authority'':
+  ''DISTRICT HOSPITAL CHITTOR'', ''issuance_date'': ''21-10-2019'', ''registration_date'':
+  ''13-12-2016'', ''place_of_event'': ''Hospital/Institution'', ''valid_from'': ''21-10-2019''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document_testing
 partitioned_by: ''
@@ -54,12 +62,14 @@ columns:
 - name: citizen_document_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for the citizen document record.'
+  description: 'Primary Key: Unique identifier for the citizen document record. [Value
+    Examples: ''1'', ''2'', ''3'', ''4'', ''5'']'
 - name: citizen_master_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+    table. [Value Examples: ''303570390926'', ''252442579590'', ''534546812284'',
+    ''660730884508'']'
 - name: citizen_document_type_fk
   type: INT
   nullable: true
@@ -69,7 +79,9 @@ columns:
   type: STRING
   nullable: true
   description: 'System field containing values such as: BA202128022240000203, BA201628151200004911,
-    BA201628901470000217, BA202228160470000970, BA201628900410000053.'
+    BA201628901470000217, BA202228160470000970, BA201628900410000053. [Value Examples:
+    ''BA202128022240000203'', ''BA201628151200004911'', ''BA201628901470000217'',
+    ''BA202228160470000970'', ''BA201628900410000053'']'
 - name: file_name
   type: STRING
   nullable: true
@@ -77,19 +89,23 @@ columns:
 - name: issuing_authority
   type: STRING
   nullable: true
-  description: Issuing authority.
+  description: 'Issuing authority. [Value Examples: ''GRAMA PANCHAYAT KUDUMSARAI'',
+    ''GGH Ananthapur'', ''DISTRICT HOSPITAL CHITTOR'', ''PHC GOMANGI'', ''MUNICIPALITY
+    VINUKONDA'']'
 - name: issuance_date
   type: STRING
   nullable: true
-  description: The specific date or timestamp when the issuance occurred.
+  description: 'The specific date or timestamp when the issuance occurred. [Value
+    Examples: ''06-11-2023'', ''13-12-2016'', ''21-10-2019'']'
 - name: registration_date
   type: STRING
   nullable: true
-  description: The specific date or timestamp when the registration occurred.
+  description: 'The specific date or timestamp when the registration occurred. [Value
+    Examples: ''12-10-2022'', ''13-12-2016'', ''20-12-2016'']'
 - name: place_of_event
   type: STRING
   nullable: true
-  description: Place of event.
+  description: 'Place of event. [Value Examples: ''House'', ''Hospital/Institution'']'
 - name: status
   type: STRING
   nullable: true
@@ -109,17 +125,19 @@ columns:
 - name: valid_from
   type: STRING
   nullable: true
-  description: Start date/timestamp for the validity period of this record (e.g. consent
-    or document).
+  description: 'Start date/timestamp for the validity period of this record (e.g.
+    consent or document). [Value Examples: ''06-11-2023'', ''13-12-2016'', ''21-10-2019'']'
 - name: coalesced_uid
   type: STRING
   nullable: true
-  description: A unified unique identifier coalesced from multiple source IDs to represent
-    the citizen/document uniquely.
+  description: 'A unified unique identifier coalesced from multiple source IDs to
+    represent the citizen/document uniquely. [Value Examples: ''303570390926'', ''252442579590'',
+    ''534546812284'', ''660730884508'']'
 - name: uid_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''F'',
+    ''M'', ''N'']'
 - name: valid_to
   type: STRING
   nullable: true
@@ -128,13 +146,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-01 11:29:36.672393'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true

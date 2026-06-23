@@ -1,7 +1,15 @@
 database: curated_datamodels
 table: citizen_school
 department: canonicalmodel
-description: Curated table containing citizen school attributes.
+description: 'Curated table containing citizen school attributes. [Sample records:
+  {''school_name'': ''DSCTraining Teachers'', ''district_name'': ''State Level'',
+  ''mandal_name'': ''-'', ''village_name'': ''-'', ''urban_rural_flag'': ''RURAL'',
+  ''functional_status'': ''Active''}, {''school_name'': ''GPS (TW) NERADIGUDA'', ''district_name'':
+  ''SRIKAKULAM'', ''mandal_name'': ''HIRAMANDALAM'', ''urban_rural_flag'': ''RURAL'',
+  ''functional_status'': ''Active'', ''min_class'': ''-2''}, {''school_name'': ''KENDRIYA
+  VIDYALAYAM'', ''school_address'': ''NEAR SEVEN TEMPLES, BABAMETTA , VIZIA...'',
+  ''district_name'': ''Vizianagaram'', ''mandal_name'': ''VIZIANAGARAM'', ''village_name'':
+  ''VIZIANAGARAM-1'', ''urban_rural_flag'': ''RURAL''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_school
 partitioned_by: 'citizen_school_id_pk_bucket: bucket[32]'
@@ -88,12 +96,13 @@ columns:
 - name: citizen_school_id_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for the citizen school record.'
+  description: 'Primary Key: Unique identifier for the citizen school record. [Value
+    Examples: ''1'', ''24'', ''27'', ''69'', ''101'']'
 - name: school_medium_id_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated school medium dimension or master
-    table.'
+    table. [Value Examples: ''5'', ''3'']'
 - name: school_teacher_id_fk
   type: BIGINT
   nullable: true
@@ -103,7 +112,7 @@ columns:
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated school category dimension or
-    master table.'
+    master table. [Value Examples: ''1'', ''5'', ''7'']'
 - name: school_management_id_fk
   type: BIGINT
   nullable: true
@@ -123,15 +132,21 @@ columns:
 - name: school_name
   type: STRING
   nullable: true
-  description: The official name of the educational institution or school.
+  description: 'The official name of the educational institution or school. [Value
+    Examples: ''DSCTraining Teachers'', ''GPS (TW) NERADIGUDA'', ''KENDRIYA VIDYALAYAM'',
+    ''JAWAHAR NAVODAYA VIDYALAYA'', ''GOVT TRIBAL WELFARE SCHOOL NEKKANTI'']'
 - name: school_address
   type: STRING
   nullable: true
-  description: School address.
+  description: 'School address. [Value Examples: ''NEAR SEVEN TEMPLES, BABAMETTA ,
+    VIZIA...'', ''VELERU VILLAGE BAPULAPADU MANDAL KRIS...'', ''NEKKANTI VILLAGE YERRAGONDAPALEM
+    MAND...'']'
 - name: district_name
   type: STRING
   nullable: true
-  description: The official name of the administrative district in Andhra Pradesh.
+  description: 'The official name of the administrative district in Andhra Pradesh.
+    [Value Examples: ''State Level'', ''SRIKAKULAM'', ''Vizianagaram'', ''Krishna'',
+    ''Prakasam'']'
 - name: district_lgd_code
   type: STRING
   nullable: true
@@ -141,7 +156,8 @@ columns:
 - name: mandal_name
   type: STRING
   nullable: true
-  description: The official name of the Mandal (sub-district administrative division).
+  description: 'The official name of the Mandal (sub-district administrative division).
+    [Value Examples: ''-'', ''HIRAMANDALAM'', ''VIZIANAGARAM'', ''BAPULAPADU'', ''YERRAGONDAPALEM'']'
 - name: mandal_lgd_code
   type: STRING
   nullable: true
@@ -151,8 +167,8 @@ columns:
 - name: village_name
   type: STRING
   nullable: true
-  description: The official name of the village/habitation where the school or citizen
-    address is located.
+  description: 'The official name of the village/habitation where the school or citizen
+    address is located. [Value Examples: ''-'', ''VIZIANAGARAM-1'', ''VELERU'', ''KOLUKULA'']'
 - name: village_lgd_code
   type: STRING
   nullable: true
@@ -162,7 +178,8 @@ columns:
 - name: urban_rural_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''RURAL'',
+    ''URBAN'']'
 - name: latitude
   type: DECIMAL(9,6)
   nullable: true
@@ -174,26 +191,26 @@ columns:
 - name: school_pincode
   type: STRING
   nullable: true
-  description: School pincode.
+  description: 'School pincode. [Value Examples: ''535002'', ''521110'', ''523327'']'
 - name: functional_status
   type: STRING
   nullable: true
   description: 'Functional status of the school. Categorical column. Distinct values:
-    Active, Operational, Closed.'
+    Active, Operational, Closed. [Value Examples: ''Active'']'
 - name: academic_year_opened
   type: STRING
   nullable: true
-  description: Academic year opened.
+  description: 'Academic year opened. [Value Examples: ''2007'', ''1990'', ''2019'']'
 - name: min_class
   type: INT
   nullable: true
-  description: The minimum class or grade level (e.g. Class 1 or Class 6) for which
-    this category/subject is applicable.
+  description: 'The minimum class or grade level (e.g. Class 1 or Class 6) for which
+    this category/subject is applicable. [Value Examples: ''-2'', ''6'']'
 - name: max_class
   type: INT
   nullable: true
-  description: The maximum class or grade level (e.g. Class 5 or Class 10) for which
-    this category/subject is applicable.
+  description: 'The maximum class or grade level (e.g. Class 5 or Class 10) for which
+    this category/subject is applicable. [Value Examples: ''5'', ''12'']'
 - name: pre_primary_flag
   type: STRING
   nullable: true
@@ -237,7 +254,8 @@ columns:
 - name: head_master_mobile
   type: STRING
   nullable: true
-  description: Head master mobile.
+  description: 'Head master mobile. [Value Examples: ''9441578739'', ''9581689868'',
+    ''6301728022'']'
 - name: school_contact_no
   type: STRING
   nullable: true
@@ -273,17 +291,18 @@ columns:
 - name: is_current
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Yes''/''No'').'
+  description: 'Boolean indicator flag (values: ''Yes''/''No''). [Value Examples:
+    ''YES'']'
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-16 12:27:02.354077'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''CURATED_TEAM'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true

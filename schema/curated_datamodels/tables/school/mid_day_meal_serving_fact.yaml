@@ -1,7 +1,10 @@
 database: curated_datamodels
 table: mid_day_meal_serving_fact
 department: school
-description: Fact table for mid day meal serving measures and events.
+description: 'Fact table for mid day meal serving measures and events. [Sample records:
+  {''academic_year'': ''2025'', ''meal_served_flag'': ''No''}, {''academic_year'':
+  ''2025'', ''meal_served_flag'': ''No''}, {''academic_year'': ''2025'', ''meal_served_flag'':
+  ''Yes''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/mid_day_meal_serving_fact
 partitioned_by: 'mid_day_meal_serving_fact_id_pk_bucket: bucket[32]'
@@ -13,17 +16,19 @@ columns:
 - name: mid_day_meal_serving_fact_id_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for the mid day meal serving fact record.'
+  description: 'Primary Key: Unique identifier for the mid day meal serving fact record.
+    [Value Examples: ''1'', ''24'', ''27'', ''69'', ''101'']'
 - name: citizen_school_id_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen school dimension or master
-    table.'
+    table. [Value Examples: ''1223'']'
 - name: date_key_id_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated date key dimension or master
-    table.'
+    table. [Value Examples: ''20250613'', ''20250729'', ''20250726'', ''20251009'',
+    ''20251125'']'
 - name: meal_type_id_fk
   type: BIGINT
   nullable: true
@@ -32,7 +37,8 @@ columns:
 - name: academic_year
   type: STRING
   nullable: true
-  description: The academic calendar year for the record (e.g., '2024-25').
+  description: 'The academic calendar year for the record (e.g., ''2024-25''). [Value
+    Examples: ''2025'']'
 - name: mid_day_meal_serving_factor
   type: DECIMAL(5,2)
   nullable: true
@@ -48,7 +54,8 @@ columns:
 - name: meal_served_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Yes''/''No'').'
+  description: 'Boolean indicator flag (values: ''Yes''/''No''). [Value Examples:
+    ''No'', ''Yes'']'
 - name: calories_served
   type: DECIMAL(8,2)
   nullable: true
@@ -114,13 +121,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-29 17:51:53.684422'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''CURATED_TEAM'']'
 primary_key:
 - mid_day_meal_serving_fact_id_pk
 relationships: []

@@ -1,7 +1,13 @@
 database: curated_datamodels
 table: citizen_health_schemes
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen health schemes.
+description: 'Curated Hive/Iceberg table for citizen health schemes. [Sample records:
+  {''health_card_id'': ''WAP130103300275/04'', ''scheme_name'': ''Dr.NTR Vaidya Seva'',
+  ''household_id'': ''HH97587443683120200515052731763'', ''ration_card_no'': ''2818091180''},
+  {''health_card_id'': ''YAP102002800383/01'', ''scheme_name'': ''Ayushman Bharat(PM-JAY)'',
+  ''household_id'': ''HH59671442198220200320064241078'', ''ration_card_no'': ''2803376070''},
+  {''health_card_id'': ''WAP070201300210/04'', ''scheme_name'': ''Dr.NTR Vaidya Seva'',
+  ''household_id'': ''HH38123908591320200218104429651'', ''ration_card_no'': ''2816245796''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_health_schemes
 partitioned_by: ''
@@ -47,34 +53,41 @@ columns:
 - name: citizen_health_schemes_pk
   type: INT
   nullable: true
-  description: 'Primary Key: Unique identifier for the citizen health schemes record.'
+  description: 'Primary Key: Unique identifier for the citizen health schemes record.
+    [Value Examples: ''139'', ''174'', ''182'', ''193'', ''208'']'
 - name: citizen_health_schemes_master_fk
   type: INT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen health schemes master
-    dimension or master table.'
+    dimension or master table. [Value Examples: ''2'', ''1'']'
 - name: citizen_master_fk
   type: INT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+    table. [Value Examples: ''200002204041'', ''200003174540'', ''200003320144'',
+    ''200003472302'', ''200003862489'']'
 - name: health_card_id
   type: STRING
   nullable: true
-  description: Unique identifier for health card.
+  description: 'Unique identifier for health card. [Value Examples: ''WAP130103300275/04'',
+    ''YAP102002800383/01'', ''WAP070201300210/04'', ''WAP111202100328/01'', ''WAP134400200471/01'']'
 - name: scheme_name
   type: STRING
   nullable: true
-  description: Name of the welfare/health scheme.
+  description: 'Name of the welfare/health scheme. [Value Examples: ''Dr.NTR Vaidya
+    Seva'', ''Ayushman Bharat(PM-JAY)'']'
 - name: household_id
   type: STRING
   nullable: true
-  description: Unique identifier for the household.
+  description: 'Unique identifier for the household. [Value Examples: ''HH97587443683120200515052731763'',
+    ''HH59671442198220200320064241078'', ''HH38123908591320200218104429651'', ''HH59780609395520200216075739443'',
+    ''HH71482531669920200225063315885'']'
 - name: ration_card_no
   type: STRING
   nullable: true
-  description: The unique household ration card number used for public distribution
-    benefits.
+  description: 'The unique household ration card number used for public distribution
+    benefits. [Value Examples: ''2818091180'', ''2803376070'', ''2816245796'', ''2804622535'',
+    ''2816979039'']'
 - name: scheme_registered_date
   type: DATE
   nullable: true
@@ -102,13 +115,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-28 17:54:52.314408'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true

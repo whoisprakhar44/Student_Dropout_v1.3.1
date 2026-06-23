@@ -1,7 +1,11 @@
 database: curated_datamodels
 table: citizen_welfare_schemes_master
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen welfare schemes master.
+description: 'Curated Hive/Iceberg table for citizen welfare schemes master. [Sample
+  records: {''scheme_name'': ''Annadatha Sukhibava'', ''scheme_active_status'': ''Y''},
+  {''scheme_name'': ''Aasara'', ''scheme_code'': ''S22'', ''scheme_active_status'':
+  ''N''}, {''scheme_name'': ''Jalakala'', ''scheme_code'': ''S30'', ''scheme_active_status'':
+  ''N''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes_master
 partitioned_by: ''
@@ -49,11 +53,13 @@ columns:
   type: INT
   nullable: true
   description: 'Primary Key: Unique identifier for the citizen welfare schemes master
-    record.'
+    record. [Value Examples: ''31'', ''2'', ''10'', ''27'', ''17'']'
 - name: scheme_name
   type: STRING
   nullable: true
-  description: The official name of the government welfare scheme or benefit program.
+  description: 'The official name of the government welfare scheme or benefit program.
+    [Value Examples: ''Annadatha Sukhibava'', ''Aasara'', ''Jalakala'', ''Videsi Vidya
+    Deevena'', ''Pension Kanuka'']'
 - name: category
   type: STRING
   nullable: true
@@ -67,7 +73,8 @@ columns:
   nullable: true
   description: 'Code/ID column: Standardized system code representing the scheme.
     Categorical column. Distinct values: 30. Examples: S22, S30, S4, S14. Top frequencies:
-    2, 1, 1, 1, 1. Categorical column.'
+    2, 1, 1, 1, 1. Categorical column. [Value Examples: ''S22'', ''S30'', ''S14'',
+    ''S4'']'
 - name: scheme_create_date
   type: DATE
   nullable: true
@@ -83,7 +90,8 @@ columns:
 - name: scheme_active_status
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: N, Y.'
+  description: 'Categorical column. Distinct values: N, Y. [Value Examples: ''Y'',
+    ''N'']'
 - name: scheme_benefits
   type: STRING
   nullable: true
@@ -101,13 +109,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-01-28 00:00:00'', ''2026-01-09 00:00:00'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''Curated_team'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true

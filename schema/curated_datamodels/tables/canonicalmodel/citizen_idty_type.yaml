@@ -1,7 +1,9 @@
 database: curated_datamodels
 table: citizen_idty_type
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen idty type.
+description: 'Curated Hive/Iceberg table for citizen idty type. [Sample records: {''citizen_idty_type'':
+  ''1'', ''idty_name'': ''AADHAR'', ''idty_description'': ''The UIDAI was created
+  to issue unique...'', ''issuing_authority'': ''UIDAI''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_idty_type
 partitioned_by: ''
@@ -29,19 +31,21 @@ columns:
 - name: citizen_idty_type
   type: INT
   nullable: true
-  description: Citizen idty type.
+  description: 'Citizen idty type. [Value Examples: ''1'']'
 - name: idty_name
   type: STRING
   nullable: true
-  description: Field containing the idty name details for the table.
+  description: 'Field containing the idty name details for the table. [Value Examples:
+    ''AADHAR'']'
 - name: idty_description
   type: STRING
   nullable: true
-  description: Idty description.
+  description: 'Idty description. [Value Examples: ''The UIDAI was created to issue
+    unique...'']'
 - name: issuing_authority
   type: STRING
   nullable: true
-  description: Issuing authority.
+  description: 'Issuing authority. [Value Examples: ''UIDAI'']'
 primary_key: []
 relationships: []
 business_terms:

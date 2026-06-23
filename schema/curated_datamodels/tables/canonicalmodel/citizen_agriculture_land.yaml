@@ -1,7 +1,14 @@
 database: curated_datamodels
 table: citizen_agriculture_land
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen agriculture land.
+description: 'Curated Hive/Iceberg table for citizen agriculture land. [Sample records:
+  {''village_code'': ''2524003'', ''land_area'': ''50 Cents to 1 acre'', ''crop_type'':
+  ''Groundnut'', ''variety_name'': ''K-6'', ''cultivator_type'': ''O'', ''survey_no'':
+  ''889-1''}, {''village_code'': ''1515027'', ''land_area'': ''Zero Cents'', ''crop_type'':
+  ''Cashew nut'', ''variety_name'': ''జీడి మామిడి'', ''cultivator_type'': ''O'', ''survey_no'':
+  ''ROFR-214674-302''}, {''village_code'': ''2524003'', ''land_area'': ''50 Cents
+  to 1 acre'', ''crop_type'': ''Ragi'', ''variety_name'': ''Indravathi'', ''cultivator_type'':
+  ''O'', ''survey_no'': ''889-1''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_agriculture_land
 partitioned_by: ''
@@ -40,51 +47,57 @@ columns:
 - name: citizen_agriculture_land_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for citizen agriculture land.'
+  description: 'Primary Key: Unique identifier for citizen agriculture land. [Value
+    Examples: ''1'', ''12456110'', ''2'', ''12456111'', ''3'']'
 - name: citizen_master_fk
   type: INT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+    table. [Value Examples: ''200000448003'', ''938529569158'']'
 - name: village_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: LGD village code. Categorical column.'
+  description: 'Code/ID column: LGD village code. Categorical column. [Value Examples:
+    ''2524003'', ''1515027'']'
 - name: land_area
   type: STRING
   nullable: true
-  description: Land area description.
+  description: 'Land area description. [Value Examples: ''50 Cents to 1 acre'', ''Zero
+    Cents'']'
 - name: crop_type
   type: STRING
   nullable: true
   description: 'Categorical column. Distinct values: Cashew nut, Chrysanthemum, Groundnut,
-    Ragi.'
+    Ragi. [Value Examples: ''Groundnut'', ''Cashew nut'', ''Ragi'', ''Chrysanthemum'']'
 - name: variety_name
   type: STRING
   nullable: true
-  description: Crop variety name.
+  description: 'Crop variety name. [Value Examples: ''K-6'', ''జీడి మామిడి'', ''Indravathi'',
+    ''చామంతి పువ్వులు'']'
 - name: cultivator_type
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: O.'
+  description: 'Categorical column. Distinct values: O. [Value Examples: ''O'']'
 - name: survey_no
   type: STRING
   nullable: true
-  description: Survey number of the agricultural land.
+  description: 'Survey number of the agricultural land. [Value Examples: ''889-1'',
+    ''ROFR-214674-302'']'
 - name: khata_no
   type: STRING
   nullable: true
-  description: Khata number of the agricultural land.
+  description: 'Khata number of the agricultural land. [Value Examples: ''1156'',
+    ''674516649'']'
 - name: created_date
   type: STRING
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-23 18:43:26.890635'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
 - name: updated_date
   type: STRING
   nullable: true

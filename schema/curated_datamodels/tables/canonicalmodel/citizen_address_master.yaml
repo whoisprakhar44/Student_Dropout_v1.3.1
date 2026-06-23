@@ -1,7 +1,14 @@
 database: curated_datamodels
 table: citizen_address_master
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen address master.
+description: 'Curated Hive/Iceberg table for citizen address master. [Sample records:
+  {''lgd_dist_code'': ''753'', ''district_name'': ''ANNAMAYYA'', ''lgd_mandal_code'':
+  ''5242'', ''mandal_name'': ''VEERABALLI'', ''secretariat_code'': ''11190187'', ''secretariat_name'':
+  ''ODIVEEDU''}, {''lgd_dist_code'': ''744'', ''district_name'': ''ANAKAPALLI'', ''lgd_mandal_code'':
+  ''4872'', ''mandal_name'': ''CHODAVARAM'', ''secretariat_code'': ''10390354'', ''secretariat_name'':
+  ''GAVARAVARAM''}, {''lgd_dist_code'': ''502'', ''district_name'': ''ANANTHAPURAMU'',
+  ''lgd_mandal_code'': ''5309'', ''mandal_name'': ''GUNTHAKAL'', ''secretariat_code'':
+  ''11290505'', ''secretariat_name'': ''KASAPURAM''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_address_master
 partitioned_by: 'citizen_master_fk_bucket: bucket[32]'
@@ -58,45 +65,57 @@ columns:
 - name: citizen_address_master_pk
   type: INT
   nullable: true
-  description: 'Primary Key: Unique identifier for the citizen address master record.'
+  description: 'Primary Key: Unique identifier for the citizen address master record.
+    [Value Examples: ''77311132611'', ''77310798547'', ''77311671578'', ''77311108656'',
+    ''77311923465'']'
 - name: citizen_master_fk
   type: STRING
   nullable: true
   description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+    table. [Value Examples: ''200033592809'', ''200044246390'', ''200062834743'',
+    ''200140153905'', ''200187610877'']'
 - name: lgd_dist_code
   type: INT
   nullable: true
-  description: 'Code/ID column: LGD district code. Categorical column.'
+  description: 'Code/ID column: LGD district code. Categorical column. [Value Examples:
+    ''753'', ''744'', ''502'', ''506'', ''505'']'
 - name: district_name
   type: STRING
   nullable: true
-  description: The official name of the administrative district in Andhra Pradesh.
+  description: 'The official name of the administrative district in Andhra Pradesh.
+    [Value Examples: ''ANNAMAYYA'', ''ANAKAPALLI'', ''ANANTHAPURAMU'', ''GUNTUR'',
+    ''EAST GODAVARI'']'
 - name: lgd_mandal_code
   type: INT
   nullable: true
-  description: 'Code/ID column: LGD mandal code. Categorical column.'
+  description: 'Code/ID column: LGD mandal code. Categorical column. [Value Examples:
+    ''5242'', ''4872'', ''5309'', ''1023'', ''1076'']'
 - name: mandal_name
   type: STRING
   nullable: true
-  description: The official name of the mandal (sub-district administrative division)
-    in Andhra Pradesh.
+  description: 'The official name of the mandal (sub-district administrative division)
+    in Andhra Pradesh. [Value Examples: ''VEERABALLI'', ''CHODAVARAM'', ''GUNTHAKAL'',
+    ''TADEPALLI MANGALAGIRI MUNICIPAL CORPO...'', ''KOVVUR'']'
 - name: secretariat_code
   type: STRING
   nullable: true
-  description: 'Code/ID column: GSWS secretariat code. Categorical column.'
+  description: 'Code/ID column: GSWS secretariat code. Categorical column. [Value
+    Examples: ''11190187'', ''10390354'', ''11290505'', ''21023013'', ''21076001'']'
 - name: secretariat_name
   type: STRING
   nullable: true
-  description: GSWS secretariat name.
+  description: 'GSWS secretariat name. [Value Examples: ''ODIVEEDU'', ''GAVARAVARAM'',
+    ''KASAPURAM'', ''SRILAKSHMINARASIMHASWAMYCOLONY'', ''SRIRAMACOLONY'']'
 - name: rural_urban_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''R'',
+    ''U'']'
 - name: cluster_id
   type: STRING
   nullable: true
-  description: Secretariat cluster identifier.
+  description: 'Secretariat cluster identifier. [Value Examples: ''11190187001'',
+    ''10390354017'', ''11290505012'', ''21023013018'', ''21076001006'']'
 - name: address_type
   type: STRING
   nullable: true
@@ -104,7 +123,8 @@ columns:
 - name: address_line_1
   type: STRING
   nullable: true
-  description: Address line 1.
+  description: 'Address line 1. [Value Examples: ''2/35'', ''1-10'', ''2/78'', ''11-1150'',
+    ''14-16-17'']'
 - name: address_line_2
   type: STRING
   nullable: true
@@ -119,15 +139,17 @@ columns:
   description: 'Code/ID column: The 6-digit postal code (PIN) for the address location.
     Categorical column. Distinct values: 200. Examples: 534350, 531075, 522503, 516269,
     515803. Top frequencies: 19730661, 280822, 258720, 242981, 221759. Categorical
-    column.'
+    column. [Value Examples: ''516269'', ''531075'', ''515803'', ''522503'', ''534350'']'
 - name: latitude
   type: STRING
   nullable: true
-  description: The geographical latitude coordinate of the location.
+  description: 'The geographical latitude coordinate of the location. [Value Examples:
+    ''14.0682766'', ''17.8659084'', ''15.1967047'', ''16.3884474'', ''17.0242395'']'
 - name: longitude
   type: STRING
   nullable: true
-  description: The geographical longitude coordinate of the location.
+  description: 'The geographical longitude coordinate of the location. [Value Examples:
+    ''78.812407'', ''82.98772'', ''77.3980294'', ''80.5366933'', ''81.7199804'']'
 - name: coordinate_system
   type: STRING
   nullable: true
@@ -151,22 +173,23 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-29 15:38:30.460400'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating the last time this record was modified or updated.
+  description: 'Timestamp indicating the last time this record was modified or updated.
+    [Value Examples: ''2026-06-16 12:00:23.820001'']'
 - name: updated_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for the most recent
-    update to this record.
+  description: 'The user ID or automated system process responsible for the most recent
+    update to this record. [Value Examples: ''curated_team'']'
 primary_key:
 - citizen_address_master_pk
 relationships: []

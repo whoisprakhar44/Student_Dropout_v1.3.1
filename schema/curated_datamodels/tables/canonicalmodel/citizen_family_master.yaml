@@ -1,7 +1,15 @@
 database: curated_datamodels
 table: citizen_family_master
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen family master.
+description: 'Curated Hive/Iceberg table for citizen family master. [Sample records:
+  {''household_id'': ''HH29452103007320200722111929122'', ''resident_id'': ''1000000336'',
+  ''citizen_name'': ''PotnuruKushal'', ''is_hofamily'': ''0'', ''is_memberadded'':
+  ''0'', ''is_memberdeleted'': ''0''}, {''household_id'': ''HH70851661362020200321112202865'',
+  ''resident_id'': ''1348852533'', ''citizen_name'': ''K Janardhan'', ''is_hofamily'':
+  ''0'', ''is_memberadded'': ''0'', ''is_memberdeleted'': ''0''}, {''household_id'':
+  ''HH40306956818820200218081808340'', ''resident_id'': ''1000000793'', ''citizen_name'':
+  ''Gonti Sai'', ''is_hofamily'': ''0'', ''is_memberadded'': ''0'', ''is_memberdeleted'':
+  ''0''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_family_master
 partitioned_by: ''
@@ -13,25 +21,31 @@ columns:
 - name: citizen_family_master_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for the citizen family master record.'
+  description: 'Primary Key: Unique identifier for the citizen family master record.
+    [Value Examples: ''9'', ''33582613'', ''52'', ''33582644'', ''144'']'
 - name: citizen_master_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+    table. [Value Examples: ''200001453821'', ''450985460862'', ''200017292215'',
+    ''450991660962'', ''200048216814'']'
 - name: household_id
   type: STRING
   nullable: true
-  description: Identifier key referencing the associated household.
+  description: 'Identifier key referencing the associated household. [Value Examples:
+    ''HH29452103007320200722111929122'', ''HH70851661362020200321112202865'', ''HH40306956818820200218081808340'',
+    ''HH25421086083420201218013435194'', ''HH49154042659420200218020130962'']'
 - name: resident_id
   type: STRING
   nullable: true
-  description: Identifier key referencing the associated resident.
+  description: 'Identifier key referencing the associated resident. [Value Examples:
+    ''1000000336'', ''1348852533'', ''1000000793'', ''1348852844'', ''1000001759'']'
 - name: citizen_name
   type: STRING
   nullable: true
   description: 'System field containing values such as: PotnuruKushal, K Janardhan,
-    Gonti Sai, Vadde Nagaraju, Kornu Govindarao.'
+    Gonti Sai, Vadde Nagaraju, Kornu Govindarao. [Value Examples: ''PotnuruKushal'',
+    ''K Janardhan'', ''Gonti Sai'', ''Vadde Nagaraju'', ''Kornu Govindarao'']'
 - name: realtionship
   type: STRING
   nullable: true
@@ -44,18 +58,18 @@ columns:
 - name: is_hofamily
   type: STRING
   nullable: true
-  description: Boolean indicator flag for whether the individual is the head of the
-    family (0 for No, 1 for Yes).
+  description: 'Boolean indicator flag for whether the individual is the head of the
+    family (0 for No, 1 for Yes). [Value Examples: ''0'']'
 - name: is_memberadded
   type: STRING
   nullable: true
-  description: Boolean indicator flag for whether the member was added (0 for No,
-    1 for Yes).
+  description: 'Boolean indicator flag for whether the member was added (0 for No,
+    1 for Yes). [Value Examples: ''0'']'
 - name: is_memberdeleted
   type: STRING
   nullable: true
-  description: Boolean indicator flag for whether the member was deleted (0 for No,
-    1 for Yes).
+  description: 'Boolean indicator flag for whether the member was deleted (0 for No,
+    1 for Yes). [Value Examples: ''0'']'
 - name: relation_withhof
   type: STRING
   nullable: true
@@ -78,7 +92,8 @@ columns:
 - name: is_married
   type: STRING
   nullable: true
-  description: Boolean indicator flag for marriage status (0 for No, 1 for Yes).
+  description: 'Boolean indicator flag for marriage status (0 for No, 1 for Yes).
+    [Value Examples: ''0'']'
 - name: new_hh_id
   type: STRING
   nullable: true
@@ -90,7 +105,8 @@ columns:
 - name: careof
   type: STRING
   nullable: true
-  description: 'System field containing values such as: S/O.'
+  description: 'System field containing values such as: S/O. [Value Examples: ''S/O:
+    K Lakshmi Narasimhaiah'']'
 - name: effective_start_date
   type: DATE
   nullable: true
@@ -102,13 +118,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-25 18:43:48.986237'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true

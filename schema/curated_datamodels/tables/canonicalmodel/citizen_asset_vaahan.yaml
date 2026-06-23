@@ -1,7 +1,14 @@
 database: curated_datamodels
 table: citizen_asset_vaahan
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen asset vaahan.
+description: 'Curated Hive/Iceberg table for citizen asset vaahan. [Sample records:
+  {''registration_no'': ''ABK1179'', ''date_of_registration'': ''26-Apr-1983 12.00.00.00000000  am'',
+  ''make'': ''86'', ''model'': ''TATA'', ''year_of_manufacture'': ''1983'', ''fuel_type'':
+  ''2''}, {''registration_no'': ''AEG1827'', ''date_of_registration'': ''15-Aug-1989
+  12.00.00.00000000  am'', ''make'': ''86'', ''model'': ''TATA'', ''year_of_manufacture'':
+  ''1989'', ''fuel_type'': ''2''}, {''registration_no'': ''AP01F3723'', ''date_of_registration'':
+  ''22-Apr-2003 12.00.00.00000000  am'', ''make'': ''3982'', ''model'': ''HERO HONDA
+  SPLENDOR'', ''year_of_manufacture'': ''2003'', ''fuel_type'': ''1''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_vaahan
 partitioned_by: ''
@@ -51,54 +58,68 @@ columns:
 - name: citizen_asset_vaahan_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for the citizen asset vaahan record.'
+  description: 'Primary Key: Unique identifier for the citizen asset vaahan record.
+    [Value Examples: ''1973'', ''4928'', ''8676'', ''9443'', ''10869'']'
 - name: citizen_master_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+    table. [Value Examples: ''490995243387'', ''806223126448'', ''894901686030'',
+    ''881543342499'', ''933689441416'']'
 - name: citizen_asset_vaahan_type_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen asset vaahan type dimension
-    or master table.'
+    or master table. [Value Examples: ''1'']'
 - name: registration_no
   type: STRING
   nullable: true
-  description: Registration no.
+  description: 'Registration no. [Value Examples: ''ABK1179'', ''AEG1827'', ''AP01F3723'',
+    ''AP02AB0875'', ''AP02AG9009'']'
 - name: date_of_registration
   type: STRING
   nullable: true
-  description: Date of registration.
+  description: 'Date of registration. [Value Examples: ''26-Apr-1983 12.00.00.00000000  am'',
+    ''15-Aug-1989 12.00.00.00000000  am'', ''22-Apr-2003 12.00.00.00000000  am'',
+    ''25-Feb-2009 12.00.00.00000000  am'', ''09-Feb-2015 12.00.00.00000000  am'']'
 - name: make
   type: STRING
   nullable: true
-  description: 'System field containing values such as: 86, 3982, 36, 11.'
+  description: 'System field containing values such as: 86, 3982, 36, 11. [Value Examples:
+    ''86'', ''3982'', ''36'', ''11'']'
 - name: model
   type: STRING
   nullable: true
   description: 'Categorical column. Distinct values: AUDI Q3 2.0 TDI QUATTRO BSIV,
-    HERO HONDA SPLENDOR, SHINE FRONT DRUM BRAKE KICK ST, TATA.'
+    HERO HONDA SPLENDOR, SHINE FRONT DRUM BRAKE KICK ST, TATA. [Value Examples: ''TATA'',
+    ''HERO HONDA SPLENDOR'', ''SHINE FRONT DRUM BRAKE KICK ST'', ''AUDI Q3 2.0 TDI
+    QUATTRO BSIV'']'
 - name: year_of_manufacture
   type: STRING
   nullable: true
-  description: Year of manufacture.
+  description: 'Year of manufacture. [Value Examples: ''1983'', ''1989'', ''2003'',
+    ''2009'', ''2014'']'
 - name: fuel_type
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: 1, 2.'
+  description: 'Categorical column. Distinct values: 1, 2. [Value Examples: ''2'',
+    ''1'']'
 - name: chassis_no
   type: STRING
   nullable: true
-  description: Field containing the chassis no details for the table.
+  description: 'Field containing the chassis no details for the table. [Value Examples:
+    ''344052151074'', ''363052314286'', ''03B20F08716'', ''ME4JC366A98195194'', ''WAUZME8U3FY001392'']'
 - name: engine_no
   type: STRING
   nullable: true
-  description: Field containing the engine no details for the table.
+  description: 'Field containing the engine no details for the table. [Value Examples:
+    ''692D0215720'', ''692D02323334'', ''03B18E02907'', ''JC36E9315113'', ''CLL059204'']'
 - name: regn_valid_to
   type: STRING
   nullable: true
-  description: Registration valid to.
+  description: 'Registration valid to. [Value Examples: ''07-Jul-2023 12.00.00.00000000  am'',
+    ''05-May-2017 12.00.00.00000000  am'', ''21-Apr-2018 12.00.00.00000000  am'',
+    ''24-Feb-2024 12.00.00.00000000  am'', ''08-Feb-2030 12.00.00.00000000  am'']'
 - name: rto_office
   type: STRING
   nullable: true
@@ -106,16 +127,19 @@ columns:
 - name: color
   type: STRING
   nullable: true
-  description: 'System field containing values such as: INA, BLACK, MYTHOS BLACK METALLI.'
+  description: 'System field containing values such as: INA, BLACK, MYTHOS BLACK METALLI.
+    [Value Examples: ''INA'', ''BLACK'', ''MYTHOS BLACK METALLI'']'
 - name: owner_name
   type: STRING
   nullable: true
   description: 'System field containing values such as: J SATYA PRASAD, SRINIVASAMANIKANTA
-    A, VANDANA LAKSHMINARAYANA, P S NASEEMA BEGUM, VAIDEHEE SAREES.'
+    A, VANDANA LAKSHMINARAYANA, P S NASEEMA BEGUM, VAIDEHEE SAREES. [Value Examples:
+    ''J SATYA PRASAD'', ''SRINIVASAMANIKANTA A'', ''VANDANA LAKSHMINARAYANA'', ''P
+    S NASEEMA BEGUM'', ''VAIDEHEE SAREES'']'
 - name: owner_seniority
   type: STRING
   nullable: true
-  description: Owner seniority.
+  description: 'Owner seniority. [Value Examples: ''1'']'
 - name: ownership_start_date
   type: DATE
   nullable: true
@@ -127,13 +151,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-06-10 13:06:26.366833'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
 - name: updated_date
   type: TIMESTAMP
   nullable: true

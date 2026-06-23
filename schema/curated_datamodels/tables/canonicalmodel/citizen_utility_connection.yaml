@@ -1,7 +1,12 @@
 database: curated_datamodels
 table: citizen_utility_connection
 department: canonicalmodel
-description: Curated Hive/Iceberg table for citizen utility connection.
+description: 'Curated Hive/Iceberg table for citizen utility connection. [Sample records:
+  {''gas_connection_status'': ''LPG_GAS'', ''water_connection_status'': ''MUNICIPAL_PANCHAYAT_TAP'',
+  ''created_at'': ''2026-06-02 22:08:09.672581''}, {''gas_connection_status'': ''LPG_GAS'',
+  ''water_connection_status'': ''MUNICIPAL_PANCHAYAT_TAP'', ''created_at'': ''2026-06-02
+  22:08:09.672581''}, {''gas_connection_status'': ''LPG_GAS'', ''water_connection_status'':
+  ''PUBLIC_TAP'', ''created_at'': ''2026-06-02 22:08:09.672581''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_utility_connection
 partitioned_by: ''
@@ -14,20 +19,22 @@ columns:
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen utility connection dimension
-    or master table.'
+    or master table. [Value Examples: ''43900001'', ''43900002'', ''43900003'', ''43900004'',
+    ''43900005'']'
 - name: citizen_master_fk
   type: STRING
   nullable: true
   description: 'Foreign Key: Links to the associated citizen master dimension or master
-    table.'
+    table. [Value Examples: ''915421898988'', ''915421899313'', ''915421916204'',
+    ''915421937280'', ''915421992413'']'
 - name: gas_connection_status
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: LPG_GAS.'
+  description: 'Categorical column. Distinct values: LPG_GAS. [Value Examples: ''LPG_GAS'']'
 - name: electricity_connection_status
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: Y.'
+  description: 'Categorical column. Distinct values: Y. [Value Examples: ''Y'']'
 - name: avg_monthly_kwh
   type: STRING
   nullable: true
@@ -35,17 +42,18 @@ columns:
 - name: water_connection_status
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: MUNICIPAL_PANCHAYAT_TAP, PUBLIC_TAP.'
+  description: 'Categorical column. Distinct values: MUNICIPAL_PANCHAYAT_TAP, PUBLIC_TAP.
+    [Value Examples: ''MUNICIPAL_PANCHAYAT_TAP'', ''PUBLIC_TAP'']'
 - name: created_at
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the database system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the database system. [Value Examples: ''2026-06-02 22:08:09.672581'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''CURATED_TEAM'']'
 - name: updated_at
   type: TIMESTAMP
   nullable: true

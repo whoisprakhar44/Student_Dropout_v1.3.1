@@ -1,7 +1,14 @@
 database: curated_datamodels
 table: school_academic_performance_fact
 department: school
-description: Fact table for school academic performance measures and events.
+description: 'Fact table for school academic performance measures and events. [Sample
+  records: {''academic_year'': ''0'', ''student_roll_number'': ''11'', ''fa1_max_obtained_marks'':
+  ''43.00'', ''fa2_max_obtained_marks'': ''44.00'', ''fa3_max_obtained_marks'': ''27.00'',
+  ''fa4_max_obtained_marks'': ''40.00''}, {''academic_year'': ''0'', ''fa1_max_obtained_marks'':
+  ''50.00'', ''fa2_max_obtained_marks'': ''50.00'', ''fa3_max_obtained_marks'': ''50.00'',
+  ''sa1_max_obtained_marks'': ''80.00'', ''fa1_marks_percentage'': ''100.00''}, {''academic_year'':
+  ''0'', ''student_roll_number'': ''10'', ''fa1_max_obtained_marks'': ''25.00'', ''fa2_max_obtained_marks'':
+  ''30.00'', ''fa3_max_obtained_marks'': ''34.00'', ''fa4_max_obtained_marks'': ''30.00''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_academic_performance_fact
 partitioned_by: 'school_academic_performance_fact_id_pk_bucket: bucket[32]'
@@ -72,17 +79,17 @@ columns:
   type: BIGINT
   nullable: true
   description: 'Primary Key: Unique identifier for the school academic performance
-    fact record.'
+    fact record. [Value Examples: ''10'', ''27377041'', ''18'', ''27377064'', ''52'']'
 - name: citizen_student_id_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen student dimension or
-    master table.'
+    master table. [Value Examples: ''5'', ''6504093'', ''7'', ''6504098'', ''37'']'
 - name: citizen_school_id_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen school dimension or master
-    table.'
+    table. [Value Examples: ''17005'', ''22860'', ''11280'', ''48218'', ''26308'']'
 - name: student_subject_id_fk
   type: BIGINT
   nullable: true
@@ -97,7 +104,7 @@ columns:
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated student class dim dimension or
-    master table.'
+    master table. [Value Examples: ''3'', ''5'', ''7'']'
 - name: assessment_dim_id_fk
   type: BIGINT
   nullable: true
@@ -107,11 +114,12 @@ columns:
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated school medium dimension or master
-    table.'
+    table. [Value Examples: ''3'', ''5'']'
 - name: academic_year
   type: STRING
   nullable: true
-  description: The academic calendar year for the record (e.g., '2024-25').
+  description: 'The academic calendar year for the record (e.g., ''2024-25''). [Value
+    Examples: ''0'', ''2'']'
 - name: student_exam_id_fk
   type: BIGINT
   nullable: true
@@ -120,7 +128,7 @@ columns:
 - name: student_roll_number
   type: STRING
   nullable: true
-  description: Student roll number.
+  description: 'Student roll number. [Value Examples: ''11'', ''10'', ''49'']'
 - name: exam_registration_number
   type: STRING
   nullable: true
@@ -140,23 +148,27 @@ columns:
 - name: fa1_max_obtained_marks
   type: DECIMAL(5,2)
   nullable: true
-  description: FA1 maximum obtained marks.
+  description: 'FA1 maximum obtained marks. [Value Examples: ''43.00'', ''50.00'',
+    ''25.00'', ''46.00'']'
 - name: fa2_max_obtained_marks
   type: DECIMAL(5,2)
   nullable: true
-  description: FA2 maximum obtained marks.
+  description: 'FA2 maximum obtained marks. [Value Examples: ''44.00'', ''50.00'',
+    ''30.00'', ''46.00'']'
 - name: fa3_max_obtained_marks
   type: DECIMAL(5,2)
   nullable: true
-  description: FA3 maximum obtained marks.
+  description: 'FA3 maximum obtained marks. [Value Examples: ''27.00'', ''50.00'',
+    ''34.00'', ''46.00'']'
 - name: fa4_max_obtained_marks
   type: DECIMAL(5,2)
   nullable: true
-  description: FA4 maximum obtained marks.
+  description: 'FA4 maximum obtained marks. [Value Examples: ''40.00'', ''30.00'']'
 - name: sa1_max_obtained_marks
   type: DECIMAL(5,2)
   nullable: true
-  description: SA1 maximum obtained marks.
+  description: 'SA1 maximum obtained marks. [Value Examples: ''35.00'', ''80.00'',
+    ''39.00'', ''76.00'']'
 - name: sa2_max_obtained_marks
   type: DECIMAL(5,2)
   nullable: true
@@ -164,23 +176,27 @@ columns:
 - name: fa1_marks_percentage
   type: DECIMAL(5,2)
   nullable: true
-  description: FA1 marks percentage score.
+  description: 'FA1 marks percentage score. [Value Examples: ''86.00'', ''100.00'',
+    ''50.00'', ''92.00'']'
 - name: fa2_marks_percentage
   type: DECIMAL(5,2)
   nullable: true
-  description: FA2 marks percentage score.
+  description: 'FA2 marks percentage score. [Value Examples: ''88.00'', ''100.00'',
+    ''60.00'', ''92.00'']'
 - name: fa3_marks_percentage
   type: DECIMAL(5,2)
   nullable: true
-  description: FA3 marks percentage score.
+  description: 'FA3 marks percentage score. [Value Examples: ''54.00'', ''100.00'',
+    ''68.00'', ''92.00'']'
 - name: fa4_marks_percentage
   type: DECIMAL(5,2)
   nullable: true
-  description: FA4 marks percentage score.
+  description: 'FA4 marks percentage score. [Value Examples: ''80.00'', ''60.00'']'
 - name: sa1_marks_percentage
   type: DECIMAL(5,2)
   nullable: true
-  description: SA1 marks percentage score.
+  description: 'SA1 marks percentage score. [Value Examples: ''43.75'', ''100.00'',
+    ''48.75'', ''95.00'']'
 - name: sa2_marks_percentage
   type: DECIMAL(5,2)
   nullable: true
@@ -188,11 +204,11 @@ columns:
 - name: pass_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''Y'']'
 - name: fail_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''N'']'
 - name: absent_flag
   type: STRING
   nullable: true
@@ -220,11 +236,12 @@ columns:
 - name: instruction_language
   type: STRING
   nullable: true
-  description: Instruction language.
+  description: 'Instruction language. [Value Examples: ''Telugu'', ''English'']'
 - name: score
   type: DECIMAL(5,2)
   nullable: true
-  description: The score or marks obtained by the student in the academic assessment.
+  description: 'The score or marks obtained by the student in the academic assessment.
+    [Value Examples: ''90.00'', ''95.00'', ''54.00'', ''57.00'']'
 - name: performance_band
   type: STRING
   nullable: true
@@ -236,13 +253,13 @@ columns:
 - name: created_date
   type: TIMESTAMP
   nullable: true
-  description: Timestamp indicating exactly when this record was originally created
-    in the source system.
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-19 10:41:26.020203'']'
 - name: created_by
   type: STRING
   nullable: true
-  description: The user ID or automated system process responsible for creating this
-    record.
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''CURATED_TEAM'']'
 primary_key:
 - school_academic_performance_fact_id_pk
 relationships:

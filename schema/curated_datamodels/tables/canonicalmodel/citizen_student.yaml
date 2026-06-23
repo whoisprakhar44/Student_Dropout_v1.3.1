@@ -1,7 +1,15 @@
 database: curated_datamodels
 table: citizen_student
 department: canonicalmodel
-description: Curated table containing citizen student attributes.
+description: 'Curated table containing citizen student attributes. [Sample records:
+  {''household_id'': ''HH82648807193320200221022055274'', ''enrollment_id'': ''1501000102'',
+  ''student_name'': ''GORLE HEMANTH'', ''gender'': ''MALE'', ''mother_tongue'': ''140'',
+  ''date_of_birth'': ''2008-06-07''}, {''household_id'': ''HH67363061815820200912092131770'',
+  ''enrollment_id'': ''1501000431'', ''student_name'': ''CHALLA SAI MONISH'', ''gender'':
+  ''MALE'', ''mother_tongue'': ''140'', ''date_of_birth'': ''2009-03-10''}, {''household_id'':
+  ''HH90433758667420211217065146328'', ''enrollment_id'': ''1501000667'', ''student_name'':
+  ''ITRAJU SANTHOSH'', ''gender'': ''MALE'', ''mother_tongue'': ''140'', ''date_of_birth'':
+  ''2005-12-25''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_student
 partitioned_by: 'student_citizen_master_id_fk_bucket: bucket[32]'
@@ -68,34 +76,41 @@ columns:
 - name: citizen_student_id_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for the citizen student record.'
+  description: 'Primary Key: Unique identifier for the citizen student record. [Value
+    Examples: ''64'', ''134'', ''155'', ''189'', ''198'']'
 - name: citizen_school_id_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated citizen school dimension or master
-    table.'
+    table. [Value Examples: ''1493'', ''13081'', ''1373'', ''2378'']'
 - name: student_citizen_master_id_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated student citizen master dimension
-    or master table.'
+    or master table. [Value Examples: ''620686862758'', ''742499851453'', ''438525332231'',
+    ''902123570150'', ''808963438257'']'
 - name: household_id
   type: STRING
   nullable: true
-  description: Unique identifier for the household.
+  description: 'Unique identifier for the household. [Value Examples: ''HH82648807193320200221022055274'',
+    ''HH67363061815820200912092131770'', ''HH90433758667420211217065146328'', ''HH37708263523020200221072502732'',
+    ''HH74918284153920200215064054327'']'
 - name: enrollment_id
   type: STRING
   nullable: true
-  description: Unique student enrollment identifier.
+  description: 'Unique student enrollment identifier. [Value Examples: ''1501000102'',
+    ''1501000431'', ''1501000667'', ''1501000806'', ''1501000824'']'
 - name: student_name
   type: STRING
   nullable: true
-  description: Full legal name of the enrolled student.
+  description: 'Full legal name of the enrolled student. [Value Examples: ''GORLE
+    HEMANTH'', ''CHALLA SAI MONISH'', ''ITRAJU SANTHOSH'', ''UDIYANA DILEEP'', ''CHINTHADA
+    SOMESH'']'
 - name: gender
   type: STRING
   nullable: true
   description: 'Gender of the individual. Categorical column. Distinct values: MALE,
-    FEMALE.'
+    FEMALE. [Value Examples: ''MALE'']'
 - name: surname
   type: STRING
   nullable: true
@@ -103,57 +118,64 @@ columns:
 - name: mother_tongue
   type: STRING
   nullable: true
-  description: The primary language spoken by the student at home (e.g., Telugu, Urdu,
-    English).
+  description: 'The primary language spoken by the student at home (e.g., Telugu,
+    Urdu, English). [Value Examples: ''140'']'
 - name: date_of_birth
   type: DATE
   nullable: true
-  description: The birth date of the individual (citizen, student, or teacher) as
-    recorded in official records.
+  description: 'The birth date of the individual (citizen, student, or teacher) as
+    recorded in official records. [Value Examples: ''2008-06-07'', ''2009-03-10'',
+    ''2005-12-25'', ''2008-11-04'', ''2009-01-01'']'
 - name: social_category
   type: STRING
   nullable: true
   description: 'Social category classification. Categorical column. Distinct values:
-    General, OBC, SC, ST, BC, Minority.'
+    General, OBC, SC, ST, BC, Minority. [Value Examples: ''OBC'']'
 - name: minority_status
   type: STRING
   nullable: true
-  description: Minority status.
+  description: 'Minority status. [Value Examples: ''Not Applicable'']'
 - name: disability_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Yes''/''No'').'
+  description: 'Boolean indicator flag (values: ''Yes''/''No''). [Value Examples:
+    ''No'']'
 - name: disability_percentage
   type: DECIMAL(5,2)
   nullable: true
-  description: Disability percentage.
+  description: 'Disability percentage. [Value Examples: ''0.00'']'
 - name: admission_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Yes''/''No'').'
+  description: 'Boolean indicator flag (values: ''Yes''/''No''). [Value Examples:
+    ''Yes'']'
 - name: current_grade
   type: STRING
   nullable: true
-  description: The current academic class or grade the student is enrolled in (e.g.,
-    '1', '2', ..., '10').
+  description: 'The current academic class or grade the student is enrolled in (e.g.,
+    ''1'', ''2'', ..., ''10''). [Value Examples: ''11'', ''12'']'
 - name: medium_key
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: 3, 5.'
+  description: 'Categorical column. Distinct values: 3, 5. [Value Examples: ''5'',
+    ''3'']'
 - name: is_current
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Yes''/''No'').'
+  description: 'Boolean indicator flag (values: ''Yes''/''No''). [Value Examples:
+    ''Yes'']'
 - name: mother_citizen_master_id_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated mother citizen master dimension
-    or master table.'
+    or master table. [Value Examples: ''664994000499'', ''885409045542'', ''252726413482'',
+    ''841080434046'']'
 - name: father_citizen_master_id_fk
   type: BIGINT
   nullable: true
   description: 'Foreign Key: Links to the associated father citizen master dimension
-    or master table.'
+    or master table. [Value Examples: ''610246182532'', ''900412386299'', ''347430016308'',
+    ''898655533446'']'
 - name: guardian_citizen_master_id_fk
   type: BIGINT
   nullable: true
@@ -162,15 +184,17 @@ columns:
 - name: is_current_flag
   type: STRING
   nullable: true
-  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''Y'']'
 - name: primary_mobile_no
   type: STRING
   nullable: true
-  description: The primary 10-digit mobile contact number registered to the individual.
+  description: 'The primary 10-digit mobile contact number registered to the individual.
+    [Value Examples: ''6281470288'', ''9297202456'', ''7469463127'', ''8125273681'',
+    ''9701599572'']'
 - name: secondary_mobile_no
   type: STRING
   nullable: true
-  description: Secondary mobile no.
+  description: 'Secondary mobile no. [Value Examples: ''6281470289'']'
 - name: email_id
   type: STRING
   nullable: true
@@ -180,11 +204,15 @@ columns:
   nullable: true
   description: 'System field containing values such as: 3-1 PATHARALAPALLI RANASTHALAM
     SRIKAK..., FAZULBEGPETA SRIKAKULAM SRIKAKULAM, 1-59 THALAVARAM VEERAGHATTAM PARVATHI...,
-    1-209 THALAVARAM VEERAGHATTAM PARVATH..., 1-123 THALAVARAM VEERAGHATTAM PARVATH....'
+    1-209 THALAVARAM VEERAGHATTAM PARVATH..., 1-123 THALAVARAM VEERAGHATTAM PARVATH....
+    [Value Examples: ''3-1 PATHARALAPALLI RANASTHALAM SRIKAK...'', ''FAZULBEGPETA
+    SRIKAKULAM SRIKAKULAM'', ''1-59 THALAVARAM VEERAGHATTAM PARVATHI...'', ''1-209
+    THALAVARAM VEERAGHATTAM PARVATH...'', ''1-123 THALAVARAM VEERAGHATTAM PARVATH...'']'
 - name: pincode
   type: STRING
   nullable: true
-  description: The 6-digit postal code (PIN code) of the location.
+  description: 'The 6-digit postal code (PIN code) of the location. [Value Examples:
+    ''532407'', ''532005'', ''532462'']'
 - name: effective_start_date
   type: DATE
   nullable: true

@@ -1,7 +1,14 @@
 database: curated_datamodels
 table: school_category
 department: canonicalmodel
-description: Curated table containing school category attributes.
+description: 'Curated table containing school category attributes. [Sample records:
+  {''category_code'': ''2'', ''category_name'': ''PRIMARY WITH UPPER PRIMARY'', ''category_type'':
+  ''UPPER PRIMARY'', ''min_class'': ''1'', ''max_class'': ''8'', ''udise_type'': ''S''},
+  {''category_code'': ''6'', ''category_name'': ''PR. UP PR. AND SECONDARY ONLY'',
+  ''category_type'': ''HIGH SCHOOL'', ''min_class'': ''1'', ''max_class'': ''10'',
+  ''udise_type'': ''S''}, {''category_code'': ''4'', ''category_name'': ''UPPER PRIMARY
+  ONLY'', ''category_type'': ''UPPER PRIMARY'', ''min_class'': ''6'', ''max_class'':
+  ''8'', ''udise_type'': ''S''}]'
 table_format: ICEBERG
 location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_category
 partitioned_by: 'school_category_id_pk_bucket: bucket[32]'
@@ -39,37 +46,43 @@ columns:
 - name: school_category_id_pk
   type: BIGINT
   nullable: true
-  description: 'Primary Key: Unique identifier for the school category record.'
+  description: 'Primary Key: Unique identifier for the school category record. [Value
+    Examples: ''4'', ''8'', ''6'', ''10'', ''3'']'
 - name: category_code
   type: STRING
   nullable: true
   description: 'Code/ID column: Standardized system code representing the category.
     Categorical column. Distinct values: 10. Examples: 11, 2, 8, 4, 6. Top frequencies:
-    1, 1, 1, 1, 1. Categorical column.'
+    1, 1, 1, 1, 1. Categorical column. [Value Examples: ''2'', ''6'', ''4'', ''8'',
+    ''11'']'
 - name: category_name
   type: STRING
   nullable: true
   description: 'Categorical classification column. Standardized values include: PRIMARY
     WITH UPPER PRIMARY, PR. UP PR. AND SECONDARY ONLY, UPPER PRIMARY ONLY, SECONDARY
-    ONLY, HIGHER SECONDARY ONLY.'
+    ONLY, HIGHER SECONDARY ONLY. [Value Examples: ''PRIMARY WITH UPPER PRIMARY'',
+    ''PR. UP PR. AND SECONDARY ONLY'', ''UPPER PRIMARY ONLY'', ''SECONDARY ONLY'',
+    ''HIGHER SECONDARY ONLY'']'
 - name: category_type
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: COLLEGE, HIGH SCHOOL, UPPER PRIMARY.'
+  description: 'Categorical column. Distinct values: COLLEGE, HIGH SCHOOL, UPPER PRIMARY.
+    [Value Examples: ''UPPER PRIMARY'', ''HIGH SCHOOL'', ''COLLEGE'']'
 - name: min_class
   type: INT
   nullable: true
-  description: The minimum class or grade level (e.g. Class 1 or Class 6) for which
-    this category/subject is applicable.
+  description: 'The minimum class or grade level (e.g. Class 1 or Class 6) for which
+    this category/subject is applicable. [Value Examples: ''1'', ''6'', ''11'']'
 - name: max_class
   type: INT
   nullable: true
-  description: The maximum class or grade level (e.g. Class 5 or Class 10) for which
-    this category/subject is applicable.
+  description: 'The maximum class or grade level (e.g. Class 5 or Class 10) for which
+    this category/subject is applicable. [Value Examples: ''8'', ''10'', ''12'']'
 - name: udise_type
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: C, S.'
+  description: 'Categorical column. Distinct values: C, S. [Value Examples: ''S'',
+    ''C'']'
 primary_key:
 - school_category_id_pk
 relationships: []
