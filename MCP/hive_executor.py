@@ -551,7 +551,7 @@ class HiveExecutor:
                 result_holder["row_count"] = len(rows)
 
             except Exception as exc:
-                logger.error("[execute] error: %s", exc, exc_info=True)
+                logger.error("[execute] error: %s", exc)
                 self._reset_connection()
                 error_holder["exc"] = exc
 

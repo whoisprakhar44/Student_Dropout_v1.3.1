@@ -32,4 +32,4 @@ execution:
   #
   # Leave as an empty list if no session configuration is required.
   session_settings:
-    - "SET MEM_LIMIT=4g"
+    - "SET MEM_LIMIT=5g"

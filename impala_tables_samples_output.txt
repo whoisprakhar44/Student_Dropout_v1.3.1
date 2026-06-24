@@ -1,0 +1,646 @@
+================================================================================
+🔍 IMPALA DATABASE INSPECTOR (TABLES FOLDER ONLY)
+Config: /home/prakhars/Student_Dropout_v1.3.1-main/MCP/hive_config.yaml
+Schemas Folder: /home/prakhars/Student_Dropout_v1.3.1-main/schema/curated_datamodels/tables
+================================================================================
+
+Found 60 tables defined in the tables folder.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.absent_reason_dim
+--------------------------------------------------------------------------------
+ABSENT_REASON_DIM_ID_PK | REASON_CODE | REASON_NAME       | REASON_CATEGORY | IS_GOVT_APPROVED | IS_ACTIVE | EFFECTIVE_START_DATE | EFFECTIVE_END_DATE | IS_CURRENT | CREATED_DATE               | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+------------------------+-------------+-------------------+-----------------+------------------+-----------+----------------------+--------------------+------------+----------------------------+--------------+--------------+------------
+2                       | 1           | Not feeling well  | NULL            | NULL             | Yes       | NULL                 | NULL               | NULL       | 2026-05-11 14:46:46.881376 | curated_team | NULL         | NULL       
+4                       | 3           | Left the school   | NULL            | NULL             | Yes       | NULL                 | NULL               | NULL       | 2026-05-11 14:46:46.881376 | curated_team | NULL         | NULL       
+3                       | 2           | Duplicate Student | NULL            | NULL             | Yes       | NULL                 | NULL               | NULL       | 2026-05-11 14:46:46.881376 | curated_team | NULL         | NULL       
+1                       | 0           | NULL              | NULL            | NULL             | Yes       | NULL                 | NULL               | NULL       | 2026-05-11 14:46:46.881376 | curated_team | NULL         | NULL       
+5                       | 4           | School changed    | NULL            | NULL             | Yes       | NULL                 | NULL               | NULL       | 2026-05-11 14:46:46.881376 | curated_team | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.assessment_dim
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: assessment_dim_id_pk, assessment_code, assessment_type, assessment_name, board_code, grade_scheme, is_summative, is_active, effective_start_date, effective_end_date, is_current, created_date, created_by, updated_date, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.beneficiary_type_dim
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: beneficiary_type_dim_id_pk, beneficiary_type_code, beneficiary_type_name, is_active, effective_start_date, effective_end_date, is_current, created_date, created_by, updated_date, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.benefit_type_dim
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: benefit_type_dim_id_pk, benefit_type_code, benefit_type_name, delivery_mode, is_monetary, is_active, effective_start_date, effective_end_date, is_current, created_date, created_by, updated_date, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_address_master
+--------------------------------------------------------------------------------
+CITIZEN_ADDRESS_MASTER_PK | CITIZEN_MASTER_FK | LGD_DIST_CODE | DISTRICT_NAME | LGD_MANDAL_CODE | MANDAL_NAME    | SECRETARIAT_CODE | SECRETARIAT_NAME | RURAL_URBAN_FLAG | CLUSTER_ID  | ADDRESS_TYPE | ADDRESS_LINE_1 | ADDRESS_LINE_2 | ADDRESS_LINE_3 | PIN_CODE | LATITUDE   | LONGITUDE  | COORDINATE_SYSTEM | IS_PRIMARY | ADDRESS_STATUS_CODE | EFFECTIVE_START_DATE | EFFECTIVE_END_DATE | CREATED_DATE               | CREATED_BY   | UPDATED_DATE               | UPDATED_BY   
+--------------------------+-------------------+---------------+---------------+-----------------+----------------+------------------+------------------+------------------+-------------+--------------+----------------+----------------+----------------+----------+------------+------------+-------------------+------------+---------------------+----------------------+--------------------+----------------------------+--------------+----------------------------+--------------
+17180263203               | 200087355353      | 749           | NTR           | 5007            | KANCHIKACHERLA | 10690754         | PENDYALA1        | R                | 10690754013 | NULL         | 3-53           | NULL           | NULL           | 521185   | 16.6957755 | 80.3150699 | NULL              | NULL       | NULL                | NULL                 | NULL               | 2026-05-29 15:38:30.460400 | curated_team | 2026-06-24 12:00:24.540803 | curated_team 
+17180111088               | 200276850591      | 748           | ELURU         | 5003            | NUZVID         | 10690451         | SEETHARAMPURAM   | R                | 10690451009 | NULL         | 3-103          | NULL           | NULL           | 521105   | NULL       | NULL       | NULL              | NULL       | NULL                | NULL                 | NULL               | 2026-05-29 15:38:30.460400 | curated_team | 2026-06-24 12:00:24.540803 | curated_team 
+34362501445               | 200370660980      | 510           | KRISHNA       | 5004            | BAPULAPADU     | 10690390         | MALAVALLI        | R                | 10690390012 | NULL         | 1-60           | NULL           | NULL           | 521111   | NULL       | NULL       | NULL              | NULL       | NULL                | NULL                 | NULL               | 2026-05-29 15:38:30.460400 | curated_team | 2026-06-24 12:00:24.540803 | curated_team 
+17179927693               | 200373699098      | 517           | PRAKASAM      | 5146            | PAMUR          | 10890075         | PAMUR3           | R                | 10890075034 | NULL         | 9-76           | NULL           | NULL           | 523108   | 15.0939672 | 79.4047363 | NULL              | NULL       | NULL                | NULL                 | NULL               | 2026-05-29 15:38:30.460400 | curated_team | 2026-06-24 12:00:24.540803 | curated_team 
+17180650821               | 200404651926      | 504           | YSR           | 1014            | PRODDATUR      | 21014032         | VASNTHAPETA      | U                | 21014032006 | NULL         | 26/283         | NULL           | NULL           | 516360   | 14.7468844 | 78.5432593 | NULL              | NULL       | NULL                | NULL                 | NULL               | 2026-05-29 15:38:30.460400 | curated_team | 2026-06-24 12:00:24.540803 | curated_team 
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_address_master_test
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: citizen_address_master_pk, citizen_master_fk, address_type, address_line_1, address_line_2, address_line_3, pin_code, latitude, longitude, coordinate_system, is_primary, address_status_code, effective_start_date, effective_end_date, is_current, is_deleted, created_date, created_by, updated_date, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_agriculture_land
+--------------------------------------------------------------------------------
+CITIZEN_AGRICULTURE_LAND_PK | CITIZEN_MASTER_FK | VILLAGE_CODE | LAND_AREA          | CROP_TYPE     | VARIETY_NAME     | CULTIVATOR_TYPE | SURVEY_NO       | KHATA_NO  | CREATED_DATE               | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+----------------------------+-------------------+--------------+--------------------+---------------+------------------+-----------------+-----------------+-----------+----------------------------+--------------+--------------+------------
+1                           | 200000448003      | 2524003      | 50 Cents to 1 acre | Groundnut     | K-6              | O               | 889-1           | 1156      | 2026-05-23 18:43:26.890635 | curated_team | NULL         | NULL       
+12456110                    | 938529569158      | 1515027      | Zero Cents         | Cashew nut    | జీడి మామిడి      | O               | ROFR-214674-302 | 674516649 | 2026-05-23 18:43:26.890635 | curated_team | NULL         | NULL       
+2                           | 200000448003      | 2524003      | 50 Cents to 1 acre | Ragi          | Indravathi       | O               | 889-1           | 1156      | 2026-05-23 18:43:26.890635 | curated_team | NULL         | NULL       
+12456111                    | 938529569158      | 1515027      | Zero Cents         | Cashew nut    | జీడి మామిడి      | O               | ROFR-214674-302 | 674516649 | 2026-05-23 18:43:26.890635 | curated_team | NULL         | NULL       
+3                           | 200000448003      | 2524003      | 50 Cents to 1 acre | Chrysanthemum |  చామంతి పువ్వులు | O               | 889-1           | 1156      | 2026-05-23 18:43:26.890635 | curated_team | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_asset_electricity
+--------------------------------------------------------------------------------
+CITIZEN_ASSET_TYPE_PK | CITIZEN_MASTER_FK | AADHAR_NO    | METER_TYPE | CATEGORY_ID | CATEGORY_DESCRIPTION | PHASE | LOCATION                                     | SERVICE_NUMBER | DISCOM_NAME | CREATED_DATE               | CREATED_BY   | UPDATED_DATE               | UPDATED_BY   
+----------------------+-------------------+--------------+------------+-------------+----------------------+-------+----------------------------------------------+----------------+-------------+----------------------------+--------------+----------------------------+--------------
+150                   | NULL              | 012345678910 | SMART      | LT2-1       | Commercial           | 1     | KADAPA , CUDDAPAH-CHENNUR , null             | 2122202001448  | APSPDCL     | 2026-05-21 16:06:51.887911 | curated_team | 2026-05-22 17:31:17.499839 | curated_team 
+294                   | NULL              | 012345678910 | NON-SMART  | LT2-1       | Commercial           | 1     | KADAPA , CUDDAPAH-PRODDUTUR , AMRUTHANAGAR   | 2222537004763  | APSPDCL     | 2026-05-21 16:06:51.887911 | curated_team | 2026-05-22 17:31:17.499839 | curated_team 
+136                   | NULL              | 012345678910 | NON-SMART  | LT2-1       | Commercial           | 1     | ANNAMAYYA , CUDDAPAH-KODUR , MYSURIVARIPALLI | 2333338000493  | APSPDCL     | 2026-05-21 16:06:51.887911 | curated_team | 2026-05-22 17:31:17.499839 | curated_team 
+371                   | NULL              | 012345678910 | NON-SMART  | LT2-1       | Commercial           | 1     | KADAPA , CUDDAPAH-BADVEL , MUNICIPALITY      | 2622101029611  | APSPDCL     | 2026-05-21 16:06:51.887911 | curated_team | 2026-05-22 17:31:17.499839 | curated_team 
+317                   | NULL              | 012345678910 | SMART      | LT2-1       | Commercial           | 1     | ANNAMAYYA , CHITTOOR-PILERU , PILER          | 5711100023314  | APSPDCL     | 2026-05-21 16:06:51.887911 | curated_team | 2026-05-22 17:31:17.499839 | curated_team 
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_asset_vaahan
+--------------------------------------------------------------------------------
+CITIZEN_ASSET_VAAHAN_PK | CITIZEN_MASTER_FK | CITIZEN_ASSET_VAAHAN_TYPE_FK | REGISTRATION_NO | DATE_OF_REGISTRATION              | MAKE | MODEL                          | YEAR_OF_MANUFACTURE | FUEL_TYPE | CHASSIS_NO        | ENGINE_NO      | REGN_VALID_TO                     | RTO_OFFICE | COLOR             | OWNER_NAME            | OWNER_SENIORITY | OWNERSHIP_START_DATE | OWNERSHIP_END_DATE | CREATED_DATE               | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+------------------------+-------------------+------------------------------+-----------------+-----------------------------------+------+--------------------------------+---------------------+-----------+-------------------+----------------+-----------------------------------+------------+-------------------+-----------------------+-----------------+----------------------+--------------------+----------------------------+--------------+--------------+------------
+34359739377             | 602844639677      | NULL                         | AAQ1728         | 08-Mar-1982 12.00.00.00000000  am | 3730 | TWO WHEEL HYDERELIC TARALI     | 1981                | 99        | 3281              | NA             | 07-Mar-1997 12.00.00.00000000  am | NULL       | INA               | PAMULETY J            | 1               | NULL                 | NULL               | 2026-06-10 13:06:26.366833 | curated_team | NULL         | NULL       
+34359747630             | 211104264825      | 1                            | AP02AB2147      | 20-Mar-2009 12.00.00.00000000  am | 3982 | HERO HONDA SPLENDOR +          | 2009                | 1         | MBLHA10EE99B07438 | HA10EA99B15170 | 19-Mar-2024 12.00.00.00000000  am | NULL       | BLACK             | U LAKSHMI DEVI        | 1               | NULL                 | NULL               | 2026-06-10 13:06:26.366833 | curated_team | NULL         | NULL       
+34359747767             | 335302955760      | NULL                         | AP02AB8505      | 07-Jul-2009 12.00.00.00000000  am | 45   | JOHN DEERE 5104-2WD-AGRICULTUR | 2009                | 2         | PY5104B005633     | PY3029D188478  | 06-Jul-2024 12.00.00.00000000  am | NULL       | GREEN             | M SUBBA RAO           | 1               | NULL                 | NULL               | 2026-06-10 13:06:26.366833 | curated_team | NULL         | NULL       
+34359747947             | 725300162362      | 1                            | AP02AC6148      | 18-Nov-2009 12.00.00.00000000  am | 12   | XCD 135                        | 2009                | 1         | MD2DSJWZZSPD12880 | JWUBSD53017    | 17-Nov-2024 12.00.00.00000000  am | NULL       | COCKTAIL WINE RED | J RAVI SHANKAR PRASAD | 1               | NULL                 | NULL               | 2026-06-10 13:06:26.366833 | curated_team | NULL         | NULL       
+34359748435             | 835878542899      | 1                            | AP02AE7055      | 27-May-2010 12.00.00.00000000  am | 3982 | SPLENDER+(DRUM-SPOKE WHEELS)   | 2010                | 1         | MBLHA10EEAHA43448 | HA10EAAHA91327 | 26-May-2025 12.00.00.00000000  am | NULL       | VBK               | S BABU                | 1               | NULL                 | NULL               | 2026-06-10 13:06:26.366833 | curated_team | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_asset_vaahan_type
+--------------------------------------------------------------------------------
+CITIZEN_ASSET_VAAHAN_TYPE_PK | CLASS_TYPE | CLASS_DESCRIPTION                | TRANSPORT_CATEGORY | CONVERTIBLE_CLASSES       | MIN_INSURANCE_VALIDITY | EFFECTIVE_START_DATE | EFFECTIVE_END_DATE | CREATED_DATE               | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+-----------------------------+------------+----------------------------------+--------------------+---------------------------+------------------------+----------------------+--------------------+----------------------------+--------------+--------------+------------
+1                            | 1          | Modular Hydraulic Trailer        | G                  | null                      | 0                      | 2026-06-01           | NULL               | 2026-06-01 17:21:49.268834 | curated_team | NULL         | NULL       
+2                            | 1          | Motor Cycle/Scooter-With Trailer | G                  | 1,2,3,4,53,51             | 0                      | 2026-06-01           | NULL               | 2026-06-01 17:21:49.268834 | curated_team | NULL         | NULL       
+3                            | 1          | Hearses                          | S                  | 76                        | 0                      | 2026-06-01           | NULL               | 2026-06-01 17:21:49.268834 | curated_team | NULL         | NULL       
+4                            | 1          | Luxury Cab                       | P                  | 7,15,23,69,70,71,73,75,86 | 0                      | 2026-06-01           | NULL               | 2026-06-01 17:21:49.268834 | curated_team | NULL         | NULL       
+5                            | 1          | Tractor (Commercial)             | G                  | 10,11,13,17,19,22,25,27   | 0                      | 2026-06-01           | NULL               | 2026-06-01 17:21:49.268834 | curated_team | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_bank_accounts
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: citizen_bank_accounts_pk, citizen_master_fk, account_name, account_number, bank_name, bank_type, bank_branch, bank_ifsc_code, created_date, created_by, updated_date, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_consent
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: citizen_consent_id_pk, citizen_master_fk, allowed_purposes, valid_from, valid_to, is_revocable, consent_created_at, revoked_at, created_at, created_by, updated_at, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_document
+--------------------------------------------------------------------------------
+CITIZEN_DOCUMENT_PK | CITIZEN_MASTER_FK | CITIZEN_DOCUMENT_TYPE_FK | DOCUMENT_NAME        | FILE_NAME | ISSUING_AUTHORITY                                                                                          | ISSUANCE_DATE       | REGISTRATION_DATE   | PLACE_OF_EVENT       | STATUS | LAST_AMENDMENT_DATE | DIGITAL_SIGNATURE_HASH | DOCUMENT_STORAGE_PATH | VALID_FROM          | COALESCED_UID | UID_FLAG | VALID_TO | CREATED_DATE               | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+--------------------+-------------------+--------------------------+----------------------+-----------+------------------------------------------------------------------------------------------------------------+---------------------+---------------------+----------------------+--------+---------------------+------------------------+-----------------------+---------------------+---------------+----------+----------+----------------------------+--------------+--------------+------------
+NULL                | 233883689711      | 1                        | BA202228900540094297 | NULL      | Dr.S.Shareena (Vennela Hospital)Nellore, Nellore, Nellore, Sri Potti Sriramulu Nellore, Andhra Pradesh     | 2022-10-02 00:00:00 | 2022-10-02 00:00:00 | Hospital/Institution | NULL   | NULL                | NULL                   | NULL                  | 2022-10-02 00:00:00 | 233883689711  | M        | NULL     | 2026-05-22 20:43:06.866508 | curated_team | NULL         | NULL       
+NULL                | 287627567646      | 1                        | BA202228902270016319 | NULL      | AMAVM HOSPITAL GAVARAPALEM ANAKAPALLI, Anakapalle, Anakapalle, Anakapalli, Andhra Pradesh                  | 2022-08-19 00:00:00 | 2022-08-19 00:00:00 | Hospital/Institution | NULL   | NULL                | NULL                   | NULL                  | 2022-08-19 00:00:00 | 287627567646  | M        | NULL     | 2026-05-22 20:43:06.866508 | curated_team | NULL         | NULL       
+NULL                | 717720347655      | 1                        | BA202228900990048084 | NULL      | SAIVEENA CHILDRENS HOSPITAL , 60 FEET ROAD, ONGOLE, Ongole, Ongole, Prakasam, Andhra Pradesh               | 2022-10-11 00:00:00 | 2022-10-11 00:00:00 | Hospital/Institution | NULL   | NULL                | NULL                   | NULL                  | 2022-10-11 00:00:00 | 717720347655  | M        | NULL     | 2026-05-22 20:43:06.866508 | curated_team | NULL         | NULL       
+NULL                | NULL              | 1                        | BA202228900320096683 | NULL      | ST ANNS HOSPITAL M G ROAD, Vijayawada, Vijayawada Urban, NTR, Andhra Pradesh                               | 2022-08-23 00:00:00 | 2022-08-23 00:00:00 | Hospital/Institution | NULL   | NULL                | NULL                   | NULL                  | 2022-08-23 00:00:00 | NULL          | NULL     | NULL     | 2026-05-22 20:43:06.866508 | curated_team | NULL         | NULL       
+NULL                | 974581428146      | 1                        | BA202228110040026204 | NULL      | RURAL DEVELOPMENT TRUST HOSPITAL, BATHALAPALLI, Bathalapalle, Bathalapalle, Sri Sathya Sai, Andhra Pradesh | 2022-10-11 00:00:00 | 2022-10-11 00:00:00 | Hospital/Institution | NULL   | NULL                | NULL                   | NULL                  | 2022-10-11 00:00:00 | 974581428146  | M        | NULL     | 2026-05-22 20:43:06.866508 | curated_team | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_document_testing
+--------------------------------------------------------------------------------
+CITIZEN_DOCUMENT_PK | CITIZEN_MASTER_FK | CITIZEN_DOCUMENT_TYPE_FK | DOCUMENT_NAME        | FILE_NAME | ISSUING_AUTHORITY          | ISSUANCE_DATE | REGISTRATION_DATE | PLACE_OF_EVENT       | STATUS | LAST_AMENDMENT_DATE | DIGITAL_SIGNATURE_HASH | DOCUMENT_STORAGE_PATH | VALID_FROM | COALESCED_UID | UID_FLAG | VALID_TO | CREATED_DATE               | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+--------------------+-------------------+--------------------------+----------------------+-----------+----------------------------+---------------+-------------------+----------------------+--------+---------------------+------------------------+-----------------------+------------+---------------+----------+----------+----------------------------+--------------+--------------+------------
+1                   | 303570390926      | NULL                     | BA202128022240000203 | NULL      | GRAMA PANCHAYAT KUDUMSARAI | 06-11-2023    | 12-10-2022        | House                | NULL   | NULL                | NULL                   | NULL                  | 06-11-2023 | 303570390926  | F        | NULL     | 2026-05-01 11:29:36.672393 | curated_team | NULL         | NULL       
+2                   | 252442579590      | NULL                     | BA201628151200004911 | NULL      | GGH Ananthapur             | 13-12-2016    | 13-12-2016        | Hospital/Institution | NULL   | NULL                | NULL                   | NULL                  | 13-12-2016 | 252442579590  | M        | NULL     | 2026-05-01 11:29:36.672393 | curated_team | NULL         | NULL       
+3                   | 534546812284      | NULL                     | BA201628901470000217 | NULL      | DISTRICT HOSPITAL CHITTOR  | 21-10-2019    | 13-12-2016        | Hospital/Institution | NULL   | NULL                | NULL                   | NULL                  | 21-10-2019 | 534546812284  | F        | NULL     | 2026-05-01 11:29:36.672393 | curated_team | NULL         | NULL       
+4                   | 660730884508      | NULL                     | BA202228160470000970 | NULL      | PHC GOMANGI                | 06-11-2023    | 12-10-2022        | Hospital/Institution | NULL   | NULL                | NULL                   | NULL                  | 06-11-2023 | 660730884508  | M        | NULL     | 2026-05-01 11:29:36.672393 | curated_team | NULL         | NULL       
+5                   | NULL              | NULL                     | BA201628900410000053 | NULL      | MUNICIPALITY VINUKONDA     | 13-12-2016    | 20-12-2016        | Hospital/Institution | NULL   | NULL                | NULL                   | NULL                  | 13-12-2016 | NULL          | N        | NULL     | 2026-05-01 11:29:36.672393 | curated_team | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_education
+--------------------------------------------------------------------------------
+CITIZEN_EDUCATION_ID_PK | CITIZEN_MASTER_FK | QUALIFICATION_NAME | QUALIFICATION_LEVEL | COURSE_NAME | INSTITUTION_CODE | SCHOLARSHIP_SCHEME | DEPARTMENT_ID | CURRENT_QUALIFICATION_FLAG | MODE_OF_STUDY | MEDIUM_OF_INSTRUCTION | CREATED_AT                 | CREATED_BY   | UPDATED_AT | UPDATED_BY 
+------------------------+-------------------+--------------------+---------------------+-------------+------------------+--------------------+---------------+----------------------------+---------------+-----------------------+----------------------------+--------------+------------+------------
+1                       | NULL              | null               | NULL                | NULL        |                  | NULL               | NULL          | N                          | NULL          | NULL                  | 2026-05-26 15:51:19.993051 | curated_team | NULL       | NULL       
+2                       | NULL              | 10th class         | NULL                | NULL        |                  | NULL               | NULL          | Y                          | NULL          | 19                    | 2026-05-26 15:51:19.993051 | curated_team | NULL       | NULL       
+1                       | NULL              | null               | NULL                | NULL        |                  | NULL               | NULL          | N                          | NULL          | NULL                  | 2026-05-26 15:51:19.993051 | curated_team | NULL       | NULL       
+1                       | NULL              | 1- 9th class       | NULL                | NULL        |                  | NULL               | NULL          | N                          | NULL          | NULL                  | 2026-05-26 15:51:19.993051 | curated_team | NULL       | NULL       
+1                       | NULL              | null               | NULL                | NULL        |                  | NULL               | NULL          | N                          | NULL          | NULL                  | 2026-05-26 15:51:19.993051 | curated_team | NULL       | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_family_master
+--------------------------------------------------------------------------------
+CITIZEN_FAMILY_MASTER_PK | CITIZEN_MASTER_FK | HOUSEHOLD_ID                            | RESIDENT_ID | CITIZEN_NAME           | REALTIONSHIP | HEAD_OF_THE_FAMILY | IS_HOFAMILY | IS_MEMBERADDED | IS_MEMBERDELETED | RELATION_WITHHOF | FATHER_CITIZEN_MASTER_FK | MOTHER_CITIZEN_MASTER_FK | SPOUSE_CITIZEN_MASTER_FK | IS_MARRIED | NEW_HH_ID | HH_UPDATE_STATUS | CAREOF           | EFFECTIVE_START_DATE | EFFECTIVE_END_DATE | CREATED_DATE               | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+-------------------------+-------------------+-----------------------------------------+-------------+------------------------+--------------+--------------------+-------------+----------------+------------------+------------------+--------------------------+--------------------------+--------------------------+------------+-----------+------------------+------------------+----------------------+--------------------+----------------------------+--------------+--------------+------------
+3                        | 200000051911      | HH54241373492120200218055438452         | 1000000273  | Savara Rajeswari       | NULL         | NULL               | 0           | 0              | 0                | null             | NULL                     | NULL                     | NULL                     | 0          | null      | null             | D/O Rellayya     | NULL                 | NULL               | 2026-05-25 18:43:48.986237 | curated_team | NULL         | NULL       
+33517497                 | 436767383294      | HH65167153070220200707105914825         | 1348183632  | V Venkateswarlu        | NULL         | NULL               | 0           | 0              | 0                | null             | NULL                     | NULL                     | NULL                     | 0          | null      | null             | S/O: V Kammagiri | NULL                 | NULL               | 2026-05-25 18:43:48.986237 | curated_team | NULL         | NULL       
+49                       | 200016079957      | HH40829794698420200218084140410         | 1000000764  | Bairi Simhachalam      | NULL         | NULL               | 1           | 0              | 0                | null             | NULL                     | NULL                     | NULL                     | 0          | null      | null             | null             | NULL                 | NULL               | 2026-05-25 18:43:48.986237 | curated_team | NULL         | NULL       
+33517565                 | 436780918031      | HH63420959267420200805100229737         | 1348184348  | Shaik Nouseen Firdose  | NULL         | NULL               | 0           | 0              | 0                | null             | NULL                     | NULL                     | NULL                     | 0          | null      | null             | null             | NULL                 | NULL               | 2026-05-25 18:43:48.986237 | curated_team | NULL         | NULL       
+50                       | 200016161610      | HH1019002600320210323115214208758238212 | 1000000772  | Kocharla Dalayya Reddy | NULL         | NULL               | 0           | 0              | 0                | 770              | NULL                     | NULL                     | NULL                     | 0          | null      | null             | null             | NULL                 | NULL               | 2026-05-25 18:43:48.986237 | curated_team | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_health_schemes
+--------------------------------------------------------------------------------
+CITIZEN_HEALTH_SCHEMES_PK | CITIZEN_HEALTH_SCHEMES_MASTER_FK | CITIZEN_MASTER_FK | HEALTH_CARD_ID     | SCHEME_NAME             | HOUSEHOLD_ID                    | RATION_CARD_NO | SCHEME_REGISTERED_DATE | SCHEME_APPROVED_DATE | SCHEME_PROCESSED_DATE | SCHEME_LAST_CLOSED_DATE | SCHEME_APPROVED_AMOUNT | SCHEME_UTILIZED_AMOUNT | CREATED_DATE               | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+--------------------------+----------------------------------+-------------------+--------------------+-------------------------+---------------------------------+----------------+------------------------+----------------------+-----------------------+-------------------------+------------------------+------------------------+----------------------------+--------------+--------------+------------
+64                        | 2                                | 129477319089      | UHID23111512114/03 | Dr.NTR Vaidya Seva      | HH46709784523520210804062340688 | NULL           | NULL                   | NULL                 | NULL                  | NULL                    | NULL                   | NULL                   | 2026-05-28 17:54:52.314408 | curated_team | NULL         | NULL       
+134                       | 2                                | 200002128422      | WAP122304700385/04 | Dr.NTR Vaidya Seva      | HH67532598947020200220080644344 | 2806201924     | NULL                   | NULL                 | NULL                  | NULL                    | NULL                   | NULL                   | 2026-05-28 17:54:52.314408 | curated_team | NULL         | NULL       
+155                       | 1                                | 200002621377      | WAP1382020A0278/01 | Ayushman Bharat(PM-JAY) | HH47809486419920200403101913130 | 2808422628     | NULL                   | NULL                 | NULL                  | NULL                    | NULL                   | NULL                   | 2026-05-28 17:54:52.314408 | curated_team | NULL         | NULL       
+189                       | 1                                | 200003449870      | WAP034100200031/01 | Ayushman Bharat(PM-JAY) | HH68728380118520200214051345188 | 2802394172     | NULL                   | NULL                 | NULL                  | NULL                    | NULL                   | NULL                   | 2026-05-28 17:54:52.314408 | curated_team | NULL         | NULL       
+198                       | 2                                | 200003589869      | YAP033201700092/03 | Dr.NTR Vaidya Seva      | HH60082086272020200214014258937 | 2805702594     | NULL                   | NULL                 | NULL                  | NULL                    | NULL                   | NULL                   | 2026-05-28 17:54:52.314408 | curated_team | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_health_schemes_master
+--------------------------------------------------------------------------------
+CITIZEN_HEALTH_SCHEMES_MASTER_PK | HEALTH_SCHEME_CODE_FK | SCHEME_NAME               | SCHEME_TYPE | CATEGORY | SUB_CATEGORY | SCHEME_CODE | SCHEME_CREATE_DATE | SCHEME_START_DATE | SCHEME_END_DATE | SCHEME_ACTIVE_STATUS | SCHEME_BENEFITS | CREATE_DATE | CREATE_BY    | UPDATED_DATE | UPDATED_BY 
+---------------------------------+-----------------------+---------------------------+-------------+----------+--------------+-------------+--------------------+-------------------+-----------------+----------------------+-----------------+-------------+--------------+--------------+------------
+3                                | NULL                  | Working journalist Health | NULL        | NULL     | NULL         | NULL        | NULL               | NULL              | NULL            | NULL                 | NULL            | 2026-05-20  | Curated_team | NULL         | NULL       
+4                                | NULL                  | Arogya Raksha             | NULL        | NULL     | NULL         | NULL        | NULL               | NULL              | NULL            | NULL                 | NULL            | 2026-05-20  | Curated_team | NULL         | NULL       
+5                                | NULL                  | Employee health           | NULL        | NULL     | NULL         | NULL        | NULL               | NULL              | NULL            | NULL                 | NULL            | 2026-05-20  | Curated_team | NULL         | NULL       
+1                                | NULL                  | Ayushman Bharat(PM-JAY)   | NULL        | NULL     | NULL         | NULL        | NULL               | NULL              | NULL            | NULL                 | NULL            | 2026-05-20  | Curated_team | NULL         | NULL       
+2                                | NULL                  | Dr.NTR Vaidya Seva        | NULL        | NULL     | NULL         | NULL        | NULL               | NULL              | NULL            | NULL                 | NULL            | 2026-05-20  | Curated_team | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_idty
+--------------------------------------------------------------------------------
+  Error querying table: Rejected query from pool root.default: minimum memory reservation is greater than memory available to the query for buffer reservations. Memory reservation needed given the current plan: 2.53 GB. Adjust either the mem_limit or the pool config (max-query-mem-limit, min-query-mem-limit) for the query to allow the query memory limit to be at least 3.17 GB. Note that changing the mem_limit may also change the plan. See the query profile for more information about the per-node memory requirements.
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_idty_type
+--------------------------------------------------------------------------------
+CITIZEN_IDTY_TYPE | IDTY_NAME | IDTY_DESCRIPTION                                                                                                     | ISSUING_AUTHORITY 
+------------------+-----------+----------------------------------------------------------------------------------------------------------------------+-------------------
+1                 | AADHAR    | The UIDAI was created to issue unique identification numbers to residents, eliminating duplicate and fake identities | UIDAI             
+
+Successfully fetched 1 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_land
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: citizen_land_id_pk, citizen_master_fk, land_id, land_type, acres, survey_no, location, district_id, mandal_id, village_name, registration_no, registration_date, market_value, soil_type, irrigation_type, encumbrance_status, created_date, created_by, updated_date, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_master
+--------------------------------------------------------------------------------
+CITIZEN_MASTER_PK | CITIZEN_IDTY_FK | FIRST_NAME | MIDDLE_NAME | LAST_NAME | FULL_NAME             | BIRTH_DATE                        | GENDER | MARITAL_STATUS | RESIDENCY_STATUS | STATUS_CODE | PRIMARY_LANGUAGE | IMAGE_URL | DECEASED_DATE | RELIGION | CASTE | SOURCE_SYSTEM | CREATED_DATE               | UPDATED_DATE | CREATED_BY   | UPDATED_BY | PRIMARY_MOBILE | SECONDARY_MOBILE | EMAIL_ADDRESS 
+------------------+-----------------+------------+-------------+-----------+-----------------------+-----------------------------------+--------+----------------+------------------+-------------+------------------+-----------+---------------+----------+-------+---------------+----------------------------+--------------+--------------+------------+----------------+------------------+---------------
+200049094977      | 3520            | NULL       | NULL        | NULL      | Jonnala Muralikrishna | 01-Jan-1959 12.00.00.00000000  am | MALE   | 0              | 1172174418       | NULL        | NULL             | NULL      | NULL          | Hindu    | OC    | GSWS          | 2026-05-22 13:37:34.524871 | NULL         | curated_team | NULL       | 6281006048     | NULL             | NULL          
+200049604317      | 3559            | NULL       | NULL        | NULL      | Allam Showreddy       | 10-May-1995 12.00.00.00000000  am | MALE   | 0              | 1212152738       | NULL        | NULL             | NULL      | NULL          | null     | OC    | GSWS          | 2026-05-22 13:37:34.524871 | NULL         | curated_team | NULL       | 7702331436     | NULL             | NULL          
+200166906383      | 11475           | NULL       | NULL        | NULL      | Pandilla Venkatarao   | 01-Jan-1989 12.00.00.00000000  am | MALE   | 0              | 1212159314       | NULL        | NULL             | NULL      | NULL          | null     | BC    | GSWS          | 2026-05-22 13:37:34.524871 | NULL         | curated_team | NULL       | 8179780819     | NULL             | NULL          
+200239434874      | 16281           | NULL       | NULL        | NULL      | Allu Ramu             | 01-Jan-1978 12.00.00.00000000  am | MALE   | 0              | 1024739095       | NULL        | NULL             | NULL      | NULL          | Hindu    | BC-D  | GSWS          | 2026-05-22 13:37:34.524871 | NULL         | curated_team | NULL       | 9630351579     | NULL             | NULL          
+200283993515      | 19301           | NULL       | NULL        | NULL      | G.BHARATH             | 23-Mar-2006 12.00.00.00000000  am | MALE   | 0              | 1412611750       | NULL        | NULL             | NULL      | NULL          | Hindu    | SC    | GSWS          | 2026-05-22 13:37:34.524871 | NULL         | curated_team | NULL       | 7702272518     | NULL             | NULL          
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_property
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: citizen_property_id_pk, citizen_master_fk, citizen_master_id, property_type, owner_type, location, registration_no, registration_date, market_value
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_school
+--------------------------------------------------------------------------------
+CITIZEN_SCHOOL_ID_PK | SCHOOL_MEDIUM_ID_FK | SCHOOL_TEACHER_ID_FK | SCHOOL_CATEGORY_ID_FK | SCHOOL_MANAGEMENT_ID_FK | SCHOOL_DEPT_CODE | SCHOOL_UDISE_CODE | SCHOOL_NAME                                   | SCHOOL_ADDRESS                                   | DISTRICT_NAME | DISTRICT_LGD_CODE | MANDAL_NAME   | MANDAL_LGD_CODE | VILLAGE_NAME            | VILLAGE_LGD_CODE | URBAN_RURAL_FLAG | LATITUDE | LONGITUDE | SCHOOL_PINCODE | FUNCTIONAL_STATUS | ACADEMIC_YEAR_OPENED | MIN_CLASS | MAX_CLASS | PRE_PRIMARY_FLAG | VOCATIONAL_FLAG | BUILDING_STATUS | ELECTRICITY_AVAILABILITY_FLAG | DRINKING_WATER_AVAILABILITY_FLAG | TOILET_BOYS_FLAG | TOILET_GIRLS_FLAG | ICT_ENABLED_FLAG | PLAYGROUND_FLAG | HEAD_MASTER_NAME | HEAD_MASTER_MOBILE | SCHOOL_CONTACT_NO | SCHOOL_EMAIL_ID | NOC_REQUIRED_FLAG | NOC_AVAILABLE_FLAG | FIRE_SAFETY_FLAG | HEALTH_SAFETY_FLAG | EFFECTIVE_START_DATE | EFFECTIVE_END_DATE | IS_CURRENT | CREATED_DATE               | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+---------------------+---------------------+----------------------+-----------------------+-------------------------+------------------+-------------------+-----------------------------------------------+--------------------------------------------------+---------------+-------------------+---------------+-----------------+-------------------------+------------------+------------------+----------+-----------+----------------+-------------------+----------------------+-----------+-----------+------------------+-----------------+-----------------+-------------------------------+----------------------------------+------------------+-------------------+------------------+-----------------+------------------+--------------------+-------------------+-----------------+-------------------+--------------------+------------------+--------------------+----------------------+--------------------+------------+----------------------------+--------------+--------------+------------
+36                   | 5                   | NULL                 | 5                     | NULL                    | NULL             | NULL              | KENDRIYA VIDYALAYA NAD                        | KENDRIYAVIDYLAYANAD,NADCOLONYVISAKHAPATNAM530009 | Visakhapatnam | NULL              | Gopalapatnam  | NULL            | VISAKAPATNAM (M.CORP)-3 | NULL             | RURAL            | NULL     | NULL      | 530007         | Active            | 1987                 | -2        | 12        | NULL             | NULL            | NULL            | NULL                          | NULL                             | NULL             | NULL              | NULL             | NULL            | null             | 9440698411         | NULL              | NULL            | NULL              | NULL               | NULL             | NULL               | NULL                 | NULL               | YES        | 2026-05-16 12:27:02.354077 | CURATED_TEAM | NULL         | NULL       
+41                   | 5                   | NULL                 | 5                     | NULL                    | NULL             | NULL              | KENDRIYA VIDYALAYAM 2 NAUSENABAUGH GANDHIGRAM | VISAKHAPATNAM 530005                             | Visakhapatnam | NULL              | Mulagada      | NULL            | VISAKAPATNAM (M.CORP)-3 | NULL             | RURAL            | NULL     | NULL      | 530005         | Active            | 1986                 | -2        | 12        | NULL             | NULL            | NULL            | NULL                          | NULL                             | NULL             | NULL              | NULL             | NULL            | null             | 9491791514         | NULL              | NULL            | NULL              | NULL               | NULL             | NULL               | NULL                 | NULL               | YES        | 2026-05-16 12:27:02.354077 | CURATED_TEAM | NULL         | NULL       
+90                   | NULL                | NULL                 | 5                     | NULL                    | NULL             | NULL              | KENDRIYA VIDYALAYA                            | JG PALEM, NEAIR ITI COLLEGE                      | Guntur        | NULL              | TENALI        | NULL            | TENALI (M 1)            | NULL             | URBAN            | NULL     | NULL      | 522201         | Active            | 2016                 | -2        | 10        | NULL             | NULL            | NULL            | NULL                          | NULL                             | NULL             | NULL              | NULL             | NULL            | null             | 9959879778         | NULL              | NULL            | NULL              | NULL               | NULL             | NULL               | NULL                 | NULL               | YES        | 2026-05-16 12:27:02.354077 | CURATED_TEAM | NULL         | NULL       
+109                  | 5                   | NULL                 | 5                     | NULL                    | NULL             | NULL              | KENDRIYA VIDYALAYA NELLORE                    | NER RAJEEV SWAGRUHA APRTS, KOTHURU, NELLORE      | SPS Nellore   | NULL              | NELLORE       | NULL            | NELLORE (M)-4           | NULL             | URBAN            | NULL     | NULL      | NULL           | Active            | 2010                 | -2        | 12        | NULL             | NULL            | NULL            | NULL                          | NULL                             | NULL             | NULL              | NULL             | NULL            | null             | 9490142080         | NULL              | NULL            | NULL              | NULL               | NULL             | NULL               | NULL                 | NULL               | YES        | 2026-05-16 12:27:02.354077 | CURATED_TEAM | NULL         | NULL       
+143                  | 5                   | NULL                 | 8                     | NULL                    | NULL             | NULL              | MPL HIGH SCHOOL NEHRU NAGAR                   | NEHRU NAGAR DAHRMAVARAM                          | Sri Satyasai  | NULL              | DHARMAVARAM   | NULL            | DHARMAVARAM URBAN       | NULL             | URBAN            | NULL     | NULL      | 515671         | Active            | 2020                 | 3         | 10        | NULL             | NULL            | NULL            | NULL                          | NULL                             | NULL             | NULL              | NULL             | NULL            | null             | 9885791160         | NULL              | NULL            | NULL              | NULL               | NULL             | NULL               | NULL                 | NULL               | YES        | 2026-05-16 12:27:02.354077 | CURATED_TEAM | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_school_teacher
+--------------------------------------------------------------------------------
+CITIZEN_SCHOOL_TEACHER_ID_PK | TREASURY_ID | CFMS_ID    | NATIONAL_TEACHER_CODE | TEACHER_CITIZEN_MASTER_FK | TEACHER_EMP_ID | TEACHER_NAME   | GENDER | DATE_OF_BIRTH | JOINING_DATE | QUALIFICATION | EMPLOYMENT_TYPE | TEACHER_DESIGNATION                   | SUBJECT_SPECIALIZATION_KEY | FATHER_NAME   | FATHER_CITIZEN_MASTER_ID | MOTHER_NAME | MOTHER_CITIZEN_MASTER_ID | SPOUSE_NAME | SPOUSE_CITIZEN_MASTER_ID | IS_SINGLE_PARENT | DISABILITY_CATEGORY | ACADEMIC_QUALIFICATION | PROFESSIONAL_QUALIFICATION | TET_PASSED_FLAG | TET_YEAR_OF_PASSING | SERVICE_STATUS | DATE_OF_FIRST_APPOINTMENT | PRESENT_DESIGNATION_TEACHING_TYPE | EFFECTIVE_START_DATE | EFFECTIVE_END_DATE | IS_CURRENT | CREATED_DATE               | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+-----------------------------+-------------+------------+-----------------------+---------------------------+----------------+----------------+--------+---------------+--------------+---------------+-----------------+---------------------------------------+----------------------------+---------------+--------------------------+-------------+--------------------------+-------------+--------------------------+------------------+---------------------+------------------------+----------------------------+-----------------+---------------------+----------------+---------------------------+-----------------------------------+----------------------+--------------------+------------+----------------------------+--------------+--------------+------------
+30                           | 0000050     | null       | null                  | 752832933019              | 0000050        | S BALA RAJU    | M      | 1976-06-25    | NULL         | NULL          | null            | Junior Lecturer - Vocational Courses  | NULL                       | null          | NULL                     | null        | NULL                     | NULL        | NULL                     | NULL             | null                | NULL                   | NULL                       | NULL            | NULL                | Transfered     | NULL                      | null                              | NULL                 | NULL               | Yes        | 2026-05-22 15:16:46.762430 | CURATED_TEAM | NULL         | NULL       
+87                           | 0000140     | 1006952338 | tr11411345            | 318255854807              | 0000140        | PRAJVAL        | M      | 1986-06-24    | 2023-08-21   | NULL          |                 | PGT ECONOMICS                         | NULL                       | RANGA RAO     | NULL                     | null        | NULL                     | NULL        | NULL                     | NULL             | null                | NULL                   | NULL                       | Yes             | NULL                | Active         | NULL                      | Teaching                          | NULL                 | NULL               | Yes        | 2026-05-22 15:16:46.762430 | CURATED_TEAM | NULL         | NULL       
+124                          | 0000257     | null       | null                  | 951740259061              | 0000257        | RAJENDRA KUMAR | M      | 1961-05-01    | 2012-06-14   | NULL          | null            | Physical Education Teacher(PET)       | NULL                       | KRISHNAMURTHY | NULL                     | null        | NULL                     | NULL        | NULL                     | NULL             | null                | NULL                   | NULL                       | NULL            | NULL                | Active         | NULL                      | null                              | NULL                 | NULL               | Yes        | 2026-05-22 15:16:46.762430 | CURATED_TEAM | NULL         | NULL       
+160                          | 0000405     | null       | null                  | 415529710080              | 0000405        | P.RUPA         | F      | 1991-06-09    | 2010-06-15   | NULL          | null            | Secondary Grade Teacher (Telugu)      | NULL                       | PMUNIREDDY    | NULL                     | null        | NULL                     | NULL        | NULL                     | NULL             | null                | NULL                   | NULL                       | NULL            | NULL                | Active         | NULL                      | null                              | NULL                 | NULL               | Yes        | 2026-05-22 15:16:46.762430 | CURATED_TEAM | NULL         | NULL       
+169                          | 0000434     | null       | null                  | 861251477432              | 0000434        | M.RAVI         | M      | 1973-06-16    | 2009-06-19   | NULL          | null            | School Asst./PGT / JL ( Mathematics ) | NULL                       | M.RAGHAVAIAH  | NULL                     | null        | NULL                     | NULL        | NULL                     | NULL             | null                | NULL                   | NULL                       | NULL            | NULL                | Active         | NULL                      | null                              | NULL                 | NULL               | Yes        | 2026-05-22 15:16:46.762430 | CURATED_TEAM | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_student
+--------------------------------------------------------------------------------
+CITIZEN_STUDENT_ID_PK | CITIZEN_SCHOOL_ID_FK | STUDENT_CITIZEN_MASTER_ID_FK | HOUSEHOLD_ID                    | ENROLLMENT_ID | STUDENT_NAME                | GENDER | SURNAME | MOTHER_TONGUE | DATE_OF_BIRTH | SOCIAL_CATEGORY | MINORITY_STATUS | DISABILITY_FLAG | DISABILITY_PERCENTAGE | ADMISSION_FLAG | CURRENT_GRADE | MEDIUM_KEY | IS_CURRENT | MOTHER_CITIZEN_MASTER_ID_FK | FATHER_CITIZEN_MASTER_ID_FK | GUARDIAN_CITIZEN_MASTER_ID_FK | IS_CURRENT_FLAG | PRIMARY_MOBILE_NO | SECONDARY_MOBILE_NO | EMAIL_ID | ADDRESS                                                 | PINCODE | EFFECTIVE_START_DATE | EFFECTIVE_END_DATE | CREATED_DATE | CREATED_BY | UPDATED_DATE | UPDATED_BY | STATUS | STATUS_LEVEL_1 | STATUS_LEVEL_2 
+----------------------+----------------------+------------------------------+---------------------------------+---------------+-----------------------------+--------+---------+---------------+---------------+-----------------+-----------------+-----------------+-----------------------+----------------+---------------+------------+------------+-----------------------------+-----------------------------+-------------------------------+-----------------+-------------------+---------------------+----------+---------------------------------------------------------+---------+----------------------+--------------------+--------------+------------+--------------+------------+--------+----------------+----------------
+330260                | 19575                | 625353018713                 | HH62228323614220200223041810464 | 1504185858    | DUGGIRALA SURYA             | Male   | NULL    | 140           | 2007-05-04    | OBC             | Not Applicable  | No              | 0.00                  | Yes            | 11            | 5          | Yes        | NULL                        | 829879319096                | NULL                          | Y               | 8125899485        | 8500648655          | null     | 28-3-25 Gollapuntha, MANDAPET DR.B.R.AMBEDKAR KONASEEMA | 533308  | NULL                 | NULL               | NULL         | NULL       | NULL         | NULL       | 1      | 0              | 0              
+364525                | 18494                | 388192013541                 | HH47180196328920200515064651642 | 1504402258    | ANUSURI DURGA PRASAD        | MALE   | NULL    | 140           | 2007-05-19    | OBC             | Not Applicable  | No              | NULL                  | Yes            | 11            | 5          | Yes        | NULL                        | NULL                        | NULL                          | Y               | 9398595967        | null                | null     | 70-16a-87/4b BCCOLONY-02 KAKINADA KAKINADA              | 533003  | NULL                 | NULL               | NULL         | NULL       | NULL         | NULL       | 1      | 0              | 0              
+365458                | 18379                | 613378491359                 | HH30566916360020200214053644183 | 1504404630    | PASUPULETI JAYA SRI LAKSHMI | FEMALE | NULL    | 140           | 2008-04-28    | General         | Not Applicable  | No              | 0.00                  | Yes            | 12            | 5          | Yes        | 410607829796                | 325746648094                | NULL                          | Y               | 8096393126        |                     | null     | 6-218 KOMARAGIRI I.POLAVARAM DR.B.R.AMBEDKAR KONASEEMA  | 533220  | NULL                 | NULL               | NULL         | NULL       | NULL         | NULL       | 1      | 0              | 0              
+380988                | 18679                | 401564973105                 | HH93206592525020200218075407911 | 1504449307    | APPALABATHULA SAI PRIYA     | FEMALE | NULL    | 140           | 2009-06-11    | OBC             | Not Applicable  | No              | 0.00                  | Yes            | 12            | 5          | Yes        | 845942102343                | NULL                        | NULL                          | Y               | 9100558553        |                     | null     | 5-9-33 RAJIVGRUHAKALPA SAMALKOT KAKINADA                | 533440  | NULL                 | NULL               | NULL         | NULL       | NULL         | NULL       | 1      | 0              | 0              
+551802                | 23248                | 700951008768                 | HH70775746677720200214081809786 | 1505336135    | GUDA PAVAN                  | MALE   | NULL    | 140           | 2009-04-24    | SC              | Not Applicable  | No              | 0.00                  | Yes            | 12            | 5          | Yes        | 474556480459                | 885391641154                | NULL                          | Y               | 8500443904        |                     | null     | 4-165/1 POCHAVARAM TALLAPUDI EAST GODAVARI              | 534341  | NULL                 | NULL               | NULL         | NULL       | NULL         | NULL       | 1      | 0              | 0              
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_student
+--------------------------------------------------------------------------------
+CITIZEN_STUDENT_ID_PK | CITIZEN_SCHOOL_ID_FK | STUDENT_CITIZEN_MASTER_ID_FK | HOUSEHOLD_ID                    | ENROLLMENT_ID | STUDENT_NAME             | GENDER | SURNAME | MOTHER_TONGUE | DATE_OF_BIRTH | SOCIAL_CATEGORY | MINORITY_STATUS | DISABILITY_FLAG | DISABILITY_PERCENTAGE | ADMISSION_FLAG | CURRENT_GRADE | MEDIUM_KEY | IS_CURRENT | MOTHER_CITIZEN_MASTER_ID_FK | FATHER_CITIZEN_MASTER_ID_FK | GUARDIAN_CITIZEN_MASTER_ID_FK | IS_CURRENT_FLAG | PRIMARY_MOBILE_NO | SECONDARY_MOBILE_NO | EMAIL_ID | ADDRESS                                       | PINCODE | EFFECTIVE_START_DATE | EFFECTIVE_END_DATE | CREATED_DATE | CREATED_BY | UPDATED_DATE | UPDATED_BY | STATUS | STATUS_LEVEL_1 | STATUS_LEVEL_2 
+----------------------+----------------------+------------------------------+---------------------------------+---------------+--------------------------+--------+---------+---------------+---------------+-----------------+-----------------+-----------------+-----------------------+----------------+---------------+------------+------------+-----------------------------+-----------------------------+-------------------------------+-----------------+-------------------+---------------------+----------+-----------------------------------------------+---------+----------------------+--------------------+--------------+------------+--------------+------------+--------+----------------+----------------
+285817                | 13389                | 331313682664                 | HH69954073833120200220053535544 | 1503606780    | VALLANGI NAVADEEP        | MALE   | NULL    | 140           | 2010-03-06    | ST              | Not Applicable  | No              | 0.00                  | Yes            | 10            | 5          | Yes        | 426521270518                | 835477991412                | NULL                          | Y               | 8688759822        | null                | null     | - ADUGULAPUT PEDABAYALU ALLURI SITHARAMA RAJU | 531040  | NULL                 | NULL               | NULL         | NULL       | NULL         | NULL       | 1      | 0              | 0              
+561304                | 25568                | 728716364737                 | HH1059065710120200717105707970  | 1505373144    | KARAKATLA IMMANIYELU     | MALE   | NULL    | 140           | 2011-08-29    | SC              | Not Applicable  | Yes             | 0.00                  | Yes            | 9             | 3          | Yes        | 326086512679                | NULL                        | NULL                          | Y               | 9963328382        | null                | null     | 1-111 CHETTUNNAPADU BHIMADOLE ELURU           | 534427  | NULL                 | NULL               | NULL         | NULL       | NULL         | NULL       | 1      | 0              | 0              
+754144                | 32276                | 891133800836                 | HH92458663208220200219063910142 | 1506610802    | KUTHADI MOHAN DURGAVARMA | MALE   | NULL    | 140           | 2006-01-01    | ST              | Not Applicable  | No              | NULL                  | Yes            | 11            | 5          | Yes        | NULL                        | NULL                        | NULL                          | Y               | 7799330652        | null                | null     | 1-53 MOVVA1 MOVVA KRISHNA                     | 521135  | NULL                 | NULL               | NULL         | NULL       | NULL         | NULL       | 1      | 0              | 0              
+764891                | 25437                | 801591378044                 | HH30505331468020200215050216639 | 1506668384    | LAKKOJU MOHAN SAI VAMSI  | MALE   | NULL    | 140           | 2008-04-16    | OBC             | Not Applicable  | No              | 0.00                  | Yes            | 12            | 5          | Yes        | 746093923503                | 601472033523                | NULL                          | Y               | 9966223456        | 9494848479          | null     | SANIVARAPUPETA                                | 534003  | NULL                 | NULL               | NULL         | NULL       | NULL         | NULL       | 1      | 0              | 0              
+871011                | 36244                | 729371709884                 | HH54087842940220200221050755750 | 1507544867    | YALLAMALLI MAHENDRA      | MALE   | NULL    | 140           | 2010-07-28    | SC              | Not Applicable  | No              | 0.00                  | Yes            | 11            | 5          | Yes        | 656540500718                | NULL                        | NULL                          | Y               | 9959956218        | null                | null     | 3-65 GODAVARRU DUGGIRALA GUNTUR               | 522305  | NULL                 | NULL               | NULL         | NULL       | NULL         | NULL       | 2      | 24             | 214            
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_utility_connection
+--------------------------------------------------------------------------------
+CITIZEN_UTILITY_CONNECTION_FK | CITIZEN_MASTER_FK | GAS_CONNECTION_STATUS | ELECTRICITY_CONNECTION_STATUS | AVG_MONTHLY_KWH | WATER_CONNECTION_STATUS | CREATED_AT                 | CREATED_BY   | UPDATED_AT | UPDATED_BY 
+------------------------------+-------------------+-----------------------+-------------------------------+-----------------+-------------------------+----------------------------+--------------+------------+------------
+1                             | 100074616429      | LPG_GAS               | null                          | NULL            | BOREWELL_WELL           | 2026-06-02 22:08:09.672581 | CURATED_TEAM | NULL       | NULL       
+2                             | 100110097034      | null                  | null                          | NULL            | null                    | 2026-06-02 22:08:09.672581 | CURATED_TEAM | NULL       | NULL       
+3                             | 100115071008      | LPG_GAS               | null                          | NULL            | BOREWELL_WELL           | 2026-06-02 22:08:09.672581 | CURATED_TEAM | NULL       | NULL       
+4                             | 100115106352      | LPG_GAS               | null                          | NULL            | PACKAGED_WATER          | 2026-06-02 22:08:09.672581 | CURATED_TEAM | NULL       | NULL       
+5                             | 100116148143      | null                  | null                          | NULL            | null                    | 2026-06-02 22:08:09.672581 | CURATED_TEAM | NULL       | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_welfare_schemes
+--------------------------------------------------------------------------------
+CITIZEN_WELFARE_SCHEMES_PK | CITIZEN_WELFARE_SCHEME_MASTER_FK | CITIZEN_MASTER_FK | SCHEME_NAME         | SCHEME_REGISTERED_DATE | SCHEME_APPROVED_DATE | SCHEME_PROCESSED_DATE | SCHEME_PROCESSED_AMOUNT | SCHEME_UNUTILIZED_AMOUNT | CREATED_DATE               | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+---------------------------+----------------------------------+-------------------+---------------------+------------------------+----------------------+-----------------------+-------------------------+--------------------------+----------------------------+--------------+--------------+------------
+36                         | 8                                | 200001397660      | EBC Nestham         | NULL                   | NULL                 | 2024-05-20 00:00:00   | 15000.0                 | NULL                     | 2026-05-28 10:44:12.287868 | Curated_team | NULL         | NULL       
+41                         | 7                                | 200001513748      | Disaster Management | NULL                   | NULL                 | 2024-09-25 00:00:00   | 8095.0                  | NULL                     | 2026-05-28 10:44:12.287868 | Curated_team | NULL         | NULL       
+90                         | 3                                | 200002778629      | Thalliki Vandanam   | NULL                   | NULL                 | 2025-06-12 00:00:00   | 26000.0                 | NULL                     | 2026-05-28 10:44:12.287868 | Curated_team | NULL         | NULL       
+109                        | 3                                | 200003778337      | Thalliki Vandanam   | NULL                   | NULL                 | 2025-06-12 00:00:00   | 13000.0                 | NULL                     | 2026-05-28 10:44:12.287868 | Curated_team | NULL         | NULL       
+143                        | 25                               | 200005310788      | Auto Driver Sevalo  | NULL                   | NULL                 | 2023-09-29 00:00:00   | 10000.0                 | NULL                     | 2026-05-28 10:44:12.287868 | Curated_team | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_welfare_schemes_master
+--------------------------------------------------------------------------------
+CITIZEN_WELFARE_SCHEMES_MASTER_PK | SCHEME_NAME          | CATEGORY | SUB_CATEGORY | SCHEME_CODE | SCHEME_CREATE_DATE | SCHEME_START_DATE | SCHEME_END_DATE | SCHEME_ACTIVE_STATUS | SCHEME_BENEFITS | SCHEME_ELIGIBILITY_CONDITION1 | SCHEME_ELIGIBILITY_CONDITION2 | CREATED_DATE        | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+----------------------------------+----------------------+----------+--------------+-------------+--------------------+-------------------+-----------------+----------------------+-----------------+-------------------------------+-------------------------------+---------------------+--------------+--------------+------------
+31                                | Annadatha Sukhibava  | NULL     | NULL         | NULL        | NULL               | NULL              | NULL            | Y                    | NULL            | NULL                          | NULL                          | 2026-01-28 00:00:00 | Curated_team | NULL         | NULL       
+2                                 | Aasara               | NULL     | NULL         | S22         | NULL               | NULL              | NULL            | N                    | NULL            | NULL                          | NULL                          | 2026-01-09 00:00:00 | Curated_team | NULL         | NULL       
+10                                | Jalakala             | NULL     | NULL         | S30         | NULL               | NULL              | NULL            | N                    | NULL            | NULL                          | NULL                          | 2026-01-09 00:00:00 | Curated_team | NULL         | NULL       
+27                                | Videsi Vidya Deevena | NULL     | NULL         | S14         | NULL               | NULL              | NULL            | N                    | NULL            | NULL                          | NULL                          | 2026-01-09 00:00:00 | Curated_team | NULL         | NULL       
+17                                | Pension Kanuka       | NULL     | NULL         | S4          | NULL               | NULL              | NULL            | N                    | NULL            | NULL                          | NULL                          | 2026-01-09 00:00:00 | Curated_team | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.core_temple_auvs_summary_tab_test_dummy
+--------------------------------------------------------------------------------
+DISTRICT_ID | MANDAL_ID | VILLAGE_ID | DISTRICT_NAME | MANDAL_NAME   | VILLAGE_NAME    | TEMPLE_ID | TEMPLE_NM                                                    | ARCHAKA_NAME                                                                                                                                 | MOBILE_NO  | AADHAAR_NUMBER | AMOUNT   | INSERTED_DATE | OP | EVENT_TS                   | DELETED_FLAG 
+------------+-----------+------------+---------------+---------------+-----------------+-----------+--------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------+------------+----------------+----------+---------------+----+----------------------------+--------------
+24          | 643       | 7496       | Visakhapatnam | Visakhapatnam | Chinagadili (U) | 27380     | Sri Varaha Lakshmi Narasimha Swamy Devasthanam, Simhachalam, | Sri A.Sai Krishna,S.Kota                                                                                                                     | 8106276070 | 889490637991   | 3000.000 | 2026-02-19    | r  | 2026-04-01 19:38:42.236000 | False        
+24          | 643       | 7496       | Visakhapatnam | Visakhapatnam | Chinagadili (U) | 27380     | Sri Varaha Lakshmi Narasimha Swamy Devasthanam, Simhachalam, | Sri M Suresh Kumar                                                                                                                           | 9963316374 | 928525169898   | 3000.000 | 2026-02-19    | r  | 2026-04-01 19:38:42.236000 | False        
+24          | 643       | 7496       | Visakhapatnam | Visakhapatnam | Chinagadili (U) | 27380     | Sri Varaha Lakshmi Narasimha Swamy Devasthanam, Simhachalam, | Sri Kota Rajesh
+Communication Address D.No.53-41-51/15, F.No.303, Seetha Apartments, Bhanunagar, Visakhapatnam.                              | 9491451605 | 284213389171   | 3000.000 | 2026-02-19    | r  | 2026-04-01 19:38:42.236000 | False        
+24          | 643       | 7496       | Visakhapatnam | Visakhapatnam | Chinagadili (U) | 27380     | Sri Varaha Lakshmi Narasimha Swamy Devasthanam, Simhachalam, | Sri Kumarabattaru Subramanyam
+Communication Address D.No.2-15-42/1, MVP Colony, Sector-9, Kailashgiri, Visakhapatnam
+                        | 9553854712 | 447355259025   | 3000.000 | 2026-02-19    | r  | 2026-04-01 19:38:42.236000 | False        
+24          | 643       | 7496       | Visakhapatnam | Visakhapatnam | Chinagadili (U) | 27380     | Sri Varaha Lakshmi Narasimha Swamy Devasthanam, Simhachalam, | Sri Uppaluri Jagannaadha Sastri
+Communication Address D.No.4-56-159, Kummari Veedhi, Santhapeta, Chittivalasa, Bheemunipatnam, Visakhapatnam | 7032904356 | 926950986750   | 3000.000 | 2026-02-19    | r  | 2026-04-01 19:38:42.236000 | False        
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.core_temple_ddns
+--------------------------------------------------------------------------------
+DISTRICT_ID | MANDAL_ID | VILLAGE_ID | DISTRICT_NAME                | MANDAL_NAME  | VILLAGE_NAME       | TEMPLE_ID | TEMPLE_NM                                                   | ARCHAKA_NAME                               | MOBILE_NO  | AADHAAR_NUMBER | AMOUNT    | INSERTED_DATE | INSERTED_TS                | OP | EVENT_TS      | DELETED_FLAG 
+------------+-----------+------------+------------------------------+--------------+--------------------+-----------+-------------------------------------------------------------+--------------------------------------------+------------+----------------+-----------+---------------+----------------------------+----+---------------+--------------
+11          | 271       | 3116       | Dr. B. R. Ambedkar Konaseema | Amalapuram   | Bandarulanka (U)   | 12009     | Sri Gangadevi Ammavari Temple {Mulugulamma Ammavari Temple} |  Putsala Veera Bhadrudu                    | 9989638317 | 489076339897   | 10000.000 | 1771521143880 | 2026-02-19 22:42:23.880000 | r  | 1774520144538 | False        
+11          | 271       | 3115       | Dr. B. R. Ambedkar Konaseema | Amalapuram   | Amalapuram (Rural) | 11986     | Sri Kalyana Ramalayam @ Peramma Agraharam                   | Peddinti Surya Naga Krishna Perumallu      | 9502299958 | 882653197953   | 10000.000 | 1771521143880 | 2026-02-19 22:42:23.880000 | r  | 1774520144538 | False        
+11          | 279       | 3213       | Dr. B. R. Ambedkar Konaseema | Mamidikuduru | Edarada            | 12316     | Sri Laxminarasimha Swamy Temple                             | Meduri Valli Nadha Deekshitulu             | 9491734756 | 780954879040   | 10000.000 | 1771521143880 | 2026-02-19 22:42:23.880000 | r  | 1774520144538 | False        
+11          | 278       | 3203       | Dr. B. R. Ambedkar Konaseema | Malikipuram  | Kattimanda         | 12299     | Sri Kodanda Ramalayam @ Battilanka                          | Sudarsanam Satya Venkata Ranganadacharyulu | 9866662831 | 549458263289   | 10000.000 | 1771521143880 | 2026-02-19 22:42:23.880000 | r  | 1774520144538 | False        
+11          | 279       | 3210       | Dr. B. R. Ambedkar Konaseema | Mamidikuduru | Adurru             | 12308     | Sri Kodanda Ramalayam                                       |  Ravada Venkata Seshadri                   | 6281152725 | 295996844569   | 10000.000 | 1771521143880 | 2026-02-19 22:42:23.880000 | r  | 1774520144538 | False        
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.core_temple_ddrf_test_dummy
+--------------------------------------------------------------------------------
+DISTRICT_ID | MANDAL_ID | VILLAGE_ID | DISTRICT_NAME | MANDAL_NAME       | VILLAGE_NAME      | TEMPLE_ID | TEMPLE_NM                                        | ARCHAKA_NAME               | MOBILE_NO  | AADHAAR_NUMBER | AMOUNT  | INSERTED_DATE | OP | TS_MS      | DELETED_FLAG 
+------------+-----------+------------+---------------+-------------------+-------------------+-----------+--------------------------------------------------+----------------------------+------------+----------------+---------+---------------+----+------------+--------------
+22          | 574       | 6708       | Srikakulam    | Lakshmi Narasapet | Lakshmi Narasapet | 24902     | Sri Jagannadha Swamy Temple Lakshmi Narsupeta    | Vinod Kumar Patri          | 9492423347 | 696517471166   | 14625.0 | 2026-02-19    | r  | 2026-04-01 | False        
+22          | 576       | 6727       | Srikakulam    | Mandasa           | Mandasa           | 24946     | Sri Jagannadha Swamy Temple Sabakota             | Hari Krishna Panda         | 9959548624 | 593420913675   | 13000.0 | 2026-02-19    | r  | 2026-04-01 | False        
+22          | 576       | 6727       | Srikakulam    | Mandasa           | Mandasa           | 24955     | Sri Rajagopala Swamy Temple                      | Nirmal Panigrahi           | 9652611736 | 903639619143   | 11625.0 | 2026-02-19    | r  | 2026-04-01 | False        
+22          | 582       | 6786       | Srikakulam    | Pathapatnam       | Pathapatnam       | 25107     | Sri Venkateswara Swamy Temple                    | Ch.V.R.Jagannadha Charyulu | 9441798200 | 251606632402   | 13625.0 | 2026-02-19    | r  | 2026-04-01 | False        
+22          | 581       | 6770       | Srikakulam    | Palasa            | Kasibugga         | 25060     | Sri Radhakantha & Brudnavanachandra Swamy Temple | Pramod Panda               | 9063131988 | 457626684649   | 15000.0 | 2026-02-19    | r  | 2026-04-01 | False        
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.gsws_sec_secretariat_master
+--------------------------------------------------------------------------------
+GSWS_SEC_SECRETARIAT_MASTER_PK | LGD_DIST_CODE | DISTRICT_NAME | LGD_MANDAL_CODE | MANDAL_NAME | SECRETARIAT_CODE | SECRETARIAT_NAME | RURAL_URBAN_FLAG | SEC_ID   | OFFLINE_DATA | CONTAINMENT | IS_CMS_ENABLED | OLD_LGD_DIST_CODE | OLD_DISTRICT_NAME | LGD_DISTRICT_TELUGU | LGD_MANDAL_TELUGU | LGD_SECRETARIAT_TELUGU | TELUGU_R_U | IS_FLOOD | OFFLINE_DATA_BK | IS_P4 
+-------------------------------+---------------+---------------+-----------------+-------------+------------------+------------------+------------------+----------+--------------+-------------+----------------+-------------------+-------------------+---------------------+-------------------+------------------------+------------+----------+-----------------+-------
+1                              | 519           | SRIKAKULAM    | 4787            | L.N.PETA    | 10190001         | BORRAMPETA       | R                | 10190001 | 0            | 0           | 0              | 519               | SRIKAKULAM        | శ్రీకాకుళం జిల్లా   | ల.న.పేట           | బొర్రంపేట సచివాలయం     | రూరల్      | N        | 0               | null  
+2                              | 519           | SRIKAKULAM    | 4787            | L.N.PETA    | 10190002         | BOTTADASINGI     | R                | 10190002 | 0            | 0           | 0              | 519               | SRIKAKULAM        | శ్రీకాకుళం జిల్లా   | ల.న.పేట           | బొట్టడసింగి సచివాలయం   | రూరల్      | N        | 0               | null  
+3                              | 519           | SRIKAKULAM    | 4787            | L.N.PETA    | 10190004         | CHORLINGI        | R                | 10190004 | 1            | 0           | 0              | 519               | SRIKAKULAM        | శ్రీకాకుళం జిల్లా   | ల.న.పేట           | చోరలింగి సచివాలయం      | రూరల్      | N        | 0               | null  
+4                              | 519           | SRIKAKULAM    | 4787            | L.N.PETA    | 10190007         | GOTTIPALLI       | R                | 10190007 | 0            | 0           | 0              | 519               | SRIKAKULAM        | శ్రీకాకుళం జిల్లా   | ల.న.పేట           | గొట్టిపల్లి సచివాలయం   | రూరల్      | N        | 0               | null  
+5                              | 519           | SRIKAKULAM    | 4787            | L.N.PETA    | 10190008         | KARAKAVALASA     | R                | 10190008 | 0            | 0           | 0              | 519               | SRIKAKULAM        | శ్రీకాకుళం జిల్లా   | ల.న.పేట           | కారకావలస సచివాలయం      | రూరల్      | N        | 0               | null  
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.health_scheme_code
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: health_scheme_name, health_scheme_code
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.infrastructure_category_dim
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: infra_category_dim_id_pk, infra_category_code, infra_category_name, is_active, effective_start_date, effective_end_date, is_current, created_date, created_by, updated_date, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.infrastructure_component_dim
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: infrastructure_component_dim_id_pk, infra_category_dim_id_fk, infra_component_code, infra_component_name, unit_type, is_functional_track, is_active, effective_start_date, effective_end_date, is_current, created_date, created_by, updated_date, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.meal_type_dim
+--------------------------------------------------------------------------------
+MEAL_TYPE_DIM_ID_PK | MEAL_TYPE_CODE | MEAL_TYPE_NAME        | IS_COMPULSORY | IS_ACTIVE | IS_CURRENT | EFFECTIVE_START_DATE | EFFECTIVE_END_DATE | CREATED_DATE               | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+--------------------+----------------+-----------------------+---------------+-----------+------------+----------------------+--------------------+----------------------------+--------------+--------------+------------
+16                  | 115            | Mixed Vegetable curry | NULL          | Y         | NULL       | NULL                 | NULL               | 2026-05-12 16:02:01.523472 | curated_team | NULL         | NULL       
+26                  | 125            | Ragi java             | NULL          | Y         | NULL       | NULL                 | NULL               | 2026-05-12 16:02:01.523472 | curated_team | NULL         | NULL       
+38                  | 91             | Dal with green leaves | NULL          | Y         | NULL       | NULL                 | NULL               | 2026-05-12 16:02:01.523472 | curated_team | NULL         | NULL       
+40                  | 93             | Kichidi               | NULL          | Y         | NULL       | NULL                 | NULL               | 2026-05-12 16:02:01.523472 | curated_team | NULL         | NULL       
+39                  | 92             | Dal with Tomato       | NULL          | Y         | NULL       | NULL                 | NULL               | 2026-05-12 16:02:01.523472 | curated_team | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.mid_day_meal_serving_fact
+--------------------------------------------------------------------------------
+MID_DAY_MEAL_SERVING_FACT_ID_PK | CITIZEN_SCHOOL_ID_FK | DATE_KEY_ID_FK | MEAL_TYPE_ID_FK | ACADEMIC_YEAR | MID_DAY_MEAL_SERVING_FACTOR | INDENT_REFERENCE_NUMBER | INSPECTION_REFERENCE_ID | MEAL_SERVED_FLAG | CALORIES_SERVED | PROTEIN_GRAMS_SERVED | EGG_SERVED_COUNT | MEAL_SERVING_START_TIME | HYGIENE_COMPLIANT_FLAG | FOOD_TASTED_FLAG | TEACHER_SUPERVISED_FLAG | MEDICAL_INCIDENT_REPORTED_FLAG | LAST_INSPECTION_DATE | INSPECTION_SCORE | INSPECTION_REMARKS_CODE | GEO_TAGGED_FLAG | PHOTO_CAPTURED_FLAG | MEAL_NOT_SERVED_REASON_CODE | SUPPLY_SHORTAGE_FLAG | CREATED_DATE               | CREATED_BY   
+--------------------------------+----------------------+----------------+-----------------+---------------+-----------------------------+-------------------------+-------------------------+------------------+-----------------+----------------------+------------------+-------------------------+------------------------+------------------+-------------------------+--------------------------------+----------------------+------------------+-------------------------+-----------------+---------------------+-----------------------------+----------------------+----------------------------+--------------
+7                               | 1223                 | 20250626       | NULL            | 2025          | NULL                        | NULL                    | NULL                    | Yes              | NULL            | NULL                 | NULL             | NULL                    | NULL                   | NULL             | NULL                    | NULL                           | NULL                 | NULL             | NULL                    | NULL            | NULL                | NULL                        | NULL                 | 2026-05-29 17:51:53.684422 | CURATED_TEAM 
+3884178                         | 18931                | 20250723       | NULL            | 2025          | NULL                        | NULL                    | NULL                    | No               | NULL            | NULL                 | NULL             | NULL                    | NULL                   | NULL             | NULL                    | NULL                           | NULL                 | NULL             | NULL                    | NULL            | NULL                | NULL                        | NULL                 | 2026-05-29 17:51:53.684422 | CURATED_TEAM 
+20                              | 1223                 | 20250722       | NULL            | 2025          | NULL                        | NULL                    | NULL                    | Yes              | NULL            | NULL                 | NULL             | NULL                    | NULL                   | NULL             | NULL                    | NULL                           | NULL                 | NULL             | NULL                    | NULL            | NULL                | NULL                        | NULL                 | 2026-05-29 17:51:53.684422 | CURATED_TEAM 
+3884206                         | 18931                | 20251018       | NULL            | 2025          | NULL                        | NULL                    | NULL                    | No               | NULL            | NULL                 | NULL             | NULL                    | NULL                   | NULL             | NULL                    | NULL                           | NULL                 | NULL             | NULL                    | NULL            | NULL                | NULL                        | NULL                 | 2026-05-29 17:51:53.684422 | CURATED_TEAM 
+58                              | 1223                 | 20260105       | NULL            | 2026          | NULL                        | NULL                    | NULL                    | Yes              | NULL            | NULL                 | NULL             | NULL                    | NULL                   | NULL             | NULL                    | NULL                           | NULL                 | NULL             | NULL                    | NULL            | NULL                | NULL                        | NULL                 | 2026-05-29 17:51:53.684422 | CURATED_TEAM 
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.nutrition_item_dim
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: nutrition_item_dim_id_pk, item_code, item_name, nutrition_category, unit_of_measure, default_quantity, is_active, effective_start_date, effective_end_date, is_current, created_date, created_by, updated_date, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.ration_card_citizen
+--------------------------------------------------------------------------------
+CITIZEN_RATION_CARD_PK | CITIZEN_MASTER_FK | RATION_CARD_FAMILY_FK | STATUS_CODE | EFFECTIVE_START_DATE | EFFECTIVE_END_DATE | CREATED_DATE               | CREATED_BY   | UPDATED_DATE               | UPDATED_BY   
+-----------------------+-------------------+-----------------------+-------------+----------------------+--------------------+----------------------------+--------------+----------------------------+--------------
+11500983               | 260791026233      | 3312302               | A           | NULL                 | NULL               | 2026-05-22 17:03:56.634434 | curated_team | 2026-05-22 17:03:56.634434 | curated_team 
+15022790               | 279406758159      | 40110327              | A           | NULL                 | NULL               | 2026-05-22 17:03:56.634434 | curated_team | 2026-05-22 17:03:56.634434 | curated_team 
+11500984               | 260791026233      | 14362087              | A           | NULL                 | NULL               | 2026-05-22 17:03:56.634434 | curated_team | 2026-05-22 17:03:56.634434 | curated_team 
+15022791               | 279406776739      | 31083495              | A           | NULL                 | NULL               | 2026-05-22 17:03:56.634434 | curated_team | 2026-05-22 17:03:56.634434 | curated_team 
+11500985               | 260791026233      | 16470492              | A           | NULL                 | NULL               | 2026-05-22 17:03:56.634434 | curated_team | 2026-05-22 17:03:56.634434 | curated_team 
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.ration_card_citizen_reason
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: reason_id, reason_name, reason_description, reason_code
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.ration_card_family
+--------------------------------------------------------------------------------
+RATION_CARD_FAMILY_PK | RATION_CARD_TYPE_ID_FK | RATION_CARD_NO | CARD_TYPE_CODE | ISSUING_DISTRICT_CODE | FPS_CODE     | CITIZEN_MASTER_ID_FK | ANNUAL_INCOME | RATION_CARD_ID | STATUS_CODE | CREATED_AT                 | CREATED_BY   | UPDATED_AT                 | UPDATED_BY   
+----------------------+------------------------+----------------+----------------+-----------------------+--------------+----------------------+---------------+----------------+-------------+----------------------------+--------------+----------------------------+--------------
+4283890               | 2                      | 2806815210     | 2              | 542.0                 | 154201500201 | 278607522314         | NULL          | 67766          | A           | 2026-05-22 16:40:39.743315 | curated_team | 2026-05-22 16:40:39.743315 | curated_team 
+6863004               | 3                      | 2811953690     | 3              | 544.0                 | 154408601892 | 325909109516         | 0             | 2782922        | A           | 2026-05-22 16:40:39.743315 | curated_team | 2026-05-22 16:40:39.743315 | curated_team 
+4283891               | 3                      | 2822422238     | 3              | 568.0                 | 154900300081 | 278607549731         | 70000         | 11511325       | A           | 2026-05-22 16:40:39.743315 | curated_team | 2026-05-22 16:40:39.743315 | curated_team 
+6863005               | 3                      | 2821123807     | 3              | 566.0                 | 155304102683 | 325909150167         | 40000         | 10346421       | A           | 2026-05-22 16:40:39.743315 | curated_team | 2026-05-22 16:40:39.743315 | curated_team 
+4283892               | 3                      | 2812132618     | 3              | 550.0                 | 155003001590 | 278607554315         | NULL          | 2070261        | A           | 2026-05-22 16:40:39.743315 | curated_team | 2026-05-22 16:40:39.743315 | curated_team 
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.ration_card_type
+--------------------------------------------------------------------------------
+CARD_TYPE_ID_PK | RATION_CARD_TYPE_NAME | CARD_TYPE_DESCRIPTION                       | CARD_TYPE_CODE 
+----------------+-----------------------+---------------------------------------------+----------------
+1               | Above Poverty Line    | Families above poverty line                 | APL            
+2               | Antyodaya Anna Yojana | For poorest households with highest subsidy | AAY            
+3               | Below Poverty Line    | Economically weaker families                | BPL            
+4               | Annapurna Scheme      | For senior citizens under Annapurna scheme  | AAP            
+
+Successfully fetched 4 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.scheme_benefits_fact
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: scheme_benefits_fact_id_pk, citizen_school_id_fk, school_scheme_master_id_fk, academic_year, benefit_type_id_fk, beneficiary_type_id_fk, citizen_student_id_fk, school_teacher_id_fk, scheme_application_id, social_category, eligible_flag, attendance_eligible_flag, benefit_delivered_flag, delivery_mode, sanction_order_number, eligible_beneficiary_flag, benefit_sanctioned_flag, benefit_disbursed_flag, scheme_benefits_factcol, benefit_rejected_flag, benefit_withheld_flag, benefit_amount_sanctioned, benefit_amount_disbursed, benefit_amount_pending, central_share_amount, state_share_amount, benefit_quantity, benefit_event_count, benefit_amount, beneficiary_count, application_date, sanction_date, disbursement_date, expected_disbursement_date, delay_days, rejection_reason_code, payment_failure_reason_code, aadhaar_seeded_flag, bank_account_verified_flag, kyc_completed_flag, girl_child_flag, sc_st_minority_flag, cwsn_flag, bgm_eligible_flag, below_poverty_line_flag, scheme_uptake_rate, created_date, created_by, updated_date, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_academic_performance_fact
+--------------------------------------------------------------------------------
+SCHOOL_ACADEMIC_PERFORMANCE_FACT_ID_PK | CITIZEN_STUDENT_ID_FK | CITIZEN_SCHOOL_ID_FK | STUDENT_SUBJECT_ID_FK | EXAM_DATE_KEY_ID_FK | STUDENT_CLASS_DIM_ID_FK | ASSESSMENT_DIM_ID_FK | SCHOOL_MEDIUM_ID_FK | ACADEMIC_YEAR | STUDENT_EXAM_ID_FK | STUDENT_ROLL_NUMBER | EXAM_REGISTRATION_NUMBER | HALL_TICKET_NUMBER | ASSESSMENT_CYCLE | MARKS_OBTAINED | FA1_MAX_OBTAINED_MARKS | FA2_MAX_OBTAINED_MARKS | FA3_MAX_OBTAINED_MARKS | FA4_MAX_OBTAINED_MARKS | SA1_MAX_OBTAINED_MARKS | SA2_MAX_OBTAINED_MARKS | FA1_MARKS_PERCENTAGE | FA2_MARKS_PERCENTAGE | FA3_MARKS_PERCENTAGE | FA4_MARKS_PERCENTAGE | SA1_MARKS_PERCENTAGE | SA2_MARKS_PERCENTAGE | PASS_FLAG | FAIL_FLAG | ABSENT_FLAG | WITHHELD_FLAG | GRADE_POINT | EXAM_TYPE | EVALUATION_TYPE | MEDIUM_OF_EXAM | INSTRUCTION_LANGUAGE | SCORE | PERFORMANCE_BAND | YEAR_ON_YEAR_IMPROVEMENT_FLAG | CREATED_DATE               | CREATED_BY   
+---------------------------------------+-----------------------+----------------------+-----------------------+---------------------+-------------------------+----------------------+---------------------+---------------+--------------------+---------------------+--------------------------+--------------------+------------------+----------------+------------------------+------------------------+------------------------+------------------------+------------------------+------------------------+----------------------+----------------------+----------------------+----------------------+----------------------+----------------------+-----------+-----------+-------------+---------------+-------------+-----------+-----------------+----------------+----------------------+-------+------------------+-------------------------------+----------------------------+--------------
+2                                      | 1                     | 33566                | NULL                  | NULL                | 2                       | NULL                 | 5                   | 0             | NULL               | NULL                | NULL                     | NULL               | NULL             | NULL           | 45.00                  | 43.00                  | 43.00                  | 45.00                  | 67.00                  | NULL                   | 90.00                | 86.00                | 86.00                | 90.00                | 83.75                | NULL                 | Y         | N         | NULL        | NULL          | NULL        | NULL      | NULL            | NULL           | English              | 94.00 | NULL             | NULL                          | 2026-05-19 10:41:26.020203 | CURATED_TEAM 
+27346601                               | 6496521               | 73376                | NULL                  | NULL                | 7                       | NULL                 | 5                   | 0             | NULL               | NULL                | NULL                     | NULL               | NULL             | NULL           | 30.00                  | 18.00                  | 35.00                  | 39.00                  | 61.00                  | NULL                   | 60.00                | 36.00                | 70.00                | 78.00                | 76.25                | NULL                 | Y         | N         | NULL        | NULL          | NULL        | NULL      | NULL            | NULL           | English              | 53.00 | NULL             | NULL                          | 2026-05-19 10:41:26.020203 | CURATED_TEAM 
+12                                     | 5                     | 17005                | NULL                  | NULL                | 3                       | NULL                 | 3                   | 0             | NULL               | 11                  | NULL                     | NULL               | NULL             | NULL           | 45.00                  | 38.00                  | 28.00                  | 48.00                  | 43.00                  | NULL                   | 90.00                | 76.00                | 56.00                | 96.00                | 53.75                | NULL                 | Y         | N         | NULL        | NULL          | NULL        | NULL      | NULL            | NULL           | Telugu               | 90.00 | NULL             | NULL                          | 2026-05-19 10:41:26.020203 | CURATED_TEAM 
+27346623                               | 6496526               | 26373                | NULL                  | NULL                | 6                       | NULL                 | 5                   | 0             | NULL               | NULL                | NULL                     | NULL               | NULL             | NULL           | 48.00                  | 46.00                  | 46.00                  | 48.00                  | 76.00                  | NULL                   | 96.00                | 92.00                | 92.00                | 96.00                | 95.00                | NULL                 | Y         | N         | NULL        | NULL          | NULL        | NULL      | NULL            | NULL           | English              | 96.00 | NULL             | NULL                          | 2026-05-19 10:41:26.020203 | CURATED_TEAM 
+66                                     | 51                    | 30544                | NULL                  | NULL                | NULL                    | NULL                 | 5                   | 2             | NULL               | NULL                | NULL                     | NULL               | NULL             | NULL           | NULL                   | NULL                   | NULL                   | NULL                   | NULL                   | NULL                   | NULL                 | NULL                 | NULL                 | NULL                 | NULL                 | NULL                 | Y         | N         | NULL        | NULL          | NULL        | NULL      | NULL            | NULL           | English              | 96.00 | NULL             | NULL                          | 2026-05-19 10:41:26.020203 | CURATED_TEAM 
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_category
+--------------------------------------------------------------------------------
+SCHOOL_CATEGORY_ID_PK | CATEGORY_CODE | CATEGORY_NAME                    | CATEGORY_TYPE | MIN_CLASS | MAX_CLASS | UDISE_TYPE 
+----------------------+---------------+----------------------------------+---------------+-----------+-----------+------------
+5                     | 3             | PR. WITH UP.PR. SEC. AND H.SEC.  | HIGH SCHOOL   | 1         | 12        | S          
+9                     | 7             | UPPER PR. AND SECONDARY          | HIGH SCHOOL   | 6         | 10        | S          
+10                    | 8             | SECONDARY ONLY                   | HIGH SCHOOL   | 6         | 10        | S          
+7                     | 5             | UP. PR. SECONDARY AND HIGHER SEC | HIGH SCHOOL   | 6         | 12        | S          
+2                     | 10            | SECONDARY WITH HIGHER SECONDARY  | HIGH SCHOOL   | 6         | 12        | S          
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_infra_category_dim
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: school_infra_category_dim_id_pk, school_infra_category_code, school_infra_category_name, is_active, effective_start_date, effective_end_date, is_current, created_date, created_by, updated_date, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_infra_component_dim
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: school_infra_component_dim_id_pk, infrastructure_component_dim_id_fk, component_code, component_name, measurement_type, is_digital, is_active, effective_start_date, effective_end_date, is_current, created_date, created_by, updated_date, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_infrastructure_progress_fact
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: school_infrastructure_progress_fact_id_pk, citizen_school_id_pk, reporting_date_key_fk, infrastructure_component_id_fk, infrastructure_category_id_fk, reporting_period_id_fk, academic_year, scheme_id_fk, work_order_no, estimate_id, total_units, functional_units, non_functional_units, under_construction_units, planned_unit_count, completed_unit_count, in_progress_unit_count, pending_unit_count, physical_progress_percentage, financial_progress_percentage, estimated_cost_amount, sanctioned_amount, released_amount, utilized_amount, balance_amount, work_status, start_date, expected_completion_date, actual_completion_date, delay_days, delay_reason_code, school_infrastructure_progress_factcol2, is_structurally_certified_flag, is_safety_compliant_flag, is_functional_flag, maintenance_required_flag, geo_tagged_flag, geo_latitude, geo_longitude, last_inspection_date, inspection_score, inspection_remarks_code
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_meal_menu_dim
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: school_meal_menu_dim_id_pk, meal_type_dim_id_fk, nutrition_item_dim_id_fk, weekday_code, academic_year, is_planned, is_active, effective_start_date, effective_end_date, is_current, created_date, created_by, updated_date, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_medium
+--------------------------------------------------------------------------------
+SCHOOL_MEDIUM_PK | MEDIUM_CODE | MEDIUM_NAME          | LANGUAGE_FAMILY 
+-----------------+-------------+----------------------+-----------------
+5                | 19          | English              | NULL            
+3                | 17          | Telugu               | NULL            
+4                | 18          | Urdu                 | NULL            
+6                | 30          | State Govt. EM(CBSE) | NULL            
+2                | 16          | Tamil                | NULL            
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_scheme_master
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: school_scheme_dim_id_pk, scheme_code, scheme_name, scheme_category, applicable_level, delivery_mode, funding_dept, start_date, end_date, scheme_status, effective_from, effective_to, is_current, is_active, created_date, created_by, updated_date, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_student_attendance_fact
+--------------------------------------------------------------------------------
+SCHOOL_STUDENT_ATTENDANCE_FACT_ID_PK | CITIZEN_STUDENT_ID_FK | SCHOOL_MEDIUM_ID_FK | STUDENT_CLASS_DIM_ID_FK | STUDENT_SCHOOL_ID_FK | ACADEMIC_YEAR | ATTENDANCE_DATE_ID_FK | ATTENDANCE_MONTH | PRESENT_FLAG | ABSENT_FLAG | HALF_DAY_FLAG | ATTENDANCE_WEIGHT | ATTENDANCE_STATUS_CODE | ATTENDANCE_REASON_CODE | MARKED_BY_ROLE | ATTENDANCE_CAPTURE_METHOD | MDM_ELIGIBLE_FLAG | MEALS_CONSUMED_FLAG | EGGS_ELIGIBLE_FLAG | CHIKKI_ELIGIBLE_FLAG | RAGI_JAVA_ELIGIBLE_FLAG | CAPTURE_SOURCE | HM_APPROVAL_FLAG | HM_APPROVAL_DATE | ABSENCE_REASON_DIM_ID_FK | IMAGE_AVAILABLE_FLAG | LATITUDE | LONGITUDE | CREATED_DATE               | CREATED_BY   
+-------------------------------------+-----------------------+---------------------+-------------------------+----------------------+---------------+-----------------------+------------------+--------------+-------------+---------------+-------------------+------------------------+------------------------+----------------+---------------------------+-------------------+---------------------+--------------------+----------------------+-------------------------+----------------+------------------+------------------+--------------------------+----------------------+----------+-----------+----------------------------+--------------
+396                                  | 1003                  | 5                   | 10                      | 2379                 | 2025          | 20250612              | 6                | Y            | N           | NULL          | NULL              | NULL                   | 0                      | NULL           | NULL                      | N                 | NULL                | NULL               | NULL                 | NULL                    | NULL           | NULL             | NULL             | 1                        | NULL                 | NULL     | NULL      | 2026-05-29 12:31:44.583207 | curated_team 
+34881174                             | 4904520               | 5                   | 7                       | 64519                | 2025          | 20250618              | 6                | Y            | N           | NULL          | NULL              | NULL                   | 0                      | NULL           | NULL                      | Y                 | NULL                | NULL               | NULL                 | NULL                    | NULL           | NULL             | NULL             | 1                        | NULL                 | NULL     | NULL      | 2026-05-29 12:31:44.583207 | curated_team 
+397                                  | 1003                  | 5                   | 10                      | 2379                 | 2025          | 20250613              | 6                | Y            | N           | NULL          | NULL              | NULL                   | 0                      | NULL           | NULL                      | N                 | NULL                | NULL               | NULL                 | NULL                    | NULL           | NULL             | NULL             | 1                        | NULL                 | NULL     | NULL      | 2026-05-29 12:31:44.583207 | curated_team 
+34881175                             | 4904520               | 5                   | 7                       | 64519                | 2025          | 20250619              | 6                | Y            | N           | NULL          | NULL              | NULL                   | 0                      | NULL           | NULL                      | Y                 | NULL                | NULL               | NULL                 | NULL                    | NULL           | NULL             | NULL             | 1                        | NULL                 | NULL     | NULL      | 2026-05-29 12:31:44.583207 | curated_team 
+398                                  | 1003                  | 5                   | 10                      | 2379                 | 2025          | 20250616              | 6                | Y            | N           | NULL          | NULL              | NULL                   | 0                      | NULL           | NULL                      | N                 | NULL                | NULL               | NULL                 | NULL                    | NULL           | NULL             | NULL             | 1                        | NULL                 | NULL     | NULL      | 2026-05-29 12:31:44.583207 | curated_team 
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_student_attendance_fact
+--------------------------------------------------------------------------------
+SCHOOL_STUDENT_ATTENDANCE_FACT_ID_PK | CITIZEN_STUDENT_ID_FK | SCHOOL_MEDIUM_ID_FK | STUDENT_CLASS_DIM_ID_FK | STUDENT_SCHOOL_ID_FK | ACADEMIC_YEAR | ATTENDANCE_DATE_ID_FK | ATTENDANCE_MONTH | PRESENT_FLAG | ABSENT_FLAG | HALF_DAY_FLAG | ATTENDANCE_WEIGHT | ATTENDANCE_STATUS_CODE | ATTENDANCE_REASON_CODE | MARKED_BY_ROLE | ATTENDANCE_CAPTURE_METHOD | MDM_ELIGIBLE_FLAG | MEALS_CONSUMED_FLAG | EGGS_ELIGIBLE_FLAG | CHIKKI_ELIGIBLE_FLAG | RAGI_JAVA_ELIGIBLE_FLAG | CAPTURE_SOURCE | HM_APPROVAL_FLAG | HM_APPROVAL_DATE | ABSENCE_REASON_DIM_ID_FK | IMAGE_AVAILABLE_FLAG | LATITUDE | LONGITUDE | CREATED_DATE               | CREATED_BY   
+-------------------------------------+-----------------------+---------------------+-------------------------+----------------------+---------------+-----------------------+------------------+--------------+-------------+---------------+-------------------+------------------------+------------------------+----------------+---------------------------+-------------------+---------------------+--------------------+----------------------+-------------------------+----------------+------------------+------------------+--------------------------+----------------------+----------+-----------+----------------------------+--------------
+44057217                             | 5838144               | 5                   | 6                       | 51703                | 2025          | 20250612              | 6                | Y            | N           | NULL          | NULL              | NULL                   | 0                      | NULL           | NULL                      | Y                 | NULL                | NULL               | NULL                 | NULL                    | NULL           | NULL             | NULL             | 1                        | NULL                 | NULL     | NULL      | 2026-05-29 12:31:44.583207 | curated_team 
+137                                  | 254                   | 5                   | 9                       | 15869                | 2025          | 20250625              | 6                | Y            | N           | NULL          | NULL              | NULL                   | 0                      | NULL           | NULL                      | N                 | NULL                | NULL               | NULL                 | NULL                    | NULL           | NULL             | NULL             | 1                        | NULL                 | NULL     | NULL      | 2026-05-29 12:31:44.583207 | curated_team 
+44057218                             | 5838144               | 5                   | 6                       | 51703                | 2025          | 20250613              | 6                | Y            | N           | NULL          | NULL              | NULL                   | 0                      | NULL           | NULL                      | Y                 | NULL                | NULL               | NULL                 | NULL                    | NULL           | NULL             | NULL             | 1                        | NULL                 | NULL     | NULL      | 2026-05-29 12:31:44.583207 | curated_team 
+138                                  | 254                   | 5                   | 10                      | 15869                | 2025          | 20250626              | 6                | Y            | N           | NULL          | NULL              | NULL                   | 0                      | NULL           | NULL                      | N                 | NULL                | NULL               | NULL                 | NULL                    | NULL           | NULL             | NULL             | 1                        | NULL                 | NULL     | NULL      | 2026-05-29 12:31:44.583207 | curated_team 
+44057219                             | 5838144               | 5                   | 6                       | 51703                | 2025          | 20250616              | 6                | Y            | N           | NULL          | NULL              | NULL                   | 0                      | NULL           | NULL                      | Y                 | NULL                | NULL               | NULL                 | NULL                    | NULL           | NULL             | NULL             | 1                        | NULL                 | NULL     | NULL      | 2026-05-29 12:31:44.583207 | curated_team 
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_subject_master
+--------------------------------------------------------------------------------
+SUBJECT_PK | SUBJECT_CODE | SUBJECT_NAME                              | SUBJECT_SHORT_NAME | SUBJECT_CATEGORY | SUBJECT_TYPE | LANGUAGE_ORDER | IS_VOCATIONAL_FLAG | IS_SKILL_SUBJECT_FLAG | MIN_CLASS | MAX_CLASS | MEDIUM_ID | IS_COMPULSORY_FLAG | BOARD_CODE | ASSESSMENT_PATTERN | MARKS_SCHEME | CREDIT_WEIGHT | SUBJECT_STATUS | GRADE_APPLICABILITY_FROM | GRADE_APPLICABILITY_TO | EFFECTIVE_FROM | EFFECTIVE_TO | REPLACED_BY_SUBJECT_PK | CREATED_DATE               | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+-----------+--------------+-------------------------------------------+--------------------+------------------+--------------+----------------+--------------------+-----------------------+-----------+-----------+-----------+--------------------+------------+--------------------+--------------+---------------+----------------+--------------------------+------------------------+----------------+--------------+------------------------+----------------------------+--------------+--------------+------------
+39         | S133         | ELECTRICAL                                | SA_PS              | NULL             | NULL         | NULL           | NULL               | NULL                  | NULL      | NULL      | NULL      | NULL               | NULL       | NULL               | NULL         | NULL          | Active         | NULL                     | NULL                   | NULL           | NULL         | NULL                   | 2026-05-09 12:33:05.928639 | curated_team | NULL         | NULL       
+46         | S140         | INDUSTRIAL RELATION & PERSONAL MANAGEMENT | SA_SS              | NULL             | NULL         | NULL           | NULL               | NULL                  | NULL      | NULL      | NULL      | NULL               | NULL       | NULL               | NULL         | NULL          | Active         | NULL                     | NULL                   | NULL           | NULL         | NULL                   | 2026-05-09 12:33:05.928639 | curated_team | NULL         | NULL       
+55         | S15          | AGRICULTURE                               | SA_BS              | NULL             | NULL         | NULL           | NULL               | NULL                  | NULL      | NULL      | NULL      | NULL               | NULL       | NULL               | NULL         | NULL          | Active         | NULL                     | NULL                   | NULL           | NULL         | NULL                   | 2026-05-09 12:33:05.928639 | curated_team | NULL         | NULL       
+85         | S40          | INDUSTRIAL MICRO BIOLOGY                  | SA_BS              | NULL             | NULL         | NULL           | NULL               | NULL                  | NULL      | NULL      | NULL      | NULL               | NULL       | NULL               | NULL         | NULL          | Active         | NULL                     | NULL                   | NULL           | NULL         | NULL                   | 2026-05-09 12:33:05.928639 | curated_team | NULL         | NULL       
+88         | S43          | NATURAL SCIENCE                           | SA_BS              | NULL             | NULL         | NULL           | NULL               | NULL                  | NULL      | NULL      | NULL      | NULL               | NULL       | NULL               | NULL         | NULL          | Active         | NULL                     | NULL                   | NULL           | NULL         | NULL                   | 2026-05-09 12:33:05.928639 | curated_team | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_teacher_attendance_fact
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: school_teacher_attendance_fact_id_pk, citizen_school_teacher_id_fk, citizen_student_id_fk, attendance_date_key_id_fk, academic_year, present_flag, attendance_count, on_leave_flag, on_duty_flag, late_flag, leave_type, approved_leave_flag, attendance_source, capture_timestamp, attendance_status_code, capture_source, image_available_flag, approval_status_code, approval_role, approval_timestamp, created_date, created_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.source_department_code
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: source_department_code_pk, source_department_code, department_name, source_department, created_at, created_by, updated_at, updated_by
+
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.student_class_dim
+--------------------------------------------------------------------------------
+STUDENT_CLASS_DIM_ID_PK | CLASS_CODE | CLASS_NAME | EDUCATION_STAGE | MIN_AGE | MAX_AGE | IS_ACTIVE | EFFECTIVE_START_DATE | EFFECTIVE_END_DATE | CREATED_DATE               | CREATED_BY   | UPDATED_DATE | UPDATED_BY 
+------------------------+------------+------------+-----------------+---------+---------+-----------+----------------------+--------------------+----------------------------+--------------+--------------+------------
+8                       | 8          | Class VIII | UPPER_PRIMARY   | NULL    | NULL    | Y         | NULL                 | NULL               | 2026-05-11 13:14:54.052487 | curated_team | NULL         | NULL       
+2                       | 2          | Class II   | PRIMARY         | NULL    | NULL    | Y         | NULL                 | NULL               | 2026-05-11 13:14:54.052487 | curated_team | NULL         | NULL       
+1                       | 1          | Class I    | PRIMARY         | NULL    | NULL    | Y         | NULL                 | NULL               | 2026-05-11 13:14:54.052487 | curated_team | NULL         | NULL       
+5                       | 5          | Class V    | PRIMARY         | NULL    | NULL    | Y         | NULL                 | NULL               | 2026-05-11 13:14:54.052487 | curated_team | NULL         | NULL       
+9                       | 9          | Class IX   | SECONDARY       | NULL    | NULL    | Y         | NULL                 | NULL               | 2026-05-11 13:14:54.052487 | curated_team | NULL         | NULL       
+
+Successfully fetched 5 records.
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.welfare_schemes_life_cycle
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: welfare_schemes_life_cycle_id, academic_year, term, disbursement_window, effective_start_date, effective_end_date, created_date, created_by, updated_date, updated_by
