@@ -1,0 +1,5317 @@
+================================================================================
+DISTINCT VALUES REPORT
+================================================================================
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.absent_reason_dim
+--------------------------------------------------------------------------------
+
+Column: IS_ACTIVE (Top distinct values by frequency):
+  - Yes: 5
+
+Column: IS_CURRENT (Top distinct values by frequency):
+  - NULL: 5
+
+Column: IS_GOVT_APPROVED (Top distinct values by frequency):
+  - NULL: 5
+
+Column: REASON_CATEGORY (Top distinct values by frequency):
+  - NULL: 5
+
+Column: REASON_CODE (Top distinct values by frequency):
+  - 4: 1
+  - 1: 1
+  - 3: 1
+  - 0: 1
+  - 2: 1
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.assessment_dim
+--------------------------------------------------------------------------------
+
+Column: assessment_code
+  (No data or table empty)
+
+Column: assessment_type
+  (No data or table empty)
+
+Column: board_code
+  (No data or table empty)
+
+Column: grade_scheme
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+Column: is_summative
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.beneficiary_type_dim
+--------------------------------------------------------------------------------
+
+Column: beneficiary_type_code
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.benefit_type_dim
+--------------------------------------------------------------------------------
+
+Column: benefit_type_code
+  (No data or table empty)
+
+Column: delivery_mode
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+Column: is_monetary
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_address_master
+--------------------------------------------------------------------------------
+
+Column: ADDRESS_STATUS_CODE (Top distinct values by frequency):
+  - NULL: 77143367
+
+Column: ADDRESS_TYPE (Top distinct values by frequency):
+  - NULL: 77143367
+
+Column: IS_PRIMARY (Top distinct values by frequency):
+  - NULL: 77143367
+
+Column: LGD_DIST_CODE (Top distinct values by frequency):
+  - NULL: 28037880
+  - 511: 2459530
+  - 515: 2350497
+  - 502: 2319685
+  - 517: 2257692
+  - 519: 2184470
+  - 520: 2154590
+  - 749: 2102030
+  - 746: 2097314
+  - 752: 2065322
+  - 506: 2054185
+  - 751: 2015003
+  - 504: 2003298
+  - 748: 1954443
+  - 503: 1880653
+  - 754: 1876341
+  - 521: 1837854
+  - 505: 1816486
+  - 523: 1810536
+  - 755: 1774624
+  - 747: 1710018
+  - 510: 1700277
+  - 753: 1659109
+  - 744: 1635208
+  - 750: 1492146
+  - 745: 981446
+  - 743: 912730
+
+Column: LGD_MANDAL_CODE (Top distinct values by frequency):
+  - NULL: 28037880
+  - 1086: 1887697
+  - 1073: 894648
+  - 1021: 720845
+  - 1031: 546754
+  - 1016: 477007
+  - 1013: 348176
+  - 1060: 323072
+  - 1064: 317410
+  - 1012: 301297
+  - 1001: 245228
+  - 1035: 241102
+  - 1093: 234559
+  - 1017: 202573
+  - 4907: 182581
+  - 1015: 176325
+  - 4913: 176323
+  - 1008: 175308
+  - 5375: 170687
+  - 5011: 168919
+  - 1075: 166089
+  - 1070: 160361
+  - 1028: 157963
+  - 5330: 154422
+  - 1014: 152925
+  - 1004: 150489
+  - 1189: 142992
+  - 1023: 140349
+  - 1002: 140030
+  - 1074: 130776
+  - 4966: 127216
+  - 1085: 124323
+  - 1009: 123413
+  - 1003: 122750
+  - 5271: 122257
+  - 4908: 112086
+  - 1068: 108959
+  - 5214: 108698
+  - 5392: 108322
+  - 1007: 103721
+  - 5288: 102906
+  - 1024: 102835
+  - 5009: 99789
+  - 1018: 99774
+  - 1121: 98479
+  - 5067: 98263
+  - 4802: 97890
+  - 1080: 97363
+  - 1030: 95501
+  - 5424: 95351
+  - 4881: 94340
+  - 1020: 93777
+  - 5259: 91226
+  - 4871: 90871
+  - 1005: 90865
+  - 5055: 90849
+  - 4944: 90042
+  - 4961: 89279
+  - 4901: 88950
+  - 5279: 88833
+  - 4964: 88753
+  - 1087: 88671
+  - 5252: 88580
+  - 4918: 88456
+  - 5114: 87891
+  - 4941: 87605
+  - 5012: 87304
+  - 4805: 87067
+  - 4930: 85811
+  - 4984: 85769
+  - 1081: 85593
+  - 4926: 85557
+  - 4806: 85460
+  - 4910: 85200
+  - 5249: 85063
+  - 5254: 84533
+  - 5004: 84305
+  - 5123: 83031
+  - 4912: 83025
+  - 4956: 83020
+  - 4776: 82547
+  - 4890: 81437
+  - 4905: 81351
+  - 4880: 81349
+  - 4898: 81153
+  - 5270: 81145
+  - 4780: 80946
+  - 4900: 80941
+  - 5317: 80822
+  - 5427: 80649
+  - 4872: 80577
+  - 4922: 80533
+  - 5362: 80260
+  - 4987: 80179
+  - 5251: 80013
+  - 4779: 79646
+  - 4801: 79279
+  - 4927: 78873
+  - 5269: 78683
+  - 4920: 78639
+  - 4781: 78399
+  - 4957: 78178
+  - 4962: 78105
+  - 4938: 77471
+  - 5276: 77361
+  - 1032: 76890
+  - 5045: 76764
+  - 4911: 76567
+  - 4943: 76539
+  - 5124: 76180
+  - 4986: 75765
+  - 5078: 75755
+  - 4838: 75740
+  - 5170: 75596
+  - 4934: 75451
+  - 5376: 75326
+  - 4903: 75191
+  - 4789: 75020
+  - 5075: 74816
+  - 4878: 74731
+  - 4799: 74458
+  - 4952: 74441
+  - 4970: 73828
+  - 4849: 73696
+  - 4991: 73672
+  - 5016: 73344
+  - 4925: 73320
+  - 4882: 73296
+  - 5386: 73058
+  - 5058: 72836
+  - 4899: 72779
+  - 5429: 72742
+  - 5290: 72646
+  - 5003: 72626
+  - 5178: 72539
+  - 1011: 72469
+  - 4791: 72364
+  - 5034: 72257
+  - 4937: 72215
+  - 5294: 72133
+  - 4915: 72085
+  - 4996: 71768
+  - 4975: 71724
+  - 4939: 71718
+  - 4924: 71687
+  - 4955: 71655
+  - 5007: 71451
+  - 4989: 71096
+  - 4790: 70939
+  - 4772: 70703
+  - 4896: 70647
+  - 4960: 70498
+  - 5258: 70366
+  - 4971: 70279
+  - 4923: 70183
+  - 5329: 70101
+  - 5093: 69957
+  - 1123: 69828
+  - 4969: 69731
+  - 5275: 69670
+  - 1034: 69662
+  - 4980: 69597
+  - 5250: 69537
+  - 5284: 69466
+  - 4857: 69450
+  - 4936: 69422
+  - 4917: 69385
+  - 5420: 69231
+  - 5106: 69173
+  - 4988: 69158
+  - 4985: 69107
+  - 4777: 68937
+  - 4773: 68873
+  - 5306: 68508
+  - 4995: 68389
+  - 5079: 68298
+  - 4916: 68091
+  - 4803: 67890
+  - 4831: 67878
+  - 5023: 67794
+  - 4958: 67608
+  - 5017: 67532
+  - 4897: 67413
+  - 4931: 67321
+  - 4973: 67084
+  - 5056: 66886
+  - 4834: 66878
+  - 5120: 66809
+  - 4940: 66720
+  - 4977: 66685
+  - 5052: 66484
+  - 4856: 66369
+  - 4786: 66204
+  - 4965: 66033
+  - 4979: 66018
+  - 5253: 65895
+  - 1006: 65724
+  - 5278: 65688
+  - 5097: 65665
+  - 5425: 65660
+  ... (Truncated to top 200 values)
+
+Column: PIN_CODE (Top distinct values by frequency):
+  - NULL: 29076621
+  - 517501: 280822
+  - 533101: 258720
+  - 515001: 242981
+  - 517325: 221759
+  - 516360: 218794
+  - 518501: 198257
+  - 524002: 189369
+  - 518002: 185831
+  - 521001: 185415
+  - 524004: 184336
+  - 522601: 182528
+  - 518360: 182472
+  - 518301: 176266
+  - 517425: 166629
+  - 523001: 165056
+  - 522001: 162635
+  - 515201: 160461
+  - 520015: 153034
+  - 515411: 147207
+  - 522503: 146169
+  - 530026: 143857
+  - 515865: 142866
+  - 531116: 140986
+  - 533437: 140112
+  - 515671: 140030
+  - 518003: 138839
+  - 533005: 137000
+  - 524201: 136763
+  - 516269: 132394
+  - 530016: 130714
+  - 517247: 128692
+  - 520001: 127947
+  - 522403: 127080
+  - 535002: 125354
+  - 533401: 125238
+  - 533450: 123731
+  - 522413: 123180
+  - 517408: 122733
+  - 520012: 122359
+  - 518222: 121871
+  - 516003: 121730
+  - 518001: 120022
+  - 520007: 118423
+  - 515801: 117716
+  - 532001: 117708
+  - 522004: 117156
+  - 522616: 115755
+  - 521301: 114656
+  - 522647: 113053
+  - 521185: 112153
+  - 518422: 111848
+  - 516002: 111088
+  - 522201: 110508
+  - 515004: 110504
+  - 516001: 110465
+  - 534275: 110375
+  - 533435: 109216
+  - 515591: 108460
+  - 530046: 108313
+  - 534001: 108056
+  - 518543: 107312
+  - 530048: 106783
+  - 522426: 106495
+  - 532201: 105842
+  - 522003: 104007
+  - 531162: 103772
+  - 532127: 103449
+  - 530040: 103331
+  - 520010: 102439
+  - 534101: 101937
+  - 534447: 100385
+  - 530017: 99533
+  - 531173: 99239
+  - 534260: 98662
+  - 532185: 98419
+  - 520013: 98394
+  - 515871: 98351
+  - 530001: 97396
+  - 522002: 96768
+  - 531055: 96231
+  - 531001: 95363
+  - 522101: 94780
+  - 522006: 94594
+  - 522501: 94204
+  - 521201: 93225
+  - 518401: 93189
+  - 531040: 92383
+  - 517424: 91642
+  - 530044: 90847
+  - 516390: 90761
+  - 533001: 90397
+  - 532312: 88778
+  - 530011: 87781
+  - 523105: 87781
+  - 532168: 87757
+  - 517214: 87556
+  - 524101: 87514
+  - 524137: 87341
+  - 535145: 87263
+  - 521175: 86887
+  - 515761: 86409
+  - 524003: 86091
+  - 535591: 86082
+  - 534201: 85250
+  - 535558: 84668
+  - 530008: 84380
+  - 515401: 83654
+  - 530027: 83382
+  - 521230: 83314
+  - 534211: 83210
+  - 524001: 83002
+  - 518004: 82505
+  - 535183: 82057
+  - 533002: 81930
+  - 523201: 81890
+  - 520003: 81233
+  - 522615: 80723
+  - 534002: 80062
+  - 516434: 79808
+  - 518313: 78853
+  - 517257: 78839
+  - 534301: 78805
+  - 534350: 78605
+  - 524121: 78002
+  - 515812: 77828
+  - 533255: 77481
+  - 531126: 77463
+  - 531036: 77364
+  - 517001: 76361
+  - 518124: 76213
+  - 522265: 75845
+  - 532195: 75585
+  - 532440: 75154
+  - 522124: 75089
+  - 518462: 74471
+  - 535003: 74375
+  - 523101: 73760
+  - 523240: 73729
+  - 533126: 73418
+  - 517520: 73079
+  - 522410: 73016
+  - 521215: 72784
+  - 516227: 72770
+  - 516101: 72723
+  - 534312: 72580
+  - 533003: 72394
+  - 523157: 72326
+  - 522202: 72279
+  - 518502: 72086
+  - 516172: 71991
+  - 522414: 71903
+  - 518463: 71555
+  - 533308: 71264
+  - 518323: 71008
+  - 533107: 70641
+  - 522415: 69701
+  - 518302: 69661
+  - 535128: 69640
+  - 521151: 69550
+  - 518380: 68925
+  - 523247: 68841
+  - 533201: 68740
+  - 521235: 68730
+  - 524132: 68594
+  - 532407: 68428
+  - 522005: 67717
+  - 533449: 67592
+  - 521324: 67498
+  - 523301: 67197
+  - 531035: 66990
+  - 532421: 66581
+  - 515231: 66522
+  - 524305: 66408
+  - 518395: 66172
+  - 524126: 65805
+  - 535501: 65653
+  - 533212: 65425
+  - 523316: 65392
+  - 533006: 65057
+  - 533406: 64732
+  - 531163: 64491
+  - 522212: 64416
+  - 517507: 63919
+  - 517370: 63906
+  - 531113: 63705
+  - 523226: 63567
+  - 518465: 63469
+  - 531077: 63218
+  - 517644: 62916
+  - 533216: 62858
+  - 523357: 62808
+  - 520004: 62582
+  - 533429: 62558
+  - 515672: 62520
+  - 518533: 62032
+  - 531114: 61648
+  - 515701: 61626
+  - 531151: 61264
+  - 530013: 61131
+  ... (Truncated to top 200 values)
+
+Column: RURAL_URBAN_FLAG (Top distinct values by frequency):
+  - R: 35762167
+  - NULL: 28037880
+  - U: 13343320
+
+Column: SECRETARIAT_CODE (Top distinct values by frequency):
+  - NULL: 28037880
+  - 10690540: 16178
+  - 10590232: 14167
+  - 10690557: 12812
+  - 10190385: 12150
+  - 10590594: 11204
+  - 11090234: 11168
+  - 10790027: 10790
+  - 10690558: 10642
+  - 11290197: 10326
+  - 10590887: 10027
+  - 10690487: 9754
+  - 10690539: 9754
+  - 10490289: 9723
+  - 10690536: 9622
+  - 10190098: 9429
+  - 11390886: 9428
+  - 11390371: 9410
+  - 10490292: 9379
+  - 10690564: 9328
+  - 10790109: 9318
+  - 11290689: 9238
+  - 21086388: 9191
+  - 10490393: 9106
+  - 11090151: 9092
+  - 11190060: 9062
+  - 21017038: 8953
+  - 10690746: 8898
+  - 11290891: 8879
+  - 10490291: 8834
+  - 11290196: 8834
+  - 10690585: 8808
+  - 10490440: 8803
+  - 21121005: 8696
+  - 10990350: 8649
+  - 11390033: 8551
+  - 11190442: 8447
+  - 10690560: 8405
+  - 10690586: 8320
+  - 21012003: 8303
+  - 10690550: 8219
+  - 11090436: 8204
+  - 21117002: 8203
+  - 21068029: 8163
+  - 11090147: 8125
+  - 11090208: 8102
+  - 11390161: 8098
+  - 10590599: 8076
+  - 11190110: 8042
+  - 11090148: 8025
+  - 10491051: 7995
+  - 21015022: 7959
+  - 10590872: 7954
+  - 21086409: 7921
+  - 11290193: 7863
+  - 11390163: 7847
+  - 10390092: 7818
+  - 11090083: 7814
+  - 11390662: 7790
+  - 10690747: 7767
+  - 11090903: 7725
+  - 10690556: 7722
+  - 10490305: 7677
+  - 10290168: 7676
+  - 10490428: 7673
+  - 10690479: 7635
+  - 10490290: 7632
+  - 21131011: 7607
+  - 10690732: 7592
+  - 11090900: 7562
+  - 10790626: 7505
+  - 11290257: 7487
+  - 11190441: 7473
+  - 10990293: 7446
+  - 11290221: 7411
+  - 10490407: 7369
+  - 10690831: 7366
+  - 21076009: 7354
+  - 21035015: 7347
+  - 10390432: 7338
+  - 10990020: 7326
+  - 10490135: 7322
+  - 21142010: 7309
+  - 11290695: 7297
+  - 11390230: 7260
+  - 21021017: 7251
+  - 11290376: 7243
+  - 21018005: 7230
+  - 11190264: 7212
+  - 21086397: 7207
+  - 21086406: 7205
+  - 10690721: 7202
+  - 10490293: 7193
+  - 10490051: 7190
+  - 21006009: 7166
+  - 10690712: 7165
+  - 11190069: 7154
+  - 11090342: 7153
+  - 11290712: 7152
+  - 10790305: 7150
+  - 11190443: 7147
+  - 10590744: 7144
+  - 21009001: 7139
+  - 10590913: 7135
+  - 10690565: 7125
+  - 11090229: 7121
+  - 10690537: 7115
+  - 10490295: 7106
+  - 10490430: 7094
+  - 11090150: 7077
+  - 10690568: 7065
+  - 11290089: 7036
+  - 21063011: 7010
+  - 21122009: 7005
+  - 10790622: 6973
+  - 11290546: 6968
+  - 10590843: 6967
+  - 11390162: 6960
+  - 10690722: 6959
+  - 11090131: 6946
+  - 11390160: 6944
+  - 10890666: 6940
+  - 10890665: 6929
+  - 21165006: 6923
+  - 10690559: 6906
+  - 10590442: 6902
+  - 10790718: 6895
+  - 10790723: 6893
+  - 11290374: 6861
+  - 10690566: 6848
+  - 11390374: 6843
+  - 10690584: 6840
+  - 11390375: 6826
+  - 10790682: 6826
+  - 10690567: 6824
+  - 10190281: 6815
+  - 10590617: 6813
+  - 10590802: 6809
+  - 10590774: 6808
+  - 10690553: 6794
+  - 21004001: 6790
+  - 11290218: 6787
+  - 10790819: 6785
+  - 21004013: 6781
+  - 21010005: 6780
+  - 21035056: 6779
+  - 21121010: 6777
+  - 10490303: 6776
+  - 10490217: 6773
+  - 10890667: 6769
+  - 11190241: 6762
+  - 10790406: 6759
+  - 21015005: 6756
+  - 21017006: 6753
+  - 11290375: 6743
+  - 10890014: 6741
+  - 10990196: 6739
+  - 10491263: 6735
+  - 11290872: 6730
+  - 11290177: 6721
+  - 10990294: 6714
+  - 10490433: 6710
+  - 10690656: 6709
+  - 10790405: 6695
+  - 10690720: 6692
+  - 11090235: 6690
+  - 10790743: 6689
+  - 21017017: 6677
+  - 11090090: 6671
+  - 10790611: 6663
+  - 11090332: 6659
+  - 21077013: 6634
+  - 10690573: 6634
+  - 10590371: 6633
+  - 10290155: 6628
+  - 10790602: 6620
+  - 10491157: 6614
+  - 10890668: 6613
+  - 21015024: 6597
+  - 10590875: 6588
+  - 21001003: 6559
+  - 10890664: 6557
+  - 10590330: 6536
+  - 10790455: 6526
+  - 11090974: 6514
+  - 10590370: 6504
+  - 11390373: 6498
+  - 10490306: 6479
+  - 21005013: 6470
+  - 11290373: 6465
+  - 10690572: 6463
+  - 21093054: 6458
+  - 10790610: 6457
+  - 10790771: 6439
+  - 10390346: 6436
+  - 10490420: 6426
+  - 21004032: 6417
+  - 21142009: 6410
+  - 11090218: 6408
+  - 10890476: 6405
+  ... (Truncated to top 200 values)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_address_master_test
+--------------------------------------------------------------------------------
+
+Column: is_current
+  (No data or table empty)
+
+Column: is_deleted
+  (No data or table empty)
+
+Column: is_primary
+  (No data or table empty)
+
+Column: pin_code
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_agriculture_land
+--------------------------------------------------------------------------------
+
+Column: CROP_TYPE (Top distinct values by frequency):
+  - Paddy: 6128979
+  - Maize: 1011192
+  - Cotton: 903495
+  - Groundnut: 706177
+  - Black gram: 652421
+  - Red gram: 441066
+  - Red Chillies: 422773
+  - Mango: 348454
+  - Bengal gram: 287734
+  - Cashew nut: 216744
+  - Green gram: 185831
+  - Coconut: 156291
+  - Tomato: 138745
+  - Jowar: 132461
+  - Banana: 122341
+  - Sweet Orange: 109836
+  - Sugarcane (Ratoon): 92842
+  - Ragi: 84652
+  - Bajra: 72708
+  - Onion: 68163
+  - Castor: 65339
+  - TOBACCO: 62470
+  - Sesamum: 62469
+  - Oil Palm: 62099
+  - NA: 61480
+  - Sugarcane (Main): 56208
+  - Bengalgram: 54442
+  - Turmeric: 50399
+  - Horse gram: 49081
+  - Acid Lime: 39056
+  - casuarina: 31950
+  - Green Chilli: 30474
+  - Fodder jowar: 28937
+  - LOCAL TOBACCO: 26595
+  - Korra: 24364
+  - Eucalyptus: 21803
+  - Cow pea: 20616
+  - Rajma bean: 20162
+  - Mulberry: 20133
+  - Papaya: 18454
+  - Super napier grass: 18250
+  - Brinjal: 17946
+  - Sunflower: 17067
+  - Coffee: 14570
+  - Soyabean: 14187
+  - Lady finger / Okra: 13718
+  - Pomegranate: 12690
+  - Subhemp (Seed): 11635
+  - Mulberry trees: 11613
+  - FCV TOBACCO: 10628
+  - Fodder maize: 10575
+  - Dolichos Beans: 9225
+  - subabul: 8717
+  - Chrysanthemum: 8645
+  - Arecanut: 8530
+  - Guava: 8244
+  - Little millet: 7856
+  - Cocoa: 7642
+  - Teak: 6713
+  - Ridge Gourd: 6446
+  - Marigold: 6227
+  - Cabbage: 6216
+  - Cluster Beans: 4986
+  - Sweet Corn: 4869
+  - Sapota: 4788
+  - Chillies Dried/Red Chillies: 4499
+  - Sunhemp for green manure: 4485
+  - Cauliflower: 4433
+  - Ginger: 4374
+  - Bitter Gourd: 4178
+  - Sunhemp for Seed Purpose: 4031
+  - Black Pepper: 3977
+  - Elephant foot yam: 3867
+  - Mesta: 3849
+  - Cucumber: 3820
+  - Jasmine: 3586
+  - Betelvine: 3555
+  - Coriander Seeds: 3531
+  - Ivy gourd: 3472
+  - Leaf vegetables: 3420
+  - Beans: 3339
+  - Niger: 3266
+  - Broad Bean: 3178
+  - null: 3073
+  - Drum Stick: 3028
+  - Tapioca: 3027
+  - Bottle Gourd: 2895
+  - Carrot: 2635
+  - Field Bean: 2599
+  - Safflower: 2555
+  - Redgram: 2514
+  - Crossandra: 2502
+  - Jamun: 2494
+  - Muskmelon: 2406
+  - Water Melon: 2327
+  - Para Grass: 2190
+  - Tamarind: 2048
+  - Pineapple: 2032
+  - Curry Leaf: 2018
+  - Ajwain: 1974
+  - Jute: 1943
+  - Sweet Potato: 1737
+  - Pumpkin: 1713
+  - Mustard: 1652
+  - Potato: 1606
+  - Rose: 1599
+  - Custard Apple: 1497
+  - Jute for Fiber: 1496
+  - sindhoor plant: 1355
+  - Proso millet: 1111
+  - Subhemp for Seed Purpose: 1109
+  - Nannari (Sarasaparilla): 1097
+  - Champak: 1034
+  - Raw Banana / Plantain: 1010
+  - Fruit crops: 961
+  - Tube Rose: 959
+  - Lilly: 927
+  - Amaranthas: 911
+  - Dhaincha for green manure: 902
+  - Gongura: 805
+  - Long Pepper: 766
+  - Ash Gourd: 764
+  - Colocasia: 756
+  - Radish: 756
+  - Pilli Pesara for green manure: 755
+  - Grapes: 700
+  - Beet Root: 636
+  - oil Palm: 524
+  - Spiny Gourd  /   Teasel Gourd: 520
+  - Coriander Leaves: 485
+  - Dragon Fruit: 479
+  - Spinach/Palak: 474
+  - Ber: 462
+  - Coriander: 441
+  - Sandal wood tree: 440
+  - Red sandal wood: 420
+  - Pomelo: 404
+  - Virajaji: 375
+  - Fodder sunhemp: 355
+  - Flax seed: 354
+  - Yellow Cucumber: 319
+  - Lemon Grass: 301
+  - Hibiscus: 298
+  - Fodder cowpea: 296
+  - Maruvam-The Sweet Majoram / Dhavanam-Souther wood: 283
+  - All types of plants: 273
+  - Stylo/pencil flower: 268
+  - Fodder Green gram: 260
+  - Rubber: 258
+  - Shade net nurseries: 256
+  - Vegetables: 229
+  - Snake Gourd: 227
+  - Mahogani: 226
+  - Other Citrus Fruits: 215
+  - Chandini: 208
+  - Sunhemp for seed purpose: 208
+  - Green Sorrel: 203
+  - Capsicum: 197
+  - Maize (Pop Corn): 195
+  - Jasminum Multiflorum: 190
+  - Wheat: 144
+  - Fig: 137
+  - Brown Top Millets: 127
+  - Ratoon sugarcane: 124
+  - Flower crops: 108
+  - Crape Jasmine: 99
+  - Malabar Neem: 95
+  - Datepalm: 93
+  - Plantation Crops Nursery: 90
+  - Sugarcane  1st crop: 90
+  - Gerkin: 85
+  - Appleber: 85
+  - Quinoa Rice: 83
+  - Mint: 80
+  - Aswagandha: 76
+  - Amla / Indian Goose Berry: 65
+  - Fenugreek Leaves: 55
+  - Spring Onion: 54
+  - Avocado: 50
+  - Neem: 41
+  - safflower: 40
+  - Tobacco  Nursery: 40
+  - Indian Purple Yam: 39
+  - Barnyard millet: 39
+  - Hedge Lucern: 38
+  - Russian grass: 33
+  - Leafy Banana: 33
+  - Amaranthas(Red): 30
+  - Karonda: 28
+  - Acacia/Babul tree: 26
+  - Tulasi: 25
+  - Jack Fruit: 25
+  - Bamboo: 24
+  - Kodo millet: 23
+  - Saal tree: 20
+  - Berry: 18
+  - Chia: 17
+  - Malabar Spinach: 17
+  - Water Apple: 16
+  - Cashew: 12
+  ... (Truncated to top 200 values)
+
+Column: CULTIVATOR_TYPE (Top distinct values by frequency):
+  - O   : 11365822
+  - K   : 1367913
+  - C   : 523035
+  - L   : 230278
+  - R   : 9219
+
+Column: VILLAGE_CODE (Top distinct values by frequency):
+  - 210012: 25733
+  - 107019: 15560
+  - 203043: 12135
+  - 232010: 11822
+  - 127018: 11771
+  - 108023: 11063
+  - 129017: 10833
+  - 233008: 10676
+  - 233014: 10611
+  - 2112002: 10198
+  - 1602001: 9887
+  - 221004: 9644
+  - 106002: 9597
+  - 214004: 9391
+  - 120025: 9347
+  - 106014: 9299
+  - 729009: 9236
+  - 210011: 9064
+  - 223016: 9023
+  - 221015: 9007
+  - 1410008: 8956
+  - 210003: 8949
+  - 2109007: 8941
+  - 2112006: 8924
+  - 327002: 8717
+  - 1601004: 8619
+  - 229029: 8436
+  - 518015: 8425
+  - 2108004: 8349
+  - 120020: 8253
+  - 531010: 8195
+  - 538010: 8110
+  - 1350008: 8049
+  - 225012: 7942
+  - 229036: 7919
+  - 224023: 7902
+  - 210018: 7853
+  - 2615009: 7805
+  - 126004: 7791
+  - 1624007: 7735
+  - 228011: 7606
+  - 128036: 7576
+  - 215015: 7519
+  - 215004: 7495
+  - 106015: 7451
+  - 1304016: 7431
+  - 105020: 7398
+  - 728012: 7347
+  - 1602014: 7328
+  - 106021: 7324
+  - 106007: 7309
+  - 2108013: 7231
+  - 129029: 7220
+  - 233011: 7211
+  - 124031: 7196
+  - 2325022: 7191
+  - 747001: 7119
+  - 1602030: 7095
+  - 1322010: 7084
+  - 232003: 7035
+  - 107033: 7023
+  - 1304017: 7011
+  - 203006: 7010
+  - 108021: 6961
+  - 1601035: 6959
+  - 129030: 6912
+  - 2530003: 6886
+  - 233024: 6877
+  - 214010: 6837
+  - 214026: 6789
+  - 2524002: 6785
+  - 1350011: 6779
+  - 126003: 6737
+  - 1409004: 6732
+  - 2101008: 6670
+  - 217033: 6639
+  - 1350007: 6622
+  - 210034: 6616
+  - 2105011: 6610
+  - 837020: 6558
+  - 105030: 6475
+  - 126012: 6448
+  - 105002: 6364
+  - 126026: 6325
+  - 2613005: 6308
+  - 210031: 6303
+  - 119018: 6286
+  - 210002: 6281
+  - 1410015: 6272
+  - 232009: 6251
+  - 221007: 6229
+  - 1351005: 6222
+  - 1351004: 6196
+  - 2204006: 6174
+  - 1409035: 6171
+  - 2109003: 6158
+  - 233009: 6114
+  - 2615010: 6106
+  - 1410028: 6102
+  - 2122006: 6098
+  - 219006: 6090
+  - 2520009: 6079
+  - 233007: 6053
+  - 1906007: 6053
+  - 106008: 6047
+  - 223030: 6046
+  - 748019: 6034
+  - 221038: 6000
+  - 1601025: 5992
+  - 221001: 5982
+  - 109014: 5971
+  - 1413022: 5959
+  - 219026: 5957
+  - 228001: 5935
+  - 105021: 5933
+  - 127055: 5899
+  - 229008: 5888
+  - 729013: 5887
+  - 214016: 5887
+  - 1350003: 5872
+  - 232005: 5871
+  - 129027: 5865
+  - 2525006: 5856
+  - 128018: 5844
+  - 230023: 5841
+  - 1624031: 5808
+  - 202028: 5785
+  - 121038: 5781
+  - 1319007: 5768
+  - 222012: 5764
+  - 222002: 5717
+  - 2513003: 5710
+  - 105011: 5700
+  - 1602026: 5687
+  - 123038: 5672
+  - 2112004: 5651
+  - 106010: 5645
+  - 1601024: 5644
+  - 1327002: 5636
+  - 215001: 5615
+  - 124037: 5612
+  - 233005: 5601
+  - 1350012: 5569
+  - 1913015: 5568
+  - 214003: 5565
+  - 218008: 5560
+  - 2105002: 5556
+  - 1321013: 5551
+  - 1205018: 5546
+  - 1304015: 5538
+  - 210015: 5523
+  - 1925002: 5518
+  - 2613012: 5508
+  - 230021: 5491
+  - 1228005: 5481
+  - 2215005: 5471
+  - 2108010: 5455
+  - 1612027: 5437
+  - 833003: 5416
+  - 215043: 5400
+  - 232017: 5378
+  - 126040: 5378
+  - 630017: 5376
+  - 904009: 5339
+  - 106013: 5323
+  - 2112005: 5314
+  - 213021: 5305
+  - 229011: 5302
+  - 203045: 5297
+  - 1624024: 5291
+  - 1228007: 5268
+  - 202046: 5240
+  - 1409017: 5229
+  - 1601040: 5224
+  - 2523006: 5207
+  - 1607014: 5197
+  - 1305003: 5192
+  - 2107004: 5183
+  - 1408042: 5179
+  - 222010: 5179
+  - 210008: 5178
+  - 2407004: 5178
+  - 108025: 5176
+  - 214009: 5162
+  - 1305009: 5159
+  - 223012: 5158
+  - 1328013: 5155
+  - 225010: 5152
+  - 1321016: 5152
+  - 2523011: 5148
+  - 2513011: 5125
+  - 229028: 5121
+  - 210004: 5110
+  - 204003: 5090
+  - 1406020: 5089
+  - 2120014: 5086
+  - 1409022: 5065
+  - 541001: 5054
+  - 119016: 5026
+  - 232004: 5024
+  ... (Truncated to top 200 values)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_asset_electricity
+--------------------------------------------------------------------------------
+
+Column: CATEGORY_DESCRIPTION (Top distinct values by frequency):
+  - LT Domestic - Domestic: 6183494
+  - Domestic: 5823977
+  - null: 1504111
+  - LT Commercial - Commercial: 695238
+  - Commercial: 686367
+  - LT Commercial - Function Halls/ Auditorums: 1607
+  - LT Commercial - Advertisement Hoardings: 1234
+  - LT Commercial - Electric Vehicles(EVs)/Charging Stations: 301
+  - LT Commercial - Green Power: 37
+  - LT Commercial - Temporary Supply: 31
+  - LT Commercial - Startup Power : 5
+
+Column: METER_TYPE (Top distinct values by frequency):
+  - NON-SMART: 13825859
+  - SMART: 1070543
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_asset_vaahan
+--------------------------------------------------------------------------------
+
+Column: FUEL_TYPE (Top distinct values by frequency):
+  - 1: 15077622
+  - 2: 2955559
+  - 16: 466536
+  - 99: 393606
+  - 4: 136258
+  - 23: 97816
+  - 5: 51259
+  - 3: 47370
+  - 6: 44092
+  - 11: 43038
+  - 29: 5517
+  - 25: 3822
+  - 31: 3288
+  - 12: 1001
+  - 8: 592
+  - 0: 76
+  - 10: 37
+  - 39: 24
+  - 13: 18
+  - 195: 6
+  - 210: 5
+  - 5000: 3
+  - 17: 3
+  - 239: 3
+  - 26: 3
+  - 238: 2
+  - 274: 2
+  - 253: 2
+  - 242: 2
+  - 280: 2
+  - 283: 2
+  - 249: 2
+  - 245: 1
+  - 243: 1
+  - 318: 1
+  - 2620: 1
+  - 4800: 1
+  - 1600: 1
+  - 273: 1
+  - 2100: 1
+  - 1340: 1
+  - 144: 1
+  - 19: 1
+  - 291: 1
+  - 30: 1
+  - 298: 1
+  - 360: 1
+  - 350: 1
+  - 375: 1
+  - 284: 1
+  - 254: 1
+  - 279: 1
+  - 271: 1
+  - NULL: 1
+  - 1915: 1
+  - 40: 1
+
+Column: MODEL (Top distinct values by frequency):
+  - GLAMOUR DRUM/SELF CAST WHEEL B: 401810
+  - TVS XL SUPER HEAVY DUTY BSIII: 326092
+  - BAJAJ CHETAK: 282049
+  - PULSAR 150 DTS-I: 245709
+  - ACTIVA 5G: 240743
+  - PASSION PRO (DRUM-SELF CAST WH: 203139
+  - HERO HONDA PASSION PLUS: 199785
+  - PULSAR 150 DTS-I BSIII: 194636
+  - HERO HONDA SPLENDOR +: 177916
+  - ACTIVA 3G W ELECTRIC A START&K: 176944
+  - ACCESS 125: 172516
+  - GLAMOUR (HE) (DRUM-SELF-CAST): 168774
+  - CB SHINE: 161702
+  - ACTIVA ELECTIRC AS  AND KS  AN: 147056
+  - XL100 HEAVY DUTY I-TOUCH START: 145701
+  - HF DELUXE (I3S-SELF-DRUM-CAST): 144056
+  - TVS XL SUPER: 139655
+  - ACTIVA 4G: 128482
+  - HF DELUXE SELF CAST WHEELS- BS: 126255
+  - HERO HONDA SPLENDOR: 119183
+  - TWO WHEELER TRAILOR TIPPING - : 113318
+  - ACTIVA 6G DLX: 111162
+  - SPLENDOR +(I3S-SELF-DRUM-CAST): 109078
+  - HF DELUXE (SELF-DRUM-CAST): 105658
+  - PASSION PRO I3S-SELF-DRUM-CAST: 104108
+  - UZ125NEWM: 102155
+  - CB SHINE F DRUM BRAKE&KS&ES CA: 95671
+  - BAJAJ RE DIESEL: 88134
+  - SPLENDOR+ (DRUM-SPOKE)BSIII: 86870
+  - APE AUTO D3S PASSENGER BSIII: 85730
+  - PLATINA 100 ES: 84521
+  - CB UNICORN: 84371
+  - SPLENDER PRO (DRUM SELF CAST W: 81848
+  - CB UNICORN ELEC AS&KS ALLOY WH: 79878
+  - GLAMOUR(HE) (DRUM-SELF-CAST): 78505
+  - TVS XL 100 HD I-TOUCH START: 78064
+  - SCV110P8ID: 76316
+  - ACTIVA 6G STD: 76252
+  - TVS XL 100 (BS IV): 74102
+  - HERO HONDA CD 100: 71263
+  - TVS XL SUPER 70  BSIII: 70524
+  - CBF160AR2ID: 68429
+  - ACCESS 125 DISC(ALLOY WHEEL): 67767
+  - CBF160ASID: 66925
+  - AMD600AASN0338000001: 66813
+  - TVS XL100 HEAVY DUTY: 66268
+  - TVS XL SUPER HEAVYDUTY(FITTEDW: 65079
+  - CT 100: 63581
+  - ACCESS  BSIII: 61802
+  - PLEASURE BSIII: 61635
+  - SHINE DRUM: 61544
+  - PULSAR 125 DTS-I: 61528
+  - 5 TONS 2 WHEELER SEMI TIPPING : 60873
+  - YAMAHA FASCINO: 59755
+  - TVS 50N XL: 59627
+  - LUNA: 59476
+  - PASSION PRO (DRUM SELF CAST WH: 59454
+  - UNICORN: 59197
+  - UZ125NEWM5: 58531
+  - PASSION PLUS DRUM CAST WHEELS-: 57267
+  - DISCOVER 125 BSIII: 55884
+  - CB SHINE F DISK BRAKE&KS&ES CA: 55701
+  - MD2AASN0309003: 55531
+  - TVS XL 100 BSIII: 54383
+  - TVS XL SUPER HEAVY DUTY: 53251
+  - BAJAJ MAXIMA DIESEL: 52737
+  - MD2AASN0379000: 52599
+  - ZZSN0100015: 51186
+  - TVS SCOOTY PEP+   BSIII: 49987
+  - PULSAR 150 DTS-I (ABS): 48803
+  - SPLENDOR+ (DRUM-CAST WHEELS) B: 47434
+  - DISCOVER 100 BSIII: 47396
+  - SPLENDOR + (SELF-DRUM-CAST): 47120
+  - CBF125P6ID: 47051
+  - CLASSIC 350: 46685
+  - DISCOVER DTS - SI BSIII: 43850
+  - PLEASURE - IBS: 43606
+  - BAJAJ PLANTINA BSII: 43526
+  - APE AUTO D3S PASSENGER: 43366
+  - TVS XL: 43364
+  - GLAMOUR-DRUM-SELF-CAST: 42781
+  - TVS STAR CITY CVTI BSIII: 42758
+  - TVS STAR CITY BS2: 40897
+  - MAESTRO EDGE (CAST WHEEL): 40706
+  - GLAMOUR DRUM/SELF (WITH CAST W: 38675
+  - TVS CHAMP: 38599
+  - TVS JUPITER BSIII: 38339
+  - DIO: 38232
+  - ACTIVA 3G: 37289
+  - SPLENDER+(DRUM-SPOKE WHEELS): 36941
+  - TVS SCOOTY PEP + BSII: 36334
+  - CLASSIC  350 UCE  BSIII: 35636
+  - TVS STAR CITY + BSIII: 35626
+  - AMD600AAUN0068000001: 35312
+  - TVS SCOOTY PEP+ (BS IV): 35121
+  - CLASSIC 350 EFI: 34922
+  - HERO MAJESTIC: 34820
+  - TVS 50: 34258
+  - GLAMOUR-DRUM/SELF(WITHCASTWHEE: 34013
+  - RE 445 DIESEL BSIII: 33848
+  - SCV110S3ID: 33810
+  - CB125 SHINE SP: 33639
+  - MAESTRO - DELUXE  BSIII: 33325
+  - CBZ X-TREME-ES(ELECTRICSTART)B: 33310
+  - TVS STAR CITY+ (BS IV): 33262
+  - SPLENDOR+ (I3S-SELF-DRUM-CAST): 32846
+  - HONDA ACTIVA: 32747
+  - TVS VICTOR GL: 32255
+  - CD-DELUXE BSII: 32180
+  - TVS XL SUPER 70CC(FITTED WITH: 31997
+  - SCV125S5ID: 31940
+  - DISCOVER DTS-Si: 31916
+  - PASSION PRO (DRUM-SELF-CAST): 31842
+  - HERO HONDA PASSION: 31835
+  - TVS XL 100: 31418
+  - AMD600AAON0308000001: 31208
+  - UZ125NHM: 30728
+  - TVS JUPITER (BS IV): 30429
+  - TVS SPORT CVTI BSIII: 29790
+  - CB SHINE FRONTDRUM BRAKE&KS ES: 29716
+  - MD2AASN0379002: 29471
+  - ZZSN0117007: 29054
+  - LUNA SUPER: 28853
+  - RE MAXIMA DIESEL BSIII: 28813
+  - UZ125NEYM: 28458
+  - SCV110N4ID: 27903
+  - YAMAHA FZ BSIII: 27473
+  - MAHINDRA ALFA BSIII PASSENGER : 27406
+  - PASSION PRO (DRUM-KICK CAST WH: 27029
+  - TRACTOR 475DI: 26793
+  - DREAM YUGA FDB KSS ALLOY WHEEL: 26691
+  - LML VESPA: 26540
+  - TVS APACHE RTR 160 BSIII: 26420
+  - SPLENDER+(DRUM-CAST WHEELS): 26161
+  - ZZSN0100007: 25853
+  - BAJAJ PULSAR 150DTSI E. START: 25522
+  - PLATINA BSIII: 25384
+  - SCV110P7ID: 25037
+  - PASSION PRO(DRUM-SELF SPOKE WH: 24781
+  - CBF125S6ID: 24691
+  - UZ125NEYM5: 24422
+  - TVS  WEGO BSIII: 24370
+  - ZZTN1122008: 24131
+  - UZ125NEW: 24119
+  - MAHINDRA ALFA PAX DX DIESEL: 23968
+  - SHINE DISC: 23963
+  - APE AUTO D3S PASSENGER BSII: 23934
+  - ACCESS 125 DISC BT (ALLOY WHEE: 23922
+  - TVS JUPITER: 23707
+  - AMD600AASN0019000001: 23637
+  - ZZSN0100013: 23532
+  - SCV125FP5ID: 23502
+  - RE COMPACT DIESEL BSIII: 23376
+  - CBF160AL2ID: 23060
+  - PLATINA 110: 22764
+  - ARE000AASN0235M1203A: 22346
+  - CBF125N6ID: 22250
+  - APE XTRA LD BSIII: 22040
+  - ACTIVA 125: 21877
+  - SCV110S4ID: 21862
+  - MD2AASN0379001: 21845
+  - PLEASURE IBS BSIII: 21623
+  - KINETIC SPARK DX: 21622
+  - ACTIVA ELECTRIC AS&KS&CBS BSII: 21401
+  - MD2AAUN0029000: 21369
+  - DISCOVER 150 BSIII: 21323
+  - TVS XL 100 HEAVY DUTY: 21247
+  - TVS JUPITER ZX (BS IV): 21170
+  - MAHINDRA ALFA DX PASSENGER DIE: 20967
+  - AUTO: 20937
+  - GLAMOUR DRUM SELF BSII: 20845
+  - SWARAJ 735 FE: 20786
+  - PLEASURE BSII: 20728
+  - BAJAJ PULSAR 150 D.T.S.I.: 20668
+  - PASSON PRO (DRUM-SELF SPOKE WH: 20258
+  - HERO HONDA PASSION PLUS (DISC): 20157
+  - CLASSIC 350 ABS: 20093
+  - YAMAHA-FZS: 20076
+  - SHINE FRONT DRUM BRAKE ELECTRI: 19863
+  - TATA ACE HT BS-III: 19769
+  - PLATINA 100 ES BSIII: 19671
+  - UZ125NHM5: 19619
+  - HERO HONDA CD 100 SS: 19435
+  - SPLENDOR +(DRUM SELF - CAST WH: 19431
+  - LUNA TFR: 19367
+  - AMD600AASN0019000002: 19336
+  - GLAMOUR DISC SELF CAST WHEEL B: 19266
+  - MF 241 DI J TRACTOR: 19218
+  - APE AUTO D3S PASSENGER XTRA BS: 18841
+  - TVS RADEON: 18789
+  - TVS JUPITER ZX: 18565
+  - ACTIVA, EL.A.START&KICK S-BSII: 18363
+  - MF 1035 D1: 18353
+  - TVS SCOOTY PEP+: 18353
+  - CD-DAWN: 18341
+  - PLEASURE + (VX): 18287
+  - PASSION PRO(DRUM-SELF CAST WHE: 18184
+  - SUZUKI SAMURAI: 18115
+  - YAMAHA CRUX: 17634
+  - PASSION XPRO BSIII(CAST SELF): 17491
+  ... (Truncated to top 200 values)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_asset_vaahan_type
+--------------------------------------------------------------------------------
+
+Column: CLASS_DESCRIPTION (Top distinct values by frequency):
+  - Tractor-Trolley(Commercial): 1
+  - Auxiliary Trailer: 1
+  - Quadricycle (Commercial): 1
+  - Puller Tractor: 1
+  - Modular Hydraulic Trailer: 1
+  - Mobile Clinic: 1
+  - Omni Bus: 1
+  - Harvester: 1
+  - Camper Van / Trailer (Private Use): 1
+  - Motor Caravan: 1
+  - Excavator (Commercial): 1
+  - Vintage Motor Vehicle: 1
+  - Educational Institution Bus: 1
+  - Motor Car: 1
+  - Maxi Cab: 1
+  - Mobile Workshop: 1
+  - Motor Cycle/Scooter-With Trailer: 1
+  - Tow Truck: 1
+  - Goods Carrier: 1
+  - Breakdown Van: 1
+  - Vehicle Fitted With Rig: 1
+  - Dumper: 1
+  - Earth Moving Equipment: 1
+  - School Bus: 1
+  - Bus: 1
+  - Three Wheeler (Goods): 1
+  - Agricultural Tractor: 1
+  - Trailer (Agricultural): 1
+  - Recovery Vehicle: 1
+  - Road Roller: 1
+  - e-Rickshaw(P): 1
+  - Omni Bus (Private Use): 1
+  - Private Service Vehicle: 1
+  - e-Rickshaw with Cart (G): 1
+  - Luxury Cab: 1
+  - Construction Equipment Vehicle: 1
+  - Snorked Ladders: 1
+  - Excavator (NT): 1
+  - Trailer (Commercial): 1
+  - Fire Tenders: 1
+  - Adapted Vehicle: 1
+  - Ambulance: 1
+  - X-Ray Van: 1
+  - M-Cycle/Scooter-With Side Car: 1
+  - Articulated Vehicle: 1
+  - Cash Van: 1
+  - Bulldozer: 1
+  - Power Tiller (Commercial): 1
+  - Vehicle Fitted With Generator: 1
+  - Motor Cycle/Scooter-SideCar(T): 1
+  - Three Wheeler (Passenger): 1
+  - Tree Trimming Vehicle: 1
+  - Moped: 1
+  - Camper Van / Trailer: 1
+  - M-Cycle/Scooter: 1
+  - Private Service Vehicle (Individual Use): 1
+  - Motor Cycle/Scooter-Used For Hire: 1
+  - Animal Ambulance: 1
+  - Semi-Trailer (Commercial): 1
+  - Hearses: 1
+  - Vehicle Fitted With Compressor: 1
+  - Tower Wagon: 1
+  - Motor Cab: 1
+  - Trailer For Personal Use: 1
+  - Quadricycle (Private): 1
+  - Construction Equipment Vehicle (Commercial): 1
+  - Mobile Canteen: 1
+  - Motorised Cycle (CC > 25cc): 1
+  - Three Wheeler (Personal): 1
+  - Fire Fighting Vehicle: 1
+  - Power Tiller: 1
+  - Armoured/Specialised Vehicle: 1
+  - Crane Mounted Vehicle: 1
+  - Fork Lift: 1
+  - Tractor (Commercial): 1
+  - Library Van: 1
+
+Column: CLASS_TYPE (Top distinct values by frequency):
+  - 1: 42
+  - 2: 34
+
+Column: CONVERTIBLE_CLASSES (Top distinct values by frequency):
+  - null: 20
+  - 10,11,13,17,19,22,25,27: 2
+  - 5,56,59,69,70,71,76,86: 2
+  - 6: 2
+  - 9,10,11,12,15,17,18,19,23,59,65,66,67,68: 1
+  - 9,10,11,12,15,17,18,59,64,65,66,67,68,77,79,80,83: 1
+  - 15,23,56,64,65,66,67,68,70,73,75,76,77,78,79,86: 1
+  - 15,56,64,65,66,67,68,69,70,73,75,76,77,78,83,86: 1
+  - 31: 1
+  - 59: 1
+  - 7,9,10,11,12,17,18,19,64,65,66,67,68,77,80,83,22,32: 1
+  - 28,30: 1
+  - 7,16,23,56,64,65,66,67,68,69,70,71,73,75,76,77,78,86: 1
+  - 3,53: 1
+  - 10,11,15,23,56,65,66,67,68,69,70,73,75,76,79: 1
+  - 22: 1
+  - 1,2,3,6,7: 1
+  - 1,5,51,52,53: 1
+  - 70,78: 1
+  - 9,10,12,18,19,59,64,65,66,67,68,77,79,80,83: 1
+  - 76: 1
+  - 9,11,12,18,19,59,64,65,66,67,68,77,79,80,83: 1
+  - 9,10,11,12,15,17,18,19,23,59,64,66,67,68: 1
+  - 10,11,15,23,56,64,65,66,67,68,69,70,75,79,86: 1
+  - 9,10,11,12,15,17,18,19,23,59,63,64,66,68: 1
+  - 13,27,63,88: 1
+  - 9,10,11,18,19,59,64,65,66,67,68,77,79,80,83: 1
+  - 7,15,23,70,71,73,75,76: 1
+  - 13,87,92,59: 1
+  - 89,28: 1
+  - 10,11,12,17,18,19,59,80: 1
+  - 7,15,16,23,56,69,73,75,76,78,79,86: 1
+  - 13,25,63: 1
+  - 9,10,11,12,18,19,59,64,65,66,67,68,77,79,80,83: 1
+  - 1,2,3,4,52,53: 1
+  - 93: 1
+  - 9,10,11,12,15,17,18,19,23,59,63,64,67,68: 1
+  - 10,11,12,18,19,59,64,65,66,67,68,77,79,80,83: 1
+  - 7,10,11,15,23,56,64,65,66,67,68,69,70,73,74,79,86: 1
+  - 7,15,23,56,64,65,66,67,68,69,70,73,75,77,78,85,86: 1
+  - 75: 1
+  - 1,2,3,4,53,51: 1
+  - 7,56,76: 1
+  - 1,2,3,4,52,51: 1
+  - 7,15,23,69,70,71,73,75,86: 1
+  - 9,10,11,12,15,17,18,19,23,59,63,64,66,67: 1
+  - 25: 1
+  - 5,57,58: 1
+  - 30,89: 1
+  - 5,51,52,53: 1
+  - 11,17,19,22,25,27,63,90: 1
+  - 5,53: 1
+  - 70,16: 1
+  - 9,10,11,12,15,17,19,59,64,65,66,67,68,77,79,80,83: 1
+
+Column: TRANSPORT_CATEGORY (Top distinct values by frequency):
+  - null: 33
+  - P: 17
+  - G: 16
+  - S: 10
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_bank_accounts
+--------------------------------------------------------------------------------
+
+Column: bank_ifsc_code
+  (No data or table empty)
+
+Column: bank_type
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_consent
+--------------------------------------------------------------------------------
+
+Column: is_revocable
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_document
+--------------------------------------------------------------------------------
+
+Column: STATUS (Top distinct values by frequency):
+  - NULL: 11319195
+
+Column: UID_FLAG (Top distinct values by frequency):
+  - M: 5152341
+  - D: 4063482
+  - NULL: 1783155
+  - F: 230680
+  - C: 89537
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_document_testing
+--------------------------------------------------------------------------------
+
+Column: STATUS (Top distinct values by frequency):
+  - NULL: 7118635
+
+Column: UID_FLAG (Top distinct values by frequency):
+  - F: 4545485
+  - N: 1688160
+  - C: 463052
+  - M: 421938
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_education
+--------------------------------------------------------------------------------
+
+Column: CURRENT_QUALIFICATION_FLAG (Top distinct values by frequency):
+  - N: 32040918
+  - Y: 23707295
+
+Column: INSTITUTION_CODE (Top distinct values by frequency):
+  - : 44998158
+  - SRI CHAITANYA JUNIOR COLLEGE: 13420
+  - SRI CHAITANYA EM SCHOOL: 10154
+  - NARAYANA JUNIOR COLLEGE: 8601
+  - SRI CHAITANYA JR COLLEGE: 8196
+  - GOVT JUNIOR COLLEGE - 03014: 7377
+  - K B N COLLEGE - 05010: 7093
+  - BHASHYAM HIGH SCHOOL: 7011
+  - SRI DURGA MALLESWARA SIDDARTHA MAHILA KALASALA - 05001: 6973
+  - ST JOSEPHS JR COLLEGE - 12035: 6958
+  - SRI CHAITANYA SCHOOL: 6927
+  - SRI NANDI JR COLLEGE - 10179: 6742
+  - TIRUMALA JUNIOR COLLEGE: 6479
+  - SRI SAI SIDDHARTHA JR COLLEGE - 24182: 6430
+  - SAI SRI CHAITANYA JR. COLLEGE - 09334: 6385
+  - SRI CHAITANYA TECHNO SCHOOL: 6342
+  - MOTHER THERESSA JR COLLEGE - 09274: 6309
+  - L R G NAIDU JR COLLEGE - 11107: 6254
+  - SMT KONAPATI SAROJINI DEVI MAHILA KALASALA - 04098: 6157
+  - S L N JR COLLEGE FOR GIRLS - 11036: 6138
+  - SMT K S R GOVT JUNIOR COLLEGE GIRLS - 11010: 6117
+  - SRI SAMPATH SAI JUNIOR COLLEGE - 01386: 5967
+  - BHAVANA JR COLLEGE - 06092: 5965
+  - SWAMI VIVEKANANDA JR COLLEGE - 11040: 5869
+  - S P W JUNIOR COLLEGE - 09025: 5844
+  - VIJAYAM JR COLLEGE - 09195: 5821
+  - VISAKHA GOVT JUNIOR COLLEGE FOR GIRLS - 02009: 5807
+  - ST THERESAS COLLEGE FOR WOMEN - 04151: 5755
+  - GOVT JR COLLEGE FOR GIRLS - 12001: 5744
+  - SRI CHAITANYA JUNIOR COLLEGE - 02230: 5718
+  - ADITYA JUNIOR COLLEGE - 03295: 5711
+  - SRI BASARA JR COLLEGE - 02203: 5656
+  - NARAYANA EM HIGH SCHOOL: 5620
+  - ADITYA JR COLLEGE - 03329: 5579
+  - K.G.B.V.JUNIOR COLLEGE: 5536
+  - SRI CHAITANYA JUNIOR COLLEGE - 04150: 5524
+  - SRI CHAITANYA JUNIOR COLLEGE - 03035: 5520
+  - SRI CHAITANYA JUNIOR COLLEGE - 03298: 5520
+  - SRI CHAITANYA JUNIOR COLLEGE - 04154: 5476
+  - SRI CHAITANYA JUNIOR COLLEGE - 02159: 5474
+  - BHASHYAM JUNIOR COLLEGE: 5431
+  - SRI CHAITANYA JUNIOR COLLEGE - 04140: 5412
+  - SRI CHAITANYA JUNIOR COLLEGE - 01007: 5399
+  - SRI CHAITANYA JUNIOR COLLEGE - 02118: 5377
+  - SRI CHAITANYA JR COLLEGE - 08130: 5356
+  - VIDWAN JR COLLEGE - 24007: 5355
+  - SRINIVASA JR COLLEGE - 24276: 5345
+  - VAGDEVI JR COLLEGE - 06115: 5329
+  - VIJAYAWADA NALANDA JR COLLEGE - 10092: 5316
+  - SRI CHAITANYA JUNIOR COLLEGE - 02115: 5315
+  - SRI CHAITANYA JUNIOR COLLEGE - 03064: 5293
+  - SRI CHAITANYA JUNIOR COLLEGE - 02160: 5292
+  - SRI CHAITANYA EM HIGH SCHOOL: 5251
+  - SRI CHAITANYA JR COLLEGE - 05098: 5221
+  - CHAITANYA JUNIOR COLLEGE - 25180: 5217
+  - PRAGATI JUNIOR COLLEGE - 03077: 5187
+  - SRI RAVI JR COLLEGE - 03162: 5182
+  - SREE PRAKASH JUNIOR COLLEGE - 02251: 5161
+  - SRI CHAITANYA JUNIOR COLLEGE - 01022: 5161
+  - GOVT JUNIOR COLLEGE FOR BOYS - 01005: 5135
+  - SRI CHAITANYA JUNIOR COLLEGE - 02147: 5130
+  - SRI CHAITANYA COED JR COLLEGE - 05052: 5119
+  - RAOS JUNIOR COLLEGE - 10091: 5111
+  - SRI CHAITANYA HIGH SCHOOL: 5098
+  - NARAYANA JR COLLEGE - 03088: 5075
+  - SRI CHAITANYA JUNIOR COLLEGE - 04149: 5051
+  - SRI CHAITANYA JUNIOR COLLEGE - 03062: 5039
+  - KRISHNA CHAITANYA JR COLLEGE NELLORE - 08075: 5036
+  - SRI CHAITANYA JUNIOR COLLEGE - 06019: 5027
+  - ADITYA JUNIOR COLLEGE - 04062: 5017
+  - SRI SATYA SAI JR COLLEGE - 11002: 5011
+  - GOVT JR COLLEGE FOR GIRLS - 01001: 5007
+  - NRI JR COLLEGE - 04127: 5006
+  - GOVT JUNIOR COLLEGE TOWN - 10009: 4986
+  - SRI VIVEKANANDA JUNIOR COLLEGE - 24127: 4976
+  - SRI SAI ADITYA JUNIOR COLLEGE - 03061: 4934
+  - NARAYANA JR COLLEGE - 05056: 4932
+  - SRI CHAITANYA JUNIOR COLLEGE - 12009: 4926
+  - G B R JUNIOR COLLEGE - 03442: 4887
+  - SRI CHAITANYA JUNIOR COLLEGE - 06056: 4876
+  - SRI CHAITANYA JUNIOR COLLEGE - 08061: 4876
+  - SRI VIVEKANANDA JR COLLEGE - 09202: 4868
+  - SRI CHAITANYA JUNIOR COLLEGE - 06090: 4857
+  - THEERTHAM KRISHNAIAH CHETTY GOVT JUNIOR COLLEGE - 09276: 4807
+  - SRI CHAITANYA JUNIOR COLLEGE - 09047: 4805
+  - VIKAS JUNIOR COLLEGE - 25050: 4799
+  - SRI CHAITANYA GIRLS JR COLLEGE - 05091: 4795
+  - SRI CHAITANYA JUNIOR COLLEGE - 10078: 4761
+  - ADITYA JUNIOR COLLEGE - 03060: 4749
+  - VIGNANA BHARATHI JUNIOR COLLEGE - 07046: 4737
+  - NARAYANA JUNIOR COLLEGE - 11168: 4728
+  - SRI CHAITANYA JUNIOR COLLEGE - 09013: 4726
+  - NARAYANA JR COLLEGE - 11018: 4687
+  - NANDYAL JUNIOR COLLEGE - 10103: 4680
+  - SRI CHAITANYA JUNIOR COLLEGE - 11100: 4671
+  - J C N R M JR COLLEGE - 11176: 4658
+  - SRI CHAITANYA JUNIOR COLLEGE - 06009: 4633
+  - VIVEKA JR COLLEGE - 03109: 4630
+  - NARAYANA JR COLLEGE - 10468: 4608
+  - NARAYANA JR COLLEGE - 02170: 4606
+  - SRI CHAITANYA JUNIOR COLLEGE - 04079: 4601
+  - SRI CHAITANYA BOYS JR COLLEGE - 05093: 4583
+  - SRI CHAITANYA JUNIOR COLLEGE - 09071: 4583
+  - DK GOVT JR COLLEGE FOR GIRLS - 08026: 4562
+  - NARAYANA JUNIOR COLLEGE - 06048: 4528
+  - PRAGATHI VIDYALAYA JUNIOR COLLEGE - 03082: 4522
+  - NARAYANA JR COLLEGE - 03079: 4517
+  - NARAYANA JR COLLEGE - 10081: 4516
+  - NARAYANA JR COLLEGE - 02083: 4500
+  - NRI JR COLLEGE - 26149: 4498
+  - DR V S K GOVT JUNIOR COLLEGE BOYS VIZAG - 02097: 4478
+  - TIRUMALA JR COLLEGE - 03073: 4471
+  - SRI SARADA JUNIOR COLLEGE - 05143: 4469
+  - NARAYANA JUNIOR COLLEGE - 06131: 4448
+  - SRI KRISHNAREDDY SIDDARTHA JR COLLEGE - 09118: 4441
+  - SRI CHAITANYA JUNIOR COLLEGE - 02042: 4426
+  - NARAYANA JR COLLEGE - 11030: 4405
+  - SRI CHAITANYA JUNIOR COLLEGE - 02028: 4402
+  - SRI CHAITANYA JUNIOR COLLEGE - 09187: 4391
+  - SRI CHAITANYA JUNIOR COLLEGE - 24252: 4357
+  - ADITYA JR COLLEGE - 04032: 4351
+  - SRI CHAITANYA JUNIOR COLLEGE - 02021: 4345
+  - TIRUMALA JR KALASALA - 03108: 4344
+  - SUVARNA BHARATHI JR COLLEGE - 11111: 4342
+  - SDHR JR COLLEGE - 09067: 4330
+  - SRI VIJAYA LAXMI KRANTHI JR COLLEGE - 25379: 4327
+  - SRI VENKATESWARA JR COLLEGE - 11318: 4319
+  - S S G S JR COLLEGE - 11249: 4317
+  - SRI CHAITANYA JUNIOR COLLEGE - 09384: 4310
+  - SRI AKSHARA JR COLLEGE - 25421: 4306
+  - SRI SARADA JR COLLEGE - 05059: 4298
+  - SASI NEW GEN JUNIOR COLLEGE - 04121: 4293
+  - ADITYA JR COLLEGE - 04004: 4286
+  - MONTESSORI INDUS RESIDENTIAL SCHOOL,GOOTY ROAD. KURNOOL: 4281
+  - NARAYANA JR COLLEGE - 05083: 4277
+  - SRI DR L BULLAYYA JR COLLEGE - 02022: 4266
+  - ANDHRA LOYALA JR COLLEGE - 05007: 4261
+  - NARAYANA JR COLLEGE - 25279: 4261
+  - GOVT JUNIOR COLLEGE - 11302: 4259
+  - GOVT JUNIOR COLLEGE - 02313: 4256
+  - SRI SIDDHARTHA JR COLLEGE - 09115: 4243
+  - SRI MEDHAVI JR COLLEGE - 07041: 4241
+  - SRI CHAITANYA JUNIOR COLLEGE - 25119: 4224
+  - VASU JRCOLLEGE - 24009: 4222
+  - SRI VIVEKANANDA JR KALASALA - 11004: 4221
+  - JAGGAYYAPETA JR COLLEGE - 25164: 4221
+  - S V JUNIOR COLLEGE - 09027: 4218
+  - SRI SAI ADITYA JR COLLEGE - 04063: 4192
+  - USHODAYA JR COLLEGE - 02315: 4192
+  - SRI SURYODAYA JR COLLEGE - 24048: 4186
+  - SRINIVASA JR COLLEGE - 24118: 4182
+  - NATIONAL JUNIOR COLLEGE - 10107: 4175
+  - SASI JUNIOR COLLEGE - 04112: 4172
+  - SADANA JR COLLEGE - 07077: 4161
+  - SRI CHAITANYA BOYS JR COLLEGE - 05099: 4161
+  - SRI SAI JYOTHI JR COLLEGE - 09369: 4161
+  - GOVT JR COLLEGE FOR GIRLS - 06033: 4152
+  - SRI PRATHIBA JR COLLEGE - 07032: 4150
+  - VIKAS JUNIOR COLLEGE - 04209: 4148
+  - SRI CHAITANYA JUNIOR COLLEGE - 25238: 4135
+  - PRAGNYA JR COLLEGE - 10126: 4131
+  - SRI CHAITANYA JR COLLEGE - 05092: 4131
+  - NARAYANA JR COLLEGE - 08070: 4129
+  - SRI SRINIVASA JUNIOR COLLEGE - 25040: 4120
+  - SRI CHAITANYA MAHILA JR KALASALA - 05094: 4119
+  - SRI CHAITANYA JUNIOR COLLEGE - 10075: 4116
+  - GAYATRI JR COLLEGE - 01019: 4111
+  - ADITYA JR COLLEGE - 03003: 4108
+  - SRI CHAITANYA JUNIOR COLLEGE - 10076: 4106
+  - SRI LAKSHMI NARASIMHA JR COLLEGE - 11057: 4101
+  - SRI CHAITANYA JUNIOR COLLEGE - 09060: 4099
+  - GOVT JUNIOR COLLEGE - 24058: 4098
+  - NARAYANA JR COLLEGE - 11017: 4091
+  - SRI CHAITANYA JUNIOR COLLEGE - 11034: 4085
+  - NARAYANA JUNIOR COLLEGE - 02040: 4081
+  - A K R G JR COLLEGE - 04357: 4078
+  - NARAYANA JUNIOR COLLEGE - 02117: 4067
+  - TIRUMALA (EM) HS VENKATANAGARAM: 4061
+  - SRI GOWTHAMI JR COLLEGE - 07063: 4043
+  - SRI CHAITANYA JR COLLEGE - 05038: 4029
+  - DEEKSHA JUNIOR COLLEGE - 10186: 4026
+  - VIGNAN JR COLLEGE - 03330: 4024
+  - AMARAVATHI JUNIOR COLLEGE: 3999
+  - SRI CHAITANYA JUNIOR COLLEGE - 02046: 3994
+  - GOVT JUNIOR COLLEGE - 11218: 3994
+  - SRI CHAITANYA JUNIOR COLLEGE - 06039: 3989
+  - KRISHNA VENI JR COLLEGE - 26390: 3989
+  - NARAYANA JUNIOR COLLEGE - 05144: 3972
+  - GOVT JR COLLEGE FOR GIRLS - 03049: 3953
+  - AKSHARA JUNIOR COLLEGE: 3936
+  - NARAYANA JR COLLEGE - 02290: 3931
+  - SRI CHAITANYA COEDU JR COLLEGE - 05073: 3929
+  - SRI CHAITANYA JR COLLEGE - 05090: 3926
+  - SRI CHAITANYA JUNIOR COLLEGE - 02179: 3923
+  - NARAYANA JUNIOR COLLEGE - 05018: 3919
+  - SRI CHAITANYA JUNIOR COLLEGE - 08076: 3904
+  - SRI CHAITANYA JUNIOR COLLEGE - 10195: 3904
+  - DR HIMASEKHARA JR COLLEGE - 02191: 3901
+  - KATHERA SURESH KUMAR JR COLLEGE G - 26202: 3844
+  - SRI CHAITANYA BOYS JR COLLEGE - 05096: 3833
+  ... (Truncated to top 200 values)
+
+Column: MEDIUM_OF_INSTRUCTION (Top distinct values by frequency):
+  - NULL: 32072607
+  - 19: 20793363
+  - 17: 2658229
+  - 18: 164515
+  - 5: 26556
+  - 12: 22941
+  - 14: 5950
+  - 16: 3487
+  - 4: 443
+  - 2: 102
+  - 1: 20
+
+Column: MODE_OF_STUDY (Top distinct values by frequency):
+  - NULL: 55748213
+
+Column: QUALIFICATION_LEVEL (Top distinct values by frequency):
+  - NULL: 55748213
+
+Column: SCHOLARSHIP_SCHEME (Top distinct values by frequency):
+  - NULL: 55748213
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_family_master
+--------------------------------------------------------------------------------
+
+Column: HH_UPDATE_STATUS (Top distinct values by frequency):
+  - null: 53201678
+  - C10: 168
+  - 21073083010: 165
+  - C7: 126
+  - C15: 107
+  - 21086463009: 106
+  - 21073233019: 82
+  - C12: 66
+  - C6: 64
+  - C8: 52
+  - C5: 50
+  - 10590870007: 49
+  - C4: 47
+  - C2: 46
+  - 21016117012: 46
+  - C3: 44
+  - 21013026003: 37
+  - 10390208020: 35
+  - 11290244010: 35
+  - 10990313010: 34
+  - 11190485012: 29
+  - C13: 27
+  - 21015010004: 26
+  - C14: 26
+  - 21002012014: 23
+  - 11190103012: 23
+  - C18: 22
+  - C11: 22
+  - C16: 21
+  - 11190247016: 21
+  - 10390050017: 20
+  - 11090070013: 18
+  - 11090070012: 17
+  - 11290270012 (BACHEHALLI): 16
+  - 21086463005: 16
+  - C9: 15
+  - 21073083010 (18-Raniqarithota): 15
+  - 11290252014: 13
+  - 11290872041: 13
+  - 10490920015: 12
+  - 21121007002: 12
+  - C21: 11
+  - 11090725006: 11
+  - 21078001022: 11
+  - 11290674003: 11
+  - 10690158015: 11
+  - 11290571016: 11
+  - 10490611015: 11
+  - C19: 11
+  - 21015016016: 11
+  - C20: 11
+  - 21073083002: 10
+  - 11390486002: 10
+  - 11190353005: 10
+  - 11190437017: 10
+  - 10590870007 (VEMULAPALLI): 10
+  - 11290572014: 10
+  - 21086506009: 10
+  - 21059008014: 10
+  - 11290197043 (A.NARAYANAPURAMU5): 9
+  - 21032004004: 9
+  - C1: 9
+  - 21120008001: 9
+  - 11390043013: 9
+  - 11190553022: 9
+  - 11190247014: 8
+  - 10390101005: 8
+  - 11290613011: 8
+  - 21155006014: 8
+  - 21006010020: 8
+  - 21002012015: 8
+  - 21073231005 (32-Nadhamuri Basavataraka Naqar): 8
+  - 11290667005: 8
+  - 10790280013: 8
+  - 11390594017: 8
+  - 10490577002: 8
+  - 10690116005: 7
+  - C22: 7
+  - 21086463004: 7
+  - 11290540010: 7
+  - C27: 7
+  - 21006010020 (RAJIVGANDHICOLONY): 7
+  - 10390101022: 7
+  - 21008039002: 7
+  - 11190437015: 7
+  - 21143014004: 6
+  - 10590695022: 6
+  - 10390336006: 6
+  - 11390574006: 6
+  - 10490325007: 6
+  - 11090231019 (TUDA QUARTERS): 6
+  - 11090345003: 6
+  - 11390574006 (B.AGRAHARAM): 6
+  - 10490582020: 6
+  - 21015019016: 6
+  - 11390776004: 6
+  - 10790233003: 6
+  - 10590358003: 6
+  - 10790860017: 6
+  - 21016115002: 6
+  - 21016043010 (JOHARAPURAM): 6
+  - 21001064007: 6
+  - 10290546004 (V.B.PURAM): 6
+  - 10490757025: 5
+  - C8 (MAHABOOBNAGAR): 5
+  - 10790322008: 5
+  - 11190178009 (PULAPATHURU): 5
+  - 21021026011: 5
+  - 21020008006: 5
+  - 11190202020: 5
+  - 10790571001: 5
+  - 11190119010: 5
+  - 11190103014: 5
+  - 10490746003: 5
+  - 11190439024: 5
+  - 10790470007: 5
+  - 11190437006: 5
+  - 21093056010: 5
+  - 21002026010: 5
+  - 21161001004: 5
+  - 21086160020: 5
+  - 10390100002: 5
+  - 21073089001: 5
+  - 21073082013 (18-R C M School): 5
+  - 21007025016 (BHAGATHSINGHNAGAR): 5
+  - 10990617029: 5
+  - 10590691006: 5
+  - 10690672019: 5
+  - 21017018034: 5
+  - 21013090009: 5
+  - 10190571006: 5
+  - 11390106007: 5
+  - 11290487010: 5
+  - 10190526017: 5
+  - 21028037010: 5
+  - 21002012005: 5
+  - 21013087012: 5
+  - 10590391007: 5
+  - 11090329004: 5
+  - 11190202021 (PAPPIREDDIGARIPALLI): 5
+  - 10390069019 (THIMMAVARAM-1): 5
+  - 21073233013: 5
+  - 11290488011 (ABBEDODDI): 5
+  - 11190119023: 5
+  - 10690815003: 5
+  - 21093054006 (KANAPAKA): 5
+  - 11190279022: 5
+  - 10490962004 (APPANAPALLI2): 5
+  - 11190443025: 5
+  - 21074036009: 5
+  - 11190453005 (THALLAMAPURAM): 5
+  - 11090305005: 5
+  - 10390262008: 5
+  - 11390782009: 5
+  - 11290891031: 5
+  - 21074024008: 4
+  - 11190322011: 4
+  - 10490519016: 4
+  - 10490759009: 4
+  - 21016102020: 4
+  - 10690148005: 4
+  - 21013026003 (ARAVINDNAGAR-02): 4
+  - C17: 4
+  - 21015010004 (HAVANAPET-01): 4
+  - 10490380011: 4
+  - 21079007017: 4
+  - 10890517011 (KARAMCHEDU1): 4
+  - 10490920015 (GUDAPALLI2): 4
+  - 21086237003: 4
+  - 10190001009: 4
+  - 10790700014 (KAZA-2): 4
+  - 11190413007: 4
+  - 21002017011 (INDIRANAGAR): 4
+  - 10690158015 (VALIVARTHAPADU): 4
+  - 11190103013 (ANANTHARAJUPET1): 4
+  - 21068032005: 4
+  - 10790363016: 4
+  - 11190301001: 4
+  - 21014011004: 4
+  - 10690805013: 4
+  - 21093024028: 4
+  - 10590530005: 4
+  - 11290099016: 4
+  - 21014002021 (SASTHRYNAGAR): 4
+  - 10390243010: 4
+  - 10690479025: 4
+  - 21086354005: 4
+  - 11190194008: 4
+  - 21075042009: 4
+  - 21140005007: 4
+  - 11290234012: 4
+  - 11290244010 (GARUDAPURAM): 4
+  - 10690383020 (BOMMULURU): 4
+  - C3 (GUDISABANDA): 4
+  - 10690490004: 4
+  - 11290689008: 4
+  - 10790261006: 4
+  - 10491171006: 4
+  - 10490101005: 4
+  - 11290244012: 4
+  ... (Truncated to top 200 values)
+
+Column: IS_HOFAMILY (Top distinct values by frequency):
+  - 0: 36300445
+  - 1: 16904770
+
+Column: IS_MARRIED (Top distinct values by frequency):
+  - 0: 50722689
+  - 1: 2474339
+  - 3: 8060
+  - 2: 124
+  - null: 3
+
+Column: IS_MEMBERADDED (Top distinct values by frequency):
+  - 0: 48420840
+  - 1: 4784375
+
+Column: IS_MEMBERDELETED (Top distinct values by frequency):
+  - 0: 53205215
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_health_schemes_master
+--------------------------------------------------------------------------------
+
+Column: CATEGORY (Top distinct values by frequency):
+  - NULL: 5
+
+Column: SCHEME_ACTIVE_STATUS (Top distinct values by frequency):
+  - NULL: 5
+
+Column: SCHEME_BENEFITS (Top distinct values by frequency):
+  - NULL: 5
+
+Column: SCHEME_CODE (Top distinct values by frequency):
+  - NULL: 5
+
+Column: SCHEME_TYPE (Top distinct values by frequency):
+  - NULL: 5
+
+Column: SUB_CATEGORY (Top distinct values by frequency):
+  - NULL: 5
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_idty_type
+--------------------------------------------------------------------------------
+
+Column: CITIZEN_IDTY_TYPE (Top distinct values by frequency):
+  - 1: 1
+
+Column: IDTY_DESCRIPTION (Top distinct values by frequency):
+  - The UIDAI was created to issue unique identification numbers to residents, eliminating duplicate and fake identities: 1
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_land
+--------------------------------------------------------------------------------
+
+Column: encumbrance_status
+  (No data or table empty)
+
+Column: irrigation_type
+  (No data or table empty)
+
+Column: land_type
+  (No data or table empty)
+
+Column: soil_type
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_master
+--------------------------------------------------------------------------------
+
+Column: CASTE (Top distinct values by frequency):
+  - OC: 11857393
+  - SC: 9054266
+  - BC-A: 7493392
+  - BC-D: 7392549
+  - BC-B: 5946757
+  - NULL: 3941652
+  - ST: 2843245
+  - BC-E: 2789374
+  - BC: 1360130
+  - null: 170102
+  - BC-C: 139895
+  - Others: 35253
+
+Column: GENDER (Top distinct values by frequency):
+  - FEMALE: 26216859
+  - MALE: 25994294
+  - null: 266617
+  - Male: 230074
+  - Female: 186506
+  - F: 59425
+  - M: 39684
+  - MALE : 12395
+  - FEMALE : 11008
+  - TRANSGENDER: 4881
+  - NOT CAPTURED: 882
+  - NA: 658
+  - Girl: 332
+  - Boy: 290
+  - Transgender: 61
+  - NA : 19
+  - T: 10
+  -  : 8
+  - 0: 1
+  - 9100219874: 1
+  - 9000020448: 1
+  - NotCaptured: 1
+  - TRANSGENDER : 1
+
+Column: MARITAL_STATUS (Top distinct values by frequency):
+  - 0: 50603474
+  - 1: 2412347
+  - 3: 8060
+  - 2: 124
+  - NULL: 3
+
+Column: RELIGION (Top distinct values by frequency):
+  - Hindu: 36561309
+  - null: 8867783
+  - NULL: 3941652
+  - Islam: 3103646
+  - Christian: 524843
+  - Other Religion: 10396
+  - Jain: 6406
+  - Sikh: 3427
+  - No Religion: 2850
+  - Buddhist: 1696
+
+Column: RESIDENCY_STATUS (Top distinct values by frequency):
+  - NULL: 3574
+  - 1304059078: 2
+  - 1421298059: 2
+  - 1588711310: 2
+  - 1364526650: 2
+  - 1154808769: 2
+  - 1800299551: 2
+  - 1565870480: 2
+  - 1282772783: 2
+  - 1257141677: 2
+  - 1105430005: 2
+  - 1803064288: 2
+  - 1598702563: 2
+  - 1242478443: 2
+  - 1387767541: 2
+  - 1625872536: 2
+  - 1802808061: 2
+  - 1499776039: 2
+  - 1356725842: 2
+  - 1265112220: 2
+  - 1451184213: 2
+  - 1254168945: 2
+  - 1588816906: 2
+  - 1699713149: 2
+  - 1500124413: 2
+  - 1801835992: 2
+  - 1066613461: 2
+  - 1446550931: 2
+  - 1125752701: 2
+  - 1147658445: 2
+  - 1125164394: 2
+  - 1424952133: 2
+  - 1389370569: 2
+  - 1206202849: 2
+  - 1113288155: 2
+  - 1513043025: 2
+  - 1222254745: 2
+  - 1195128798: 2
+  - 1457885009: 2
+  - 1086669129: 2
+  - 1476078295: 2
+  - 1276521734: 2
+  - 1800200410: 2
+  - 1628197692: 2
+  - 1309491117: 2
+  - 1055099531: 2
+  - 1177550932: 2
+  - 1002005583: 2
+  - 1386633870: 2
+  - 1801781559: 2
+  - 1327997054: 2
+  - 1434048638: 2
+  - 1390611441: 2
+  - 1168245096: 2
+  - 1139693841: 2
+  - 1315870557: 2
+  - 1512034248: 2
+  - 1131315738: 2
+  - 1511679995: 2
+  - 1394750571: 2
+  - 1091423963: 2
+  - 1802866940: 2
+  - 1192159929: 2
+  - 1562726004: 2
+  - 1186644305: 2
+  - 1802873371: 2
+  - 1110847972: 2
+  - 1457189322: 2
+  - 1262820874: 2
+  - 1390070014: 2
+  - 1249603221: 2
+  - 1112418968: 2
+  - 1127626804: 2
+  - 1456209592: 2
+  - 1416695547: 2
+  - 1470402767: 2
+  - 1529769534: 2
+  - 1700769229: 2
+  - 1357737529: 2
+  - 1016433007: 2
+  - 1802473243: 2
+  - 1412414042: 2
+  - 1295785678: 2
+  - 1380850443: 2
+  - 1546292231: 2
+  - 1095705764: 2
+  - 1082762462: 2
+  - 1470616245: 2
+  - 1483018237: 2
+  - 1456975776: 2
+  - 1148439645: 2
+  - 1181851829: 2
+  - 1512687223: 2
+  - 1589504084: 2
+  - 1224172688: 2
+  - 1132453947: 2
+  - 1396479582: 2
+  - 1803028425: 2
+  - 1626027027: 2
+  - 1801423615: 2
+  - 1802654361: 2
+  - 1095670509: 2
+  - 1290864002: 2
+  - 1526257713: 2
+  - 1262983200: 2
+  - 1187765886: 2
+  - 1461962945: 2
+  - 1379676672: 2
+  - 1378415182: 2
+  - 1800202545: 2
+  - 1068257527: 2
+  - 1801179242: 2
+  - 1227388073: 2
+  - 1300328937: 2
+  - 1588080474: 2
+  - 1308632651: 2
+  - 1555600342: 2
+  - 1421808721: 2
+  - 1700930336: 2
+  - 1436701236: 2
+  - 1045636414: 2
+  - 1458776376: 2
+  - 1066019572: 2
+  - 1554492198: 2
+  - 1281999826: 2
+  - 1028765044: 2
+  - 1407137526: 2
+  - 1442887946: 2
+  - 1155187587: 2
+  - 1608867712: 2
+  - 1410425138: 2
+  - 1624983820: 2
+  - 1142694924: 2
+  - 1115163143: 2
+  - 1000628965: 2
+  - 1486231751: 2
+  - 1409959738: 2
+  - 1161521664: 2
+  - 1480553624: 2
+  - 1476325388: 2
+  - 1409786906: 2
+  - 1801297326: 2
+  - 1017577522: 2
+  - 1357070573: 2
+  - 1381186199: 2
+  - 1394931764: 2
+  - 1007475678: 2
+  - 1588450560: 2
+  - 1134758648: 2
+  - 1358346522: 2
+  - 1096164407: 2
+  - 1483076588: 2
+  - 1803810647: 2
+  - 1136148731: 2
+  - 1377523237: 2
+  - 1140473127: 2
+  - 1350583047: 2
+  - 1338207748: 2
+  - 1397935577: 2
+  - 1556941531: 2
+  - 1299188480: 2
+  - 1001214803: 2
+  - 1168466930: 2
+  - 1608970348: 2
+  - 1195394752: 2
+  - 1460580575: 2
+  - 1163216970: 2
+  - 1442908235: 2
+  - 1076521381: 2
+  - 1014618549: 2
+  - 1308051459: 2
+  - 1608549457: 2
+  - 1430457646: 2
+  - 1385213079: 2
+  - 1433470544: 2
+  - 1386751399: 2
+  - 1198189258: 2
+  - 1419221658: 2
+  - 1119838011: 2
+  - 1243643277: 2
+  - 1394522157: 2
+  - 1140329588: 2
+  - 1165659326: 2
+  - 1603130069: 2
+  - 1198170828: 2
+  - 1192619390: 2
+  - 1604563210: 2
+  - 1389366322: 2
+  - 1153923212: 2
+  - 1411681825: 2
+  - 1112343343: 2
+  - 1499924645: 2
+  - 1155958573: 2
+  - 1801557178: 2
+  - 1484750673: 2
+  - 1358328085: 2
+  - 1094655907: 2
+  - 1073867570: 2
+  - 1142447912: 2
+  - 1491084454: 2
+  ... (Truncated to top 200 values)
+
+Column: STATUS_CODE (Top distinct values by frequency):
+  - NULL: 53024008
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_property
+--------------------------------------------------------------------------------
+
+Column: owner_type
+  (No data or table empty)
+
+Column: property_type
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_school
+--------------------------------------------------------------------------------
+
+Column: BUILDING_STATUS (Top distinct values by frequency):
+  - 3: 43782
+  - NULL: 11745
+  - 1: 9034
+  - 2: 8243
+  - 4: 592
+  - 6: 218
+  - 5: 52
+  - 0: 20
+
+Column: DISTRICT_LGD_CODE (Top distinct values by frequency):
+  - 515: 4206
+  - 517: 3736
+  - 519: 3665
+  - 504: 3625
+  - 752: 3619
+  - 503: 3409
+  - 753: 3358
+  - 745: 3151
+  - 754: 2979
+  - 502: 2905
+  - 748: 2834
+  - 521: 2788
+  - 511: 2724
+  - 751: 2501
+  - 747: 2480
+  - 510: 2433
+  - 746: 2375
+  - 755: 2367
+  - 523: 2364
+  - 744: 2338
+  - 506: 2268
+  - 749: 2235
+  - 750: 2203
+  - 743: 1992
+  - 505: 1985
+  - 520: 1924
+  - NULL: 1222
+
+Column: DRINKING_WATER_AVAILABILITY_FLAG (Top distinct values by frequency):
+  - 9: 61941
+  - NULL: 11745
+
+Column: ELECTRICITY_AVAILABILITY_FLAG (Top distinct values by frequency):
+  - 1: 61716
+  - NULL: 11745
+  - 2: 149
+  - 3: 56
+  - 9: 20
+
+Column: FIRE_SAFETY_FLAG (Top distinct values by frequency):
+  - NULL: 73686
+
+Column: FUNCTIONAL_STATUS (Top distinct values by frequency):
+  - Active: 65181
+  - NULL: 5454
+  - Inactive: 3051
+
+Column: HEALTH_SAFETY_FLAG (Top distinct values by frequency):
+  - NULL: 73686
+
+Column: ICT_ENABLED_FLAG (Top distinct values by frequency):
+  - 1: 47275
+  - 2: 14646
+  - NULL: 11745
+  - 9: 20
+
+Column: IS_CURRENT (Top distinct values by frequency):
+  - YES: 73686
+
+Column: MANDAL_LGD_CODE (Top distinct values by frequency):
+  - 0: 16018
+  - NULL: 1222
+  - 5400: 427
+  - 4689: 237
+  - 5589: 224
+  - 281947: 221
+  - 5597: 220
+  - 5594: 220
+  - 5593: 211
+  - 5605: 207
+  - 5596: 202
+  - 4883: 202
+  - 281344: 201
+  - 5635: 199
+  - 5391: 198
+  - 5574: 197
+  - 5613: 194
+  - 5641: 194
+  - 5582: 192
+  - 4810: 185
+  - 5609: 180
+  - 5584: 180
+  - 5558: 174
+  - 5592: 172
+  - 4804: 169
+  - 4903: 168
+  - 5145: 165
+  - 5585: 163
+  - 5601: 162
+  - 5568: 160
+  - 5651: 159
+  - 4770: 152
+  - 5178: 150
+  - 4784: 150
+  - 4704: 148
+  - 4768: 146
+  - 5712: 146
+  - 4844: 145
+  - 4832: 144
+  - 5583: 141
+  - 5639: 141
+  - 4757: 139
+  - 5554: 137
+  - 5546: 136
+  - 5154: 135
+  - 5488: 135
+  - 5553: 135
+  - 4920: 133
+  - 5403: 132
+  - 4904: 130
+  - 5647: 130
+  - 4791: 128
+  - 4795: 127
+  - 5559: 127
+  - 5577: 126
+  - 4953: 126
+  - 4793: 126
+  - 5640: 125
+  - 5570: 123
+  - 5414: 123
+  - 5732: 123
+  - 4751: 122
+  - 4892: 122
+  - 5561: 122
+  - 4891: 122
+  - 4856: 121
+  - 5109: 120
+  - 5578: 120
+  - 5552: 120
+  - 4869: 120
+  - 5565: 119
+  - 5560: 119
+  - 4955: 118
+  - 5471: 118
+  - 4826: 117
+  - 4827: 117
+  - 5103: 117
+  - 5492: 117
+  - 4912: 117
+  - 4909: 116
+  - 4907: 116
+  - 4845: 116
+  - 5564: 116
+  - 5548: 115
+  - 5149: 115
+  - 5062: 115
+  - 5378: 115
+  - 4753: 114
+  - 5649: 113
+  - 4787: 113
+  - 5648: 113
+  - 5638: 112
+  - 4916: 112
+  - 5653: 112
+  - 5551: 112
+  - 5575: 112
+  - 5738: 111
+  - 5122: 111
+  - 5395: 111
+  - 4893: 111
+  - 4781: 111
+  - 5730: 111
+  - 4882: 110
+  - 5147: 110
+  - 5108: 110
+  - 5555: 110
+  - 4897: 109
+  - 4758: 109
+  - 4911: 109
+  - 5590: 109
+  - 5508: 108
+  - 4718: 108
+  - 4885: 108
+  - 4750: 108
+  - 5398: 108
+  - 4848: 107
+  - 5116: 106
+  - 5119: 106
+  - 5375: 105
+  - 4831: 105
+  - 4799: 105
+  - 4865: 105
+  - 5392: 104
+  - 5117: 104
+  - 5714: 104
+  - 4879: 103
+  - 4888: 103
+  - 4861: 103
+  - 5132: 103
+  - 5625: 102
+  - 5718: 102
+  - 4834: 102
+  - 4744: 102
+  - 6829: 102
+  - 4905: 102
+  - 5557: 102
+  - 4919: 101
+  - 5643: 101
+  - 5394: 101
+  - 5486: 101
+  - 5576: 101
+  - 5617: 101
+  - 5740: 101
+  - 5711: 100
+  - 5126: 100
+  - 4868: 100
+  - 5571: 100
+  - 5404: 100
+  - 4906: 99
+  - 4724: 99
+  - 5572: 99
+  - 5731: 99
+  - 4931: 99
+  - 4886: 99
+  - 4926: 99
+  - 5408: 99
+  - 5637: 98
+  - 4743: 98
+  - 4952: 98
+  - 5397: 98
+  - 4870: 98
+  - 5737: 98
+  - 5751: 98
+  - 4765: 97
+  - null: 97
+  - 5599: 97
+  - 5387: 97
+  - 5752: 97
+  - 5628: 97
+  - 4749: 97
+  - 4918: 97
+  - 5630: 97
+  - 5505: 96
+  - 5461: 96
+  - 5475: 96
+  - 4881: 96
+  - 5746: 96
+  - 4741: 95
+  - 4818: 95
+  - 5133: 95
+  - 4767: 95
+  - 4777: 95
+  - 5372: 95
+  - 4840: 94
+  - 281327: 94
+  - 5503: 94
+  - 4843: 94
+  - 5743: 93
+  - 5606: 93
+  - 5410: 93
+  - 4913: 93
+  - 4866: 93
+  - 4809: 93
+  - 5381: 93
+  - 5474: 92
+  - 5118: 92
+  - 4771: 92
+  - 4847: 92
+  - 5612: 92
+  - 5728: 92
+  ... (Truncated to top 200 values)
+
+Column: MAX_CLASS (Top distinct values by frequency):
+  - 5: 40491
+  - 10: 14101
+  - 7: 6182
+  - 12: 5161
+  - 2: 4449
+  - 8: 2107
+  - NULL: 977
+  - 18: 118
+  - 9: 43
+  - 3: 24
+  - 6: 19
+  - 1: 6
+  - 11: 5
+  - 4: 3
+
+Column: MIN_CLASS (Top distinct values by frequency):
+  - 1: 57835
+  - 6: 10229
+  - 11: 3768
+  - NULL: 977
+  - 5: 335
+  - 3: 256
+  - 13: 118
+  - -2: 95
+  - 8: 55
+  - 9: 9
+  - 4: 7
+  - 2: 1
+  - 7: 1
+
+Column: NOC_AVAILABLE_FLAG (Top distinct values by frequency):
+  - 2: 50895
+  - NULL: 11956
+  - 1: 9964
+  - 9: 871
+
+Column: NOC_REQUIRED_FLAG (Top distinct values by frequency):
+  - NULL: 73686
+
+Column: PLAYGROUND_FLAG (Top distinct values by frequency):
+  - 1: 51503
+  - NULL: 11745
+  - 2: 10418
+  - 9: 20
+
+Column: PRE_PRIMARY_FLAG (Top distinct values by frequency):
+  - No: 36403
+  - Yes: 21441
+  - NULL: 15842
+
+Column: SCHOOL_DEPT_CODE (Top distinct values by frequency):
+  - NULL: 73686
+
+Column: SCHOOL_UDISE_CODE (Top distinct values by frequency):
+  - NULL: 1222
+  - 28232490723: 1
+  - 28225101427: 1
+  - 28184300202: 1
+  - 28130102701: 1
+  - 28113802702: 1
+  - 28234400304: 1
+  - 28111202523: 1
+  - 28173200704: 1
+  - 28150100801: 1
+  - 28235102104: 1
+  - 28120700901: 1
+  - 28175000210: 1
+  - 28235400409: 1
+  - 28185600304: 1
+  - 28234590693: 1
+  - 28201400303: 1
+  - 28211700111: 1
+  - 28214701023: 1
+  - 28134100834: 1
+  - 28203191484: 1
+  - 28204700101: 1
+  - 28233101005: 1
+  - 28133202008: 1
+  - 28192503305: 1
+  - 28180800303: 1
+  - 28211800480: 1
+  - 28145600806: 1
+  - 28224800208: 1
+  - 28204001205: 1
+  - 28185500327: 1
+  - 28133800204: 1
+  - 28150600205: 1
+  - 28164401104: 1
+  - 28151790584: 1
+  - 28182100101: 1
+  - 28163791101: 1
+  - 28191400906: 1
+  - 28191101302: 1
+  - 28235800137: 1
+  - 28192502601: 1
+  - 28193201901: 1
+  - 28211100146: 1
+  - 28234100104: 1
+  - 28154700701: 1
+  - 28194202101: 1
+  - 28161300852: 1
+  - 28231191415: 1
+  - 28161791455: 1
+  - 28191100101: 1
+  - 28175201018: 1
+  - 28141500402: 1
+  - 28234301208: 1
+  - 28140402622: 1
+  - 28203700804: 1
+  - 28191400502: 1
+  - 28143401109: 1
+  - 28133700505: 1
+  - 28163301502: 1
+  - 28192590943: 1
+  - 28162800449: 1
+  - 28233101115: 1
+  - 28222700409: 1
+  - 28121201408: 1
+  - 28233300702: 1
+  - 28204500801: 1
+  - 28145900207: 1
+  - 28220600802: 1
+  - 28184101505: 1
+  - 28204901254: 1
+  - 28170300701: 1
+  - 28224000702: 1
+  - 28192501107: 1
+  - 28151690323: 1
+  - 28234590677: 1
+  - 28153500908: 1
+  - 28226300105: 1
+  - 28235301401: 1
+  - 28207101797: 1
+  - 28202001402: 1
+  - 28184300609: 1
+  - 28145600402: 1
+  - 28150902105: 1
+  - 28152000706: 1
+  - 28144400807: 1
+  - 28111400802: 1
+  - 28172500901: 1
+  - 28204001906: 1
+  - 28163301301: 1
+  - 28133190416: 1
+  - 28141003707: 1
+  - 28204700606: 1
+  - 28213401801: 1
+  - 28211801204: 1
+  - 28200900403: 1
+  - 28190900901: 1
+  - 28204200205: 1
+  - 28144400214: 1
+  - 28207100490: 1
+  - 28212100273: 1
+  - 28150101612: 1
+  - 28151101404: 1
+  - 28141391111: 1
+  - 28150900307: 1
+  - 28173901835: 1
+  - 28151101303: 1
+  - 28231191306: 1
+  - 28131109901: 1
+  - 28143902105: 1
+  - 28110600803: 1
+  - 28232600808: 1
+  - 28161800610: 1
+  - 28162601708: 1
+  - 28154500301: 1
+  - 28122102803: 1
+  - 28143095661: 1
+  - 28200301301: 1
+  - 28212390120: 1
+  - 28210790544: 1
+  - 28184400201: 1
+  - 28153200104: 1
+  - 28223400920: 1
+  - 28113802101: 1
+  - 28171591004: 1
+  - 28170600302: 1
+  - 28111400301: 1
+  - 28203190417: 1
+  - 28211900323: 1
+  - 28120705302: 1
+  - 28181700408: 1
+  - 28142495547: 1
+  - 28192591147: 1
+  - 28145301401: 1
+  - 28181601124: 1
+  - 28170600801: 1
+  - 28131108001: 1
+  - 28201401004: 1
+  - 28235492048: 1
+  - 28142495130: 1
+  - 28132991399: 1
+  - 28225800202: 1
+  - 28223700903: 1
+  - 28150600301: 1
+  - 28120201201: 1
+  - 28111104401: 1
+  - 28181500507: 1
+  - 28140202401: 1
+  - 28233601006: 1
+  - 28185090313: 1
+  - 28231191719: 1
+  - 28194503301: 1
+  - 28132991065: 1
+  - 28163100109: 1
+  - 28222502003: 1
+  - 28192590847: 1
+  - 28162800421: 1
+  - 28175700303: 1
+  - 28222500902: 1
+  - 28122891214: 1
+  - 28160800502: 1
+  - 28130511904: 1
+  - 28201101803: 1
+  - 28204001301: 1
+  - 28151100703: 1
+  - 28223800801: 1
+  - 28161000705: 1
+  - 28233590585: 1
+  - 28150901603: 1
+  - 28223801101: 1
+  - 28113700201: 1
+  - 28173990696: 1
+  - 28133701602: 1
+  - 28182100702: 1
+  - 28220300702: 1
+  - 28110901001: 1
+  - 28221400503: 1
+  - 28141003603: 1
+  - 28110400714: 1
+  - 28191901510: 1
+  - 28170900304: 1
+  - 28200700631: 1
+  - 28194502701: 1
+  - 28225800901: 1
+  - 28235601601: 1
+  - 28161790826: 1
+  - 28180990410: 1
+  - 28132991185: 1
+  - 28131404001: 1
+  - 28192590733: 1
+  - 28184101312: 1
+  - 28213301406: 1
+  - 28142900209: 1
+  - 28184490732: 1
+  - 28140800801: 1
+  - 28247101269: 1
+  - 28122101301: 1
+  - 28122600115: 1
+  - 28180501402: 1
+  - 28132002201: 1
+  - 28191901203: 1
+  ... (Truncated to top 200 values)
+
+Column: TOILET_BOYS_FLAG (Top distinct values by frequency):
+  - 1: 29031
+  - NULL: 11745
+  - 2: 10769
+  - 0: 7321
+  - 3: 3770
+  - 4: 3280
+  - 5: 2210
+  - 6: 1316
+  - 10: 1255
+  - 8: 755
+  - 7: 346
+  - 12: 307
+  - 15: 299
+  - 20: 242
+  - 9: 195
+  - 11: 89
+  - 14: 81
+  - 16: 80
+  - 30: 71
+  - 18: 69
+  - 25: 53
+  - 13: 52
+  - 24: 43
+  - 40: 37
+  - 26: 21
+  - 17: 18
+  - 19: 17
+  - 36: 15
+  - 32: 13
+  - 22: 13
+  - 28: 12
+  - 35: 12
+  - 23: 12
+  - 60: 10
+  - 21: 10
+  - 45: 9
+  - 39: 9
+  - 50: 9
+  - 29: 8
+  - 44: 5
+  - 27: 5
+  - 49: 4
+  - 80: 4
+  - 48: 4
+  - 31: 3
+  - 56: 3
+  - 52: 3
+  - 34: 3
+  - 100: 3
+  - 37: 3
+  - 33: 3
+  - 58: 2
+  - 38: 2
+  - 54: 2
+  - 61: 2
+  - 64: 1
+  - 93: 1
+  - 65: 1
+  - 82: 1
+  - 78: 1
+  - 62: 1
+  - 42: 1
+  - 66: 1
+  - 51: 1
+  - 77: 1
+  - 46: 1
+  - 91: 1
+  - 150: 1
+  - 400: 1
+  - 70: 1
+  - 43: 1
+  - 85: 1
+  - 205: 1
+  - 84: 1
+  - 59: 1
+  - 114: 1
+  - 135: 1
+  - 57: 1
+  - 74: 1
+  - 90: 1
+  - 96: 1
+  - 86: 1
+  - 174: 1
+  - 120: 1
+  - 160: 1
+  - 116: 1
+
+Column: TOILET_GIRLS_FLAG (Top distinct values by frequency):
+  - 1: 31131
+  - NULL: 11745
+  - 2: 11303
+  - 3: 4460
+  - 4: 4040
+  - 5: 2494
+  - 6: 1549
+  - 10: 1355
+  - 0: 1340
+  - 8: 1018
+  - 7: 501
+  - 12: 395
+  - 15: 332
+  - 20: 299
+  - 9: 289
+  - 11: 150
+  - 16: 141
+  - 14: 134
+  - 18: 115
+  - 13: 107
+  - 30: 81
+  - 24: 70
+  - 25: 63
+  - 17: 50
+  - 19: 48
+  - 22: 45
+  - 40: 41
+  - 21: 32
+  - 23: 30
+  - 28: 27
+  - 32: 20
+  - 60: 19
+  - 26: 19
+  - 50: 17
+  - 35: 17
+  - 80: 12
+  - 36: 11
+  - 27: 11
+  - 42: 10
+  - 29: 10
+  - 56: 10
+  - 34: 9
+  - 70: 7
+  - 49: 7
+  - 48: 7
+  - 31: 6
+  - 100: 5
+  - 39: 5
+  - 38: 5
+  - 45: 5
+  - 54: 4
+  - 46: 4
+  - 72: 4
+  - 43: 4
+  - 96: 4
+  - 33: 4
+  - 52: 3
+  - 65: 3
+  - 41: 3
+  - 58: 3
+  - 64: 3
+  - 51: 3
+  - 67: 2
+  - 47: 2
+  - 94: 2
+  - 61: 2
+  - 85: 2
+  - 68: 2
+  - 37: 2
+  - 63: 2
+  - 88: 2
+  - 44: 2
+  - 55: 2
+  - 78: 2
+  - 110: 2
+  - 90: 2
+  - 120: 2
+  - 66: 1
+  - 59: 1
+  - 95: 1
+  - 122: 1
+  - 350: 1
+  - 202: 1
+  - 167: 1
+  - 57: 1
+  - 69: 1
+  - 53: 1
+  - 75: 1
+  - 93: 1
+  - 200: 1
+  - 103: 1
+  - 74: 1
+  - 73: 1
+  - 165: 1
+
+Column: URBAN_RURAL_FLAG (Top distinct values by frequency):
+  - URBAN: 50895
+  - RURAL: 15258
+  - NULL: 7533
+
+Column: VILLAGE_LGD_CODE (Top distinct values by frequency):
+  - null: 22025
+  - NULL: 1222
+  - 593077: 89
+  - 596063: 62
+  - 593459: 61
+  - 593719: 59
+  - 594902: 53
+  - 582963: 47
+  - 594418: 45
+  - 581009: 45
+  - 590531: 45
+  - 591016: 43
+  - 594042: 43
+  - 594507: 42
+  - 912404: 42
+  - 587680: 42
+  - 595519: 42
+  - 591504: 42
+  - 589773: 41
+  - 587669: 40
+  - 587550: 39
+  - 591640: 39
+  - 593091: 39
+  - 588756: 38
+  - 591762: 38
+  - 592113: 37
+  - 592063: 37
+  - 593490: 37
+  - 594283: 37
+  - 581460: 36
+  - 591023: 35
+  - 588931: 35
+  - 588681: 35
+  - 587253: 34
+  - 589013: 34
+  - 589155: 34
+  - 595741: 34
+  - 593514: 34
+  - 582830: 34
+  - 595773: 34
+  - 593015: 33
+  - 594393: 33
+  - 593383: 33
+  - 589217: 32
+  - 591366: 32
+  - 596787: 32
+  - 594678: 32
+  - 593127: 32
+  - 593014: 32
+  - 588058: 32
+  - 596197: 32
+  - 596086: 31
+  - 589833: 31
+  - 586233: 31
+  - 594792: 31
+  - 595394: 31
+  - 590482: 30
+  - 589581: 30
+  - 592034: 30
+  - 594818: 30
+  - 589366: 30
+  - 594101: 30
+  - 587541: 29
+  - 596031: 29
+  - 589794: 29
+  - 587853: 29
+  - 580475: 29
+  - 587412: 29
+  - 587502: 28
+  - 588553: 28
+  - 587733: 28
+  - 594636: 28
+  - 596077: 27
+  - 592167: 27
+  - 588247: 27
+  - 590454: 27
+  - 580521: 27
+  - 592938: 27
+  - 586474: 27
+  - 591715: 27
+  - 588156: 27
+  - 595097: 27
+  - 593406: 27
+  - 590439: 27
+  - 580142: 27
+  - 591018: 26
+  - 590739: 26
+  - 587395: 26
+  - 583086: 26
+  - 581524: 26
+  - 591594: 26
+  - 588735: 26
+  - 594164: 26
+  - 595075: 26
+  - 595088: 26
+  - 588688: 26
+  - 595358: 25
+  - 595582: 25
+  - 590590: 25
+  - 590896: 25
+  - 593548: 25
+  - 591029: 25
+  - 595203: 25
+  - 595096: 25
+  - 595648: 25
+  - 588721: 25
+  - 589245: 25
+  - 588198: 24
+  - 593134: 24
+  - 592524: 24
+  - 591347: 24
+  - 590695: 24
+  - 591215: 24
+  - 591021: 24
+  - 581072: 23
+  - 912426: 23
+  - 590251: 23
+  - 595298: 23
+  - 588101: 23
+  - 587225: 23
+  - 590448: 23
+  - 594228: 23
+  - 589999: 23
+  - 592112: 23
+  - 595672: 23
+  - 587507: 23
+  - 586327: 23
+  - 587855: 22
+  - 593766: 22
+  - 595117: 22
+  - 588753: 22
+  - 596445: 22
+  - 589334: 22
+  - 589079: 22
+  - 590222: 22
+  - 589111: 22
+  - 590661: 22
+  - 590417: 22
+  - 593500: 22
+  - 594441: 22
+  - 587585: 22
+  - 587508: 22
+  - 593336: 22
+  - 588616: 22
+  - 589750: 22
+  - 586190: 22
+  - 592944: 22
+  - 593571: 22
+  - 588346: 22
+  - 593923: 21
+  - 590449: 21
+  - 595057: 21
+  - 587885: 21
+  - 589222: 21
+  - 593702: 21
+  - 589870: 21
+  - 595242: 21
+  - 587910: 21
+  - 595101: 21
+  - 587205: 21
+  - 595372: 21
+  - 586042: 21
+  - 588377: 21
+  - 588770: 21
+  - 591595: 20
+  - 591552: 20
+  - 593180: 20
+  - 591985: 20
+  - 587817: 20
+  - 595480: 20
+  - 581541: 20
+  - 587808: 20
+  - 590574: 20
+  - 595638: 20
+  - 595604: 20
+  - 594253: 20
+  - 596756: 20
+  - 590146: 20
+  - 589800: 20
+  - 592910: 20
+  - 588203: 20
+  - 593633: 20
+  - 595169: 20
+  - 587646: 20
+  - 595462: 20
+  - 596423: 20
+  - 587750: 20
+  - 595219: 20
+  - 588326: 20
+  - 593512: 20
+  - 590281: 19
+  - 588757: 19
+  - 595528: 19
+  - 587786: 19
+  - 587573: 19
+  - 587851: 19
+  - 587977: 19
+  - 590724: 19
+  - 590287: 19
+  - 582001: 19
+  ... (Truncated to top 200 values)
+
+Column: VOCATIONAL_FLAG (Top distinct values by frequency):
+  - NULL: 73686
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_school_teacher
+--------------------------------------------------------------------------------
+
+Column: DISABILITY_CATEGORY (Top distinct values by frequency):
+  - null: 339622
+  - 0: 18913
+  - 3: 5005
+  - 1: 1660
+  - 2: 1303
+  - -1: 1052
+  - 5: 414
+  - 4: 24
+
+Column: EMPLOYMENT_TYPE (Top distinct values by frequency):
+  - : 155415
+  - null: 126211
+  - YES: 48332
+  - NO: 33912
+  - 0: 3291
+  - OTHER: 832
+
+Column: GENDER (Top distinct values by frequency):
+  - F: 185021
+  - M: 182925
+  - null: 47
+
+Column: IS_CURRENT (Top distinct values by frequency):
+  - Yes: 367993
+
+Column: IS_SINGLE_PARENT (Top distinct values by frequency):
+  - NULL: 367993
+
+Column: NATIONAL_TEACHER_CODE (Top distinct values by frequency):
+  - null: 153088
+  - 00000000000: 2851
+  - 00: 935
+  - 0000000000: 911
+  - 0000: 820
+  - 00000: 494
+  - 000000: 467
+  - 000: 433
+  - 00000000: 393
+  - 0000000: 374
+  - 000000000: 290
+  - 99999999999: 284
+  - NA: 243
+  - No: 193
+  - NO: 129
+  - TP00000000: 90
+  - 1: 69
+  - na: 68
+  - TP000000000: 65
+  - no: 60
+  - 11111111111: 59
+  - 9999999999: 51
+  - TP: 45
+  - 123456789: 44
+  - 999999999: 43
+  - 123456: 38
+  - 01: 37
+  - -: 34
+  - NIL: 32
+  - TR00000000: 31
+  - 999999: 30
+  - TR000000000: 28
+  - Na: 27
+  - 9999999: 25
+  - 1234: 25
+  - nil: 22
+  - 28145401710: 20
+  - 12345: 20
+  - 398: 20
+  - tp000000000: 19
+  - 1111111111: 19
+  - 99999999: 19
+  - 12345678910: 18
+  - TP000: 18
+  - TP999999999: 18
+  - tp: 17
+  - 001: 17
+  - TP00000: 16
+  - 10000000000: 16
+  - T00: 16
+  - 28193590556: 15
+  - 1234567890: 15
+  - TP000000: 15
+  - tr00000000: 14
+  - O: 14
+  - 11111111: 14
+  - 12345678: 13
+  - : 12
+  - Nil: 12
+  - 111111: 12
+  - TR: 11
+  - 9999: 11
+  - N/A: 11
+  - 0123456789: 11
+  - 11111: 11
+  - tp00000000: 11
+  - AP000000000: 10
+  - 123: 10
+  - TP99999999: 10
+  - 00000000001: 9
+  - None: 9
+  - 28220701012: 9
+  - AP999: 9
+  - 50174068: 8
+  - 111111111: 8
+  - T: 7
+  - TP12345678: 7
+  - TR999999999: 7
+  - tr000000000: 6
+  - tp000000: 6
+  - Tp00000000: 6
+  - TP0000000: 6
+  - 12345678900: 6
+  - WILL BE GEN: 6
+  - Tp: 6
+  - nA: 5
+  - tr0000000: 5
+  - NONE: 5
+  - .: 5
+  - 28301001081: 5
+  - tp0000000: 5
+  - 9: 5
+  - AP: 5
+  - 1234567: 5
+  - tp00000: 5
+  - TP00: 5
+  - 28222001107: 5
+  - T12345678: 5
+  - TR000000: 4
+  - Ap00000: 4
+  - T0: 4
+  - 4: 4
+  - 1111111: 4
+  - Will be gen: 4
+  - tn: 4
+  - Oo: 4
+  - Tr: 4
+  - TR12345678: 4
+  - TR01896932: 4
+  - will be gen: 4
+  - 28301001077: 4
+  - TP48858041: 4
+  - N A: 4
+  - T0000000000: 4
+  - TC0000: 4
+  - 12345678901: 4
+  - 00001: 4
+  - Tp0000: 4
+  - 00000001: 4
+  - TP0000: 4
+  - 16: 4
+  - tr999999999: 4
+  - TP42416914: 4
+  - 12345678912: 4
+  - TP0: 4
+  - AP0000: 4
+  - No : 4
+  - 28301001761: 4
+  - NULL: 3
+  - T000000000: 3
+  - TR0124578: 3
+  - xxxxxxxx: 3
+  - S0000000000: 3
+  - T00000: 3
+  - _: 3
+  - 0001: 3
+  - TP61159630: 3
+  - not availab: 3
+  - TS00000000: 3
+  - 8: 3
+  - T000: 3
+  - N0: 3
+  - 12345678999: 3
+  - NOT APPLICA: 3
+  - 100: 3
+  - 91-080: 3
+  - UNAVAILABLE: 3
+  - 1234567891: 3
+  - TIS00000000: 3
+  - t0000000000: 3
+  - Ap000000: 3
+  - TP57600552: 3
+  - TP11111111: 3
+  - 09-080: 3
+  - Will be com: 3
+  - 1000000000: 3
+  - TP48268627: 3
+  - NA0: 3
+  - ZP0000: 3
+  - TB000000000: 3
+  - T9999999999: 3
+  - n/a: 3
+  - tp12345678: 3
+  - AP00000: 3
+  - 1111: 3
+  - TP123456: 3
+  - TP92153145: 3
+  - TP1234: 3
+  - TP30282941: 3
+  - 1254: 3
+  - Non: 3
+  - 10000000: 3
+  - None : 3
+  - Nill: 3
+  - tp99999999: 3
+  - T0000: 3
+  - NO : 3
+  - TR22570474: 2
+  - TP21611242: 2
+  - TR72147670: 2
+  - TP60970894: 2
+  - TP26692488: 2
+  - TR98723937: 2
+  - TR18623150: 2
+  - TP52951143: 2
+  - TR77209045: 2
+  - TP62649459: 2
+  - TR03927203: 2
+  - Hindu: 2
+  - TP 99999999: 2
+  - TP33548276: 2
+  - TP06613015: 2
+  - 28133902106: 2
+  - TP83993803: 2
+  - TP24148804: 2
+  - TP38896166: 2
+  - TR48169144: 2
+  - TP12018355: 2
+  - TR43024510: 2
+  - TP03282257: 2
+  ... (Truncated to top 200 values)
+
+Column: PRESENT_DESIGNATION_TEACHING_TYPE (Top distinct values by frequency):
+  - Teaching: 201493
+  - null: 146001
+  - Non-Teaching: 20497
+  - non-teaching: 2
+
+Column: SERVICE_STATUS (Top distinct values by frequency):
+  - Active: 332482
+  - Retired: 14836
+  - Transfered: 11643
+  - InActive: 6273
+  - Expired: 2048
+  - null: 587
+  - Promoted: 122
+  - Transferred: 2
+
+Column: SUBJECT_SPECIALIZATION_KEY (Top distinct values by frequency):
+  - NULL: 367993
+
+Column: TET_PASSED_FLAG (Top distinct values by frequency):
+  - NULL: 175896
+  - No: 143824
+  - Yes: 48273
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_student
+--------------------------------------------------------------------------------
+
+Column: ADMISSION_FLAG (Top distinct values by frequency):
+  - Yes: 10589476
+
+Column: DISABILITY_FLAG (Top distinct values by frequency):
+  - No: 10458910
+  - Yes: 120770
+  - NULL: 9796
+
+Column: GENDER (Top distinct values by frequency):
+  - MALE: 4885309
+  - FEMALE: 4512463
+  - NULL: 977290
+  - Male: 73939
+  - Female: 67904
+  - null: 33502
+  - M: 10611
+  - F: 9582
+  - MALE : 9026
+  - FEMALE : 8543
+  - TRANSGENDER: 725
+  - Girl: 279
+  - Boy: 225
+  - NOT CAPTURED: 51
+  - Transgender: 21
+  - NA : 3
+  - T: 1
+  - NA: 1
+  - 0: 1
+
+Column: IS_CURRENT (Top distinct values by frequency):
+  - Yes: 10589476
+
+Column: IS_CURRENT_FLAG (Top distinct values by frequency):
+  - Y: 10589476
+
+Column: MEDIUM_KEY (Top distinct values by frequency):
+  - 5: 9105580
+  - 3: 1309581
+  - NULL: 91235
+  - 4: 77163
+  - 1: 3961
+  - 2: 1956
+
+Column: MINORITY_STATUS (Top distinct values by frequency):
+  - Not Applicable: 9558517
+  - Muslim: 942679
+  - Christian: 66964
+  - NA: 10488
+  - Jain: 7474
+  - Buddhist: 1731
+  - Sikh: 1362
+  - Parsi: 261
+
+Column: SOCIAL_CATEGORY (Top distinct values by frequency):
+  - OBC: 5444844
+  - General: 2263993
+  - SC: 2080296
+  - ST: 789756
+  - NA: 10587
+
+Column: STATUS_LEVEL_1 (Top distinct values by frequency):
+  - NULL: 10382709
+  - 0: 175035
+  - 22: 10745
+  - 51: 9955
+  - 52: 5169
+  - 21: 3644
+  - 24: 1422
+  - 23: 617
+  - 11: 89
+  - 53: 36
+  - 13: 30
+  - 12: 23
+  - 33: 1
+  - 73: 1
+
+Column: STATUS_LEVEL_2 (Top distinct values by frequency):
+  - NULL: 10382709
+  - 0: 177849
+  - 206: 9799
+  - 401: 5234
+  - 404: 5169
+  - 402: 3193
+  - 310: 2047
+  - 203: 852
+  - 213: 727
+  - 212: 384
+  - 210: 288
+  - 201: 271
+  - 208: 187
+  - 205: 167
+  - 211: 157
+  - 403: 141
+  - 202: 90
+  - 207: 69
+  - 209: 68
+  - 214: 58
+  - 204: 16
+  - 215: 1
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_utility_connection
+--------------------------------------------------------------------------------
+
+Column: ELECTRICITY_CONNECTION_STATUS (Top distinct values by frequency):
+  - null: 39290158
+  - Y: 9792198
+
+Column: GAS_CONNECTION_STATUS (Top distinct values by frequency):
+  - LPG_GAS: 41337065
+  - null: 4652585
+  - FIREWOOD: 2338457
+  - OTHERS_GAS_FACILITY: 387871
+  - GOBARGAS_BIOFUELS: 297237
+  - KEROSENE: 69141
+
+Column: WATER_CONNECTION_STATUS (Top distinct values by frequency):
+  - MUNICIPAL_PANCHAYAT_TAP: 33766039
+  - null: 4652600
+  - BOREWELL_WELL: 3177331
+  - PUBLIC_TAP: 3144901
+  - PACKAGED_WATER: 2117989
+  - PUBLIC_BOREWELL: 1252135
+  - NO_DRINKING_WATER: 747551
+  - PURIFIER_WATER: 223810
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.citizen_welfare_schemes_master
+--------------------------------------------------------------------------------
+
+Column: CATEGORY (Top distinct values by frequency):
+  - NULL: 31
+
+Column: SCHEME_ACTIVE_STATUS (Top distinct values by frequency):
+  - N: 17
+  - Y: 14
+
+Column: SCHEME_BENEFITS (Top distinct values by frequency):
+  - NULL: 31
+
+Column: SCHEME_CODE (Top distinct values by frequency):
+  - S0: 2
+  - S27: 1
+  - S2: 1
+  - S14: 1
+  - S19: 1
+  - S33: 1
+  - S29: 1
+  - S25: 1
+  - S34: 1
+  - S9: 1
+  - S23: 1
+  - S16: 1
+  - S22: 1
+  - S4: 1
+  - S3: 1
+  - S10: 1
+  - S15: 1
+  - S26: 1
+  - S21: 1
+  - SALL: 1
+  - NULL: 1
+  - S20: 1
+  - S30: 1
+  - S12: 1
+  - S8: 1
+  - S13: 1
+  - S11: 1
+  - S17: 1
+  - S99: 1
+  - S1: 1
+
+Column: SCHEME_ELIGIBILITY_CONDITION1 (Top distinct values by frequency):
+  - NULL: 31
+
+Column: SCHEME_ELIGIBILITY_CONDITION2 (Top distinct values by frequency):
+  - NULL: 31
+
+Column: SUB_CATEGORY (Top distinct values by frequency):
+  - NULL: 31
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.core_temple_auvs_summary_tab_test_dummy
+--------------------------------------------------------------------------------
+
+Column: DELETED_FLAG (Top distinct values by frequency):
+  - False: 29351
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.core_temple_ddns
+--------------------------------------------------------------------------------
+
+Column: DELETED_FLAG (Top distinct values by frequency):
+  - False: 383604
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.core_temple_ddrf_test_dummy
+--------------------------------------------------------------------------------
+
+Column: DELETED_FLAG (Top distinct values by frequency):
+  - False: 89573
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.gsws_sec_secretariat_master
+--------------------------------------------------------------------------------
+
+Column: IS_CMS_ENABLED (Top distinct values by frequency):
+  - 0: 15006
+
+Column: IS_FLOOD (Top distinct values by frequency):
+  - N: 14827
+  - Y: 179
+
+Column: IS_P4 (Top distinct values by frequency):
+  - null: 8674
+  - Y: 6332
+
+Column: LGD_DIST_CODE (Top distinct values by frequency):
+  - 515: 752
+  - 519: 732
+  - 504: 715
+  - 752: 694
+  - 511: 672
+  - 502: 663
+  - 521: 626
+  - 746: 620
+  - 749: 607
+  - 520: 607
+  - 748: 605
+  - 505: 588
+  - 506: 568
+  - 754: 544
+  - 751: 538
+  - 503: 536
+  - 523: 535
+  - 517: 531
+  - 744: 522
+  - 755: 516
+  - 510: 508
+  - 747: 439
+  - 753: 431
+  - 750: 381
+  - 790: 374
+  - 743: 350
+  - 745: 212
+  - 791: 140
+
+Column: LGD_MANDAL_CODE (Top distinct values by frequency):
+  - 1086: 530
+  - 1073: 287
+  - 1021: 207
+  - 1031: 166
+  - 1016: 137
+  - 1012: 102
+  - 1013: 101
+  - 1060: 101
+  - 1064: 96
+  - 1075: 79
+  - 1001: 74
+  - 1035: 71
+  - 1093: 61
+  - 1070: 51
+  - 1008: 51
+  - 1017: 48
+  - 1028: 47
+  - 1014: 46
+  - 1009: 44
+  - 1004: 43
+  - 1015: 42
+  - 1074: 41
+  - 4913: 41
+  - 1002: 39
+  - 1085: 38
+  - 5375: 37
+  - 1023: 36
+  - 4907: 35
+  - 1080: 35
+  - 5330: 35
+  - 1003: 35
+  - 5271: 35
+  - 4908: 34
+  - 1068: 34
+  - 5011: 33
+  - 1024: 33
+  - 4770: 31
+  - 1007: 30
+  - 4941: 29
+  - 1020: 29
+  - 4776: 29
+  - 4805: 28
+  - 4802: 28
+  - 4964: 28
+  - 4806: 28
+  - 1030: 28
+  - 4772: 27
+  - 4918: 27
+  - 1005: 27
+  - 4791: 27
+  - 1081: 27
+  - 5429: 27
+  - 1087: 27
+  - 4803: 27
+  - 4781: 27
+  - 4890: 27
+  - 4961: 27
+  - 4944: 26
+  - 4899: 26
+  - 4846: 26
+  - 5034: 26
+  - 5003: 26
+  - 4872: 26
+  - 4901: 26
+  - 4900: 26
+  - 4801: 26
+  - 1018: 26
+  - 4871: 26
+  - 5067: 25
+  - 4911: 25
+  - 1121: 25
+  - 4786: 25
+  - 4881: 25
+  - 4912: 25
+  - 1032: 25
+  - 5420: 25
+  - 5214: 25
+  - 5288: 25
+  - 4962: 25
+  - 4810: 25
+  - 5259: 25
+  - 5424: 25
+  - 4795: 24
+  - 4780: 24
+  - 4769: 24
+  - 4799: 24
+  - 4828: 24
+  - 5012: 24
+  - 4925: 24
+  - 4905: 24
+  - 4987: 24
+  - 4808: 24
+  - 4882: 24
+  - 4930: 24
+  - 4898: 24
+  - 5392: 24
+  - 4792: 24
+  - 5254: 23
+  - 4833: 23
+  - 4929: 23
+  - 4938: 23
+  - 4926: 23
+  - 5096: 23
+  - 5176: 23
+  - 5249: 23
+  - 4934: 23
+  - 4851: 23
+  - 4804: 23
+  - 5270: 23
+  - 4920: 23
+  - 4800: 23
+  - 4923: 23
+  - 4857: 23
+  - 5294: 23
+  - 4984: 23
+  - 4826: 23
+  - 4940: 23
+  - 1123: 23
+  - 5252: 23
+  - 4989: 23
+  - 4952: 23
+  - 5276: 22
+  - 5427: 22
+  - 4777: 22
+  - 4817: 22
+  - 4936: 22
+  - 4816: 22
+  - 4956: 22
+  - 4838: 22
+  - 4782: 22
+  - 4873: 22
+  - 4831: 22
+  - 5016: 22
+  - 4903: 22
+  - 4943: 22
+  - 4960: 22
+  - 4860: 22
+  - 4880: 22
+  - 4779: 22
+  - 4988: 22
+  - 5123: 22
+  - 5378: 22
+  - 4878: 22
+  - 4784: 22
+  - 5376: 22
+  - 4965: 22
+  - 4937: 22
+  - 4830: 22
+  - 4856: 22
+  - 4849: 22
+  - 1011: 22
+  - 5004: 22
+  - 5428: 21
+  - 4825: 21
+  - 5339: 21
+  - 4996: 21
+  - 4979: 21
+  - 4939: 21
+  - 4985: 21
+  - 5055: 21
+  - 4845: 21
+  - 5269: 21
+  - 1034: 21
+  - 5093: 21
+  - 4916: 21
+  - 5020: 21
+  - 4976: 21
+  - 4924: 21
+  - 5306: 21
+  - 4877: 21
+  - 4797: 21
+  - 4834: 21
+  - 4774: 21
+  - 5415: 21
+  - 4814: 21
+  - 1029: 21
+  - 4957: 21
+  - 4910: 21
+  - 5115: 21
+  - 4821: 21
+  - 5099: 21
+  - 5097: 21
+  - 4922: 21
+  - 4973: 20
+  - 5136: 20
+  - 4969: 20
+  - 4971: 20
+  - 4955: 20
+  - 5289: 20
+  - 4896: 20
+  - 4967: 20
+  - 5017: 20
+  - 4919: 20
+  - 4807: 20
+  - 4974: 20
+  - 4876: 20
+  - 4859: 20
+  - 5105: 20
+  - 4788: 20
+  - 4815: 20
+  ... (Truncated to top 200 values)
+
+Column: OLD_LGD_DIST_CODE (Top distinct values by frequency):
+  - 505: 1590
+  - 520: 1341
+  - 506: 1334
+  - 503: 1312
+  - 510: 1287
+  - 502: 1207
+  - 511: 1188
+  - 523: 1165
+  - 517: 1058
+  - 519: 930
+  - 515: 927
+  - 504: 889
+  - 521: 778
+
+Column: RURAL_URBAN_FLAG (Top distinct values by frequency):
+  - R: 11051
+  - U: 3955
+
+Column: SECRETARIAT_CODE (Top distinct values by frequency):
+  - 10490694: 1
+  - 21086342: 1
+  - 11390296: 1
+  - 11390471: 1
+  - 21085033: 1
+  - 10590840: 1
+  - 10390184: 1
+  - 10590528: 1
+  - 11390591: 1
+  - 11390376: 1
+  - 11190279: 1
+  - 11290459: 1
+  - 10990112: 1
+  - 21073081: 1
+  - 10690587: 1
+  - 11390875: 1
+  - 10890056: 1
+  - 10190700: 1
+  - 11290431: 1
+  - 10190007: 1
+  - 10190297: 1
+  - 10490193: 1
+  - 10490568: 1
+  - 21073161: 1
+  - 10490790: 1
+  - 11390102: 1
+  - 10990615: 1
+  - 10590247: 1
+  - 10690280: 1
+  - 11190399: 1
+  - 10990565: 1
+  - 21004038: 1
+  - 11190315: 1
+  - 10390278: 1
+  - 11090149: 1
+  - 10490303: 1
+  - 11290046: 1
+  - 10190377: 1
+  - 10490073: 1
+  - 11090856: 1
+  - 11290336: 1
+  - 10890421: 1
+  - 10790823: 1
+  - 21025001: 1
+  - 10990016: 1
+  - 10990461: 1
+  - 10790320: 1
+  - 10990366: 1
+  - 21008024: 1
+  - 10590137: 1
+  - 11190161: 1
+  - 21133010: 1
+  - 11390575: 1
+  - 10190494: 1
+  - 10491168: 1
+  - 10590540: 1
+  - 10190768: 1
+  - 21161007: 1
+  - 10790224: 1
+  - 11390605: 1
+  - 11190065: 1
+  - 10790427: 1
+  - 10390667: 1
+  - 11090626: 1
+  - 10390108: 1
+  - 21012001: 1
+  - 10490988: 1
+  - 10390683: 1
+  - 10290024: 1
+  - 10790050: 1
+  - 10790348: 1
+  - 11190412: 1
+  - 21086529: 1
+  - 10590658: 1
+  - 10390517: 1
+  - 11290741: 1
+  - 21023004: 1
+  - 10890751: 1
+  - 21086246: 1
+  - 10190418: 1
+  - 10890326: 1
+  - 21005027: 1
+  - 10390210: 1
+  - 10490488: 1
+  - 10990286: 1
+  - 10490774: 1
+  - 10491088: 1
+  - 10590444: 1
+  - 21074017: 1
+  - 11390006: 1
+  - 10490097: 1
+  - 10590343: 1
+  - 21091014: 1
+  - 10590734: 1
+  - 21162006: 1
+  - 21013076: 1
+  - 21003022: 1
+  - 21016096: 1
+  - 10890739: 1
+  - 10590944: 1
+  - 21079014: 1
+  - 11390689: 1
+  - 10890222: 1
+  - 10290250: 1
+  - 10990409: 1
+  - 21064043: 1
+  - 10190574: 1
+  - 21073279: 1
+  - 10690078: 1
+  - 21035055: 1
+  - 21164003: 1
+  - 11390419: 1
+  - 10490500: 1
+  - 10690114: 1
+  - 10890525: 1
+  - 10690483: 1
+  - 21156007: 1
+  - 10890449: 1
+  - 10490670: 1
+  - 21019007: 1
+  - 10890655: 1
+  - 10190393: 1
+  - 21028002: 1
+  - 10290557: 1
+  - 21075060: 1
+  - 10290354: 1
+  - 11090952: 1
+  - 10790653: 1
+  - 11290232: 1
+  - 10491004: 1
+  - 10190103: 1
+  - 10790523: 1
+  - 21073109: 1
+  - 10290453: 1
+  - 10190604: 1
+  - 10590828: 1
+  - 11290142: 1
+  - 21021096: 1
+  - 10890152: 1
+  - 21153003: 1
+  - 21086136: 1
+  - 10790757: 1
+  - 10490177: 1
+  - 11190211: 1
+  - 10290120: 1
+  - 11190081: 1
+  - 10990382: 1
+  - 10390160: 1
+  - 11090251: 1
+  - 10190470: 1
+  - 21016072: 1
+  - 10690613: 1
+  - 21155006: 1
+  - 21013092: 1
+  - 10690308: 1
+  - 10690264: 1
+  - 21012069: 1
+  - 10490404: 1
+  - 10990485: 1
+  - 21060058: 1
+  - 10490207: 1
+  - 10790038: 1
+  - 11290645: 1
+  - 10690198: 1
+  - 21073185: 1
+  - 10990581: 1
+  - 21018018: 1
+  - 21073065: 1
+  - 10491218: 1
+  - 21020005: 1
+  - 21021192: 1
+  - 21150002: 1
+  - 11090121: 1
+  - 21071013: 1
+  - 11390392: 1
+  - 10790154: 1
+  - 10390080: 1
+  - 10590630: 1
+  - 21136014: 1
+  - 10690563: 1
+  - 21031122: 1
+  - 10190590: 1
+  - 10190688: 1
+  - 10490904: 1
+  - 10490868: 1
+  - 11390701: 1
+  - 10290627: 1
+  - 11290729: 1
+  - 11390272: 1
+  - 10490618: 1
+  - 11290535: 1
+  - 21001054: 1
+  - 10190273: 1
+  - 10990262: 1
+  - 11390769: 1
+  - 21021072: 1
+  - 10690384: 1
+  - 10590033: 1
+  - 11390495: 1
+  - 11090722: 1
+  ... (Truncated to top 200 values)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.health_scheme_code
+--------------------------------------------------------------------------------
+
+Column: health_scheme_code
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.infrastructure_category_dim
+--------------------------------------------------------------------------------
+
+Column: infra_category_code
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.infrastructure_component_dim
+--------------------------------------------------------------------------------
+
+Column: infra_component_code
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+Column: is_functional_track
+  (No data or table empty)
+
+Column: unit_type
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.meal_type_dim
+--------------------------------------------------------------------------------
+
+Column: IS_ACTIVE (Top distinct values by frequency):
+  - Y: 46
+
+Column: IS_COMPULSORY (Top distinct values by frequency):
+  - NULL: 46
+
+Column: IS_CURRENT (Top distinct values by frequency):
+  - NULL: 46
+
+Column: MEAL_TYPE_CODE (Top distinct values by frequency):
+  - 98: 1
+  - 119: 1
+  - 111: 1
+  - 123: 1
+  - 94: 1
+  - 84: 1
+  - 115: 1
+  - 116: 1
+  - 112: 1
+  - 95: 1
+  - 101: 1
+  - 124: 1
+  - 85: 1
+  - 125: 1
+  - 83: 1
+  - 114: 1
+  - 117: 1
+  - 103: 1
+  - 82: 1
+  - 80: 1
+  - 106: 1
+  - 104: 1
+  - 118: 1
+  - 86: 1
+  - 107: 1
+  - 108: 1
+  - 92: 1
+  - 89: 1
+  - 96: 1
+  - 99: 1
+  - 110: 1
+  - 109: 1
+  - 93: 1
+  - 102: 1
+  - 122: 1
+  - 88: 1
+  - 91: 1
+  - 105: 1
+  - 97: 1
+  - 90: 1
+  - 81: 1
+  - 121: 1
+  - 100: 1
+  - 87: 1
+  - 120: 1
+  - 113: 1
+
+Column: MEAL_TYPE_NAME (Top distinct values by frequency):
+  - Egg: 1
+  - Fried Egg: 1
+  - Veg Dal: 1
+  - Pudina Chutney: 1
+  - Bellam Pongali: 1
+  - Chikki: 1
+  - Vegetables Chutney: 1
+  - Kichidi: 1
+  - Gongura Chutney: 1
+  - Sweet Pongal: 1
+  - Cooked Rice: 1
+  - Tamarind Rice: 1
+  - Potato Khurma: 1
+  - Veg. Pulav: 1
+  - Leafy Dal: 1
+  - Dondakaya Chutney: 1
+  - Mixed Vegetable curry: 1
+  - Egg Curry: 1
+  - Vegetable Rice: 1
+  - Vegetable Curry: 1
+  - Kandipappu Charu: 1
+  - Ground Nut Chutney: 1
+  - Egg Fry: 1
+  - Pulagam: 1
+  - Dal with Tomato: 1
+  - Dal with green leaves: 1
+  - Egg with Salt+ Karam: 1
+  - Sambarbath: 1
+  - Tomato Chutney: 1
+  - Ragi java: 1
+  - Boiled Egg: 1
+  - Akukura pappu: 1
+  - Green Leafy Veg. Rice: 1
+  - Rasam: 1
+  - Pappucharu: 1
+  - Sambar: 1
+  - Green Leafy Dal: 1
+  - Tamarind Pulihora: 1
+  - Tomato Pappu: 1
+  - Chutney: 1
+  - Hot Pongal: 1
+  - Dal Rasam: 1
+  - Lemon Rice: 1
+  - White Rice: 1
+  - Aloo Khurma: 1
+  - Sambar with Vegetables: 1
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.mid_day_meal_serving_fact
+--------------------------------------------------------------------------------
+
+Column: FOOD_TASTED_FLAG (Top distinct values by frequency):
+  - NULL: 16270678
+
+Column: GEO_TAGGED_FLAG (Top distinct values by frequency):
+  - NULL: 16270678
+
+Column: HYGIENE_COMPLIANT_FLAG (Top distinct values by frequency):
+  - NULL: 16270678
+
+Column: INSPECTION_REMARKS_CODE (Top distinct values by frequency):
+  - NULL: 16270678
+
+Column: MEAL_NOT_SERVED_REASON_CODE (Top distinct values by frequency):
+  - NULL: 16270678
+
+Column: MEAL_SERVED_FLAG (Top distinct values by frequency):
+  - No: 8183475
+  - Yes: 8087203
+
+Column: MEDICAL_INCIDENT_REPORTED_FLAG (Top distinct values by frequency):
+  - NULL: 16270678
+
+Column: PHOTO_CAPTURED_FLAG (Top distinct values by frequency):
+  - NULL: 16270678
+
+Column: SUPPLY_SHORTAGE_FLAG (Top distinct values by frequency):
+  - NULL: 16270678
+
+Column: TEACHER_SUPERVISED_FLAG (Top distinct values by frequency):
+  - NULL: 16270678
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.nutrition_item_dim
+--------------------------------------------------------------------------------
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+Column: item_code
+  (No data or table empty)
+
+Column: nutrition_category
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.ration_card_citizen
+--------------------------------------------------------------------------------
+
+Column: STATUS_CODE (Top distinct values by frequency):
+  - A: 151275760
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.ration_card_citizen_reason
+--------------------------------------------------------------------------------
+
+Column: reason_code
+  (No data or table empty)
+
+Column: reason_description
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.ration_card_family
+--------------------------------------------------------------------------------
+
+Column: CARD_TYPE_CODE (Top distinct values by frequency):
+  - 3: 41304349
+  - 2: 2253870
+
+Column: FPS_CODE (Top distinct values by frequency):
+  - 155104901809: 8774
+  - 155208200616: 8309
+  - 155208200627: 7685
+  - 155408101445: 7517
+  - 155108301831: 7160
+  - 155100700198: 7044
+  - 155208200626: 6929
+  - 155002501075: 6686
+  - 155202100150: 6541
+  - 155408101408: 6340
+  - 155408101442: 6226
+  - 155108301839: 6202
+  - 155204401996: 5989
+  - 155008201108: 5691
+  - 155208301184: 5652
+  - 155002501078: 5635
+  - 154502301652: 5588
+  - 154508301850: 5577
+  - 155108600852: 5536
+  - 154502903528: 5511
+  - 155403501384: 5509
+  - 155408400874: 5501
+  - 154408702052: 5492
+  - 154408601805: 5436
+  - 154408604079: 5430
+  - 154502301679: 5376
+  - 155403501353: 5376
+  - 155008201150: 5330
+  - 154502302016: 5328
+  - 154900600159: 5318
+  - 155101502257: 5313
+  - 155202701388: 5299
+  - 155408101411: 5285
+  - 154408601810: 5263
+  - 154408703915: 5250
+  - 155101500485: 5228
+  - 155002501038: 5224
+  - 154200602199: 5216
+  - 154408702050: 5215
+  - 154801601037: 5193
+  - 154508301849: 5182
+  - 154508301829: 5161
+  - 155408101447: 5159
+  - 154408702049: 5152
+  - 154602301043: 5141
+  - 155003201699: 5123
+  - 154408704080: 5119
+  - 154502301640: 5107
+  - 154502301649: 5095
+  - 154208102087: 5074
+  - 154502301639: 5052
+  - 155101600663: 5047
+  - 154508801457: 5005
+  - 154802601982: 4999
+  - 154701601734: 4987
+  - 155408400880: 4980
+  - 154408601815: 4974
+  - 155208200623: 4933
+  - 155408101444: 4918
+  - 155104302206: 4902
+  - 155405703435: 4895
+  - 154508301843: 4820
+  - 155208301154: 4816
+  - 154802601946: 4808
+  - 154201901993: 4787
+  - 154308101626: 4754
+  - 154408703914: 4754
+  - 155002501039: 4753
+  - 154402500753: 4734
+  - 154502901120: 4733
+  - 155202100149: 4700
+  - 154408702046: 4688
+  - 154508301903: 4688
+  - 155108301833: 4679
+  - 154502901133: 4668
+  - 154901300655: 4661
+  - 154901300658: 4659
+  - 154503202266: 4656
+  - 154508301919: 4634
+  - 154502901137: 4628
+  - 154300300079: 4618
+  - 155104002014: 4613
+  - 155003201698: 4589
+  - 154403202531: 4576
+  - 155200700424: 4568
+  - 155208301203: 4553
+  - 154701802635: 4552
+  - 155402600413: 4548
+  - 154308101590: 4543
+  - 155300900491: 4543
+  - 154402500776: 4536
+  - 155008201127: 4534
+  - 155308702881: 4518
+  - 155208200596: 4516
+  - 155406303392: 4514
+  - 155408101452: 4496
+  - 155202901451: 4474
+  - 154408601804: 4471
+  - 155403501354: 4445
+  - 154503202306: 4432
+  - 155108200551: 4430
+  - 155104901805: 4424
+  - 154503702881: 4424
+  - 154502501409: 4402
+  - 155208301163: 4399
+  - 155104002012: 4395
+  - 154802601980: 4389
+  - 155002501211: 4386
+  - 154403302606: 4381
+  - 155208200608: 4377
+  - 155101200336: 4376
+  - 155208200600: 4375
+  - 155008201157: 4369
+  - 154808102114: 4361
+  - 154508303532: 4360
+  - 155403201181: 4360
+  - 155300600337: 4359
+  - 154408702037: 4350
+  - 154803901374: 4349
+  - 154602301096: 4347
+  - 155300100002: 4343
+  - 155208301159: 4342
+  - 155008201142: 4340
+  - 155204402003: 4313
+  - 154809300739: 4304
+  - 154408601814: 4304
+  - 154601200413: 4304
+  - 155208401833: 4295
+  - 155208200612: 4290
+  - 154802601999: 4289
+  - 154803402760: 4283
+  - 155105001672: 4276
+  - 154208103819: 4271
+  - 154904301690: 4269
+  - 155008201148: 4252
+  - 155401203620: 4249
+  - 154408702039: 4249
+  - 155008201133: 4248
+  - 154901300653: 4247
+  - 155208200619: 4234
+  - 154905602221: 4233
+  - 155208200624: 4232
+  - 155008201143: 4227
+  - 155008201160: 4225
+  - 154408702038: 4225
+  - 154201902048: 4221
+  - 155008201186: 4220
+  - 155101200354: 4213
+  - 154500300052: 4195
+  - 154408802486: 4192
+  - 154408802074: 4191
+  - 154901300651: 4181
+  - 154208102108: 4177
+  - 154502301631: 4168
+  - 154601400488: 4162
+  - 155104402172: 4158
+  - 154408703912: 4156
+  - 154802601979: 4148
+  - 154502901104: 4147
+  - 154408703925: 4131
+  - 154904301693: 4111
+  - 155208200585: 4110
+  - 155402600416: 4107
+  - 154505203591: 4105
+  - 155200700413: 4099
+  - 154408601772: 4096
+  - 155208200613: 4090
+  - 154408702032: 4086
+  - 155403201180: 4073
+  - 155108301838: 4071
+  - 155208401941: 4069
+  - 154908101812: 4064
+  - 155308202090: 4062
+  - 154408701941: 4054
+  - 155202100161: 4053
+  - 155200200048: 4046
+  - 154408702051: 4042
+  - 154301100669: 4039
+  - 155200700422: 4036
+  - 155208401800: 4027
+  - 155003902056: 4024
+  - 154408601895: 4023
+  - 155408400869: 4023
+  - 155000700382: 4022
+  - 154203600634: 4021
+  - 155103201544: 4019
+  - 154408603938: 4018
+  - 154408601770: 4017
+  - 154809300735: 4012
+  - 155406103170: 4011
+  - 154901400637: 4009
+  - 155104302204: 4007
+  - 155001800676: 3999
+  - 154408601762: 3992
+  - 154901300647: 3990
+  - 155408400835: 3990
+  - 154208102111: 3989
+  - 154201300073: 3987
+  - 154602301066: 3986
+  - 155204401999: 3983
+  ... (Truncated to top 200 values)
+
+Column: ISSUING_DISTRICT_CODE (Top distinct values by frequency):
+  - 552.0: 2310601
+  - 553.0: 2090697
+  - 551.0: 1993205
+  - 550.0: 1986799
+  - 542.0: 1984595
+  - 557.0: 1868662
+  - 562.0: 1860499
+  - 545.0: 1833325
+  - 567.0: 1767617
+  - 560.0: 1760012
+  - 566.0: 1746429
+  - 561.0: 1731394
+  - 548.0: 1687284
+  - 543.0: 1659892
+  - 565.0: 1635730
+  - 544.0: 1601448
+  - 546.0: 1588705
+  - 558.0: 1530153
+  - 554.0: 1508620
+  - 549.0: 1495075
+  - 547.0: 1458160
+  - 559.0: 1316355
+  - 564.0: 1297133
+  - 563.0: 1049832
+  - 568.0: 1023053
+  - 555.0: 841870
+  - 556.0: 603632
+  - 569.0: 327442
+
+Column: STATUS_CODE (Top distinct values by frequency):
+  - A: 43558219
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.ration_card_type
+--------------------------------------------------------------------------------
+
+Column: CARD_TYPE_CODE (Top distinct values by frequency):
+  - AAY: 1
+  - AAP: 1
+  - APL: 1
+  - BPL: 1
+
+Column: CARD_TYPE_DESCRIPTION (Top distinct values by frequency):
+  - Economically weaker families: 1
+  - For senior citizens under Annapurna scheme: 1
+  - For poorest households with highest subsidy: 1
+  - Families above poverty line: 1
+
+Column: RATION_CARD_TYPE_NAME (Top distinct values by frequency):
+  - Antyodaya Anna Yojana: 1
+  - Annapurna Scheme: 1
+  - Below Poverty Line: 1
+  - Above Poverty Line: 1
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.scheme_benefits_fact
+--------------------------------------------------------------------------------
+
+Column: aadhaar_seeded_flag
+  (No data or table empty)
+
+Column: attendance_eligible_flag
+  (No data or table empty)
+
+Column: bank_account_verified_flag
+  (No data or table empty)
+
+Column: benefit_delivered_flag
+  (No data or table empty)
+
+Column: benefit_disbursed_flag
+  (No data or table empty)
+
+Column: benefit_rejected_flag
+  (No data or table empty)
+
+Column: benefit_sanctioned_flag
+  (No data or table empty)
+
+Column: benefit_withheld_flag
+  (No data or table empty)
+
+Column: bgm_eligible_flag
+  (No data or table empty)
+
+Column: cwsn_flag
+  (No data or table empty)
+
+Column: delivery_mode
+  (No data or table empty)
+
+Column: eligible_beneficiary_flag
+  (No data or table empty)
+
+Column: eligible_flag
+  (No data or table empty)
+
+Column: girl_child_flag
+  (No data or table empty)
+
+Column: kyc_completed_flag
+  (No data or table empty)
+
+Column: payment_failure_reason_code
+  (No data or table empty)
+
+Column: rejection_reason_code
+  (No data or table empty)
+
+Column: scheme_uptake_rate
+  (No data or table empty)
+
+Column: social_category
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_academic_performance_fact
+--------------------------------------------------------------------------------
+
+Column: ABSENT_FLAG (Top distinct values by frequency):
+  - NULL: 38077276
+
+Column: EVALUATION_TYPE (Top distinct values by frequency):
+  - NULL: 38077276
+
+Column: EXAM_TYPE (Top distinct values by frequency):
+  - NULL: 38077276
+
+Column: FAIL_FLAG (Top distinct values by frequency):
+  - N: 37175148
+  - Y: 902128
+
+Column: MEDIUM_OF_EXAM (Top distinct values by frequency):
+  - NULL: 38077276
+
+Column: PASS_FLAG (Top distinct values by frequency):
+  - Y: 36304183
+  - N: 1773093
+
+Column: WITHHELD_FLAG (Top distinct values by frequency):
+  - NULL: 38077276
+
+Column: YEAR_ON_YEAR_IMPROVEMENT_FLAG (Top distinct values by frequency):
+  - NULL: 38077276
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_category
+--------------------------------------------------------------------------------
+
+Column: CATEGORY_CODE (Top distinct values by frequency):
+  - 6: 1
+  - 11: 1
+  - 5: 1
+  - 2: 1
+  - 4: 1
+  - 3: 1
+  - 1: 1
+  - 10: 1
+  - 7: 1
+  - 8: 1
+
+Column: CATEGORY_TYPE (Top distinct values by frequency):
+  - HIGH SCHOOL: 6
+  - UPPER PRIMARY: 2
+  - COLLEGE: 1
+  - PRIMARY: 1
+
+Column: MAX_CLASS (Top distinct values by frequency):
+  - 12: 4
+  - 10: 3
+  - 8: 2
+  - 5: 1
+
+Column: MIN_CLASS (Top distinct values by frequency):
+  - 6: 5
+  - 1: 4
+  - 11: 1
+
+Column: UDISE_TYPE (Top distinct values by frequency):
+  - S: 9
+  - C: 1
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_infra_category_dim
+--------------------------------------------------------------------------------
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+Column: school_infra_category_code
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_infra_component_dim
+--------------------------------------------------------------------------------
+
+Column: component_code
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+Column: is_digital
+  (No data or table empty)
+
+Column: measurement_type
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_infrastructure_progress_fact
+--------------------------------------------------------------------------------
+
+Column: delay_reason_code
+  (No data or table empty)
+
+Column: geo_tagged_flag
+  (No data or table empty)
+
+Column: inspection_remarks_code
+  (No data or table empty)
+
+Column: is_functional_flag
+  (No data or table empty)
+
+Column: is_safety_compliant_flag
+  (No data or table empty)
+
+Column: is_structurally_certified_flag
+  (No data or table empty)
+
+Column: maintenance_required_flag
+  (No data or table empty)
+
+Column: work_status
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_meal_menu_dim
+--------------------------------------------------------------------------------
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+Column: is_planned
+  (No data or table empty)
+
+Column: weekday_code
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_medium
+--------------------------------------------------------------------------------
+
+Column: MEDIUM_CODE (Top distinct values by frequency):
+  - 16: 1
+  - 19: 1
+  - 18: 1
+  - 30: 1
+  - 31: 1
+  - 14: 1
+  - 17: 1
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_scheme_master
+--------------------------------------------------------------------------------
+
+Column: applicable_level
+  (No data or table empty)
+
+Column: delivery_mode
+  (No data or table empty)
+
+Column: is_active
+  (No data or table empty)
+
+Column: is_current
+  (No data or table empty)
+
+Column: scheme_category
+  (No data or table empty)
+
+Column: scheme_code
+  (No data or table empty)
+
+Column: scheme_status
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_student_attendance_fact
+--------------------------------------------------------------------------------
+
+Column: ABSENT_FLAG (Top distinct values by frequency):
+  - N: 68304715
+  - Y: 13511171
+
+Column: ATTENDANCE_REASON_CODE (Top distinct values by frequency):
+  - 0: 68291933
+  - 1: 12639606
+  - 3: 613303
+  - 4: 246417
+  - 2: 24627
+
+Column: ATTENDANCE_STATUS_CODE (Top distinct values by frequency):
+  - NULL: 81815886
+
+Column: CHIKKI_ELIGIBLE_FLAG (Top distinct values by frequency):
+  - NULL: 81815886
+
+Column: EGGS_ELIGIBLE_FLAG (Top distinct values by frequency):
+  - NULL: 81815886
+
+Column: HALF_DAY_FLAG (Top distinct values by frequency):
+  - NULL: 81815886
+
+Column: HM_APPROVAL_FLAG (Top distinct values by frequency):
+  - NULL: 81815886
+
+Column: IMAGE_AVAILABLE_FLAG (Top distinct values by frequency):
+  - NULL: 81815886
+
+Column: MARKED_BY_ROLE (Top distinct values by frequency):
+  - NULL: 81815886
+
+Column: MDM_ELIGIBLE_FLAG (Top distinct values by frequency):
+  - N: 53400897
+  - Y: 28414989
+
+Column: MEALS_CONSUMED_FLAG (Top distinct values by frequency):
+  - NULL: 81815886
+
+Column: PRESENT_FLAG (Top distinct values by frequency):
+  - Y: 68304715
+  - N: 13511171
+
+Column: RAGI_JAVA_ELIGIBLE_FLAG (Top distinct values by frequency):
+  - NULL: 81815886
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_subject_master
+--------------------------------------------------------------------------------
+
+Column: BOARD_CODE (Top distinct values by frequency):
+  - NULL: 136
+
+Column: IS_COMPULSORY_FLAG (Top distinct values by frequency):
+  - NULL: 136
+
+Column: IS_SKILL_SUBJECT_FLAG (Top distinct values by frequency):
+  - NULL: 136
+
+Column: IS_VOCATIONAL_FLAG (Top distinct values by frequency):
+  - NULL: 136
+
+Column: MARKS_SCHEME (Top distinct values by frequency):
+  - NULL: 136
+
+Column: MAX_CLASS (Top distinct values by frequency):
+  - NULL: 136
+
+Column: MIN_CLASS (Top distinct values by frequency):
+  - NULL: 136
+
+Column: SUBJECT_CATEGORY (Top distinct values by frequency):
+  - NULL: 136
+
+Column: SUBJECT_CODE (Top distinct values by frequency):
+  - S111: 1
+  - S119: 1
+  - S132: 1
+  - S114: 1
+  - S128: 1
+  - S51: 1
+  - S144: 1
+  - S26: 1
+  - S126: 1
+  - S20: 1
+  - S75: 1
+  - S54: 1
+  - S37: 1
+  - S80: 1
+  - S124: 1
+  - S43: 1
+  - S35: 1
+  - S109: 1
+  - S72: 1
+  - S41: 1
+  - S78: 1
+  - S125: 1
+  - S24: 1
+  - S5: 1
+  - S46: 1
+  - S105: 1
+  - S135: 1
+  - S4: 1
+  - S36: 1
+  - S33: 1
+  - S9: 1
+  - S81: 1
+  - S134: 1
+  - S120: 1
+  - S61: 1
+  - S48: 1
+  - S53: 1
+  - S45: 1
+  - S62: 1
+  - S8: 1
+  - S146: 1
+  - S83: 1
+  - S30: 1
+  - S110: 1
+  - S115: 1
+  - S73: 1
+  - S21: 1
+  - S180: 1
+  - S55: 1
+  - S56: 1
+  - S7: 1
+  - S1: 1
+  - S71: 1
+  - S100: 1
+  - S145: 1
+  - S65: 1
+  - S70: 1
+  - S148: 1
+  - S44: 1
+  - S107: 1
+  - S19: 1
+  - S10: 1
+  - S2: 1
+  - S15: 1
+  - S101: 1
+  - S3: 1
+  - S58: 1
+  - S99: 1
+  - S49: 1
+  - S89: 1
+  - S149: 1
+  - S112: 1
+  - S133: 1
+  - S90: 1
+  - S42: 1
+  - S116: 1
+  - S127: 1
+  - S76: 1
+  - S47: 1
+  - S31: 1
+  - S40: 1
+  - S122: 1
+  - S27: 1
+  - S143: 1
+  - S137: 1
+  - S64: 1
+  - S67: 1
+  - S52: 1
+  - S23: 1
+  - S38: 1
+  - S11: 1
+  - S106: 1
+  - S32: 1
+  - S118: 1
+  - S74: 1
+  - S136: 1
+  - S139: 1
+  - S39: 1
+  - S14: 1
+  - S113: 1
+  - S16: 1
+  - S79: 1
+  - S18: 1
+  - S12: 1
+  - S34: 1
+  - S29: 1
+  - S131: 1
+  - S123: 1
+  - S13: 1
+  - S104: 1
+  - S25: 1
+  - S108: 1
+  - S102: 1
+  - S22: 1
+  - S59: 1
+  - S28: 1
+  - S50: 1
+  - S117: 1
+  - S141: 1
+  - S85: 1
+  - S6: 1
+  - S140: 1
+  - S17: 1
+  - S121: 1
+  - S82: 1
+  - S103: 1
+  - S77: 1
+  - S88: 1
+  - S66: 1
+  - S150: 1
+  - S130: 1
+  - S129: 1
+  - S57: 1
+  - S142: 1
+  - S63: 1
+  - S60: 1
+
+Column: SUBJECT_STATUS (Top distinct values by frequency):
+  - Active: 136
+
+Column: SUBJECT_TYPE (Top distinct values by frequency):
+  - NULL: 136
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.school_teacher_attendance_fact
+--------------------------------------------------------------------------------
+
+Column: approval_role
+  (No data or table empty)
+
+Column: approval_status_code
+  (No data or table empty)
+
+Column: approved_leave_flag
+  (No data or table empty)
+
+Column: attendance_status_code
+  (No data or table empty)
+
+Column: image_available_flag
+  (No data or table empty)
+
+Column: late_flag
+  (No data or table empty)
+
+Column: leave_type
+  (No data or table empty)
+
+Column: on_duty_flag
+  (No data or table empty)
+
+Column: on_leave_flag
+  (No data or table empty)
+
+Column: present_flag
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.source_department_code
+--------------------------------------------------------------------------------
+
+Column: source_department_code
+  (No data or table empty)
+
+--------------------------------------------------------------------------------
+Table: curated_datamodels.student_class_dim
+--------------------------------------------------------------------------------
+
+Column: CLASS_CODE (Top distinct values by frequency):
+  - 5: 1
+  - 2: 1
+  - 7: 1
+  - 3: 1
+  - 10: 1
+  - 9: 1
+  - 1: 1
+  - 4: 1
+  - 6: 1
+  - 8: 1
+
+Column: CLASS_NAME (Top distinct values by frequency):
+  - Class X: 1
+  - Class VII: 1
+  - Class III: 1
+  - Class II: 1
+  - Class VI: 1
+  - Class V: 1
+  - Class IX: 1
+  - Class I: 1
+  - Class VIII: 1
+  - Class IV: 1
+
+Column: IS_ACTIVE (Top distinct values by frequency):
+  - Y: 10

@@ -240,6 +240,18 @@ columns:
   nullable: true
   description: The user ID or automated system process responsible for the most recent
     update to this record.
+- name: status
+  type: STRING
+  nullable: true
+  description: Status of the citizen student.
+- name: status_level_1
+  type: STRING
+  nullable: true
+  description: Status level 1 of the citizen student.
+- name: status_level_2
+  type: STRING
+  nullable: true
+  description: Status level 2 of the citizen student.
 primary_key:
 - citizen_student_pk
 relationships:
