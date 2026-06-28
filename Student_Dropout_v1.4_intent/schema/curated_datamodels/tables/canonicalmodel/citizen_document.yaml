@@ -1,0 +1,178 @@
+database: curated_datamodels
+table: citizen_document
+department: canonicalmodel
+description: 'Curated Hive/Iceberg table for citizen document. [Sample records: {''document_name'':
+  ''BA202228900540094297'', ''issuing_authority'': ''Dr.S.Shareena (Vennela Hospital)Nello...'',
+  ''issuance_date'': ''2022-10-02 00:00:00'', ''registration_date'': ''2022-10-02
+  00:00:00'', ''place_of_event'': ''Hospital/Institution'', ''valid_from'': ''2022-10-02
+  00:00:00''}, {''document_name'': ''BA202228902270016319'', ''issuing_authority'':
+  ''AMAVM HOSPITAL GAVARAPALEM ANAKAPALLI...'', ''issuance_date'': ''2022-08-19 00:00:00'',
+  ''registration_date'': ''2022-08-19 00:00:00'', ''place_of_event'': ''Hospital/Institution'',
+  ''valid_from'': ''2022-08-19 00:00:00''}, {''document_name'': ''BA202228900990048084'',
+  ''issuing_authority'': ''SAIVEENA CHILDRENS HOSPITAL , 60 FEET...'', ''issuance_date'':
+  ''2022-10-11 00:00:00'', ''registration_date'': ''2022-10-11 00:00:00'', ''place_of_event'':
+  ''Hospital/Institution'', ''valid_from'': ''2022-10-11 00:00:00''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document
+partitioned_by: ''
+tblproperties:
+  current-snapshot-id: '1640361325986248757'
+  current-snapshot-timestamp-ms: '1777556754705'
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document/metadata/00012-4edfff64-4c79-4a51-ad23-c9aef6b2f3b5.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '12'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_document`(\n  `citizen_document_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the citizen document record.',\
+  \ \n  `citizen_master_fk` BIGINT COMMENT 'Foreign Key: Links to the associated citizen\
+  \ master dimension or master table.', \n  `citizen_document_type_fk` INT COMMENT\
+  \ 'Foreign Key: Links to the associated citizen document type dimension or master\
+  \ table.', \n  `document_name` STRING COMMENT 'System field containing values such\
+  \ as: BA202228900540094297, BA202228902270016319, BA202228900990048084, BA202228900320096683,\
+  \ BA202228110040026204.', \n  `file_name` STRING COMMENT 'Field containing the file\
+  \ name details for the table.', \n  `issuing_authority` STRING COMMENT 'Issuing\
+  \ authority.', \n  `issuance_date` STRING COMMENT 'The specific date or timestamp\
+  \ when the issuance occurred.', \n  `registration_date` STRING COMMENT 'The specific\
+  \ date or timestamp when the registration occurred.', \n  `place_of_event` STRING\
+  \ COMMENT 'Place of event.', \n  `status` STRING COMMENT 'System field indicating\
+  \ the current status of the record.', \n  `last_amendment_date` STRING COMMENT 'The\
+  \ specific date or timestamp when the last amendment occurred.', \n  `digital_signature_hash`\
+  \ STRING COMMENT 'Digital signature hash.', \n  `document_storage_path` STRING COMMENT\
+  \ 'Document storage path.', \n  `valid_from` STRING COMMENT 'Start date/timestamp\
+  \ for the validity period of this record (e.g. consent or document).', \n  `coalesced_uid`\
+  \ STRING COMMENT 'A unified unique identifier coalesced from multiple source IDs\
+  \ to represent the citizen/document uniquely.', \n  `uid_flag` STRING COMMENT 'Boolean\
+  \ indicator flag (values: ''Y''/''N'').', \n  `valid_to` STRING COMMENT 'End date/timestamp\
+  \ for the validity period of this record (e.g. consent or document).', \n  `created_date`\
+  \ TIMESTAMP COMMENT 'Timestamp indicating exactly when this record was originally\
+  \ created in the source system.', \n  `created_by` STRING COMMENT 'The user ID or\
+  \ automated system process responsible for creating this record.', \n  `updated_date`\
+  \ TIMESTAMP COMMENT 'Timestamp indicating the last time this record was modified\
+  \ or updated.', \n  `updated_by` STRING COMMENT 'The user ID or automated system\
+  \ process responsible for the most recent update to this record.')\nROW FORMAT SERDE\
+  \ \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  \nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_document'"
+columns:
+- name: citizen_document_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the citizen document record.'
+- name: citizen_master_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table. [Value Examples: ''233883689711'', ''287627567646'', ''717720347655'',
+    ''974581428146'']'
+- name: citizen_document_type_fk
+  type: INT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen document type dimension
+    or master table. [Value Examples: ''1'']'
+- name: document_name
+  type: STRING
+  nullable: true
+  description: 'System field containing values such as: BA202228900540094297, BA202228902270016319,
+    BA202228900990048084, BA202228900320096683, BA202228110040026204. [Value Examples:
+    ''BA202228900540094297'', ''BA202228902270016319'', ''BA202228900990048084'',
+    ''BA202228900320096683'', ''BA202228110040026204'']'
+- name: file_name
+  type: STRING
+  nullable: true
+  description: Field containing the file name details for the table.
+- name: issuing_authority
+  type: STRING
+  nullable: true
+  description: 'Issuing authority. [Value Examples: ''Dr.S.Shareena (Vennela Hospital)Nello...'',
+    ''AMAVM HOSPITAL GAVARAPALEM ANAKAPALLI...'', ''SAIVEENA CHILDRENS HOSPITAL ,
+    60 FEET...'', ''ST ANNS HOSPITAL M G ROAD, Vijayawada...'', ''RURAL DEVELOPMENT
+    TRUST HOSPITAL, BAT...'']'
+- name: issuance_date
+  type: STRING
+  nullable: true
+  description: 'The specific date or timestamp when the issuance occurred. [Value
+    Examples: ''2022-10-02 00:00:00'', ''2022-08-19 00:00:00'', ''2022-10-11 00:00:00'',
+    ''2022-08-23 00:00:00'']'
+- name: registration_date
+  type: STRING
+  nullable: true
+  description: 'The specific date or timestamp when the registration occurred. [Value
+    Examples: ''2022-10-02 00:00:00'', ''2022-08-19 00:00:00'', ''2022-10-11 00:00:00'',
+    ''2022-08-23 00:00:00'']'
+- name: place_of_event
+  type: STRING
+  nullable: true
+  description: 'Place of event. [Value Examples: ''Hospital/Institution'']'
+- name: status
+  type: STRING
+  nullable: true
+  description: System field indicating the current status of the record.
+- name: last_amendment_date
+  type: STRING
+  nullable: true
+  description: The specific date or timestamp when the last amendment occurred.
+- name: digital_signature_hash
+  type: STRING
+  nullable: true
+  description: Digital signature hash.
+- name: document_storage_path
+  type: STRING
+  nullable: true
+  description: Document storage path.
+- name: valid_from
+  type: STRING
+  nullable: true
+  description: 'Start date/timestamp for the validity period of this record (e.g.
+    consent or document). [Value Examples: ''2022-10-02 00:00:00'', ''2022-08-19 00:00:00'',
+    ''2022-10-11 00:00:00'', ''2022-08-23 00:00:00'']'
+- name: coalesced_uid
+  type: STRING
+  nullable: true
+  description: 'A unified unique identifier coalesced from multiple source IDs to
+    represent the citizen/document uniquely. [Value Examples: ''233883689711'', ''287627567646'',
+    ''717720347655'', ''974581428146'']'
+- name: uid_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''M'']'
+- name: valid_to
+  type: STRING
+  nullable: true
+  description: End date/timestamp for the validity period of this record (e.g. consent
+    or document).
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-22 20:43:06.866508'']'
+- name: created_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+primary_key:
+- citizen_document_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_document

@@ -1,0 +1,96 @@
+database: curated_datamodels
+table: school_category
+department: canonicalmodel
+description: 'Curated table containing school category attributes. [Sample records:
+  {''category_code'': ''2'', ''category_name'': ''PRIMARY WITH UPPER PRIMARY'', ''category_type'':
+  ''UPPER PRIMARY'', ''min_class'': ''1'', ''max_class'': ''8'', ''udise_type'': ''S''},
+  {''category_code'': ''6'', ''category_name'': ''PR. UP PR. AND SECONDARY ONLY'',
+  ''category_type'': ''HIGH SCHOOL'', ''min_class'': ''1'', ''max_class'': ''10'',
+  ''udise_type'': ''S''}, {''category_code'': ''4'', ''category_name'': ''UPPER PRIMARY
+  ONLY'', ''category_type'': ''UPPER PRIMARY'', ''min_class'': ''6'', ''max_class'':
+  ''8'', ''udise_type'': ''S''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_category
+partitioned_by: 'school_category_id_pk_bucket: bucket[32]'
+tblproperties:
+  current-snapshot-id: '1745969990198052956'
+  current-snapshot-timestamp-ms: '1778321862379'
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_category/metadata/00001-ec8d93ac-54f0-476c-9120-9047209bf21d.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '1'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_category`(\n  `school_category_id_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the school category record.',\
+  \ \n  `category_code` STRING COMMENT 'Code/ID column: Standardized system code representing\
+  \ the category. Categorical column. Distinct values: 10. Examples: 11, 2, 8, 4,\
+  \ 6. Top frequencies: 1, 1, 1, 1, 1. Categorical column.', \n  `category_name` STRING\
+  \ COMMENT 'Categorical classification column. Standardized values include: PRIMARY\
+  \ WITH UPPER PRIMARY, PR. UP PR. AND SECONDARY ONLY, UPPER PRIMARY ONLY, SECONDARY\
+  \ ONLY, HIGHER SECONDARY ONLY.', \n  `category_type` STRING COMMENT 'Categorical\
+  \ column. Distinct values: COLLEGE, HIGH SCHOOL, UPPER PRIMARY.', \n  `min_class`\
+  \ INT COMMENT 'The minimum class or grade level (e.g. Class 1 or Class 6) for which\
+  \ this category/subject is applicable.', \n  `max_class` INT COMMENT 'The maximum\
+  \ class or grade level (e.g. Class 5 or Class 10) for which this category/subject\
+  \ is applicable.', \n  `udise_type` STRING COMMENT 'Categorical column. Distinct\
+  \ values: C, S.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_category'"
+columns:
+- name: school_category_id_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the school category record. [Value
+    Examples: ''4'', ''8'', ''6'', ''10'', ''3'']'
+- name: category_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the category.
+    Categorical column. Distinct values: 10. Examples: 11, 2, 8, 4, 6. Top frequencies:
+    1, 1, 1, 1, 1. Categorical column. [Value Examples: ''2'', ''6'', ''4'', ''8'',
+    ''11'']'
+- name: category_name
+  type: STRING
+  nullable: true
+  description: 'Categorical classification column. Standardized values include: PRIMARY
+    WITH UPPER PRIMARY, PR. UP PR. AND SECONDARY ONLY, UPPER PRIMARY ONLY, SECONDARY
+    ONLY, HIGHER SECONDARY ONLY. [Value Examples: ''PRIMARY WITH UPPER PRIMARY'',
+    ''PR. UP PR. AND SECONDARY ONLY'', ''UPPER PRIMARY ONLY'', ''SECONDARY ONLY'',
+    ''HIGHER SECONDARY ONLY'']'
+- name: category_type
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: COLLEGE, HIGH SCHOOL, UPPER PRIMARY.
+    [Value Examples: ''UPPER PRIMARY'', ''HIGH SCHOOL'', ''COLLEGE'']'
+- name: min_class
+  type: INT
+  nullable: true
+  description: 'The minimum class or grade level (e.g. Class 1 or Class 6) for which
+    this category/subject is applicable. [Value Examples: ''1'', ''6'', ''11'']'
+- name: max_class
+  type: INT
+  nullable: true
+  description: 'The maximum class or grade level (e.g. Class 5 or Class 10) for which
+    this category/subject is applicable. [Value Examples: ''8'', ''10'', ''12'']'
+- name: udise_type
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: C, S. [Value Examples: ''S'',
+    ''C'']'
+primary_key:
+- school_category_id_pk
+relationships: []
+business_terms:
+- school analytics
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in school_category
+- join with related school and citizen dimensions

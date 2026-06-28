@@ -1,0 +1,89 @@
+database: curated_datamodels
+table: welfare_schemes_life_cycle
+department: canonicalmodel
+description: Curated Hive/Iceberg table for welfare schemes life cycle.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/welfare_schemes_life_cycle
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/welfare_schemes_life_cycle/metadata/00000-4567d210-d422-46b1-9c3d-4c6bec95761b.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`welfare_schemes_life_cycle`(\n\
+  \  `welfare_schemes_life_cycle_id` INT COMMENT 'Welfare schemes life cycle id.',\
+  \ \n  `academic_year` STRING COMMENT 'The academic calendar year for the record\
+  \ (e.g., ''2024-25'').', \n  `term` STRING COMMENT 'Field containing the term details\
+  \ for the table.', \n  `disbursement_window` STRING COMMENT 'Disbursement window.',\
+  \ \n  `effective_start_date` DATE COMMENT 'The specific date or timestamp when the\
+  \ effective start occurred.', \n  `effective_end_date` DATE COMMENT 'The specific\
+  \ date or timestamp when the effective end occurred.', \n  `created_date` TIMESTAMP\
+  \ COMMENT 'Timestamp indicating exactly when this record was originally created\
+  \ in the source system.', \n  `created_by` STRING COMMENT 'The user ID or automated\
+  \ system process responsible for creating this record.', \n  `updated_date` TIMESTAMP\
+  \ COMMENT 'Timestamp indicating the last time this record was modified or updated.',\
+  \ \n  `updated_by` STRING COMMENT 'The user ID or automated system process responsible\
+  \ for the most recent update to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/welfare_schemes_life_cycle'"
+columns:
+- name: welfare_schemes_life_cycle_id
+  type: INT
+  nullable: true
+  description: Welfare schemes life cycle id.
+- name: academic_year
+  type: STRING
+  nullable: true
+  description: The academic calendar year for the record (e.g., '2024-25').
+- name: term
+  type: STRING
+  nullable: true
+  description: Field containing the term details for the table.
+- name: disbursement_window
+  type: STRING
+  nullable: true
+  description: Disbursement window.
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective start occurred.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective end occurred.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for creating this
+    record.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+primary_key: []
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in welfare_schemes_life_cycle

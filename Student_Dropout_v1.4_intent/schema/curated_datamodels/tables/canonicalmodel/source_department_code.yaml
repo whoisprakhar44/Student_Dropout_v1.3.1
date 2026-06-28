@@ -1,0 +1,82 @@
+database: curated_datamodels
+table: source_department_code
+department: canonicalmodel
+description: Curated Hive/Iceberg table for source department code.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/source_department_code
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/source_department_code/metadata/00000-7a32c655-fa92-4d1b-9b99-7486994a3b0b.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`source_department_code`(\n \
+  \ `source_department_code_pk` INT COMMENT 'Primary Key: Unique identifier for the\
+  \ source department code record.', \n  `source_department_code` STRING COMMENT 'Code/ID\
+  \ column: Standardized system code representing the source department. Categorical\
+  \ column.', \n  `department_name` STRING COMMENT 'Department name.', \n  `source_department`\
+  \ STRING COMMENT 'Source department.', \n  `created_at` STRING COMMENT 'Timestamp\
+  \ indicating exactly when this record was originally created in the database system.',\
+  \ \n  `created_by` STRING COMMENT 'The user ID or automated system process responsible\
+  \ for creating this record.', \n  `updated_at` STRING COMMENT 'Timestamp indicating\
+  \ the last time this record was modified or updated in the database system.', \n\
+  \  `updated_by` STRING COMMENT 'The user ID or automated system process responsible\
+  \ for the most recent update to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/source_department_code'"
+columns:
+- name: source_department_code_pk
+  type: INT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the source department code record.'
+- name: source_department_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the source department.
+    Categorical column.'
+- name: department_name
+  type: STRING
+  nullable: true
+  description: Department name.
+- name: source_department
+  type: STRING
+  nullable: true
+  description: Source department.
+- name: created_at
+  type: STRING
+  nullable: true
+  description: Timestamp indicating exactly when this record was originally created
+    in the database system.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for creating this
+    record.
+- name: updated_at
+  type: STRING
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated
+    in the database system.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+primary_key:
+- source_department_code_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in source_department_code

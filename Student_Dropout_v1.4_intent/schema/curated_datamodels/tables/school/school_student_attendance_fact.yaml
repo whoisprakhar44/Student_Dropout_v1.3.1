@@ -1,0 +1,240 @@
+database: curated_datamodels
+table: school_student_attendance_fact
+department: school
+description: 'Fact table for school student attendance measures and events. [Sample
+  records: {''academic_year'': ''2025'', ''attendance_month'': ''6'', ''present_flag'':
+  ''Y'', ''absent_flag'': ''N'', ''attendance_reason_code'': ''0'', ''mdm_eligible_flag'':
+  ''N''}, {''academic_year'': ''2025'', ''attendance_month'': ''6'', ''present_flag'':
+  ''Y'', ''absent_flag'': ''N'', ''attendance_reason_code'': ''0'', ''mdm_eligible_flag'':
+  ''N''}, {''academic_year'': ''2025'', ''attendance_month'': ''6'', ''present_flag'':
+  ''Y'', ''absent_flag'': ''N'', ''attendance_reason_code'': ''0'', ''mdm_eligible_flag'':
+  ''N''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_student_attendance_fact
+partitioned_by: 'school_student_attendance_fact_id_pk_bucket: bucket[32]'
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_student_attendance_fact/metadata/00000-87eb418e-c2f2-46b8-ba9e-a08a28e69b60.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_student_attendance_fact`(\n\
+  \  `school_student_attendance_fact_id_pk` BIGINT COMMENT 'Primary Key: Unique identifier\
+  \ for the school student attendance fact record.', \n  `citizen_student_id_fk` BIGINT\
+  \ COMMENT 'Foreign Key: Links to the associated citizen student dimension or master\
+  \ table.', \n  `school_medium_id_fk` BIGINT COMMENT 'Foreign Key: Links to the associated\
+  \ school medium dimension or master table.', \n  `student_class_dim_id_fk` BIGINT\
+  \ COMMENT 'Foreign Key: Links to the associated student class dim dimension or master\
+  \ table.', \n  `student_school_id_fk` BIGINT COMMENT 'Foreign Key: Links to the\
+  \ associated student school dimension or master table.', \n  `academic_year` STRING\
+  \ COMMENT 'The academic calendar year for the record. The database stores academic\
+  \ years as single years (e.g. ''2025'', ''2024''). If the user query refers to a\
+  \ range like ''2025-26'', ''2025-2026'', or ''2024-25'', map it to the single starting\
+  \ year (e.g. use ''2025'' or ''2024'') in your SQL. Do NOT write ranges like ''2025-26''\
+  \ in the SQL.', \n  `attendance_date_id_fk` BIGINT COMMENT 'Foreign Key: Links to\
+  \ the associated attendance date dimension or master table.', \n  `attendance_month`\
+  \ INT COMMENT 'The calendar month of the attendance record.', \n  `present_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `absent_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `half_day_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `attendance_weight`\
+  \ DECIMAL(5,2) COMMENT 'Attendance weight.', \n  `attendance_status_code` STRING\
+  \ COMMENT 'Code/ID column: The specific standardized code representing the attendance\
+  \ outcome. Categorical column. Distinct values: 1. Top frequencies: 81815886. Categorical\
+  \ column.', \n  `attendance_reason_code` STRING COMMENT 'Code/ID column: The reason\
+  \ code explaining why an absence occurred. Categorical column. Distinct values:\
+  \ 5. Examples: 0. Top frequencies: 68291933, 12639606, 613303, 246417, 24627. Categorical\
+  \ column.', \n  `marked_by_role` STRING COMMENT 'Field containing the marked by\
+  \ role details for the table.', \n  `attendance_capture_method` STRING COMMENT 'Attendance\
+  \ capture method.', \n  `mdm_eligible_flag` STRING COMMENT 'Boolean indicator flag\
+  \ (values: ''Y''/''N'').', \n  `meals_consumed_flag` STRING COMMENT 'Boolean indicator\
+  \ flag (values: ''Y''/''N'').', \n  `eggs_eligible_flag` STRING COMMENT 'Boolean\
+  \ indicator flag (values: ''Y''/''N'').', \n  `chikki_eligible_flag` STRING COMMENT\
+  \ 'Boolean indicator flag (values: ''Y''/''N'').', \n  `ragi_java_eligible_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `capture_source`\
+  \ STRING COMMENT 'Capture source.', \n  `hm_approval_flag` STRING COMMENT 'Boolean\
+  \ indicator flag (values: ''Y''/''N'').', \n  `hm_approval_date` DATE COMMENT 'The\
+  \ specific date or timestamp when the hm approval occurred.', \n  `absence_reason_dim_id_fk`\
+  \ BIGINT COMMENT 'Foreign Key: Links to the associated absence reason dim dimension\
+  \ or master table.', \n  `image_available_flag` STRING COMMENT 'Boolean indicator\
+  \ flag (values: ''Y''/''N'').', \n  `latitude` DECIMAL(9,6) COMMENT 'The geographical\
+  \ latitude coordinate of the location.', \n  `longitude` DECIMAL(9,6) COMMENT 'The\
+  \ geographical longitude coordinate of the location.', \n  `created_date` TIMESTAMP\
+  \ COMMENT 'Timestamp indicating exactly when this record was originally created\
+  \ in the source system.', \n  `created_by` STRING COMMENT 'The user ID or automated\
+  \ system process responsible for creating this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_student_attendance_fact'"
+columns:
+- name: school_student_attendance_fact_id_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the school student attendance fact
+    record. [Value Examples: ''1693'', ''35289880'', ''1694'', ''35289881'', ''1695'']'
+- name: citizen_student_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen student dimension or
+    master table. [Value Examples: ''3156'', ''4937021'']'
+- name: school_medium_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated school medium dimension or master
+    table. [Value Examples: ''5'']'
+- name: student_class_dim_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated student class dim dimension or
+    master table. [Value Examples: ''9'', ''7'']'
+- name: student_school_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated student school dimension or master
+    table. [Value Examples: ''1471'', ''62508'']'
+- name: academic_year
+  type: STRING
+  nullable: true
+  description: 'The academic calendar year for the record. The database stores academic
+    years as single years (e.g. ''2025'', ''2024''). If the user query refers to a
+    range like ''2025-26'', ''2025-2026'', or ''2024-25'', map it to the single starting
+    year (e.g. use ''2025'' or ''2024'') in your SQL. Do NOT write ranges like ''2025-26''
+    in the SQL. [Value Examples: ''2025'']'
+- name: attendance_date_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated attendance date dimension or
+    master table. [Value Examples: ''20250623'', ''20250620'', ''20250624'', ''20250621'',
+    ''20250625'']'
+- name: attendance_month
+  type: INT
+  nullable: true
+  description: 'The calendar month of the attendance record. [Value Examples: ''6'']'
+- name: present_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''Y'']'
+- name: absent_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''N'']'
+- name: half_day_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: attendance_weight
+  type: DECIMAL(5,2)
+  nullable: true
+  description: Attendance weight.
+- name: attendance_status_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: The specific standardized code representing the attendance
+    outcome. Categorical column. Distinct values: 1. Top frequencies: 81815886. Categorical
+    column.'
+- name: attendance_reason_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: The reason code explaining why an absence occurred.
+    Categorical column. Distinct values: 5. Examples: 0. Top frequencies: 68291933,
+    12639606, 613303, 246417, 24627. Categorical column. [Value Examples: ''0'']'
+- name: marked_by_role
+  type: STRING
+  nullable: true
+  description: Field containing the marked by role details for the table.
+- name: attendance_capture_method
+  type: STRING
+  nullable: true
+  description: Attendance capture method.
+- name: mdm_eligible_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''N'']'
+- name: meals_consumed_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: eggs_eligible_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: chikki_eligible_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: ragi_java_eligible_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: capture_source
+  type: STRING
+  nullable: true
+  description: Capture source.
+- name: hm_approval_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: hm_approval_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the hm approval occurred.
+- name: absence_reason_dim_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated absence reason dim dimension
+    or master table. [Value Examples: ''1'']'
+- name: image_available_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: latitude
+  type: DECIMAL(9,6)
+  nullable: true
+  description: The geographical latitude coordinate of the location.
+- name: longitude
+  type: DECIMAL(9,6)
+  nullable: true
+  description: The geographical longitude coordinate of the location.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-29 12:31:44.583207'']'
+- name: created_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
+primary_key:
+- school_student_attendance_fact_id_pk
+relationships:
+- school_student_attendance_fact.citizen_student_id_fk is a foreign-key-style reference
+  to citizen_student_id.
+- school_student_attendance_fact.school_medium_id_fk is a foreign-key-style reference
+  to school_medium_id.
+- school_student_attendance_fact.student_class_dim_id_fk is a foreign-key-style reference
+  to student_class_dim_id.
+- school_student_attendance_fact.student_school_id_fk is a foreign-key-style reference
+  to student_school_id.
+- school_student_attendance_fact.attendance_date_id_fk is a foreign-key-style reference
+  to attendance_date_id.
+- school_student_attendance_fact.absence_reason_dim_id_fk is a foreign-key-style reference
+  to absence_reason_dim_id.
+business_terms:
+- fact table
+- event and metric analysis
+- student analytics
+- school analytics
+- attendance tracking
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in school_student_attendance_fact
+- aggregate measures by academic year and linked dimensions
+- join with related school and citizen dimensions
+- analyze present, absent, and attendance status trends

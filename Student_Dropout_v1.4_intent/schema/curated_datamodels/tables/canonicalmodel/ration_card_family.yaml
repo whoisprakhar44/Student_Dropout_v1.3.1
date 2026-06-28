@@ -1,0 +1,133 @@
+database: curated_datamodels
+table: ration_card_family
+department: canonicalmodel
+description: 'Curated Hive/Iceberg table for ration card family. [Sample records:
+  {''ration_card_no'': ''2806815210'', ''card_type_code'': ''2'', ''issuing_district_code'':
+  ''542.0'', ''fps_code'': ''154201500201'', ''ration_card_id'': ''67766'', ''status_code'':
+  ''A''}, {''ration_card_no'': ''2811953690'', ''card_type_code'': ''3'', ''issuing_district_code'':
+  ''544.0'', ''fps_code'': ''154408601892'', ''annual_income'': ''0'', ''ration_card_id'':
+  ''2782922''}, {''ration_card_no'': ''2822422238'', ''card_type_code'': ''3'', ''issuing_district_code'':
+  ''568.0'', ''fps_code'': ''154900300081'', ''annual_income'': ''70000'', ''ration_card_id'':
+  ''11511325''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_family
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  table_type: ICEBERG
+columns:
+- name: ration_card_family_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the ration card family record.
+    [Value Examples: ''4283890'', ''6863004'', ''4283891'', ''6863005'', ''4283892'']'
+- name: ration_card_type_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated ration card type dimension or
+    master table. [Value Examples: ''2'', ''3'']'
+- name: ration_card_no
+  type: STRING
+  nullable: true
+  description: 'The unique household ration card number used for public distribution
+    benefits. [Value Examples: ''2806815210'', ''2811953690'', ''2822422238'', ''2821123807'',
+    ''2812132618'']'
+- name: card_type_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: The category of the ration card (e.g., ''LOW'' for
+    Low Income/BPL). Categorical column. Distinct values: 2. Examples: 3, 2. Top frequencies:
+    41304349, 2253870. Categorical column. [Value Examples: ''2'', ''3'']'
+- name: issuing_district_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the issuing
+    district. Categorical column. Distinct values: 28. Examples: 566.0, 550.0, 544.0,
+    568.0, 542.0. Top frequencies: 2310601, 2090697, 1993205, 1986799, 1984595. Categorical
+    column. [Value Examples: ''542.0'', ''544.0'', ''568.0'', ''566.0'', ''550.0'']'
+- name: fps_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the fps. Categorical
+    column. Distinct values: 200. Examples: 154900300081, 155304102683, 155003001590,
+    154408601892, 154201500201. Top frequencies: 8774, 8309, 7685, 7517, 7160. Categorical
+    column. [Value Examples: ''154201500201'', ''154408601892'', ''154900300081'',
+    ''155304102683'', ''155003001590'']'
+- name: citizen_master_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table. [Value Examples: ''278607522314'', ''325909109516'', ''278607549731'',
+    ''325909150167'', ''278607554315'']'
+- name: annual_income
+  type: STRING
+  nullable: true
+  description: 'The total recorded annual income of the citizen''s household in Indian
+    Rupees (INR). [Value Examples: ''0'', ''70000'', ''40000'']'
+- name: ration_card_id
+  type: STRING
+  nullable: true
+  description: 'Ration card id. [Value Examples: ''67766'', ''2782922'', ''11511325'',
+    ''10346421'', ''2070261'']'
+- name: status_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: The current operational status code of the record
+    (e.g., ''ACTIVE'', ''INACTIVE'', ''PENDING''). Categorical column. Distinct values:
+    1. Examples: A. Top frequencies: 43558219. Categorical column. [Value Examples:
+    ''A'']'
+- name: created_at
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the database system. [Value Examples: ''2026-05-22 16:40:39.743315'']'
+- name: created_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating the last time this record was modified or updated
+    in the database system. [Value Examples: ''2026-05-22 16:40:39.743315'']'
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for the most recent
+    update to this record. [Value Examples: ''curated_team'']'
+primary_key:
+- ration_card_family_pk
+relationships: []
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`ration_card_family`(\n  `ration_card_family_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the ration card family record.',\
+  \ \n  `ration_card_type_id_fk` BIGINT COMMENT 'Foreign Key: Links to the associated\
+  \ ration card type dimension or master table.', \n  `ration_card_no` STRING COMMENT\
+  \ 'The unique household ration card number used for public distribution benefits.',\
+  \ \n  `card_type_code` STRING COMMENT 'Code/ID column: The category of the ration\
+  \ card (e.g., ''LOW'' for Low Income/BPL). Categorical column. Distinct values:\
+  \ 2. Examples: 3, 2. Top frequencies: 41304349, 2253870. Categorical column.', \n\
+  \  `issuing_district_code` STRING COMMENT 'Code/ID column: Standardized system code\
+  \ representing the issuing district. Categorical column. Distinct values: 28. Examples:\
+  \ 566.0, 550.0, 544.0, 568.0, 542.0. Top frequencies: 2310601, 2090697, 1993205,\
+  \ 1986799, 1984595. Categorical column.', \n  `fps_code` STRING COMMENT 'Code/ID\
+  \ column: Standardized system code representing the fps. Categorical column. Distinct\
+  \ values: 200. Examples: 154900300081, 155304102683, 155003001590, 154408601892,\
+  \ 154201500201. Top frequencies: 8774, 8309, 7685, 7517, 7160. Categorical column.',\
+  \ \n  `citizen_master_id_fk` BIGINT COMMENT 'Foreign Key: Links to the associated\
+  \ citizen master dimension or master table.', \n  `annual_income` STRING COMMENT\
+  \ 'The total recorded annual income of the citizen''s household in Indian Rupees\
+  \ (INR).', \n  `ration_card_id` STRING COMMENT 'Ration card id.', \n  `status_code`\
+  \ STRING COMMENT 'Code/ID column: The current operational status code of the record\
+  \ (e.g., ''ACTIVE'', ''INACTIVE'', ''PENDING''). Categorical column. Distinct values:\
+  \ 1. Examples: A. Top frequencies: 43558219. Categorical column.', \n  `created_at`\
+  \ TIMESTAMP COMMENT 'Timestamp indicating exactly when this record was originally\
+  \ created in the database system.', \n  `created_by` STRING COMMENT 'The user ID\
+  \ or automated system process responsible for creating this record.', \n  `updated_at`\
+  \ TIMESTAMP COMMENT 'Timestamp indicating the last time this record was modified\
+  \ or updated in the database system.', \n  `updated_by` STRING COMMENT 'The user\
+  \ ID or automated system process responsible for the most recent update to this\
+  \ record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_family'"

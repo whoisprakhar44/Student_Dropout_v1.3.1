@@ -1,0 +1,71 @@
+database: curated_datamodels
+table: ration_card_type
+department: canonicalmodel
+description: 'Curated Hive/Iceberg table for ration card type. [Sample records: {''ration_card_type_name'':
+  ''Above Poverty Line'', ''card_type_description'': ''Families above poverty line'',
+  ''card_type_code'': ''APL''}, {''ration_card_type_name'': ''Antyodaya Anna Yojana'',
+  ''card_type_description'': ''For poorest households with highest s...'', ''card_type_code'':
+  ''AAY''}, {''ration_card_type_name'': ''Below Poverty Line'', ''card_type_description'':
+  ''Economically weaker families'', ''card_type_code'': ''BPL''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_type
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_type/metadata/00000-338b9a97-1df3-4287-ba9c-d539bca3b507.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`ration_card_type`(\n  `card_type_id_pk`\
+  \ INT COMMENT 'Primary Key: Unique identifier for ration card type.', \n  `ration_card_type_name`\
+  \ STRING COMMENT 'Ration card type name.', \n  `card_type_description` STRING COMMENT\
+  \ 'Categorical column. Distinct values: Economically weaker families, Families above\
+  \ poverty line, For poorest households with highest s..., For senior citizens under\
+  \ Annapurna s....', \n  `card_type_code` STRING COMMENT 'Code/ID column: The category\
+  \ of the ration card (e.g., ''LOW'' for Low Income/BPL). Categorical column. Distinct\
+  \ values: 4. Examples: AAY, BPL, AAP, APL. Top frequencies: 1, 1, 1, 1. Categorical\
+  \ column.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_type'"
+columns:
+- name: card_type_id_pk
+  type: INT
+  nullable: true
+  description: 'Primary Key: Unique identifier for ration card type. [Value Examples:
+    ''1'', ''2'', ''3'', ''4'']'
+- name: ration_card_type_name
+  type: STRING
+  nullable: true
+  description: 'Ration card type name. [Value Examples: ''Above Poverty Line'', ''Antyodaya
+    Anna Yojana'', ''Below Poverty Line'', ''Annapurna Scheme'']'
+- name: card_type_description
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: Economically weaker families,
+    Families above poverty line, For poorest households with highest s..., For senior
+    citizens under Annapurna s.... [Value Examples: ''Families above poverty line'',
+    ''For poorest households with highest s...'', ''Economically weaker families'',
+    ''For senior citizens under Annapurna s...'']'
+- name: card_type_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: The category of the ration card (e.g., ''LOW'' for
+    Low Income/BPL). Categorical column. Distinct values: 4. Examples: AAY, BPL, AAP,
+    APL. Top frequencies: 1, 1, 1, 1. Categorical column. [Value Examples: ''APL'',
+    ''AAY'', ''BPL'', ''AAP'']'
+primary_key: []
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in ration_card_type

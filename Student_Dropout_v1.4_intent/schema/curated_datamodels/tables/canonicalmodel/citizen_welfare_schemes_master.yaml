@@ -1,0 +1,138 @@
+database: curated_datamodels
+table: citizen_welfare_schemes_master
+department: canonicalmodel
+description: 'Curated Hive/Iceberg table for citizen welfare schemes master. [Sample
+  records: {''scheme_name'': ''Annadatha Sukhibava'', ''scheme_active_status'': ''Y''},
+  {''scheme_name'': ''Aasara'', ''scheme_code'': ''S22'', ''scheme_active_status'':
+  ''N''}, {''scheme_name'': ''Jalakala'', ''scheme_code'': ''S30'', ''scheme_active_status'':
+  ''N''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes_master
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes_master/metadata/00000-8c1073a0-17bf-46e5-9d44-54583d7ffc81.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_welfare_schemes_master`(\n\
+  \  `citizen_welfare_schemes_master_pk` INT COMMENT 'Primary Key: Unique identifier\
+  \ for the citizen welfare schemes master record.', \n  `scheme_name` STRING COMMENT\
+  \ 'The official name of the government welfare scheme or benefit program.', \n \
+  \ `category` STRING COMMENT 'Classification field defining the specific category.',\
+  \ \n  `sub_category` STRING COMMENT 'Classification field defining the specific\
+  \ sub category.', \n  `scheme_code` STRING COMMENT 'Code/ID column: Standardized\
+  \ system code representing the scheme. Categorical column. Distinct values: 30.\
+  \ Examples: S22, S30, S4, S14. Top frequencies: 2, 1, 1, 1, 1. Categorical column.',\
+  \ \n  `scheme_create_date` DATE COMMENT 'The specific date or timestamp when the\
+  \ scheme create occurred.', \n  `scheme_start_date` DATE COMMENT 'The specific date\
+  \ or timestamp when the scheme start occurred.', \n  `scheme_end_date` DATE COMMENT\
+  \ 'The specific date or timestamp when the scheme end occurred.', \n  `scheme_active_status`\
+  \ STRING COMMENT 'Categorical column. Distinct values: N, Y.', \n  `scheme_benefits`\
+  \ STRING COMMENT 'Field containing the scheme benefits details for the table.',\
+  \ \n  `scheme_eligibility_condition1` STRING COMMENT 'Field containing the scheme\
+  \ eligibility condition1 details for the table.', \n  `scheme_eligibility_condition2`\
+  \ STRING COMMENT 'Field containing the scheme eligibility condition2 details for\
+  \ the table.', \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating exactly\
+  \ when this record was originally created in the source system.', \n  `created_by`\
+  \ STRING COMMENT 'The user ID or automated system process responsible for creating\
+  \ this record.', \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the\
+  \ last time this record was modified or updated.', \n  `updated_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for the most recent update\
+  \ to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_welfare_schemes_master'"
+columns:
+- name: citizen_welfare_schemes_master_pk
+  type: INT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the citizen welfare schemes master
+    record. [Value Examples: ''31'', ''2'', ''10'', ''27'', ''17'']'
+- name: scheme_name
+  type: STRING
+  nullable: true
+  description: 'The official name of the government welfare scheme or benefit program.
+    [Value Examples: ''Annadatha Sukhibava'', ''Aasara'', ''Jalakala'', ''Videsi Vidya
+    Deevena'', ''Pension Kanuka'']'
+- name: category
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific category.
+- name: sub_category
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific sub category.
+- name: scheme_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the scheme.
+    Categorical column. Distinct values: 30. Examples: S22, S30, S4, S14. Top frequencies:
+    2, 1, 1, 1, 1. Categorical column. [Value Examples: ''S22'', ''S30'', ''S14'',
+    ''S4'']'
+- name: scheme_create_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the scheme create occurred.
+- name: scheme_start_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the scheme start occurred.
+- name: scheme_end_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the scheme end occurred.
+- name: scheme_active_status
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: N, Y. [Value Examples: ''Y'',
+    ''N'']'
+- name: scheme_benefits
+  type: STRING
+  nullable: true
+  description: Field containing the scheme benefits details for the table.
+- name: scheme_eligibility_condition1
+  type: STRING
+  nullable: true
+  description: Field containing the scheme eligibility condition1 details for the
+    table.
+- name: scheme_eligibility_condition2
+  type: STRING
+  nullable: true
+  description: Field containing the scheme eligibility condition2 details for the
+    table.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-01-28 00:00:00'', ''2026-01-09 00:00:00'']'
+- name: created_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''Curated_team'']'
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+primary_key:
+- citizen_welfare_schemes_master_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_welfare_schemes_master

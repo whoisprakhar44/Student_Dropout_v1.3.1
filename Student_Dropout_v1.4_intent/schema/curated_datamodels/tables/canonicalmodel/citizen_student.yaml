@@ -1,0 +1,268 @@
+database: curated_datamodels
+table: citizen_student
+department: canonicalmodel
+description: 'Curated table containing citizen student attributes. [Sample records:
+  {''household_id'': ''HH82648807193320200221022055274'', ''enrollment_id'': ''1501000102'',
+  ''student_name'': ''GORLE HEMANTH'', ''gender'': ''MALE'', ''mother_tongue'': ''140'',
+  ''date_of_birth'': ''2008-06-07''}, {''household_id'': ''HH67363061815820200912092131770'',
+  ''enrollment_id'': ''1501000431'', ''student_name'': ''CHALLA SAI MONISH'', ''gender'':
+  ''MALE'', ''mother_tongue'': ''140'', ''date_of_birth'': ''2009-03-10''}, {''household_id'':
+  ''HH90433758667420211217065146328'', ''enrollment_id'': ''1501000667'', ''student_name'':
+  ''ITRAJU SANTHOSH'', ''gender'': ''MALE'', ''mother_tongue'': ''140'', ''date_of_birth'':
+  ''2005-12-25''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_student
+partitioned_by: 'student_citizen_master_id_fk_bucket: bucket[32]'
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_student/metadata/00000-95965a6e-3a4e-4a3d-a7f7-51c390f37d23.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_student`(\n  `citizen_student_id_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the citizen student record.',\
+  \ \n  `citizen_school_id_fk` BIGINT COMMENT 'Foreign Key: Links to the associated\
+  \ citizen school dimension or master table.', \n  `student_citizen_master_id_fk`\
+  \ BIGINT COMMENT 'Foreign Key: Links to the associated student citizen master dimension\
+  \ or master table.', \n  `household_id` STRING COMMENT 'Unique identifier for the\
+  \ household.', \n  `enrollment_id` STRING COMMENT 'Unique student enrollment identifier.',\
+  \ \n  `student_name` STRING COMMENT 'Full legal name of the enrolled student.',\
+  \ \n  `gender` STRING COMMENT 'Gender of the individual. Categorical column. Distinct\
+  \ values: MALE, FEMALE.', \n  `surname` STRING COMMENT 'The surname / family name\
+  \ of the citizen or student.', \n  `mother_tongue` STRING COMMENT 'The primary language\
+  \ spoken by the student at home (e.g., Telugu, Urdu, English).', \n  `date_of_birth`\
+  \ DATE COMMENT 'The birth date of the individual (citizen, student, or teacher)\
+  \ as recorded in official records.', \n  `social_category` STRING COMMENT 'Social\
+  \ category classification. Categorical column. Distinct values: General, OBC, SC,\
+  \ ST, BC, Minority.', \n  `minority_status` STRING COMMENT 'Minority status.', \n\
+  \  `disability_flag` STRING COMMENT 'Boolean indicator flag (values: ''Yes''/''No'').',\
+  \ \n  `disability_percentage` DECIMAL(5,2) COMMENT 'Disability percentage.', \n\
+  \  `admission_flag` STRING COMMENT 'Boolean indicator flag (values: ''Yes''/''No'').',\
+  \ \n  `current_grade` STRING COMMENT 'The current academic class or grade the student\
+  \ is enrolled in (e.g., ''1'', ''2'', ..., ''10'').', \n  `medium_key` STRING COMMENT\
+  \ 'Categorical column. Distinct values: 3, 5.', \n  `is_current` STRING COMMENT\
+  \ 'Boolean indicator flag (values: ''Yes''/''No'').', \n  `mother_citizen_master_id_fk`\
+  \ BIGINT COMMENT 'Foreign Key: Links to the associated mother citizen master dimension\
+  \ or master table.', \n  `father_citizen_master_id_fk` BIGINT COMMENT 'Foreign Key:\
+  \ Links to the associated father citizen master dimension or master table.', \n\
+  \  `guardian_citizen_master_id_fk` BIGINT COMMENT 'Foreign Key: Links to the associated\
+  \ guardian citizen master dimension or master table.', \n  `is_current_flag` STRING\
+  \ COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `primary_mobile_no`\
+  \ STRING COMMENT 'The primary 10-digit mobile contact number registered to the individual.',\
+  \ \n  `secondary_mobile_no` STRING COMMENT 'Secondary mobile no.', \n  `email_id`\
+  \ STRING COMMENT 'Email identifier.', \n  `address` STRING COMMENT 'System field\
+  \ containing values such as: 3-1 PATHARALAPALLI RANASTHALAM SRIKAK..., FAZULBEGPETA\
+  \ SRIKAKULAM SRIKAKULAM, 1-59 THALAVARAM VEERAGHATTAM PARVATHI..., 1-209 THALAVARAM\
+  \ VEERAGHATTAM PARVATH..., 1-123 THALAVARAM VEERAGHATTAM PARVATH....', \n  `pincode`\
+  \ STRING COMMENT 'The 6-digit postal code (PIN code) of the location.', \n  `effective_start_date`\
+  \ DATE COMMENT 'The specific date or timestamp when the effective start occurred.',\
+  \ \n  `effective_end_date` DATE COMMENT 'The specific date or timestamp when the\
+  \ effective end occurred.', \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating\
+  \ exactly when this record was originally created in the source system.', \n  `created_by`\
+  \ STRING COMMENT 'The user ID or automated system process responsible for creating\
+  \ this record.', \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the\
+  \ last time this record was modified or updated.', \n  `updated_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for the most recent update\
+  \ to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_student'"
+columns:
+- name: citizen_student_id_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the citizen student record. [Value
+    Examples: ''64'', ''134'', ''155'', ''189'', ''198'']'
+- name: citizen_school_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen school dimension or master
+    table. [Value Examples: ''1493'', ''13081'', ''1373'', ''2378'']'
+- name: student_citizen_master_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated student citizen master dimension
+    or master table. [Value Examples: ''620686862758'', ''742499851453'', ''438525332231'',
+    ''902123570150'', ''808963438257'']'
+- name: household_id
+  type: STRING
+  nullable: true
+  description: 'Unique identifier for the household. [Value Examples: ''HH82648807193320200221022055274'',
+    ''HH67363061815820200912092131770'', ''HH90433758667420211217065146328'', ''HH37708263523020200221072502732'',
+    ''HH74918284153920200215064054327'']'
+- name: enrollment_id
+  type: STRING
+  nullable: true
+  description: 'Unique student enrollment identifier. [Value Examples: ''1501000102'',
+    ''1501000431'', ''1501000667'', ''1501000806'', ''1501000824'']'
+- name: student_name
+  type: STRING
+  nullable: true
+  description: 'Full legal name of the enrolled student. [Value Examples: ''GORLE
+    HEMANTH'', ''CHALLA SAI MONISH'', ''ITRAJU SANTHOSH'', ''UDIYANA DILEEP'', ''CHINTHADA
+    SOMESH'']'
+- name: gender
+  type: STRING
+  nullable: true
+  description: 'Gender of the individual. Categorical column. Distinct values: MALE,
+    FEMALE. [Value Examples: ''MALE'']'
+- name: surname
+  type: STRING
+  nullable: true
+  description: The surname / family name of the citizen or student.
+- name: mother_tongue
+  type: STRING
+  nullable: true
+  description: 'The primary language spoken by the student at home (e.g., Telugu,
+    Urdu, English). [Value Examples: ''140'']'
+- name: date_of_birth
+  type: DATE
+  nullable: true
+  description: 'The birth date of the individual (citizen, student, or teacher) as
+    recorded in official records. [Value Examples: ''2008-06-07'', ''2009-03-10'',
+    ''2005-12-25'', ''2008-11-04'', ''2009-01-01'']'
+- name: social_category
+  type: STRING
+  nullable: true
+  description: 'Social category classification. Categorical column. Distinct values:
+    General, OBC, SC, ST, BC, Minority. [Value Examples: ''OBC'']'
+- name: minority_status
+  type: STRING
+  nullable: true
+  description: 'Minority status. [Value Examples: ''Not Applicable'']'
+- name: disability_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Yes''/''No''). [Value Examples:
+    ''No'']'
+- name: disability_percentage
+  type: DECIMAL(5,2)
+  nullable: true
+  description: 'Disability percentage. [Value Examples: ''0.00'']'
+- name: admission_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Yes''/''No''). [Value Examples:
+    ''Yes'']'
+- name: current_grade
+  type: STRING
+  nullable: true
+  description: 'The current academic class or grade the student is enrolled in (e.g.,
+    ''1'', ''2'', ..., ''10''). [Value Examples: ''11'', ''12'']'
+- name: medium_key
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: 3, 5. [Value Examples: ''5'',
+    ''3'']'
+- name: is_current
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Yes''/''No''). [Value Examples:
+    ''Yes'']'
+- name: mother_citizen_master_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated mother citizen master dimension
+    or master table. [Value Examples: ''664994000499'', ''885409045542'', ''252726413482'',
+    ''841080434046'']'
+- name: father_citizen_master_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated father citizen master dimension
+    or master table. [Value Examples: ''610246182532'', ''900412386299'', ''347430016308'',
+    ''898655533446'']'
+- name: guardian_citizen_master_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated guardian citizen master dimension
+    or master table.'
+- name: is_current_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''Y'']'
+- name: primary_mobile_no
+  type: STRING
+  nullable: true
+  description: 'The primary 10-digit mobile contact number registered to the individual.
+    [Value Examples: ''6281470288'', ''9297202456'', ''7469463127'', ''8125273681'',
+    ''9701599572'']'
+- name: secondary_mobile_no
+  type: STRING
+  nullable: true
+  description: 'Secondary mobile no. [Value Examples: ''6281470289'']'
+- name: email_id
+  type: STRING
+  nullable: true
+  description: Email identifier.
+- name: address
+  type: STRING
+  nullable: true
+  description: 'System field containing values such as: 3-1 PATHARALAPALLI RANASTHALAM
+    SRIKAK..., FAZULBEGPETA SRIKAKULAM SRIKAKULAM, 1-59 THALAVARAM VEERAGHATTAM PARVATHI...,
+    1-209 THALAVARAM VEERAGHATTAM PARVATH..., 1-123 THALAVARAM VEERAGHATTAM PARVATH....
+    [Value Examples: ''3-1 PATHARALAPALLI RANASTHALAM SRIKAK...'', ''FAZULBEGPETA
+    SRIKAKULAM SRIKAKULAM'', ''1-59 THALAVARAM VEERAGHATTAM PARVATHI...'', ''1-209
+    THALAVARAM VEERAGHATTAM PARVATH...'', ''1-123 THALAVARAM VEERAGHATTAM PARVATH...'']'
+- name: pincode
+  type: STRING
+  nullable: true
+  description: 'The 6-digit postal code (PIN code) of the location. [Value Examples:
+    ''532407'', ''532005'', ''532462'']'
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective start occurred.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective end occurred.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for creating this
+    record.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+- name: status
+  type: STRING
+  nullable: true
+  description: Status of the citizen student.
+- name: status_level_1
+  type: STRING
+  nullable: true
+  description: Status level 1 of the citizen student.
+- name: status_level_2
+  type: STRING
+  nullable: true
+  description: Status level 2 of the citizen student.
+primary_key:
+- citizen_student_pk
+relationships:
+- citizen_student.citizen_school_fk is a foreign-key-style reference to citizen_school.
+- citizen_student.citizen_master_fk is a foreign-key-style reference to citizen_master.
+- citizen_student.student_subject_fk is a foreign-key-style reference to student_subject.
+business_terms:
+- student analytics
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_student
+- join with related school and citizen dimensions

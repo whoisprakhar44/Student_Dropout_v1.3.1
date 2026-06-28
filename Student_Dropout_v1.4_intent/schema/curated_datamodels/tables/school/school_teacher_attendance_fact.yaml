@@ -1,0 +1,168 @@
+database: curated_datamodels
+table: school_teacher_attendance_fact
+department: school
+description: Fact table for school teacher attendance measures and events.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_teacher_attendance_fact
+partitioned_by: 'school_teacher_attendance_fact_id_pk_bucket: bucket[32]'
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_teacher_attendance_fact/metadata/00000-8b0de1f0-6595-4b40-928b-10015d42762e.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_teacher_attendance_fact`(\n\
+  \  `school_teacher_attendance_fact_id_pk` BIGINT COMMENT 'Primary Key: Unique identifier\
+  \ for the school teacher attendance fact record.', \n  `citizen_school_teacher_id_fk`\
+  \ BIGINT COMMENT 'Foreign Key: Links to the associated citizen school teacher dimension\
+  \ or master table.', \n  `citizen_student_id_fk` BIGINT COMMENT 'Foreign Key: Links\
+  \ to the associated citizen student dimension or master table.', \n  `attendance_date_key_id_fk`\
+  \ BIGINT COMMENT 'Foreign Key: Links to the associated attendance date key dimension\
+  \ or master table.', \n  `academic_year` STRING COMMENT 'The academic calendar year\
+  \ for the record (e.g., ''2025'').', \n  `present_flag` STRING COMMENT 'Boolean\
+  \ indicator flag (values: ''Y''/''N'').', \n  `attendance_count` INT COMMENT 'Attendance\
+  \ count.', \n  `on_leave_flag` STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').',\
+  \ \n  `on_duty_flag` STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').',\
+  \ \n  `late_flag` STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').',\
+  \ \n  `leave_type` STRING COMMENT 'Classification field defining the specific leave\
+  \ type.', \n  `approved_leave_flag` STRING COMMENT 'Boolean indicator flag (values:\
+  \ ''Y''/''N'').', \n  `attendance_source` STRING COMMENT 'Attendance source.', \n\
+  \  `capture_timestamp` TIMESTAMP COMMENT 'Capture timestamp.', \n  `attendance_status_code`\
+  \ STRING COMMENT 'Code/ID column: The specific standardized code representing the\
+  \ attendance outcome. Categorical column.', \n  `capture_source` STRING COMMENT\
+  \ 'Capture source.', \n  `image_available_flag` STRING COMMENT 'Boolean indicator\
+  \ flag (values: ''Y''/''N'').', \n  `approval_status_code` STRING COMMENT 'Code/ID\
+  \ column: Standardized system code representing the approval status. Categorical\
+  \ column.', \n  `approval_role` STRING COMMENT 'Field containing the approval role\
+  \ details for the table.', \n  `approval_timestamp` TIMESTAMP COMMENT 'Approval\
+  \ timestamp.', \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating exactly\
+  \ when this record was originally created in the source system.', \n  `created_by`\
+  \ STRING COMMENT 'The user ID or automated system process responsible for creating\
+  \ this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/school_teacher_attendance_fact'"
+columns:
+- name: school_teacher_attendance_fact_id_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the school teacher attendance fact
+    record.'
+- name: citizen_school_teacher_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen school teacher dimension
+    or master table.'
+- name: citizen_student_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen student dimension or
+    master table.'
+- name: attendance_date_key_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated attendance date key dimension
+    or master table.'
+- name: academic_year
+  type: STRING
+  nullable: true
+  description: The academic calendar year for the record (e.g., '2025').
+- name: present_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: attendance_count
+  type: INT
+  nullable: true
+  description: Attendance count.
+- name: on_leave_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: on_duty_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: late_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: leave_type
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific leave type.
+- name: approved_leave_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: attendance_source
+  type: STRING
+  nullable: true
+  description: Attendance source.
+- name: capture_timestamp
+  type: TIMESTAMP
+  nullable: true
+  description: Capture timestamp.
+- name: attendance_status_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: The specific standardized code representing the attendance
+    outcome. Categorical column.'
+- name: capture_source
+  type: STRING
+  nullable: true
+  description: Capture source.
+- name: image_available_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: approval_status_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the approval
+    status. Categorical column.'
+- name: approval_role
+  type: STRING
+  nullable: true
+  description: Field containing the approval role details for the table.
+- name: approval_timestamp
+  type: TIMESTAMP
+  nullable: true
+  description: Approval timestamp.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for creating this
+    record.
+primary_key:
+- school_teacher_attendance_fact_id_pk
+relationships:
+- school_teacher_attendance_fact.citizen_school_teacher_id_fk is a foreign-key-style
+  reference to citizen_school_teacher_id.
+- school_teacher_attendance_fact.citizen_student_id_fk is a foreign-key-style reference
+  to citizen_student_id.
+- school_teacher_attendance_fact.attendance_date_key_id_fk is a foreign-key-style
+  reference to attendance_date_key_id.
+business_terms:
+- fact table
+- event and metric analysis
+- school analytics
+- attendance tracking
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in school_teacher_attendance_fact
+- aggregate measures by academic year and linked dimensions
+- join with related school and citizen dimensions
+- analyze present, absent, and attendance status trends

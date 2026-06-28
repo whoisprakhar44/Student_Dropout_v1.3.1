@@ -1,0 +1,58 @@
+database: curated_datamodels
+table: citizen_idty_type
+department: canonicalmodel
+description: 'Curated Hive/Iceberg table for citizen idty type. [Sample records: {''citizen_idty_type'':
+  ''1'', ''idty_name'': ''AADHAR'', ''idty_description'': ''The UIDAI was created
+  to issue unique...'', ''issuing_authority'': ''UIDAI''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_idty_type
+partitioned_by: ''
+tblproperties:
+  current-snapshot-id: '4667290571798349333'
+  current-snapshot-timestamp-ms: '1776341111690'
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_idty_type/metadata/00004-746bf339-230d-4a05-8c92-55e2a3fcab1b.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '4'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_idty_type`(\n  `citizen_idty_type`\
+  \ INT COMMENT 'Citizen idty type.', \n  `idty_name` STRING COMMENT 'Field containing\
+  \ the idty name details for the table.', \n  `idty_description` STRING COMMENT 'Idty\
+  \ description.', \n  `issuing_authority` STRING COMMENT 'Issuing authority.')\n\
+  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_idty_type'"
+columns:
+- name: citizen_idty_type
+  type: INT
+  nullable: true
+  description: 'Citizen idty type. [Value Examples: ''1'']'
+- name: idty_name
+  type: STRING
+  nullable: true
+  description: 'Field containing the idty name details for the table. [Value Examples:
+    ''AADHAR'']'
+- name: idty_description
+  type: STRING
+  nullable: true
+  description: 'Idty description. [Value Examples: ''The UIDAI was created to issue
+    unique...'']'
+- name: issuing_authority
+  type: STRING
+  nullable: true
+  description: 'Issuing authority. [Value Examples: ''UIDAI'']'
+primary_key: []
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_idty_type

@@ -1,0 +1,66 @@
+database: curated_datamodels
+table: school_medium
+department: canonicalmodel
+description: 'Curated table containing school medium attributes. [Sample records:
+  {''medium_code'': ''31'', ''medium_name'': ''State Govt.EM(SSC)''}, {''medium_code'':
+  ''18'', ''medium_name'': ''Urdu''}, {''medium_code'': ''19'', ''medium_name'': ''English''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_medium
+partitioned_by: 'school_medium_pk_bucket: bucket[32]'
+tblproperties:
+  current-snapshot-id: '6749712600941293892'
+  current-snapshot-timestamp-ms: '1778315019132'
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_medium/metadata/00001-6e038ed8-560a-4a54-beae-fc47aae72ebc.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '1'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_medium`(\n  `school_medium_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the school medium record.',\
+  \ \n  `medium_code` STRING COMMENT 'Code/ID column: Standardized system code representing\
+  \ the medium. Categorical column. Distinct values: 7. Examples: 17, 31, 19, 18,\
+  \ 16. Top frequencies: 1, 1, 1, 1, 1. Categorical column.', \n  `medium_name` STRING\
+  \ COMMENT 'System field containing values such as: State Govt.EM(SSC), Urdu, English,\
+  \ Tamil, Telugu.', \n  `language_family` STRING COMMENT 'Language family.')\nROW\
+  \ FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_medium'"
+columns:
+- name: school_medium_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the school medium record. [Value
+    Examples: ''7'', ''4'', ''5'', ''2'', ''3'']'
+- name: medium_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the medium.
+    Categorical column. Distinct values: 7. Examples: 17, 31, 19, 18, 16. Top frequencies:
+    1, 1, 1, 1, 1. Categorical column. [Value Examples: ''31'', ''18'', ''19'', ''16'',
+    ''17'']'
+- name: medium_name
+  type: STRING
+  nullable: true
+  description: 'System field containing values such as: State Govt.EM(SSC), Urdu,
+    English, Tamil, Telugu. [Value Examples: ''State Govt.EM(SSC)'', ''Urdu'', ''English'',
+    ''Tamil'', ''Telugu'']'
+- name: language_family
+  type: STRING
+  nullable: true
+  description: Language family.
+primary_key:
+- school_medium_pk
+relationships: []
+business_terms:
+- school analytics
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in school_medium
+- join with related school and citizen dimensions

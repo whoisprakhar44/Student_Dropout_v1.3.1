@@ -1,0 +1,122 @@
+database: curated_datamodels
+table: student_class_dim
+department: school
+description: 'Dimension/master table for student class reference attributes. [Sample
+  records: {''class_code'': ''6'', ''class_name'': ''Class VI'', ''education_stage'':
+  ''UPPER_PRIMARY'', ''is_active'': ''Y''}, {''class_code'': ''5'', ''class_name'':
+  ''Class V'', ''education_stage'': ''PRIMARY'', ''is_active'': ''Y''}, {''class_code'':
+  ''9'', ''class_name'': ''Class IX'', ''education_stage'': ''SECONDARY'', ''is_active'':
+  ''Y''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/student_class_dim
+partitioned_by: 'student_class_dim_id_pk_bucket: bucket[32]'
+tblproperties:
+  current-snapshot-id: '8679126564052291040'
+  current-snapshot-timestamp-ms: '1778485502095'
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/student_class_dim/metadata/00004-1d998da8-cbad-4624-a529-3727ead23299.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '4'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`student_class_dim`(\n  `student_class_dim_id_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the student class dim record.',\
+  \ \n  `class_code` STRING COMMENT 'Code/ID column: Standardized system code representing\
+  \ the class. Categorical column. Distinct values: 10. Examples: 5, 2, 6, 1, 9. Top\
+  \ frequencies: 1, 1, 1, 1, 1. Categorical column.', \n  `class_name` STRING COMMENT\
+  \ 'System field containing values such as: Class VI, Class V, Class IX, Class II,\
+  \ Class I.', \n  `education_stage` STRING COMMENT 'Education stage.', \n  `min_age`\
+  \ INT COMMENT 'Field containing the min age details for the table.', \n  `max_age`\
+  \ INT COMMENT 'Field containing the max age details for the table.', \n  `is_active`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `effective_start_date`\
+  \ DATE COMMENT 'The specific date or timestamp when the effective start occurred.',\
+  \ \n  `effective_end_date` DATE COMMENT 'The specific date or timestamp when the\
+  \ effective end occurred.', \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating\
+  \ exactly when this record was originally created in the source system.', \n  `created_by`\
+  \ STRING COMMENT 'The user ID or automated system process responsible for creating\
+  \ this record.', \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the\
+  \ last time this record was modified or updated.', \n  `updated_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for the most recent update\
+  \ to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/student_class_dim'"
+columns:
+- name: student_class_dim_id_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the student class dim record. [Value
+    Examples: ''6'', ''5'', ''9'', ''2'', ''1'']'
+- name: class_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the class. Categorical
+    column. Distinct values: 10. Examples: 5, 2, 6, 1, 9. Top frequencies: 1, 1, 1,
+    1, 1. Categorical column. [Value Examples: ''6'', ''5'', ''9'', ''2'', ''1'']'
+- name: class_name
+  type: STRING
+  nullable: true
+  description: 'System field containing values such as: Class VI, Class V, Class IX,
+    Class II, Class I. [Value Examples: ''Class VI'', ''Class V'', ''Class IX'', ''Class
+    II'', ''Class I'']'
+- name: education_stage
+  type: STRING
+  nullable: true
+  description: 'Education stage. [Value Examples: ''UPPER_PRIMARY'', ''PRIMARY'',
+    ''SECONDARY'']'
+- name: min_age
+  type: INT
+  nullable: true
+  description: Field containing the min age details for the table.
+- name: max_age
+  type: INT
+  nullable: true
+  description: Field containing the max age details for the table.
+- name: is_active
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''Y'']'
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective start occurred.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective end occurred.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-11 13:14:54.052487'']'
+- name: created_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+primary_key:
+- student_class_dim_id_pk
+relationships: []
+business_terms:
+- dimension table
+- reference lookup
+- student analytics
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in student_class_dim
+- join with related school and citizen dimensions

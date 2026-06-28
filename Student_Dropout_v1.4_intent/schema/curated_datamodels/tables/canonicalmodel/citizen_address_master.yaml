@@ -1,0 +1,203 @@
+database: curated_datamodels
+table: citizen_address_master
+department: canonicalmodel
+description: 'Curated Hive/Iceberg table for citizen address master. [Sample records:
+  {''lgd_dist_code'': ''753'', ''district_name'': ''ANNAMAYYA'', ''lgd_mandal_code'':
+  ''5242'', ''mandal_name'': ''VEERABALLI'', ''secretariat_code'': ''11190187'', ''secretariat_name'':
+  ''ODIVEEDU''}, {''lgd_dist_code'': ''744'', ''district_name'': ''ANAKAPALLI'', ''lgd_mandal_code'':
+  ''4872'', ''mandal_name'': ''CHODAVARAM'', ''secretariat_code'': ''10390354'', ''secretariat_name'':
+  ''GAVARAVARAM''}, {''lgd_dist_code'': ''502'', ''district_name'': ''ANANTHAPURAMU'',
+  ''lgd_mandal_code'': ''5309'', ''mandal_name'': ''GUNTHAKAL'', ''secretariat_code'':
+  ''11290505'', ''secretariat_name'': ''KASAPURAM''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_address_master
+partitioned_by: 'citizen_master_fk_bucket: bucket[32]'
+tblproperties:
+  current-snapshot-id: '2579166232216546855'
+  current-snapshot-timestamp-ms: '1778496552586'
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_address_master/metadata/00008-68812b46-abda-414f-b763-00caf729eead.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '8'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_address_master`(\n \
+  \ `citizen_address_master_pk` INT COMMENT 'Primary Key: Unique identifier for the\
+  \ citizen address master record.', \n  `citizen_master_fk` STRING COMMENT 'Foreign\
+  \ Key: Links to the associated citizen master dimension or master table.', \n  `lgd_dist_code`\
+  \ INT COMMENT 'Code/ID column: LGD district code. Categorical column.', \n  `district_name`\
+  \ STRING COMMENT 'The official name of the administrative district in Andhra Pradesh.',\
+  \ \n  `lgd_mandal_code` INT COMMENT 'Code/ID column: LGD mandal code. Categorical\
+  \ column.', \n  `mandal_name` STRING COMMENT 'The official name of the mandal (sub-district\
+  \ administrative division) in Andhra Pradesh.', \n  `secretariat_code` STRING COMMENT\
+  \ 'Code/ID column: GSWS secretariat code. Categorical column.', \n  `secretariat_name`\
+  \ STRING COMMENT 'GSWS secretariat name.', \n  `rural_urban_flag` STRING COMMENT\
+  \ 'Boolean indicator flag (values: ''Y''/''N'').', \n  `cluster_id` STRING COMMENT\
+  \ 'Secretariat cluster identifier.', \n  `address_type` STRING COMMENT 'Classification\
+  \ field defining the specific address type.', \n  `address_line_1` STRING COMMENT\
+  \ 'Address line 1.', \n  `address_line_2` STRING COMMENT 'Address line 2.', \n \
+  \ `address_line_3` STRING COMMENT 'Address line 3.', \n  `pin_code` STRING COMMENT\
+  \ 'Code/ID column: The 6-digit postal code (PIN) for the address location. Categorical\
+  \ column. Distinct values: 200. Examples: 534350, 531075, 522503, 516269, 515803.\
+  \ Top frequencies: 19730661, 280822, 258720, 242981, 221759. Categorical column.',\
+  \ \n  `latitude` STRING COMMENT 'The geographical latitude coordinate of the location.',\
+  \ \n  `longitude` STRING COMMENT 'The geographical longitude coordinate of the location.',\
+  \ \n  `coordinate_system` STRING COMMENT 'Coordinate system.', \n  `is_primary`\
+  \ INT COMMENT 'Field containing the is primary details for the table.', \n  `address_status_code`\
+  \ STRING COMMENT 'Standardized system code representing the address status.', \n\
+  \  `effective_start_date` DATE COMMENT 'The specific date or timestamp when the\
+  \ effective start occurred.', \n  `effective_end_date` DATE COMMENT 'The specific\
+  \ date or timestamp when the effective end occurred.', \n  `created_date` TIMESTAMP\
+  \ COMMENT 'Timestamp indicating exactly when this record was originally created\
+  \ in the source system.', \n  `created_by` STRING COMMENT 'The user ID or automated\
+  \ system process responsible for creating this record.', \n  `updated_date` TIMESTAMP\
+  \ COMMENT 'Timestamp indicating the last time this record was modified or updated.',\
+  \ \n  `updated_by` STRING COMMENT 'The user ID or automated system process responsible\
+  \ for the most recent update to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_address_master'"
+columns:
+- name: citizen_address_master_pk
+  type: INT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the citizen address master record.
+    [Value Examples: ''77311132611'', ''77310798547'', ''77311671578'', ''77311108656'',
+    ''77311923465'']'
+- name: citizen_master_fk
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table. [Value Examples: ''200033592809'', ''200044246390'', ''200062834743'',
+    ''200140153905'', ''200187610877'']'
+- name: lgd_dist_code
+  type: INT
+  nullable: true
+  description: 'Code/ID column: LGD district code. Categorical column. [Value Examples:
+    ''753'', ''744'', ''502'', ''506'', ''505'']'
+- name: district_name
+  type: STRING
+  nullable: true
+  description: 'The official name of the administrative district in Andhra Pradesh.
+    [Value Examples: ''ANNAMAYYA'', ''ANAKAPALLI'', ''ANANTHAPURAMU'', ''GUNTUR'',
+    ''EAST GODAVARI'']'
+- name: lgd_mandal_code
+  type: INT
+  nullable: true
+  description: 'Code/ID column: LGD mandal code. Categorical column. [Value Examples:
+    ''5242'', ''4872'', ''5309'', ''1023'', ''1076'']'
+- name: mandal_name
+  type: STRING
+  nullable: true
+  description: 'The official name of the mandal (sub-district administrative division)
+    in Andhra Pradesh. [Value Examples: ''VEERABALLI'', ''CHODAVARAM'', ''GUNTHAKAL'',
+    ''TADEPALLI MANGALAGIRI MUNICIPAL CORPO...'', ''KOVVUR'']'
+- name: secretariat_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: GSWS secretariat code. Categorical column. [Value
+    Examples: ''11190187'', ''10390354'', ''11290505'', ''21023013'', ''21076001'']'
+- name: secretariat_name
+  type: STRING
+  nullable: true
+  description: 'GSWS secretariat name. [Value Examples: ''ODIVEEDU'', ''GAVARAVARAM'',
+    ''KASAPURAM'', ''SRILAKSHMINARASIMHASWAMYCOLONY'', ''SRIRAMACOLONY'']'
+- name: rural_urban_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''R'',
+    ''U'']'
+- name: cluster_id
+  type: STRING
+  nullable: true
+  description: 'Secretariat cluster identifier. [Value Examples: ''11190187001'',
+    ''10390354017'', ''11290505012'', ''21023013018'', ''21076001006'']'
+- name: address_type
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific address type.
+- name: address_line_1
+  type: STRING
+  nullable: true
+  description: 'Address line 1. [Value Examples: ''2/35'', ''1-10'', ''2/78'', ''11-1150'',
+    ''14-16-17'']'
+- name: address_line_2
+  type: STRING
+  nullable: true
+  description: Address line 2.
+- name: address_line_3
+  type: STRING
+  nullable: true
+  description: Address line 3.
+- name: pin_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: The 6-digit postal code (PIN) for the address location.
+    Categorical column. Distinct values: 200. Examples: 534350, 531075, 522503, 516269,
+    515803. Top frequencies: 19730661, 280822, 258720, 242981, 221759. Categorical
+    column. [Value Examples: ''516269'', ''531075'', ''515803'', ''522503'', ''534350'']'
+- name: latitude
+  type: STRING
+  nullable: true
+  description: 'The geographical latitude coordinate of the location. [Value Examples:
+    ''14.0682766'', ''17.8659084'', ''15.1967047'', ''16.3884474'', ''17.0242395'']'
+- name: longitude
+  type: STRING
+  nullable: true
+  description: 'The geographical longitude coordinate of the location. [Value Examples:
+    ''78.812407'', ''82.98772'', ''77.3980294'', ''80.5366933'', ''81.7199804'']'
+- name: coordinate_system
+  type: STRING
+  nullable: true
+  description: Coordinate system.
+- name: is_primary
+  type: INT
+  nullable: true
+  description: Field containing the is primary details for the table.
+- name: address_status_code
+  type: STRING
+  nullable: true
+  description: Standardized system code representing the address status.
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective start occurred.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective end occurred.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-29 15:38:30.460400'']'
+- name: created_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating the last time this record was modified or updated.
+    [Value Examples: ''2026-06-16 12:00:23.820001'']'
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for the most recent
+    update to this record. [Value Examples: ''curated_team'']'
+primary_key:
+- citizen_address_master_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_address_master

@@ -1,0 +1,128 @@
+database: curated_datamodels
+table: citizen_education
+department: canonicalmodel
+description: 'Curated Hive/Iceberg table for citizen education. [Sample records: {''qualification_name'':
+  ''Other'', ''current_qualification_flag'': ''N'', ''created_at'': ''2026-05-26 15:51:19.993051''},
+  {''qualification_name'': ''Diploma & Other'', ''current_qualification_flag'': ''N'',
+  ''created_at'': ''2026-05-26 15:51:19.993051''}, {''current_qualification_flag'':
+  ''N'', ''created_at'': ''2026-05-26 15:51:19.993051''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_education
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_education/metadata/00000-9759873a-af8e-4cbc-94aa-99ec399b2573.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_education`(\n  `citizen_education_id_pk`\
+  \ INT COMMENT 'Primary Key: Unique identifier for the citizen education record.',\
+  \ \n  `citizen_master_fk` INT COMMENT 'Foreign Key: Links to the associated citizen\
+  \ master dimension or master table.', \n  `qualification_name` STRING COMMENT 'Qualification\
+  \ name.', \n  `qualification_level` STRING COMMENT 'Field containing the qualification\
+  \ level details for the table.', \n  `course_name` STRING COMMENT 'Field containing\
+  \ the course name details for the table.', \n  `institution_code` STRING COMMENT\
+  \ 'Code/ID column: Standardized system code representing the institution. Categorical\
+  \ column. Distinct values: 200. Top frequencies: 44998158, 13420, 10154, 8601, 8196.\
+  \ Categorical column.', \n  `scholarship_scheme` STRING COMMENT 'Field containing\
+  \ the scholarship scheme details for the table.', \n  `department_id` STRING COMMENT\
+  \ 'Identifier key referencing the associated department.', \n  `current_qualification_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `mode_of_study`\
+  \ STRING COMMENT 'Classification field defining the specific mode of study.', \n\
+  \  `medium_of_instruction` STRING COMMENT 'Field containing the medium of instruction\
+  \ details for the table.', \n  `created_at` STRING COMMENT 'Timestamp indicating\
+  \ exactly when this record was originally created in the database system.', \n \
+  \ `created_by` STRING COMMENT 'The user ID or automated system process responsible\
+  \ for creating this record.', \n  `updated_at` STRING COMMENT 'Timestamp indicating\
+  \ the last time this record was modified or updated in the database system.', \n\
+  \  `updated_by` STRING COMMENT 'The user ID or automated system process responsible\
+  \ for the most recent update to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_education'"
+columns:
+- name: citizen_education_id_pk
+  type: INT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the citizen education record. [Value
+    Examples: ''1'']'
+- name: citizen_master_fk
+  type: INT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table.'
+- name: qualification_name
+  type: STRING
+  nullable: true
+  description: 'Qualification name. [Value Examples: ''Other'', ''Diploma & Other'',
+    ''10th class'']'
+- name: qualification_level
+  type: STRING
+  nullable: true
+  description: Field containing the qualification level details for the table.
+- name: course_name
+  type: STRING
+  nullable: true
+  description: Field containing the course name details for the table.
+- name: institution_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the institution.
+    Categorical column. Distinct values: 200. Top frequencies: 44998158, 13420, 10154,
+    8601, 8196. Categorical column.'
+- name: scholarship_scheme
+  type: STRING
+  nullable: true
+  description: Field containing the scholarship scheme details for the table.
+- name: department_id
+  type: STRING
+  nullable: true
+  description: Identifier key referencing the associated department.
+- name: current_qualification_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''N'']'
+- name: mode_of_study
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific mode of study.
+- name: medium_of_instruction
+  type: STRING
+  nullable: true
+  description: Field containing the medium of instruction details for the table.
+- name: created_at
+  type: STRING
+  nullable: true
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the database system. [Value Examples: ''2026-05-26 15:51:19.993051'']'
+- name: created_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
+- name: updated_at
+  type: STRING
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated
+    in the database system.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+primary_key:
+- citizen_education_id_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_education

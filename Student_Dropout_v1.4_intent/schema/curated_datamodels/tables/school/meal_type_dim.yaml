@@ -1,0 +1,114 @@
+database: curated_datamodels
+table: meal_type_dim
+department: school
+description: 'Dimension/master table for meal type reference attributes. [Sample records:
+  {''meal_type_code'': ''90'', ''meal_type_name'': ''Dal Rasam'', ''is_active'': ''Y''},
+  {''meal_type_code'': ''95'', ''meal_type_name'': ''Potato Khurma'', ''is_active'':
+  ''Y''}, {''meal_type_code'': ''104'', ''meal_type_name'': ''Gongura Chutney'', ''is_active'':
+  ''Y''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/meal_type_dim
+partitioned_by: 'meal_type_dim_id_pk_bucket: bucket[32]'
+tblproperties:
+  current-snapshot-id: '6371550919716756546'
+  current-snapshot-timestamp-ms: '1778581929930'
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/meal_type_dim/metadata/00001-c089ab3f-e5b4-4509-8e7e-1270a5c8102c.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '1'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`meal_type_dim`(\n  `meal_type_dim_id_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the meal type dim record.',\
+  \ \n  `meal_type_code` STRING COMMENT 'Code/ID column: Standardized system code\
+  \ representing the meal type. Categorical column. Distinct values: 46. Examples:\
+  \ 95, 104, 90, 108, 110. Top frequencies: 1, 1, 1, 1, 1. Categorical column.', \n\
+  \  `meal_type_name` STRING COMMENT 'Meal type name.', \n  `is_compulsory` STRING\
+  \ COMMENT 'Field containing the is compulsory details for the table.', \n  `is_active`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `is_current`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `effective_start_date`\
+  \ DATE COMMENT 'The specific date or timestamp when the effective start occurred.',\
+  \ \n  `effective_end_date` DATE COMMENT 'The specific date or timestamp when the\
+  \ effective end occurred.', \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating\
+  \ exactly when this record was originally created in the source system.', \n  `created_by`\
+  \ STRING COMMENT 'The user ID or automated system process responsible for creating\
+  \ this record.', \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the\
+  \ last time this record was modified or updated.', \n  `updated_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for the most recent update\
+  \ to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/meal_type_dim'"
+columns:
+- name: meal_type_dim_id_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the meal type dim record. [Value
+    Examples: ''37'', ''42'', ''5'', ''9'', ''11'']'
+- name: meal_type_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the meal type.
+    Categorical column. Distinct values: 46. Examples: 95, 104, 90, 108, 110. Top
+    frequencies: 1, 1, 1, 1, 1. Categorical column. [Value Examples: ''90'', ''95'',
+    ''104'', ''108'', ''110'']'
+- name: meal_type_name
+  type: STRING
+  nullable: true
+  description: 'Meal type name. [Value Examples: ''Dal Rasam'', ''Potato Khurma'',
+    ''Gongura Chutney'', ''Egg'', ''Egg with Salt+ Karam'']'
+- name: is_compulsory
+  type: STRING
+  nullable: true
+  description: Field containing the is compulsory details for the table.
+- name: is_active
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''Y'']'
+- name: is_current
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective start occurred.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective end occurred.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-12 16:02:01.523472'']'
+- name: created_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+primary_key:
+- meal_type_dim_id_pk
+relationships: []
+business_terms:
+- dimension table
+- reference lookup
+- mid-day meal operations
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in meal_type_dim

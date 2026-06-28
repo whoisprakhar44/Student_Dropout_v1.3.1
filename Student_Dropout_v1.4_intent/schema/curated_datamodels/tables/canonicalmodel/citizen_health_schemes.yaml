@@ -1,0 +1,146 @@
+database: curated_datamodels
+table: citizen_health_schemes
+department: canonicalmodel
+description: 'Curated Hive/Iceberg table for citizen health schemes. [Sample records:
+  {''health_card_id'': ''WAP130103300275/04'', ''scheme_name'': ''Dr.NTR Vaidya Seva'',
+  ''household_id'': ''HH97587443683120200515052731763'', ''ration_card_no'': ''2818091180''},
+  {''health_card_id'': ''YAP102002800383/01'', ''scheme_name'': ''Ayushman Bharat(PM-JAY)'',
+  ''household_id'': ''HH59671442198220200320064241078'', ''ration_card_no'': ''2803376070''},
+  {''health_card_id'': ''WAP070201300210/04'', ''scheme_name'': ''Dr.NTR Vaidya Seva'',
+  ''household_id'': ''HH38123908591320200218104429651'', ''ration_card_no'': ''2816245796''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_health_schemes
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_health_schemes/metadata/00000-7debaad1-2ee7-440c-9d33-9f874f0e34d1.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_health_schemes`(\n \
+  \ `citizen_health_schemes_pk` INT COMMENT 'Primary Key: Unique identifier for the\
+  \ citizen health schemes record.', \n  `citizen_health_schemes_master_fk` INT COMMENT\
+  \ 'Foreign Key: Links to the associated citizen health schemes master dimension\
+  \ or master table.', \n  `citizen_master_fk` INT COMMENT 'Foreign Key: Links to\
+  \ the associated citizen master dimension or master table.', \n  `health_card_id`\
+  \ STRING COMMENT 'Unique identifier for health card.', \n  `scheme_name` STRING\
+  \ COMMENT 'Name of the welfare/health scheme.', \n  `household_id` STRING COMMENT\
+  \ 'Unique identifier for the household.', \n  `ration_card_no` STRING COMMENT 'The\
+  \ unique household ration card number used for public distribution benefits.', \n\
+  \  `scheme_registered_date` DATE COMMENT 'The specific date or timestamp when the\
+  \ scheme registered occurred.', \n  `scheme_approved_date` DATE COMMENT 'The specific\
+  \ date or timestamp when the scheme approved occurred.', \n  `scheme_processed_date`\
+  \ DATE COMMENT 'The specific date or timestamp when the scheme processed occurred.',\
+  \ \n  `scheme_last_closed_date` DATE COMMENT 'The specific date or timestamp when\
+  \ the scheme last closed occurred.', \n  `scheme_approved_amount` STRING COMMENT\
+  \ 'Scheme approved amount.', \n  `scheme_utilized_amount` STRING COMMENT 'Scheme\
+  \ utilized amount.', \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating\
+  \ exactly when this record was originally created in the source system.', \n  `created_by`\
+  \ STRING COMMENT 'The user ID or automated system process responsible for creating\
+  \ this record.', \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the\
+  \ last time this record was modified or updated.', \n  `updated_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for the most recent update\
+  \ to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_health_schemes'"
+columns:
+- name: citizen_health_schemes_pk
+  type: INT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the citizen health schemes record.
+    [Value Examples: ''139'', ''174'', ''182'', ''193'', ''208'']'
+- name: citizen_health_schemes_master_fk
+  type: INT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen health schemes master
+    dimension or master table. [Value Examples: ''2'', ''1'']'
+- name: citizen_master_fk
+  type: INT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table. [Value Examples: ''200002204041'', ''200003174540'', ''200003320144'',
+    ''200003472302'', ''200003862489'']'
+- name: health_card_id
+  type: STRING
+  nullable: true
+  description: 'Unique identifier for health card. [Value Examples: ''WAP130103300275/04'',
+    ''YAP102002800383/01'', ''WAP070201300210/04'', ''WAP111202100328/01'', ''WAP134400200471/01'']'
+- name: scheme_name
+  type: STRING
+  nullable: true
+  description: 'Name of the welfare/health scheme. [Value Examples: ''Dr.NTR Vaidya
+    Seva'', ''Ayushman Bharat(PM-JAY)'']'
+- name: household_id
+  type: STRING
+  nullable: true
+  description: 'Unique identifier for the household. [Value Examples: ''HH97587443683120200515052731763'',
+    ''HH59671442198220200320064241078'', ''HH38123908591320200218104429651'', ''HH59780609395520200216075739443'',
+    ''HH71482531669920200225063315885'']'
+- name: ration_card_no
+  type: STRING
+  nullable: true
+  description: 'The unique household ration card number used for public distribution
+    benefits. [Value Examples: ''2818091180'', ''2803376070'', ''2816245796'', ''2804622535'',
+    ''2816979039'']'
+- name: scheme_registered_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the scheme registered occurred.
+- name: scheme_approved_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the scheme approved occurred.
+- name: scheme_processed_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the scheme processed occurred.
+- name: scheme_last_closed_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the scheme last closed occurred.
+- name: scheme_approved_amount
+  type: STRING
+  nullable: true
+  description: Scheme approved amount.
+- name: scheme_utilized_amount
+  type: STRING
+  nullable: true
+  description: Scheme utilized amount.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-28 17:54:52.314408'']'
+- name: created_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+primary_key:
+- citizen_health_schemes_pk
+relationships:
+- citizen_health_schemes.citizen_master_fk is a foreign-key-style reference to citizen_master.citizen_master_pk,
+  which can be linked to citizen_student.student_citizen_master_id_fk.
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_health_schemes

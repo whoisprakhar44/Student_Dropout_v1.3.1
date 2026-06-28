@@ -1,0 +1,141 @@
+database: curated_datamodels
+table: citizen_address_master_test
+department: canonicalmodel
+description: Curated Hive/Iceberg table for citizen address master test.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_address_master_test
+partitioned_by: 'citizen_master_fk_bucket: bucket[32]'
+tblproperties:
+  engine.hive.enabled: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_address_master_test/metadata/00000-ec7e1017-8bae-453a-87ce-0d2f3cae2e8b.metadata.json
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_address_master_test`(\n\
+  \  `citizen_address_master_pk` STRING COMMENT 'Primary Key: Unique identifier for\
+  \ the citizen address master record.', \n  `citizen_master_fk` STRING COMMENT 'Foreign\
+  \ Key: Links to the associated citizen master dimension or master table.', \n  `address_type`\
+  \ STRING COMMENT 'Classification field defining the specific address type.', \n\
+  \  `address_line_1` STRING COMMENT 'Address line 1.', \n  `address_line_2` STRING\
+  \ COMMENT 'Address line 2.', \n  `address_line_3` STRING COMMENT 'Address line 3.',\
+  \ \n  `pin_code` STRING COMMENT 'Code/ID column: The 6-digit postal code (PIN) for\
+  \ the address location. Categorical column.', \n  `latitude` DOUBLE COMMENT 'The\
+  \ geographical latitude coordinate of the location.', \n  `longitude` DOUBLE COMMENT\
+  \ 'The geographical longitude coordinate of the location.', \n  `coordinate_system`\
+  \ STRING COMMENT 'Coordinate system.', \n  `is_primary` BOOLEAN COMMENT 'Field containing\
+  \ the is primary details for the table.', \n  `address_status_code` STRING COMMENT\
+  \ 'Standardized system code representing the address status.', \n  `effective_start_date`\
+  \ TIMESTAMP COMMENT 'The specific date or timestamp when the effective start occurred.',\
+  \ \n  `effective_end_date` TIMESTAMP COMMENT 'The specific date or timestamp when\
+  \ the effective end occurred.', \n  `is_current` BOOLEAN COMMENT 'Boolean indicator\
+  \ flag (values: ''Y''/''N'').', \n  `is_deleted` BOOLEAN COMMENT 'Field containing\
+  \ the is deleted details for the table.', \n  `created_date` TIMESTAMP COMMENT 'Timestamp\
+  \ indicating exactly when this record was originally created in the source system.',\
+  \ \n  `created_by` STRING COMMENT 'The user ID or automated system process responsible\
+  \ for creating this record.', \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating\
+  \ the last time this record was modified or updated.', \n  `updated_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for the most recent update\
+  \ to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_address_master_test'"
+columns:
+- name: citizen_address_master_pk
+  type: STRING
+  nullable: true
+  description: 'Primary Key: Unique identifier for the citizen address master record.'
+- name: citizen_master_fk
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table.'
+- name: address_type
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific address type.
+- name: address_line_1
+  type: STRING
+  nullable: true
+  description: Address line 1.
+- name: address_line_2
+  type: STRING
+  nullable: true
+  description: Address line 2.
+- name: address_line_3
+  type: STRING
+  nullable: true
+  description: Address line 3.
+- name: pin_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: The 6-digit postal code (PIN) for the address location.
+    Categorical column.'
+- name: latitude
+  type: DOUBLE
+  nullable: true
+  description: The geographical latitude coordinate of the location.
+- name: longitude
+  type: DOUBLE
+  nullable: true
+  description: The geographical longitude coordinate of the location.
+- name: coordinate_system
+  type: STRING
+  nullable: true
+  description: Coordinate system.
+- name: is_primary
+  type: BOOLEAN
+  nullable: true
+  description: Field containing the is primary details for the table.
+- name: address_status_code
+  type: STRING
+  nullable: true
+  description: Standardized system code representing the address status.
+- name: effective_start_date
+  type: TIMESTAMP
+  nullable: true
+  description: The specific date or timestamp when the effective start occurred.
+- name: effective_end_date
+  type: TIMESTAMP
+  nullable: true
+  description: The specific date or timestamp when the effective end occurred.
+- name: is_current
+  type: BOOLEAN
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: is_deleted
+  type: BOOLEAN
+  nullable: true
+  description: Field containing the is deleted details for the table.
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for creating this
+    record.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+primary_key:
+- citizen_address_master_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_address_master_test

@@ -1,0 +1,35 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Query Engine — Impala (CDP / Cloudera)
+#  Replaces the legacy hive: section — Impala is now the only execution engine.
+#
+#  All values here are overridable via environment variables in .env.
+# ─────────────────────────────────────────────────────────────────────────────
+
+query_engine:
+  type: impala
+  host: dl-dev-cl-fn01.datalake-dev.local
+  port: 21050
+  database: curated_datamodels        # used by health-check Iceberg read
+
+  kerberos:
+    service_name: impala              # passed as kerberos_service_name to Impyla
+
+hadoop:
+  home: /usr/local/hadoop-3.3.6
+  conf_dir: ~/hadoop-configuration    # must contain core-site.xml, hdfs-site.xml
+
+execution:
+  query_timeout_seconds: 300
+
+  # ── Optional Impala session-scoped SET statements ────────────────────────────
+  #
+  # These are sent once immediately after every connection (and every reconnect).
+  # Impyla passes each statement verbatim to Impala before the first user query.
+  #
+  # Example Impala session settings:
+  #   - "SET REQUEST_POOL=my_pool"
+  #   - "SET MEM_LIMIT=4g"
+  #
+  # Leave as an empty list if no session configuration is required.
+  session_settings:
+    - "SET MEM_LIMIT=5g"

@@ -1,0 +1,148 @@
+database: curated_datamodels
+table: citizen_land
+department: canonicalmodel
+description: Curated Hive/Iceberg table for citizen land.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_land
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_land/metadata/00000-db3f7abf-9ff0-4a8c-b6d5-c63a9f1b989c.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_land`(\n  `citizen_land_id_pk`\
+  \ INT COMMENT 'Primary Key: Unique identifier for the citizen land record.', \n\
+  \  `citizen_master_fk` INT COMMENT 'Foreign Key: Links to the associated citizen\
+  \ master dimension or master table.', \n  `land_id` STRING COMMENT 'Identifier key\
+  \ referencing the associated land.', \n  `land_type` STRING COMMENT 'Classification\
+  \ field defining the specific land type.', \n  `acres` STRING COMMENT 'The area\
+  \ size of the land holding measured in acres.', \n  `survey_no` STRING COMMENT 'The\
+  \ official land survey number or sub-division number of the land parcel.', \n  `location`\
+  \ STRING COMMENT 'A text description or address of the physical location of the\
+  \ asset or land.', \n  `district_id` STRING COMMENT 'Identifier key referencing\
+  \ the associated district.', \n  `mandal_id` STRING COMMENT 'Identifier key referencing\
+  \ the associated mandal.', \n  `village_name` STRING COMMENT 'The official name\
+  \ of the village/habitation where the school or citizen address is located.', \n\
+  \  `registration_no` STRING COMMENT 'Registration no.', \n  `registration_date`\
+  \ STRING COMMENT 'The specific date or timestamp when the registration occurred.',\
+  \ \n  `market_value` STRING COMMENT 'The estimated or registered market value of\
+  \ the property or land parcel in INR.', \n  `soil_type` STRING COMMENT 'Classification\
+  \ field defining the specific soil type.', \n  `irrigation_type` STRING COMMENT\
+  \ 'Classification field defining the specific irrigation type.', \n  `encumbrance_status`\
+  \ STRING COMMENT 'System field indicating the current encumbrance status of the\
+  \ record.', \n  `created_date` STRING COMMENT 'Timestamp indicating exactly when\
+  \ this record was originally created in the source system.', \n  `created_by` STRING\
+  \ COMMENT 'The user ID or automated system process responsible for creating this\
+  \ record.', \n  `updated_date` STRING COMMENT 'Timestamp indicating the last time\
+  \ this record was modified or updated.', \n  `updated_by` STRING COMMENT 'The user\
+  \ ID or automated system process responsible for the most recent update to this\
+  \ record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_land'"
+columns:
+- name: citizen_land_id_pk
+  type: INT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the citizen land record.'
+- name: citizen_master_fk
+  type: INT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table.'
+- name: land_id
+  type: STRING
+  nullable: true
+  description: Identifier key referencing the associated land.
+- name: land_type
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific land type.
+- name: acres
+  type: STRING
+  nullable: true
+  description: The area size of the land holding measured in acres.
+- name: survey_no
+  type: STRING
+  nullable: true
+  description: The official land survey number or sub-division number of the land
+    parcel.
+- name: location
+  type: STRING
+  nullable: true
+  description: A text description or address of the physical location of the asset
+    or land.
+- name: district_id
+  type: STRING
+  nullable: true
+  description: Identifier key referencing the associated district.
+- name: mandal_id
+  type: STRING
+  nullable: true
+  description: Identifier key referencing the associated mandal.
+- name: village_name
+  type: STRING
+  nullable: true
+  description: The official name of the village/habitation where the school or citizen
+    address is located.
+- name: registration_no
+  type: STRING
+  nullable: true
+  description: Registration no.
+- name: registration_date
+  type: STRING
+  nullable: true
+  description: The specific date or timestamp when the registration occurred.
+- name: market_value
+  type: STRING
+  nullable: true
+  description: The estimated or registered market value of the property or land parcel
+    in INR.
+- name: soil_type
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific soil type.
+- name: irrigation_type
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific irrigation type.
+- name: encumbrance_status
+  type: STRING
+  nullable: true
+  description: System field indicating the current encumbrance status of the record.
+- name: created_date
+  type: STRING
+  nullable: true
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for creating this
+    record.
+- name: updated_date
+  type: STRING
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+primary_key:
+- citizen_land_id_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_land

@@ -1,0 +1,132 @@
+database: curated_datamodels
+table: citizen_health_schemes_master
+department: canonicalmodel
+description: 'Curated Hive/Iceberg table for citizen health schemes master. [Sample
+  records: {''scheme_name'': ''Ayushman Bharat(PM-JAY)'', ''create_date'': ''2026-05-20'',
+  ''create_by'': ''Curated_team''}, {''scheme_name'': ''Dr.NTR Vaidya Seva'', ''create_date'':
+  ''2026-05-20'', ''create_by'': ''Curated_team''}, {''scheme_name'': ''Working journalist
+  Health'', ''create_date'': ''2026-05-20'', ''create_by'': ''Curated_team''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_health_schemes_master
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_health_schemes_master/metadata/00000-ededc07a-fd8a-4495-940a-018fad881110.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_health_schemes_master`(\n\
+  \  `citizen_health_schemes_master_pk` INT COMMENT 'Primary Key: Unique identifier\
+  \ for the citizen health schemes master record.', \n  `health_scheme_code_fk` STRING\
+  \ COMMENT 'Foreign Key: Links to the associated health scheme code dimension or\
+  \ master table.', \n  `scheme_name` STRING COMMENT 'The official name of the government\
+  \ welfare scheme or benefit program.', \n  `scheme_type` STRING COMMENT 'Classification\
+  \ field defining the specific scheme type.', \n  `category` STRING COMMENT 'Classification\
+  \ field defining the specific category.', \n  `sub_category` STRING COMMENT 'Classification\
+  \ field defining the specific sub category.', \n  `scheme_code` STRING COMMENT 'Code/ID\
+  \ column: Standardized system code representing the scheme. Categorical column.\
+  \ Distinct values: 1. Top frequencies: 5. Categorical column.', \n  `scheme_create_date`\
+  \ DATE COMMENT 'The specific date or timestamp when the scheme create occurred.',\
+  \ \n  `scheme_start_date` DATE COMMENT 'The specific date or timestamp when the\
+  \ scheme start occurred.', \n  `scheme_end_date` DATE COMMENT 'The specific date\
+  \ or timestamp when the scheme end occurred.', \n  `scheme_active_status` STRING\
+  \ COMMENT 'System field indicating the current scheme active status of the record.',\
+  \ \n  `scheme_benefits` STRING COMMENT 'Field containing the scheme benefits details\
+  \ for the table.', \n  `create_date` DATE COMMENT 'The specific date or timestamp\
+  \ when the create occurred.', \n  `create_by` STRING COMMENT 'System field containing\
+  \ values such as: Curated_team.', \n  `updated_date` DATE COMMENT 'Timestamp indicating\
+  \ the last time this record was modified or updated.', \n  `updated_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for the most recent update\
+  \ to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_health_schemes_master'"
+columns:
+- name: citizen_health_schemes_master_pk
+  type: INT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the citizen health schemes master
+    record. [Value Examples: ''1'', ''2'', ''3'', ''4'', ''5'']'
+- name: health_scheme_code_fk
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: Links to the associated health scheme code dimension
+    or master table.'
+- name: scheme_name
+  type: STRING
+  nullable: true
+  description: 'The official name of the government welfare scheme or benefit program.
+    [Value Examples: ''Ayushman Bharat(PM-JAY)'', ''Dr.NTR Vaidya Seva'', ''Working
+    journalist Health'', ''Arogya Raksha'', ''Employee health'']'
+- name: scheme_type
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific scheme type.
+- name: category
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific category.
+- name: sub_category
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific sub category.
+- name: scheme_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the scheme.
+    Categorical column. Distinct values: 1. Top frequencies: 5. Categorical column.'
+- name: scheme_create_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the scheme create occurred.
+- name: scheme_start_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the scheme start occurred.
+- name: scheme_end_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the scheme end occurred.
+- name: scheme_active_status
+  type: STRING
+  nullable: true
+  description: System field indicating the current scheme active status of the record.
+- name: scheme_benefits
+  type: STRING
+  nullable: true
+  description: Field containing the scheme benefits details for the table.
+- name: create_date
+  type: DATE
+  nullable: true
+  description: 'The specific date or timestamp when the create occurred. [Value Examples:
+    ''2026-05-20'']'
+- name: create_by
+  type: STRING
+  nullable: true
+  description: 'System field containing values such as: Curated_team. [Value Examples:
+    ''Curated_team'']'
+- name: updated_date
+  type: DATE
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+primary_key:
+- citizen_health_schemes_master_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_health_schemes_master

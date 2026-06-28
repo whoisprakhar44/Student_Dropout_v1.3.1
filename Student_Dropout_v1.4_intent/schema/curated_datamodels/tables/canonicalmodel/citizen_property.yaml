@@ -1,0 +1,84 @@
+database: curated_datamodels
+table: citizen_property
+department: canonicalmodel
+description: Curated Hive/Iceberg table for citizen property.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_property
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_property/metadata/00000-0adc51a8-9134-475b-b3db-cac489b240bc.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_property`(\n  `citizen_property_id_pk`\
+  \ INT COMMENT 'Primary Key: Unique identifier for the citizen property record.',\
+  \ \n  `citizen_master_fk` INT COMMENT 'Foreign Key: Links to the associated citizen\
+  \ master dimension or master table.', \n  `citizen_master_id` STRING COMMENT 'Citizen\
+  \ master id.', \n  `property_type` STRING COMMENT 'Classification field defining\
+  \ the specific property type.', \n  `owner_type` STRING COMMENT 'Classification\
+  \ field defining the specific owner type.', \n  `location` STRING COMMENT 'A text\
+  \ description or address of the physical location of the asset or land.', \n  `registration_no`\
+  \ STRING COMMENT 'Registration no.', \n  `registration_date` STRING COMMENT 'The\
+  \ specific date or timestamp when the registration occurred.', \n  `market_value`\
+  \ STRING COMMENT 'The estimated or registered market value of the property or land\
+  \ parcel in INR.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_property'"
+columns:
+- name: citizen_property_id_pk
+  type: INT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the citizen property record.'
+- name: citizen_master_fk
+  type: INT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table.'
+- name: citizen_master_id
+  type: STRING
+  nullable: true
+  description: Citizen master id.
+- name: property_type
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific property type.
+- name: owner_type
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific owner type.
+- name: location
+  type: STRING
+  nullable: true
+  description: A text description or address of the physical location of the asset
+    or land.
+- name: registration_no
+  type: STRING
+  nullable: true
+  description: Registration no.
+- name: registration_date
+  type: STRING
+  nullable: true
+  description: The specific date or timestamp when the registration occurred.
+- name: market_value
+  type: STRING
+  nullable: true
+  description: The estimated or registered market value of the property or land parcel
+    in INR.
+primary_key:
+- citizen_property_id_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_property

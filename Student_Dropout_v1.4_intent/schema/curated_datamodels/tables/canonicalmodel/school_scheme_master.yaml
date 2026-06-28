@@ -1,0 +1,134 @@
+database: curated_datamodels
+table: school_scheme_master
+department: canonicalmodel
+description: Dimension/master table for school scheme reference attributes.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_scheme_master
+partitioned_by: 'school_scheme_dim_id_pk_bucket: bucket[32]'
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_scheme_master/metadata/00000-9c0e2f58-814f-43cc-a668-77a5450cbaaf.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`school_scheme_master`(\n  `school_scheme_dim_id_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the school scheme dim record.',\
+  \ \n  `scheme_code` STRING COMMENT 'Code/ID column: Standardized system code representing\
+  \ the scheme. Categorical column.', \n  `scheme_name` STRING COMMENT 'The official\
+  \ name of the government welfare scheme or benefit program.', \n  `scheme_category`\
+  \ STRING COMMENT 'Classification field defining the specific scheme category.',\
+  \ \n  `applicable_level` STRING COMMENT 'Field containing the applicable level details\
+  \ for the table.', \n  `delivery_mode` STRING COMMENT 'Classification field defining\
+  \ the specific delivery mode.', \n  `funding_dept` STRING COMMENT 'Field containing\
+  \ the funding dept details for the table.', \n  `start_date` DATE COMMENT 'The specific\
+  \ date or timestamp when the start occurred.', \n  `end_date` DATE COMMENT 'The\
+  \ specific date or timestamp when the end occurred.', \n  `scheme_status` STRING\
+  \ COMMENT 'System field indicating the current scheme status of the record.', \n\
+  \  `effective_from` DATE COMMENT 'Effective from.', \n  `effective_to` DATE COMMENT\
+  \ 'Field containing the effective to details for the table.', \n  `is_current` STRING\
+  \ COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `is_active` STRING\
+  \ COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `created_date` TIMESTAMP\
+  \ COMMENT 'Timestamp indicating exactly when this record was originally created\
+  \ in the source system.', \n  `created_by` STRING COMMENT 'The user ID or automated\
+  \ system process responsible for creating this record.', \n  `updated_date` TIMESTAMP\
+  \ COMMENT 'Timestamp indicating the last time this record was modified or updated.',\
+  \ \n  `updated_by` STRING COMMENT 'The user ID or automated system process responsible\
+  \ for the most recent update to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/school_scheme_master'"
+columns:
+- name: school_scheme_dim_id_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the school scheme dim record.'
+- name: scheme_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the scheme.
+    Categorical column.'
+- name: scheme_name
+  type: STRING
+  nullable: true
+  description: The official name of the government welfare scheme or benefit program.
+- name: scheme_category
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific scheme category.
+- name: applicable_level
+  type: STRING
+  nullable: true
+  description: Field containing the applicable level details for the table.
+- name: delivery_mode
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific delivery mode.
+- name: funding_dept
+  type: STRING
+  nullable: true
+  description: Field containing the funding dept details for the table.
+- name: start_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the start occurred.
+- name: end_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the end occurred.
+- name: scheme_status
+  type: STRING
+  nullable: true
+  description: System field indicating the current scheme status of the record.
+- name: effective_from
+  type: DATE
+  nullable: true
+  description: Effective from.
+- name: effective_to
+  type: DATE
+  nullable: true
+  description: Field containing the effective to details for the table.
+- name: is_current
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: is_active
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for creating this
+    record.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+primary_key:
+- school_scheme_dim_id_pk
+relationships: []
+business_terms:
+- school analytics
+- scheme benefit delivery
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in school_scheme_master
+- join with related school and citizen dimensions
+- track eligibility, sanction, delivery, and payment status

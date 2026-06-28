@@ -1,0 +1,167 @@
+database: curated_datamodels
+table: mid_day_meal_serving_fact
+department: school
+description: 'Fact table for mid day meal serving measures and events. [Sample records:
+  {''academic_year'': ''2025'', ''meal_served_flag'': ''No''}, {''academic_year'':
+  ''2025'', ''meal_served_flag'': ''No''}, {''academic_year'': ''2025'', ''meal_served_flag'':
+  ''Yes''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/mid_day_meal_serving_fact
+partitioned_by: 'mid_day_meal_serving_fact_id_pk_bucket: bucket[32]'
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  table_type: ICEBERG
+columns:
+- name: mid_day_meal_serving_fact_id_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the mid day meal serving fact record.
+    [Value Examples: ''1'', ''24'', ''27'', ''69'', ''101'']'
+- name: citizen_school_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen school dimension or master
+    table. [Value Examples: ''1223'']'
+- name: date_key_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated date key dimension or master
+    table. [Value Examples: ''20250613'', ''20250729'', ''20250726'', ''20251009'',
+    ''20251125'']'
+- name: meal_type_id_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated meal type dimension or master
+    table.'
+- name: academic_year
+  type: STRING
+  nullable: true
+  description: 'The academic calendar year for the record (e.g., ''2024-25''). [Value
+    Examples: ''2025'']'
+- name: mid_day_meal_serving_factor
+  type: DECIMAL(5,2)
+  nullable: true
+  description: Mid day meal serving factor.
+- name: indent_reference_number
+  type: STRING
+  nullable: true
+  description: Indent reference number.
+- name: inspection_reference_id
+  type: STRING
+  nullable: true
+  description: Inspection reference identifier.
+- name: meal_served_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Yes''/''No''). [Value Examples:
+    ''No'', ''Yes'']'
+- name: calories_served
+  type: DECIMAL(8,2)
+  nullable: true
+  description: Calories served.
+- name: protein_grams_served
+  type: DECIMAL(8,2)
+  nullable: true
+  description: Protein grams served.
+- name: egg_served_count
+  type: INT
+  nullable: true
+  description: Egg served count.
+- name: meal_serving_start_time
+  type: TIMESTAMP
+  nullable: true
+  description: Meal serving start time.
+- name: hygiene_compliant_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: food_tasted_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: teacher_supervised_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: medical_incident_reported_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: last_inspection_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the last inspection occurred.
+- name: inspection_score
+  type: DECIMAL(5,2)
+  nullable: true
+  description: Inspection score.
+- name: inspection_remarks_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the inspection
+    remarks. Categorical column. Distinct values: 1. Top frequencies: 16270678. Categorical
+    column.'
+- name: geo_tagged_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: photo_captured_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: meal_not_served_reason_code
+  type: STRING
+  nullable: true
+  description: Standardized system code representing the meal not served reason.
+- name: supply_shortage_flag
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-29 17:51:53.684422'']'
+- name: created_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''CURATED_TEAM'']'
+primary_key:
+- mid_day_meal_serving_fact_id_pk
+relationships: []
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`mid_day_meal_serving_fact`(\n\
+  \  `mid_day_meal_serving_fact_id_pk` BIGINT COMMENT 'Primary Key: Unique identifier\
+  \ for the mid day meal serving fact record.', \n  `citizen_school_id_fk` BIGINT\
+  \ COMMENT 'Foreign Key: Links to the associated citizen school dimension or master\
+  \ table.', \n  `date_key_id_fk` BIGINT COMMENT 'Foreign Key: Links to the associated\
+  \ date key dimension or master table.', \n  `meal_type_id_fk` BIGINT COMMENT 'Foreign\
+  \ Key: Links to the associated meal type dimension or master table.', \n  `academic_year`\
+  \ STRING COMMENT 'The academic calendar year for the record (e.g., ''2024-25'').',\
+  \ \n  `mid_day_meal_serving_factor` DECIMAL(5,2) COMMENT 'Mid day meal serving factor.',\
+  \ \n  `indent_reference_number` STRING COMMENT 'Indent reference number.', \n  `inspection_reference_id`\
+  \ STRING COMMENT 'Inspection reference identifier.', \n  `meal_served_flag` STRING\
+  \ COMMENT 'Boolean indicator flag (values: ''Yes''/''No'').', \n  `calories_served`\
+  \ DECIMAL(8,2) COMMENT 'Calories served.', \n  `protein_grams_served` DECIMAL(8,2)\
+  \ COMMENT 'Protein grams served.', \n  `egg_served_count` INT COMMENT 'Egg served\
+  \ count.', \n  `meal_serving_start_time` TIMESTAMP COMMENT 'Meal serving start time.',\
+  \ \n  `hygiene_compliant_flag` STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').',\
+  \ \n  `food_tasted_flag` STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').',\
+  \ \n  `teacher_supervised_flag` STRING COMMENT 'Boolean indicator flag (values:\
+  \ ''Y''/''N'').', \n  `medical_incident_reported_flag` STRING COMMENT 'Boolean indicator\
+  \ flag (values: ''Y''/''N'').', \n  `last_inspection_date` DATE COMMENT 'The specific\
+  \ date or timestamp when the last inspection occurred.', \n  `inspection_score`\
+  \ DECIMAL(5,2) COMMENT 'Inspection score.', \n  `inspection_remarks_code` STRING\
+  \ COMMENT 'Code/ID column: Standardized system code representing the inspection\
+  \ remarks. Categorical column. Distinct values: 1. Top frequencies: 16270678. Categorical\
+  \ column.', \n  `geo_tagged_flag` STRING COMMENT 'Boolean indicator flag (values:\
+  \ ''Y''/''N'').', \n  `photo_captured_flag` STRING COMMENT 'Boolean indicator flag\
+  \ (values: ''Y''/''N'').', \n  `meal_not_served_reason_code` STRING COMMENT 'Standardized\
+  \ system code representing the meal not served reason.', \n  `supply_shortage_flag`\
+  \ STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').', \n  `created_date`\
+  \ TIMESTAMP COMMENT 'Timestamp indicating exactly when this record was originally\
+  \ created in the source system.', \n  `created_by` STRING COMMENT 'The user ID or\
+  \ automated system process responsible for creating this record.')\nROW FORMAT SERDE\
+  \ \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  \nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/mid_day_meal_serving_fact'"

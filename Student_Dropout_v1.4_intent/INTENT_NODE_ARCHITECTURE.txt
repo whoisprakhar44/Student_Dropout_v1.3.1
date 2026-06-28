@@ -1,0 +1,131 @@
+================================================================================
+INTENT NODE ARCHITECTURE & TECHNICAL SPECIFICATION (v1.4)
+Student Dropout Risk Monitoring System — Citizen360 Integration Pattern
+================================================================================
+
+1. OVERVIEW & PURPOSE
+---------------------
+The Intent Node is a pre-processing intelligence module introduced in Version 1.4
+of the Student Dropout NL2SQL pipeline. It acts as the initial decision-making
+gatekeeper in the LangGraph agent state machine. 
+
+Before schema retrieval (RAG) or SQL generation occurs, the Intent Node:
+  - Classifies the natural language question into 1 of 13 domain intent labels.
+  - Extracts key domain entities (district, academic year, grade, social category).
+  - Determines the precise department scope based on YAML table metadata.
+  - Enriches downstream RAG retrieval queries to prevent schema hallucination.
+
+
+2. LANGGRAPH WORKFLOW & STATE MACHINE INTEGRATION
+-------------------------------------------------
+In v1.4, the agent graph flow is updated from a 5-node cycle to a 6-node cycle:
+
+  START ──► [intent_node] ──► [initialize_node] ──► [tool_node]
+                                                       │
+                                                       ▼
+   END ◄─── [verify_node] ◄─────────────────────── [llm_node]
+                 │ (retry)                              │
+                 └──────────────────────────────────────┘
+
+  Step-by-Step Trajectory:
+    1. START ──► intent_node: Intercepts user query, performs single LLM turn.
+    2. intent_node ──► initialize_node: Passes intent, scope, and entities via AgentState.
+    3. initialize_node ──► tool_node: Emits forced tool call `retrive_schema_rag` with enriched query.
+    4. tool_node ──► llm_node: Retrieves schema DDLs/fewshots and forwards context to LLM.
+    5. llm_node ──► tool_node / verify_node: Generates Hive/Impala SQL SELECT statement.
+    6. verify_node ──► END: Validates SQL result; self-heals or completes.
+
+
+3. THE 13 INTENT TAXONOMIES
+---------------------------
+The Intent Node classifies user queries against 13 production intent categories:
+
+  1. student_risk_list             : Individual at-risk or dropout-risk student lists.
+  2. school_hotspot                : Schools with high dropout risk, low attendance (<55%).
+  3. equity_risk_slice             : Analysis by social category (SC, ST, OBC), gender, caste.
+  4. scheme_delivery_gap           : Benefit delivery issues (sanctioned but not disbursed).
+  5. eligibility_blocker           : Missing welfare pre-requisites (Aadhaar, Bank, KYC, BPL).
+  6. gsws_case_load                : GSWS secretariat / Gram Sachivalayam caseload rankings.
+  7. nutrition_service_gap         : Mid-Day Meal (MDM) serving failures and reasons.
+  8. facility_root_cause           : School infrastructure gaps (toilets, water, electricity).
+  9. household_poverty_risk        : Ration card & poverty indicators linked to student absence.
+ 10. citizen_socioeconomic_profile : Citizen assets, land, property, utilities, power meters.
+ 11. teacher_attendance            : Teacher attendance records & teacher master profiling.
+ 12. academic_performance          : Marks, exam pass/fail rates, assessment analytics.
+ 13. general_query                 : General inquiries fallback.
+
+
+4. ENTITY EXTRACTION SPECIFICATION
+----------------------------------
+The Intent Node extracts 4 structured entities from the raw question:
+  - district_name   : AP districts (e.g., Anantapur, Guntur, Chittoor, Krishna, Kurnool).
+  - academic_year   : Target year (e.g., "2025", "2025-26").
+  - current_grade   : Student class number (e.g., "6", "8", "10").
+  - social_category : Demographic slice (e.g., "SC", "ST", "OBC", "General").
+
+
+5. YAML DEPARTMENT SCOPE MAPPING & FILTERING
+---------------------------------------------
+Every database table in the schema directory (`schema/curated_datamodels/tables/`) contains
+a top-level `department` attribute in its YAML configuration:
+  - "school"         : 18 operational tables (attendance facts, performance, MDM, infra).
+  - "canonicalmodel" : 37 core registry tables (citizen master, student, school, assets).
+  - "misc"           : 3 temple dummy tables (temple AUVS summary, temple DDNS).
+
+The Intent Node maps each classified intent to an authoritative department scope:
+  - School Operational Intents  ──► Scope: ["school", "canonicalmodel"]
+  - Socioeconomic Profile Intents ──► Scope: ["canonicalmodel"]
+  - Unrelated ("misc") Domain   ──► Scope: PERMANENTLY EXCLUDED
+
+This scope mapping ensures that RAG retrieval never pulls irrelevant tables from unrelated
+domains into the LLM context window.
+
+
+6. ENRICHED RAG QUERY CONSTRUCTION
+----------------------------------
+In `initialize_node` (my_agent/utils/nodes.py), the raw question is transformed using the
+intent node outputs before invoking `retrive_schema_rag`:
+
+  Raw Question:
+    "Which schools in Guntur have low attendance in 2025?"
+
+  Enriched RAG Query:
+    "[intent: school_hotspot] Which schools in Guntur have low attendance in 2025? [district: Guntur, year: 2025] [departments: school, canonicalmodel]"
+
+Impact of Enrichment:
+  - Semantic similarity search in Milvus weights reference SQL examples matching the intent.
+  - Entity anchors (district, year) eliminate false-positive table retrievals.
+  - Department tags prevent schema clutter from non-target domains.
+
+
+7. AGENTSTATE EXTENSIONS (my_agent/utils/state.py)
+--------------------------------------------------
+Three optional fields are added to the TypedDict state definition:
+
+  class AgentState(TypedDict):
+      ...
+      intent           : NotRequired[str | None]
+      department_scope : NotRequired[List[str] | None]
+      entities         : NotRequired[Dict[str, str] | None]
+
+
+8. TECHNICAL IMPLEMENTATION DETAILS (my_agent/utils/intent_node.py)
+------------------------------------------------------------------
+  - LLM Config  : ChatOllama running `qwen3.5:2b-mlx` (or server model).
+  - Execution   : Temperature = 0, Reasoning = False, Num Predict = 256.
+  - Format      : Strict JSON output enforced via system prompt instructions.
+  - Sanitization: Regex stripping of `<think>...</think>` tags and markdown fences.
+  - Fallback    : On network timeout or JSON parse exception, defaults cleanly to
+                  `intent = "general_query"`, preventing pipeline crashes.
+
+
+9. VERIFICATION RESULTS (Standalone Test Benchmark)
+----------------------------------------------------
+Tested against gold-standard benchmark queries:
+  [1] Query   : "Give me class 6 students in Anantapur with 12+ absences in 2025..."
+      Result  : Intent = student_risk_list | Entities = {district: Anantapur, year: 2025, grade: 6}
+  [2] Query   : "Which schools in Anantapur have attendance below 55% in 2025-26?"
+      Result  : Intent = school_hotspot | Entities = {district: Anantapur, year: 2025-26}
+  [3] Query   : "List students from LOW ration-card households in Anantapur with 15+ absences..."
+      Result  : Intent = household_poverty_risk | Scope = ['canonicalmodel']
+================================================================================

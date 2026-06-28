@@ -1,0 +1,121 @@
+database: curated_datamodels
+table: absent_reason_dim
+department: school
+description: 'Dimension/master table for absent reason reference attributes. [Sample
+  records: {''reason_code'': ''4'', ''reason_name'': ''School changed'', ''is_active'':
+  ''Yes''}, {''reason_code'': ''0'', ''is_active'': ''Yes''}, {''reason_code'': ''2'',
+  ''reason_name'': ''Duplicate Student'', ''is_active'': ''Yes''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/absent_reason_dim
+partitioned_by: 'absent_reason_dim_id_pk_bucket: bucket[32]'
+tblproperties:
+  current-snapshot-id: '8771172961618289400'
+  current-snapshot-timestamp-ms: '1778491034140'
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/absent_reason_dim/metadata/00001-ccab5f73-0f23-4c88-b5e0-800db9a60bef.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '1'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`absent_reason_dim`(\n  `absent_reason_dim_id_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the absent reason dim record.',\
+  \ \n  `reason_code` STRING COMMENT 'Code/ID column: Standardized system code representing\
+  \ the reason. Categorical column. Distinct values: 5. Examples: 2, 4, 3, 1, 0. Top\
+  \ frequencies: 1, 1, 1, 1, 1. Categorical column.', \n  `reason_name` STRING COMMENT\
+  \ 'Categorical classification column. Standardized values include: School changed,\
+  \ Duplicate Student, Left the school, Not feeling well.', \n  `reason_category`\
+  \ STRING COMMENT 'Classification field defining the specific reason category.',\
+  \ \n  `is_govt_approved` STRING COMMENT 'Field containing the is govt approved details\
+  \ for the table.', \n  `is_active` STRING COMMENT 'Boolean indicator flag (values:\
+  \ ''Yes''/''No'').', \n  `effective_start_date` DATE COMMENT 'The specific date\
+  \ or timestamp when the effective start occurred.', \n  `effective_end_date` DATE\
+  \ COMMENT 'The specific date or timestamp when the effective end occurred.', \n\
+  \  `is_current` STRING COMMENT 'Boolean indicator flag (values: ''Yes''/''No'').',\
+  \ \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating exactly when this record\
+  \ was originally created in the source system.', \n  `created_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for creating this record.',\
+  \ \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the last time this\
+  \ record was modified or updated.', \n  `updated_by` STRING COMMENT 'The user ID\
+  \ or automated system process responsible for the most recent update to this record.')\n\
+  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/absent_reason_dim'"
+columns:
+- name: absent_reason_dim_id_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the absent reason dim record. [Value
+    Examples: ''5'', ''1'', ''3'', ''4'', ''2'']'
+- name: reason_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the reason.
+    Categorical column. Distinct values: 5. Examples: 2, 4, 3, 1, 0. Top frequencies:
+    1, 1, 1, 1, 1. Categorical column. [Value Examples: ''4'', ''0'', ''2'', ''3'',
+    ''1'']'
+- name: reason_name
+  type: STRING
+  nullable: true
+  description: 'Categorical classification column. Standardized values include: School
+    changed, Duplicate Student, Left the school, Not feeling well. [Value Examples:
+    ''School changed'', ''Duplicate Student'', ''Left the school'', ''Not feeling
+    well'']'
+- name: reason_category
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific reason category.
+- name: is_govt_approved
+  type: STRING
+  nullable: true
+  description: Field containing the is govt approved details for the table.
+- name: is_active
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Yes''/''No''). [Value Examples:
+    ''Yes'']'
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective start occurred.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective end occurred.
+- name: is_current
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Yes''/''No'').'
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-11 14:46:46.881376'']'
+- name: created_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+primary_key:
+- absent_reason_dim_id_pk
+relationships: []
+business_terms:
+- dimension table
+- reference lookup
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in absent_reason_dim

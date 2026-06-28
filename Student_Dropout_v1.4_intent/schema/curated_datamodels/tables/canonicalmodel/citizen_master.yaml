@@ -1,0 +1,191 @@
+database: curated_datamodels
+table: citizen_master
+department: canonicalmodel
+description: 'Curated Hive/Iceberg table for citizen master. [Sample records: {''full_name'':
+  ''Kasimkota Lavanya'', ''birth_date'': ''01-Jan-1990 12.00.00.00000000  am'', ''gender'':
+  ''FEMALE'', ''marital_status'': ''0'', ''residency_status'': ''1045735750'', ''religion'':
+  ''Hindu''}, {''full_name'': ''Kuraba Yerriswamy'', ''birth_date'': ''01-Jan-1973
+  12.00.00.00000000  am'', ''gender'': ''MALE'', ''marital_status'': ''0'', ''residency_status'':
+  ''1374783456'', ''religion'': ''Hindu''}, {''full_name'': ''Rahul Chadalavada'',
+  ''birth_date'': ''03-Dec-2018 12.00.00.00000000  am'', ''gender'': ''MALE'', ''marital_status'':
+  ''0'', ''residency_status'': ''1802477394'', ''source_system'': ''GSWS''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_master
+partitioned_by: 'citizen_idty_fk_bucket: bucket[32]'
+tblproperties:
+  current-snapshot-id: '6767371102140490421'
+  current-snapshot-timestamp-ms: '1778507148887'
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_master/metadata/00007-8c0a1902-06f9-4312-8a86-be61f2fe4968.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '7'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_master`(\n  `citizen_master_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the citizen master record.',\
+  \ \n  `citizen_idty_fk` BIGINT COMMENT 'Foreign Key: Links to the associated citizenty\
+  \ dimension or master table.', \n  `first_name` STRING COMMENT 'The first name of\
+  \ the citizen.', \n  `middle_name` STRING COMMENT 'The middle name of the citizen\
+  \ (if applicable).', \n  `last_name` STRING COMMENT 'The last name / family name\
+  \ of the citizen.', \n  `full_name` STRING COMMENT 'The complete legal name of the\
+  \ citizen or individual.', \n  `birth_date` STRING COMMENT 'The specific date or\
+  \ timestamp when the birth occurred.', \n  `gender` STRING COMMENT 'Gender of the\
+  \ individual. Categorical column. Distinct values: MALE, FEMALE.', \n  `marital_status`\
+  \ STRING COMMENT 'Marital status code. Categorical column. Distinct values: 0 (Single/Unmarried),\
+  \ 1 (Married), 2 (Widowed), 3 (Divorced).', \n  `residency_status` STRING COMMENT\
+  \ 'Categorical column. Distinct values: 1045735750, 1286552336, 1312143190, 1374783456,\
+  \ 1802477394.', \n  `status_code` STRING COMMENT 'Code/ID column: The current operational\
+  \ status code of the record (e.g., ''ACTIVE'', ''INACTIVE'', ''PENDING''). Categorical\
+  \ column. Distinct values: 1. Top frequencies: 53024008. Categorical column.', \n\
+  \  `primary_language` STRING COMMENT 'Primary language.', \n  `image_url` STRING\
+  \ COMMENT 'The URL/path pointing to the photograph or digital image of the citizen/student.',\
+  \ \n  `deceased_date` STRING COMMENT 'The specific date or timestamp when the deceased\
+  \ occurred.', \n  `religion` STRING COMMENT 'Religion of the individual. Categorical\
+  \ column. Distinct values: Hindu, Muslim, Christian, Sikh, Buddhist, Jain.', \n\
+  \  `caste` STRING COMMENT 'Caste category. Categorical column. Distinct values:\
+  \ BC-A, BC-B, BC-C, BC-D, BC-E, SC, ST, OC.', \n  `source_system` STRING COMMENT\
+  \ 'The name of the source department database or application from which this data\
+  \ was ingested.', \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating exactly\
+  \ when this record was originally created in the source system.', \n  `updated_date`\
+  \ TIMESTAMP COMMENT 'Timestamp indicating the last time this record was modified\
+  \ or updated.', \n  `created_by` STRING COMMENT 'The user ID or automated system\
+  \ process responsible for creating this record.', \n  `updated_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for the most recent update\
+  \ to this record.', \n  `primary_mobile` STRING COMMENT 'Primary mobile contact\
+  \ number.', \n  `secondary_mobile` STRING COMMENT 'Secondary mobile contact number.',\
+  \ \n  `email_address` STRING COMMENT 'Primary email address.')\nROW FORMAT SERDE\
+  \ \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  \nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_master'"
+columns:
+- name: citizen_master_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the citizen master record. [Value
+    Examples: ''200129773265'', ''200173031274'', ''200213374967'', ''200335185909'',
+    ''200432730437'']'
+- name: citizen_idty_fk
+  type: BIGINT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizenty dimension or master
+    table. [Value Examples: ''8987'', ''11871'', ''14637'', ''22827'', ''29279'']'
+- name: first_name
+  type: STRING
+  nullable: true
+  description: The first name of the citizen.
+- name: middle_name
+  type: STRING
+  nullable: true
+  description: The middle name of the citizen (if applicable).
+- name: last_name
+  type: STRING
+  nullable: true
+  description: The last name / family name of the citizen.
+- name: full_name
+  type: STRING
+  nullable: true
+  description: 'The complete legal name of the citizen or individual. [Value Examples:
+    ''Kasimkota Lavanya'', ''Kuraba Yerriswamy'', ''Rahul Chadalavada'', ''GUVVADI
+    RATHAMMA'', ''Ajaguttu Nikileswar Reddy'']'
+- name: birth_date
+  type: STRING
+  nullable: true
+  description: 'The specific date or timestamp when the birth occurred. [Value Examples:
+    ''01-Jan-1990 12.00.00.00000000  am'', ''01-Jan-1973 12.00.00.00000000  am'',
+    ''03-Dec-2018 12.00.00.00000000  am'', ''12-Aug-1972 12.00.00.00000000  am'',
+    ''06-May-2015 12.00.00.00000000  am'']'
+- name: gender
+  type: STRING
+  nullable: true
+  description: 'Gender of the individual. Categorical column. Distinct values: MALE,
+    FEMALE. [Value Examples: ''FEMALE'', ''MALE'']'
+- name: marital_status
+  type: STRING
+  nullable: true
+  description: 'Marital status code. Categorical column. Distinct values: 0 (Single/Unmarried),
+    1 (Married), 2 (Widowed), 3 (Divorced). [Value Examples: ''0'']'
+- name: residency_status
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: 1045735750, 1286552336, 1312143190,
+    1374783456, 1802477394. [Value Examples: ''1045735750'', ''1374783456'', ''1802477394'',
+    ''1286552336'', ''1312143190'']'
+- name: status_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: The current operational status code of the record
+    (e.g., ''ACTIVE'', ''INACTIVE'', ''PENDING''). Categorical column. Distinct values:
+    1. Top frequencies: 53024008. Categorical column.'
+- name: primary_language
+  type: STRING
+  nullable: true
+  description: Primary language.
+- name: image_url
+  type: STRING
+  nullable: true
+  description: The URL/path pointing to the photograph or digital image of the citizen/student.
+- name: deceased_date
+  type: STRING
+  nullable: true
+  description: The specific date or timestamp when the deceased occurred.
+- name: religion
+  type: STRING
+  nullable: true
+  description: 'Religion of the individual. Categorical column. Distinct values: Hindu,
+    Muslim, Christian, Sikh, Buddhist, Jain. [Value Examples: ''Hindu'']'
+- name: caste
+  type: STRING
+  nullable: true
+  description: 'Caste category. Categorical column. Distinct values: BC-A, BC-B, BC-C,
+    BC-D, BC-E, SC, ST, OC. [Value Examples: ''SC'', ''BC-B'', ''OC'']'
+- name: source_system
+  type: STRING
+  nullable: true
+  description: 'The name of the source department database or application from which
+    this data was ingested. [Value Examples: ''GSWS'']'
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-22 13:37:34.524871'']'
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+- name: primary_mobile
+  type: STRING
+  nullable: true
+  description: 'Primary mobile contact number. [Value Examples: ''9603343033'']'
+- name: secondary_mobile
+  type: STRING
+  nullable: true
+  description: Secondary mobile contact number.
+- name: email_address
+  type: STRING
+  nullable: true
+  description: Primary email address.
+primary_key:
+- citizen_master_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_master

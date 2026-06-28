@@ -1,0 +1,112 @@
+database: curated_datamodels
+table: nutrition_item_dim
+department: school
+description: Dimension/master table for nutrition item reference attributes.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/nutrition_item_dim
+partitioned_by: 'nutrition_item_dim_id_pk_bucket: bucket[32]'
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/school/nutrition_item_dim/metadata/00000-c81eb4f6-a815-40d9-a80a-6a33ef55be60.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`nutrition_item_dim`(\n  `nutrition_item_dim_id_pk`\
+  \ BIGINT COMMENT 'Primary Key: Unique identifier for the nutrition item dim record.',\
+  \ \n  `item_code` STRING COMMENT 'Code/ID column: Standardized system code representing\
+  \ the item. Categorical column.', \n  `item_name` STRING COMMENT 'The name of the\
+  \ nutritional item or food product served in mid-day meals.', \n  `nutrition_category`\
+  \ STRING COMMENT 'Classification field defining the specific nutrition category.',\
+  \ \n  `unit_of_measure` STRING COMMENT 'Unit of measure.', \n  `default_quantity`\
+  \ DECIMAL(10,2) COMMENT 'Default quantity.', \n  `is_active` STRING COMMENT 'Boolean\
+  \ indicator flag (values: ''Y''/''N'').', \n  `effective_start_date` DATE COMMENT\
+  \ 'The specific date or timestamp when the effective start occurred.', \n  `effective_end_date`\
+  \ DATE COMMENT 'The specific date or timestamp when the effective end occurred.',\
+  \ \n  `is_current` STRING COMMENT 'Boolean indicator flag (values: ''Y''/''N'').',\
+  \ \n  `created_date` TIMESTAMP COMMENT 'Timestamp indicating exactly when this record\
+  \ was originally created in the source system.', \n  `created_by` STRING COMMENT\
+  \ 'The user ID or automated system process responsible for creating this record.',\
+  \ \n  `updated_date` TIMESTAMP COMMENT 'Timestamp indicating the last time this\
+  \ record was modified or updated.', \n  `updated_by` STRING COMMENT 'The user ID\
+  \ or automated system process responsible for the most recent update to this record.')\n\
+  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/school/nutrition_item_dim'"
+columns:
+- name: nutrition_item_dim_id_pk
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the nutrition item dim record.'
+- name: item_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the item. Categorical
+    column.'
+- name: item_name
+  type: STRING
+  nullable: true
+  description: The name of the nutritional item or food product served in mid-day
+    meals.
+- name: nutrition_category
+  type: STRING
+  nullable: true
+  description: Classification field defining the specific nutrition category.
+- name: unit_of_measure
+  type: STRING
+  nullable: true
+  description: Unit of measure.
+- name: default_quantity
+  type: DECIMAL(10,2)
+  nullable: true
+  description: Default quantity.
+- name: is_active
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: effective_start_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective start occurred.
+- name: effective_end_date
+  type: DATE
+  nullable: true
+  description: The specific date or timestamp when the effective end occurred.
+- name: is_current
+  type: STRING
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N'').'
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating exactly when this record was originally created
+    in the source system.
+- name: created_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for creating this
+    record.
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp indicating the last time this record was modified or updated.
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: The user ID or automated system process responsible for the most recent
+    update to this record.
+primary_key:
+- nutrition_item_dim_id_pk
+relationships: []
+business_terms:
+- dimension table
+- reference lookup
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in nutrition_item_dim

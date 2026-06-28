@@ -1,0 +1,55 @@
+database: curated_datamodels
+table: ration_card_citizen_reason
+department: canonicalmodel
+description: Curated Hive/Iceberg table for ration card citizen reason.
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen_reason
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen_reason/metadata/00000-38991d30-7ae7-40f1-a118-26f0ac3192bf.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`ration_card_citizen_reason`(\n\
+  \  `reason_id` STRING COMMENT 'Identifier key referencing the associated reason.',\
+  \ \n  `reason_name` STRING COMMENT 'Field containing the reason name details for\
+  \ the table.', \n  `reason_description` STRING COMMENT 'Field containing the reason\
+  \ description details for the table.', \n  `reason_code` STRING COMMENT 'Code/ID\
+  \ column: Standardized system code representing the reason. Categorical column.')\n\
+  ROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe' \nSTORED BY \n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/ration_card_citizen_reason'"
+columns:
+- name: reason_id
+  type: STRING
+  nullable: true
+  description: Identifier key referencing the associated reason.
+- name: reason_name
+  type: STRING
+  nullable: true
+  description: Field containing the reason name details for the table.
+- name: reason_description
+  type: STRING
+  nullable: true
+  description: Field containing the reason description details for the table.
+- name: reason_code
+  type: STRING
+  nullable: true
+  description: 'Code/ID column: Standardized system code representing the reason.
+    Categorical column.'
+primary_key: []
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in ration_card_citizen_reason

@@ -1,0 +1,115 @@
+database: curated_datamodels
+table: core_temple_ddrf_test_dummy
+department: misc
+description: 'Curated Hive table for core temple ddrf test dummy. [Sample records:
+  {''district_id'': ''22'', ''mandal_id'': ''574'', ''village_id'': ''6708'', ''district_name'':
+  ''Srikakulam'', ''mandal_name'': ''Lakshmi Narasapet'', ''village_name'': ''Lakshmi
+  Narasapet''}, {''district_id'': ''22'', ''mandal_id'': ''576'', ''village_id'':
+  ''6727'', ''district_name'': ''Srikakulam'', ''mandal_name'': ''Mandasa'', ''village_name'':
+  ''Mandasa''}, {''district_id'': ''22'', ''mandal_id'': ''576'', ''village_id'':
+  ''6727'', ''district_name'': ''Srikakulam'', ''mandal_name'': ''Mandasa'', ''village_name'':
+  ''Mandasa''}]'
+table_format: HIVE_PARQUET
+location: hdfs://datalakedev/warehouse/tablespace/managed/hive/curated_datamodels.db/core_temple_ddrf_test_dummy
+partitioned_by: ''
+tblproperties: {}
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`core_temple_ddrf_test_dummy`(\n\
+  \  `district_id` INT COMMENT 'District id.', \n  `mandal_id` INT COMMENT 'Mandal\
+  \ id.', \n  `village_id` INT COMMENT 'Village id.', \n  `district_name` STRING COMMENT\
+  \ 'The official name of the administrative district in Andhra Pradesh.', \n  `mandal_name`\
+  \ STRING COMMENT 'The official name of the Mandal (sub-district administrative division).',\
+  \ \n  `village_name` STRING COMMENT 'Village name.', \n  `temple_id` INT COMMENT\
+  \ 'Temple id.', \n  `temple_nm` STRING COMMENT 'Temple nm.', \n  `archaka_name`\
+  \ STRING COMMENT 'Archaka name.', \n  `mobile_no` STRING COMMENT 'Mobile no.', \n\
+  \  `aadhaar_number` STRING COMMENT 'Aadhaar number.', \n  `amount` DOUBLE COMMENT\
+  \ 'Numeric measurement or financial value representing the amount.', \n  `inserted_date`\
+  \ STRING COMMENT 'The specific date or timestamp when the inserted occurred.', \n\
+  \  `op` STRING COMMENT 'Op.', \n  `ts_ms` STRING COMMENT 'Ts ms.', \n  `deleted_flag`\
+  \ BOOLEAN COMMENT 'Boolean indicator flag (values: ''Y''/''N'').')\n\nLOCATION\n\
+  \  'hdfs://datalakedev/warehouse/tablespace/managed/hive/curated_datamodels.db/core_temple_ddrf_test_dummy'"
+columns:
+- name: district_id
+  type: INT
+  nullable: true
+  description: 'District id. [Value Examples: ''22'']'
+- name: mandal_id
+  type: INT
+  nullable: true
+  description: 'Mandal id. [Value Examples: ''574'', ''576'', ''582'', ''581'']'
+- name: village_id
+  type: INT
+  nullable: true
+  description: 'Village id. [Value Examples: ''6708'', ''6727'', ''6786'', ''6770'']'
+- name: district_name
+  type: STRING
+  nullable: true
+  description: 'The official name of the administrative district in Andhra Pradesh.
+    [Value Examples: ''Srikakulam'']'
+- name: mandal_name
+  type: STRING
+  nullable: true
+  description: 'The official name of the Mandal (sub-district administrative division).
+    [Value Examples: ''Lakshmi Narasapet'', ''Mandasa'', ''Pathapatnam'', ''Palasa'']'
+- name: village_name
+  type: STRING
+  nullable: true
+  description: 'Village name. [Value Examples: ''Lakshmi Narasapet'', ''Mandasa'',
+    ''Pathapatnam'', ''Kasibugga'']'
+- name: temple_id
+  type: INT
+  nullable: true
+  description: 'Temple id. [Value Examples: ''24902'', ''24946'', ''24955'', ''25107'',
+    ''25060'']'
+- name: temple_nm
+  type: STRING
+  nullable: true
+  description: 'Temple nm. [Value Examples: ''Sri Jagannadha Swamy Temple Lakshmi
+    N...'', ''Sri Jagannadha Swamy Temple Sabakota'', ''Sri Rajagopala Swamy Temple'',
+    ''Sri Venkateswara Swamy Temple'', ''Sri Radhakantha & Brudnavanachandra S...'']'
+- name: archaka_name
+  type: STRING
+  nullable: true
+  description: 'Archaka name. [Value Examples: ''Vinod Kumar Patri'', ''Hari Krishna
+    Panda'', ''Nirmal Panigrahi'', ''Ch.V.R.Jagannadha Charyulu'', ''Pramod Panda'']'
+- name: mobile_no
+  type: STRING
+  nullable: true
+  description: 'Mobile no. [Value Examples: ''9492423347'', ''9959548624'', ''9652611736'',
+    ''9441798200'', ''9063131988'']'
+- name: aadhaar_number
+  type: STRING
+  nullable: true
+  description: 'Aadhaar number. [Value Examples: ''696517471166'', ''593420913675'',
+    ''903639619143'', ''251606632402'', ''457626684649'']'
+- name: amount
+  type: DOUBLE
+  nullable: true
+  description: 'Numeric measurement or financial value representing the amount. [Value
+    Examples: ''14625.0'', ''13000.0'', ''11625.0'', ''13625.0'', ''15000.0'']'
+- name: inserted_date
+  type: STRING
+  nullable: true
+  description: 'The specific date or timestamp when the inserted occurred. [Value
+    Examples: ''2026-02-19'']'
+- name: op
+  type: STRING
+  nullable: true
+  description: 'Op. [Value Examples: ''r'']'
+- name: ts_ms
+  type: STRING
+  nullable: true
+  description: 'Ts ms. [Value Examples: ''2026-04-01'']'
+- name: deleted_flag
+  type: BOOLEAN
+  nullable: true
+  description: 'Boolean indicator flag (values: ''Y''/''N''). [Value Examples: ''False'']'
+primary_key: []
+relationships: []
+business_terms:
+- curated datamodels
+- misc
+- Hive
+- HIVE_PARQUET
+common_operations:
+- profile records in core_temple_ddrf_test_dummy

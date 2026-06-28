@@ -1,0 +1,59 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#  Pipeline Config
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Directory containing per-table YAML schema files (recursive scan)
+yaml_dir: ./schema/curated_datamodels/tables
+
+# ── Logging ──────────────────────────────────────────────────────────────────
+logging:
+  level: INFO
+
+# ── Embedding ─────────────────────────────────────────────────────────────────
+# Choose ONE provider block and set provider accordingly.
+#
+# provider: openai
+#   requires: OPENAI_API_KEY env var
+#   recommended model: text-embedding-3-small (1536-d) or text-embedding-3-large (3072-d)
+#
+# provider: sentence_transformers
+#   runs locally, no API key needed
+#   recommended model: all-MiniLM-L6-v2 (384-d), BAAI/bge-base-en-v1.5 (768-d)
+#
+# provider: ollama
+#   requires: Ollama server running at ollama_url
+#   recommended model: nomic-embed-text (768-d), mxbai-embed-large (1024-d)
+
+embedding:
+  provider: ollama
+  model: nomic-embed-text          # dim must match vector_db.milvus.dim below
+  batch_size: 32
+  ollama_url: http://localhost:11434/api/embeddings
+
+# ── Vector DB ─────────────────────────────────────────────────────────────────
+# provider: chromadb  →  local persistent store (no server needed)
+# provider: milvus    →  Milvus Lite (.db file) or Milvus Standalone (http://)
+
+vector_db:
+  provider: milvus
+
+  chromadb:
+    mode: persistent               # "persistent" | "ephemeral"
+    path: ./chroma_db
+    collection: schema_chunks
+
+  milvus:
+    # Milvus Lite  → uri: ./milvus_schemas.db
+    # Standalone   → uri: http://localhost:19530
+    uri: ./milvus_schemas.db
+    collection: schema_chunks
+
+    # Must match your embedding model output dimension:
+    #   nomic-embed-text          → 768
+    #   all-MiniLM-L6-v2          → 384
+    #   BAAI/bge-base-en-v1.5     → 768
+    #   text-embedding-3-small    → 1536
+    #   mxbai-embed-large         → 1024
+    dim: 768
+
+    metric_type: COSINE            # COSINE | IP | L2

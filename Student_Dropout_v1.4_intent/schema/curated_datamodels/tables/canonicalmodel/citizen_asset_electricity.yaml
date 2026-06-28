@@ -1,0 +1,130 @@
+database: curated_datamodels
+table: citizen_asset_electricity
+department: canonicalmodel
+description: 'Curated Hive/Iceberg table for citizen asset electricity. [Sample records:
+  {''aadhar_no'': ''008641569488'', ''meter_type'': ''SMART'', ''category_id'': ''LT2'',
+  ''phase'': ''3'', ''location'': ''null , null , null'', ''service_number'': ''6111200044613''},
+  {''aadhar_no'': ''012345678910'', ''meter_type'': ''SMART'', ''category_id'': ''LT2-1'',
+  ''category_description'': ''Commercial'', ''phase'': ''1'', ''location'': ''KADAPA
+  , CUDDAPAH-KAMALAPURAM , KAMAL...''}, {''aadhar_no'': ''012345678910'', ''meter_type'':
+  ''SMART'', ''category_id'': ''LT2-1'', ''category_description'': ''Commercial'',
+  ''phase'': ''1'', ''location'': ''ANNAMAYYA , CUDDAPAH-RAYACHOTI , TOWN''}]'
+table_format: ICEBERG
+location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_electricity
+partitioned_by: ''
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  metadata_location: hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_electricity/metadata/00000-d952f2f4-da0c-454d-b971-905fcd8a9653.metadata.json
+  parquet.compression: SNAPPY
+  snapshot-count: '0'
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: C:\Users\2797779\Downloads\curated_datamodels_ddls.txt
+raw_ddl: "CREATE EXTERNAL TABLE `curated_datamodels`.`citizen_asset_electricity`(\n\
+  \  `citizen_asset_type_pk` INT COMMENT 'Primary Key: Unique identifier for the citizen\
+  \ asset type record.', \n  `citizen_master_fk` INT COMMENT 'Foreign Key: Links to\
+  \ the associated citizen master dimension or master table.', \n  `aadhar_no` STRING\
+  \ COMMENT 'Aadhaar number associated with the service/account.', \n  `meter_type`\
+  \ STRING COMMENT 'Categorical column. Distinct values: NON-SMART, SMART.', \n  `category_id`\
+  \ STRING COMMENT 'Classification field defining the specific category id.', \n \
+  \ `category_description` STRING COMMENT 'Categorical column. Distinct values: Commercial.',\
+  \ \n  `phase` STRING COMMENT 'System field containing values such as: 1, 3.', \n\
+  \  `location` STRING COMMENT 'Location description or coordinates.', \n  `service_number`\
+  \ STRING COMMENT 'Service/meter connection number.', \n  `discom_name` STRING COMMENT\
+  \ 'Name of electricity distribution company.', \n  `created_date` TIMESTAMP COMMENT\
+  \ 'Timestamp indicating exactly when this record was originally created in the source\
+  \ system.', \n  `created_by` STRING COMMENT 'The user ID or automated system process\
+  \ responsible for creating this record.', \n  `updated_date` TIMESTAMP COMMENT 'Timestamp\
+  \ indicating the last time this record was modified or updated.', \n  `updated_by`\
+  \ STRING COMMENT 'The user ID or automated system process responsible for the most\
+  \ recent update to this record.')\nROW FORMAT SERDE \n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\
+  \ \nSTORED BY \n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://datalakedev/user/CURATED/curated_datamodels/canonicalmodel/citizen_asset_electricity'"
+columns:
+- name: citizen_asset_type_pk
+  type: INT
+  nullable: true
+  description: 'Primary Key: Unique identifier for the citizen asset type record.
+    [Value Examples: ''45'', ''398'', ''355'', ''334'', ''478'']'
+- name: citizen_master_fk
+  type: INT
+  nullable: true
+  description: 'Foreign Key: Links to the associated citizen master dimension or master
+    table.'
+- name: aadhar_no
+  type: STRING
+  nullable: true
+  description: 'Aadhaar number associated with the service/account. [Value Examples:
+    ''008641569488'', ''012345678910'']'
+- name: meter_type
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: NON-SMART, SMART. [Value Examples:
+    ''SMART'', ''NON-SMART'']'
+- name: category_id
+  type: STRING
+  nullable: true
+  description: 'Classification field defining the specific category id. [Value Examples:
+    ''LT2'', ''LT2-1'']'
+- name: category_description
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: Commercial. [Value Examples:
+    ''Commercial'']'
+- name: phase
+  type: STRING
+  nullable: true
+  description: 'System field containing values such as: 1, 3. [Value Examples: ''3'',
+    ''1'']'
+- name: location
+  type: STRING
+  nullable: true
+  description: 'Location description or coordinates. [Value Examples: ''null , null
+    , null'', ''KADAPA , CUDDAPAH-KAMALAPURAM , KAMAL...'', ''ANNAMAYYA , CUDDAPAH-RAYACHOTI
+    , TOWN'', ''NELLORE , NELLORE-DAGADARTHI , CHOWTA...'', ''TIRUPATI , NELLORE-VENKATAGIRI
+    , null'']'
+- name: service_number
+  type: STRING
+  nullable: true
+  description: 'Service/meter connection number. [Value Examples: ''6111200044613'',
+    ''2234101006619'', ''2411201035388'', ''3212304000467'', ''3621402001397'']'
+- name: discom_name
+  type: STRING
+  nullable: true
+  description: 'Name of electricity distribution company. [Value Examples: ''APCPDCL'',
+    ''APSPDCL'']'
+- name: created_date
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating exactly when this record was originally created
+    in the source system. [Value Examples: ''2026-05-21 16:06:51.887911'']'
+- name: created_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for creating this
+    record. [Value Examples: ''curated_team'']'
+- name: updated_date
+  type: TIMESTAMP
+  nullable: true
+  description: 'Timestamp indicating the last time this record was modified or updated.
+    [Value Examples: ''2026-05-22 17:31:17.499839'']'
+- name: updated_by
+  type: STRING
+  nullable: true
+  description: 'The user ID or automated system process responsible for the most recent
+    update to this record. [Value Examples: ''curated_team'']'
+primary_key:
+- citizen_asset_type_pk
+relationships: []
+business_terms:
+- curated datamodels
+- canonicalmodel
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in citizen_asset_electricity
