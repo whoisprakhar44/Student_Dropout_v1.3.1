@@ -1,0 +1,35 @@
+{
+  "active_wal_number": 4,
+  "current_seq": 498,
+  "index_specs": {
+    "embedding": {
+      "build_params": {},
+      "field_name": "embedding",
+      "index_type": "FLAT",
+      "metric_type": "COSINE",
+      "search_params": {}
+    }
+  },
+  "manifest_format_version": 2,
+  "partitions": {
+    "_default": {
+      "data_files": [],
+      "delta_files": []
+    },
+    "few_shot_store": {
+      "data_files": [
+        "data/data_000060_000109.parquet",
+        "data/data_000110_000498.parquet"
+      ],
+      "delta_files": []
+    },
+    "schema_store": {
+      "data_files": [
+        "data/data_000001_000059.parquet"
+      ],
+      "delta_files": []
+    }
+  },
+  "schema_version": 1,
+  "version": 6
+}
