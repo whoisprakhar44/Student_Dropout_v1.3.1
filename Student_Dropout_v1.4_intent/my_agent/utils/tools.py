@@ -102,9 +102,9 @@ async def cleanup_tools() -> None:
             continue
         try:
             await ctx.__aexit__(None, None, None)
-        except RuntimeError as exc:
+        except BaseException as exc:
             # The MCP stdio adapter can raise noisy cancel-scope errors on
-            # Windows/Python 3.13 after subprocesses have already exited.
-            print(f"MCP cleanup warning: {exc}")
+            # macOS/Windows/Python 3.13 after subprocesses have already exited.
+            pass
     _rag_session_ctx = None
     _tool_session_ctx = None
