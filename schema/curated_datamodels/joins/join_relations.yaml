@@ -477,7 +477,7 @@ key_columns:
   columns: citizen_school_id_pk, school_name, district_name, mandal_name, 
     village_name, urban_rural_flag, functional_status, min_class, max_class, 
     head_master_name, school_medium_id_fk, school_teacher_id_fk, 
-    school_category_id_fk, school_management_id_fk
+    school_category_id_fk
 - table: curated_datamodels.citizen_school_teacher
   columns: citizen_school_teacher_id_pk, teacher_citizen_master_fk
 - table: curated_datamodels.citizen_student

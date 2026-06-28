@@ -116,8 +116,11 @@ columns:
 - name: school_management_id_fk
   type: BIGINT
   nullable: true
-  description: 'Foreign Key: Links to the associated school management dimension or
-    master table.'
+  description: 'Foreign Key: Numeric ID referencing school management type (e.g. Government,
+    Private, Aided). NOTE: There is NO school_management_dim table in this schema
+    — do NOT attempt to join or look up this FK. The management type name is not
+    available as a separate dimension. This column is currently NULL for most records
+    and cannot be resolved to a management type name.'
 - name: school_dept_code
   type: STRING
   nullable: true
@@ -318,7 +321,7 @@ relationships:
 - citizen_school.school_medium_id_fk is a foreign-key-style reference to school_medium_id.
 - citizen_school.school_teacher_id_fk is a foreign-key-style reference to school_teacher_id.
 - citizen_school.school_category_id_fk is a foreign-key-style reference to school_category_id.
-- citizen_school.school_management_id_fk is a foreign-key-style reference to school_management_id.
+
 business_terms:
 - school analytics
 - Hive
