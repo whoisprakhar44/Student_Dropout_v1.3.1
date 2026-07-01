@@ -152,28 +152,101 @@ def _extract_sql_and_result(messages: list[Any]) -> _QueryResult:
 
 
 # ---------------------------------------------------------------------------
-# Stdout Tee — mirrors every print() call into the log file as well
+# Noise patterns — logger names and message fragments to suppress in the log
+# ---------------------------------------------------------------------------
+_BLOCKED_LOGGER_PREFIXES = (
+    "httpcore",                        # low-level TCP/HTTP DEBUG events
+    "mcp.client",                      # MCP client async-generator teardown
+    "mcp.shared",
+    "langchain_mcp_adapters.client",   # LangChain MCP adapter cleanup
+    "langchain_mcp_adapters.sessions",
+    "anyio",                           # cancel-scope RuntimeErrors at shutdown
+)
+
+_BLOCKED_MESSAGE_FRAGMENTS = (
+    "an error occurred during closing of asynchronous generator",
+    "Attempted to exit cancel scope",
+    "athrow(): asynchronous generator",
+    "aclose(): asynchronous generator",
+    "generator didn't stop after athrow",
+    "asyncio exception handler called",
+)
+
+# Raw text fragments that appear on stderr (no logger — bare Python tracebacks)
+_BLOCKED_STDERR_FRAGMENTS = (
+    "an error occurred during closing of asynchronous generator",
+    "asyncgen:",
+    "RuntimeError: Attempted to exit cancel scope",
+    "RuntimeError: athrow():",
+    "RuntimeError: aclose():",
+    "RuntimeError: generator didn't stop",
+    "GeneratorExit",
+    "GOAWAY received",
+    "too_many_pings",
+    "ENHANCE_YOUR_CALM",
+    "chttp2_transport",
+    "BaseExceptionGroup: unhandled errors in a TaskGroup",
+    "langchain_mcp_adapters/client.py",
+    "langchain_mcp_adapters/sessions.py",
+    "mcp/client/stdio",
+    "mcp/shared/session",
+    "anyio/_backends/_asyncio",
+)
+
+
+class _NoiseFilter(logging.Filter):
+    """Drop log records from noisy MCP/httpcore shutdown modules."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        for prefix in _BLOCKED_LOGGER_PREFIXES:
+            if record.name.startswith(prefix):
+                return False
+        msg = record.getMessage()
+        for frag in _BLOCKED_MESSAGE_FRAGMENTS:
+            if frag in msg:
+                return False
+        return True
+
+
+# ---------------------------------------------------------------------------
+# Stdout / stderr Tee streams
 # ---------------------------------------------------------------------------
 class _TeeStream:
-    """Wraps sys.stdout so every write goes to both the terminal and the log file."""
+    """
+    Wraps a stream so every write goes to both the terminal and the log file.
+    When noise_fragments is set, lines containing any fragment are dropped
+    from the file (but still printed to the terminal).
+    """
 
-    def __init__(self, original_stream, file_handle):
+    def __init__(self, original_stream, file_handle, noise_fragments: tuple = ()):
         self._orig = original_stream
         self._file = file_handle
+        self._noise = noise_fragments
+        self._pending = ""  # buffer for partial-line noise checking
 
     def write(self, data: str) -> int:
         self._orig.write(data)
-        self._file.write(data)
+        if self._noise:
+            self._pending += data
+            while "\n" in self._pending:
+                line, self._pending = self._pending.split("\n", 1)
+                if not any(frag in line for frag in self._noise):
+                    self._file.write(line + "\n")
+        else:
+            self._file.write(data)
         return len(data)
 
     def flush(self):
+        if self._noise and self._pending:
+            if not any(frag in self._pending for frag in self._noise):
+                self._file.write(self._pending)
+            self._pending = ""
         self._orig.flush()
         self._file.flush()
 
     def fileno(self):
         return self._orig.fileno()
 
-    # Forward any other attribute lookups to the original stream
     def __getattr__(self, name):
         return getattr(self._orig, name)
 
@@ -183,18 +256,17 @@ class _TeeStream:
 # ---------------------------------------------------------------------------
 def setup_logging() -> tuple[logging.Logger, Path]:
     """
-    Capture EVERYTHING that appears on the terminal into a per-run log file:
+    Capture meaningful terminal output into a per-run log file.
 
-    1. Our own gen_test logger  → file (DEBUG) + console (INFO)
-    2. Root logger              → file (DEBUG) — catches all module loggers
-                                  (MCP, schema-retrieval, LangChain, etc.)
-    3. sys.stdout Tee           → file — catches print() calls from agent code
+    Kept  : schema-retrieval, execute_sql, intent_node, agent print() calls,
+            HTTP request summaries, our gen_test structured lines.
+    Dropped: httpcore DEBUG spam, MCP/anyio async-generator cleanup errors,
+             raw stderr teardown tracebacks.
     """
     LOGS_DIR.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_path = LOGS_DIR / f"generation_test_{timestamp}.log"
 
-    # Open the log file once; both the logging handler and the Tee share it.
     log_file = open(log_path, "w", encoding="utf-8")  # noqa: WPS515
 
     fmt = logging.Formatter(
@@ -202,13 +274,13 @@ def setup_logging() -> tuple[logging.Logger, Path]:
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    # ── 1. gen_test logger (our own structured output) ──────────────────────
+    # ── 1. gen_test logger ────────────────────────────────────────────────
     logger = logging.getLogger("gen_test")
     logger.setLevel(logging.DEBUG)
     if logger.handlers:
         logger.handlers.clear()
 
-    fh = logging.StreamHandler(log_file)   # write to the shared file handle
+    fh = logging.StreamHandler(log_file)
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(fmt)
 
@@ -218,21 +290,24 @@ def setup_logging() -> tuple[logging.Logger, Path]:
 
     logger.addHandler(fh)
     logger.addHandler(sh)
-    logger.propagate = False  # don't double-log via root
+    logger.propagate = False
 
-    # ── 2. Root logger → file only (all 3rd-party module loggers) ───────────
+    # ── 2. Root logger → file only, with noise filter ────────────────────
     root = logging.getLogger()
-    # Remove any existing file handlers pointing at our log to avoid duplicates
     root.handlers = [h for h in root.handlers if not isinstance(h, logging.FileHandler)]
     root_fh = logging.StreamHandler(log_file)
     root_fh.setLevel(logging.DEBUG)
     root_fh.setFormatter(fmt)
+    root_fh.addFilter(_NoiseFilter())
     root.addHandler(root_fh)
     if root.level == logging.NOTSET or root.level > logging.DEBUG:
         root.setLevel(logging.DEBUG)
 
-    # ── 3. Tee stdout → file (captures print() from agent/MCP/tools code) ───
+    # ── 3. Tee stdout → file (print() calls from agent/tools) ────────────
     sys.stdout = _TeeStream(sys.__stdout__, log_file)
+
+    # ── 4. Tee stderr → file, filtered (raw MCP teardown tracebacks) ──────
+    sys.stderr = _TeeStream(sys.__stderr__, log_file, noise_fragments=_BLOCKED_STDERR_FRAGMENTS)
 
     return logger, log_path
 
