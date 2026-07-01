@@ -152,41 +152,88 @@ def _extract_sql_and_result(messages: list[Any]) -> _QueryResult:
 
 
 # ---------------------------------------------------------------------------
+# Stdout Tee — mirrors every print() call into the log file as well
+# ---------------------------------------------------------------------------
+class _TeeStream:
+    """Wraps sys.stdout so every write goes to both the terminal and the log file."""
+
+    def __init__(self, original_stream, file_handle):
+        self._orig = original_stream
+        self._file = file_handle
+
+    def write(self, data: str) -> int:
+        self._orig.write(data)
+        self._file.write(data)
+        return len(data)
+
+    def flush(self):
+        self._orig.flush()
+        self._file.flush()
+
+    def fileno(self):
+        return self._orig.fileno()
+
+    # Forward any other attribute lookups to the original stream
+    def __getattr__(self, name):
+        return getattr(self._orig, name)
+
+
+# ---------------------------------------------------------------------------
 # Logging setup
 # ---------------------------------------------------------------------------
 def setup_logging() -> tuple[logging.Logger, Path]:
     """
-    Configure a logger that writes to both the console and a new, uniquely
-    timestamped log file.  Each run gets its own file inside generation_logs/.
+    Capture EVERYTHING that appears on the terminal into a per-run log file:
+
+    1. Our own gen_test logger  → file (DEBUG) + console (INFO)
+    2. Root logger              → file (DEBUG) — catches all module loggers
+                                  (MCP, schema-retrieval, LangChain, etc.)
+    3. sys.stdout Tee           → file — catches print() calls from agent code
     """
     LOGS_DIR.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_path = LOGS_DIR / f"generation_test_{timestamp}.log"
 
-    logger = logging.getLogger("gen_test")
-    logger.setLevel(logging.DEBUG)
-
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        logger.handlers.clear()
+    # Open the log file once; both the logging handler and the Tee share it.
+    log_file = open(log_path, "w", encoding="utf-8")  # noqa: WPS515
 
     fmt = logging.Formatter(
         fmt="%(asctime)s | %(levelname)-8s | %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    # --- File handler (write mode — fresh file per run) ---
-    fh = logging.FileHandler(log_path, mode="w", encoding="utf-8")
+    # ── 1. gen_test logger (our own structured output) ──────────────────────
+    logger = logging.getLogger("gen_test")
+    logger.setLevel(logging.DEBUG)
+    if logger.handlers:
+        logger.handlers.clear()
+
+    fh = logging.StreamHandler(log_file)   # write to the shared file handle
     fh.setLevel(logging.DEBUG)
     fh.setFormatter(fmt)
 
-    # --- Console (stream) handler ---
     sh = logging.StreamHandler(sys.stdout)
     sh.setLevel(logging.INFO)
     sh.setFormatter(fmt)
 
     logger.addHandler(fh)
     logger.addHandler(sh)
+    logger.propagate = False  # don't double-log via root
+
+    # ── 2. Root logger → file only (all 3rd-party module loggers) ───────────
+    root = logging.getLogger()
+    # Remove any existing file handlers pointing at our log to avoid duplicates
+    root.handlers = [h for h in root.handlers if not isinstance(h, logging.FileHandler)]
+    root_fh = logging.StreamHandler(log_file)
+    root_fh.setLevel(logging.DEBUG)
+    root_fh.setFormatter(fmt)
+    root.addHandler(root_fh)
+    if root.level == logging.NOTSET or root.level > logging.DEBUG:
+        root.setLevel(logging.DEBUG)
+
+    # ── 3. Tee stdout → file (captures print() from agent/MCP/tools code) ───
+    sys.stdout = _TeeStream(sys.__stdout__, log_file)
+
     return logger, log_path
 
 
