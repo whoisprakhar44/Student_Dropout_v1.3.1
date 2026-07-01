@@ -152,166 +152,88 @@ def _extract_sql_and_result(messages: list[Any]) -> _QueryResult:
 
 
 # ---------------------------------------------------------------------------
-# Noise patterns — logger names and message fragments to suppress in the log
+# Logging setup — OS-level stderr interception
 # ---------------------------------------------------------------------------
-_BLOCKED_LOGGER_PREFIXES = (
-    "httpcore",                        # low-level TCP/HTTP DEBUG events
-    "mcp.client",                      # MCP client async-generator teardown
-    "mcp.shared",
-    "langchain_mcp_adapters.client",   # LangChain MCP adapter cleanup
-    "langchain_mcp_adapters.sessions",
-    "anyio",                           # cancel-scope RuntimeErrors at shutdown
-)
-
-_BLOCKED_MESSAGE_FRAGMENTS = (
-    "an error occurred during closing of asynchronous generator",
-    "Attempted to exit cancel scope",
-    "athrow(): asynchronous generator",
-    "aclose(): asynchronous generator",
-    "generator didn't stop after athrow",
-    "asyncio exception handler called",
-)
-
-# Raw text fragments that appear on stderr (no logger — bare Python tracebacks)
 _BLOCKED_STDERR_FRAGMENTS = (
-    "an error occurred during closing of asynchronous generator",
-    "asyncgen:",
-    "RuntimeError: Attempted to exit cancel scope",
-    "RuntimeError: athrow():",
-    "RuntimeError: aclose():",
-    "RuntimeError: generator didn't stop",
-    "GeneratorExit",
-    "GOAWAY received",
-    "too_many_pings",
-    "ENHANCE_YOUR_CALM",
-    "chttp2_transport",
-    "BaseExceptionGroup: unhandled errors in a TaskGroup",
-    "langchain_mcp_adapters/client.py",
-    "langchain_mcp_adapters/sessions.py",
-    "mcp/client/stdio",
-    "mcp/shared/session",
-    "anyio/_backends/_asyncio",
+    b"an error occurred during closing of asynchronous generator",
+    b"asyncgen:",
+    b"RuntimeError: Attempted to exit cancel scope",
+    b"RuntimeError: athrow():",
+    b"RuntimeError: aclose():",
+    b"RuntimeError: generator didn't stop",
+    b"GeneratorExit",
+    b"BaseExceptionGroup: unhandled errors in a TaskGroup",
+    b"langchain_mcp_adapters/client.py",
+    b"langchain_mcp_adapters/sessions.py",
+    b"mcp/client/stdio",
+    b"mcp/shared/session",
+    b"anyio/_backends/_asyncio",
+    b"Exception ignored in:",
 )
 
-
-class _NoiseFilter(logging.Filter):
-    """Drop log records from noisy MCP/httpcore shutdown modules."""
-
-    def filter(self, record: logging.LogRecord) -> bool:
-        for prefix in _BLOCKED_LOGGER_PREFIXES:
-            if record.name.startswith(prefix):
-                return False
-        msg = record.getMessage()
-        for frag in _BLOCKED_MESSAGE_FRAGMENTS:
-            if frag in msg:
-                return False
-        return True
-
-
-# ---------------------------------------------------------------------------
-# Stdout / stderr Tee streams
-# ---------------------------------------------------------------------------
-class _TeeStream:
-    """
-    Wraps a stream so every write goes to both the terminal and the log file.
-    When noise_fragments is set, lines containing any fragment are dropped
-    from the file (but still printed to the terminal).
-    """
-
-    def __init__(self, original_stream, file_handle, noise_fragments: tuple = ()):
-        self._orig = original_stream
-        self._file = file_handle
-        self._noise = noise_fragments
-        self._pending = ""  # buffer for partial-line noise checking
-
-    def write(self, data: str) -> int:
-        self._orig.write(data)
-        if self._noise:
-            self._pending += data
-            while "\n" in self._pending:
-                line, self._pending = self._pending.split("\n", 1)
-                if not any(frag in line for frag in self._noise):
-                    self._file.write(line + "\n")
-        else:
-            self._file.write(data)
-        return len(data)
-
-    def flush(self):
-        if self._noise and self._pending:
-            if not any(frag in self._pending for frag in self._noise):
-                self._file.write(self._pending)
-            self._pending = ""
-        self._orig.flush()
-        self._file.flush()
-
-    def fileno(self):
-        return self._orig.fileno()
-
-    def __getattr__(self, name):
-        return getattr(self._orig, name)
-
-
-# ---------------------------------------------------------------------------
-# Logging setup
-# ---------------------------------------------------------------------------
 def setup_logging() -> tuple[logging.Logger, Path]:
     """
-    Capture meaningful terminal output into a per-run log file.
-
-    Kept  : schema-retrieval, execute_sql, intent_node, agent print() calls,
-            HTTP request summaries, our gen_test structured lines.
-    Dropped: httpcore DEBUG spam, MCP/anyio async-generator cleanup errors,
-             raw stderr teardown tracebacks.
+    Capture all subprocess MCP stderr (e.g. schema-retrieval) into the log file,
+    while dropping the LangChain/anyio cancel scope noise.
     """
     LOGS_DIR.mkdir(parents=True, exist_ok=True)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_path = LOGS_DIR / f"generation_test_{timestamp}.log"
+    log_file = open(log_path, "wb", buffering=0)
 
-    log_file = open(log_path, "w", encoding="utf-8")  # noqa: WPS515
-
-    fmt = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)-8s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
-    # ── 1. gen_test logger ────────────────────────────────────────────────
+    # 1. Setup gen_test logger
     logger = logging.getLogger("gen_test")
     logger.setLevel(logging.DEBUG)
     if logger.handlers:
         logger.handlers.clear()
-
-    fh = logging.StreamHandler(log_file)
-    fh.setLevel(logging.DEBUG)
-    fh.setFormatter(fmt)
-
+    
+    fmt = logging.Formatter(
+        fmt="%(asctime)s | %(levelname)-8s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    # console
     sh = logging.StreamHandler(sys.stdout)
     sh.setLevel(logging.INFO)
     sh.setFormatter(fmt)
-
-    logger.addHandler(fh)
     logger.addHandler(sh)
     logger.propagate = False
 
-    # ── 2. Root logger → file only, with noise filter ────────────────────
-    root = logging.getLogger()
-    root.handlers = [h for h in root.handlers if not isinstance(h, logging.FileHandler)]
-    root_fh = logging.StreamHandler(log_file)
-    root_fh.setLevel(logging.DEBUG)
-    root_fh.setFormatter(fmt)
-    root_fh.addFilter(_NoiseFilter())
-    root.addHandler(root_fh)
-    if root.level == logging.NOTSET or root.level > logging.DEBUG:
-        root.setLevel(logging.DEBUG)
+    # write gen_test logs to our file manually using a custom handler
+    # so we don't mix bytes/str issues
+    class RawFileHandler(logging.Handler):
+        def emit(self, record):
+            msg = self.format(record) + "\n"
+            log_file.write(msg.encode("utf-8"))
+    
+    fh = RawFileHandler()
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(fmt)
+    logger.addHandler(fh)
 
-    # ── 3. Tee stdout → file (print() calls from agent/tools) ────────────
-    sys.stdout = _TeeStream(sys.__stdout__, log_file)
+    # 2. Intercept OS-level fd 2 (stderr)
+    import threading, os
+    original_stderr_fd = os.dup(2)
+    original_stderr = os.fdopen(original_stderr_fd, 'wb', buffering=0)
 
-    # ── 4. Tee stderr → file, filtered (raw MCP teardown tracebacks) ──────
-    sys.stderr = _TeeStream(sys.__stderr__, log_file, noise_fragments=_BLOCKED_STDERR_FRAGMENTS)
+    pipe_r, pipe_w = os.pipe()
+    os.dup2(pipe_w, 2)
+    os.close(pipe_w)
+
+    def _read_stderr():
+        with os.fdopen(pipe_r, 'rb') as pipe:
+            for line in pipe:
+                # If it contains noise, drop it completely
+                if any(frag in line for frag in _BLOCKED_STDERR_FRAGMENTS):
+                    continue
+                # Write to terminal
+                original_stderr.write(line)
+                # Write to log file
+                log_file.write(line)
+
+    t = threading.Thread(target=_read_stderr, daemon=True)
+    t.start()
 
     return logger, log_path
-
-
 # ---------------------------------------------------------------------------
 # SQL normalisation helper
 # ---------------------------------------------------------------------------
@@ -560,6 +482,10 @@ async def test_all_generations(limit: int | None = None) -> None:
     log.info("SESSION END")
     log.info("=" * 80)
 
+    # Force hard exit to bypass anyio noisy async generator teardown bug
+    import os
+    os._exit(0)
+
 
 # ---------------------------------------------------------------------------
 # Entry point
@@ -578,3 +504,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     asyncio.run(test_all_generations(limit=args.limit))
+
