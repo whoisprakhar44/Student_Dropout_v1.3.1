@@ -2,16 +2,25 @@
 """
 Test script to run all few-shot questions directly through the LangGraph agent,
 measuring generation time and success status.
+
+Usage:
+    python test_generation.py              # Run all fewshots
+    python test_generation.py --limit 2   # Quick smoke-test with first 2 entries
 """
 
-import json
-import time
 import sys
 import asyncio
 import re
+import time
+import json
+import logging
+import argparse
+from datetime import datetime
 from pathlib import Path
 
-# Add root directory to python path
+# ---------------------------------------------------------------------------
+# Path setup
+# ---------------------------------------------------------------------------
 ROOT_DIR = Path(__file__).resolve().parent
 sys.path.append(str(ROOT_DIR))
 
@@ -22,59 +31,227 @@ try:
 except ImportError:
     pass
 
+from dataclasses import dataclass, field
+from typing import Any
+
 from langchain_core.messages import HumanMessage
 from my_agent.agent import build_graph
-from app import _extract_sql_and_result
 
+# ---------------------------------------------------------------------------
+# Paths
+# ---------------------------------------------------------------------------
+# NOTE: We intentionally do NOT import anything from app.py.
+# app.py owns chat history, sessions, and memory continuity — none of which
+# belong in an isolated benchmark run.  The helpers below are minimal, self-
+# contained copies of the logic we actually need.
 FEWSHOTS_PATH = ROOT_DIR / "school_dropout_fewshots_combined.jsonl"
-REPORT_PATH = ROOT_DIR / "generation_test_report.json"
+LOGS_DIR = ROOT_DIR / "generation_logs"
 
+
+# ---------------------------------------------------------------------------
+# Minimal response type (no DB, no username scoping, no memory)
+# ---------------------------------------------------------------------------
+@dataclass
+class _QueryResult:
+    """Lightweight stand-in for app.AskResponse — carries only sql + rows."""
+    sql: str = ""
+    result: list[dict[str, Any]] = field(default_factory=list)
+
+
+def _extract_tool_content(message: Any) -> str | None:
+    """Pull plain-text content out of a ToolMessage (string or content-block list)."""
+    raw = getattr(message, "content", None)
+    if raw is None:
+        return None
+    if isinstance(raw, str):
+        return raw
+    if isinstance(raw, list):
+        for item in raw:
+            if isinstance(item, str):
+                return item
+            if isinstance(item, dict) and item.get("type") == "text":
+                return item.get("text")
+    return str(raw)
+
+
+def _extract_sql_and_result(messages: list[Any]) -> _QueryResult:
+    """
+    Scan the finished LangGraph message list and return the generated SQL
+    and the execute_sql result rows.
+
+    Completely self-contained — no DB access, no session lookup, no memory.
+    """
+    from langchain_core.messages import ToolMessage as LCToolMessage
+
+    sql: str | None = None
+    result: list[dict[str, Any]] | None = None
+
+    for message in messages:
+        # Extract SQL from any AIMessage that called execute_sql
+        for tool_call in getattr(message, "tool_calls", None) or []:
+            args = tool_call.get("args") or {}
+            if isinstance(args, str):
+                try:
+                    args = json.loads(args)
+                except json.JSONDecodeError:
+                    args = {}
+            if tool_call.get("name") == "execute_sql" and args.get("query"):
+                sql = args["query"]
+
+        # Extract rows from the ToolMessage returned by execute_sql
+        is_tool_msg = isinstance(message, LCToolMessage) or (
+            message.__class__.__name__ == "ToolMessage"
+        )
+        if not is_tool_msg:
+            continue
+        if getattr(message, "name", None) != "execute_sql":
+            continue
+
+        raw_content = _extract_tool_content(message)
+        if not raw_content:
+            continue
+        try:
+            payload = json.loads(raw_content)
+        except (json.JSONDecodeError, TypeError, ValueError):
+            continue
+        if payload.get("status") == "success":
+            result = payload.get("rows") or []
+
+    # Defaults / fallback error payload
+    if sql is None:
+        sql = ""
+    if result is None:
+        error_msg = None
+        for message in reversed(messages):
+            is_tool_msg = isinstance(message, LCToolMessage) or (
+                message.__class__.__name__ == "ToolMessage"
+            )
+            if is_tool_msg and getattr(message, "name", None) == "execute_sql":
+                raw_content = _extract_tool_content(message)
+                if raw_content:
+                    try:
+                        p = json.loads(raw_content)
+                        if p.get("status") == "error":
+                            error_msg = p.get("error_msg") or p.get("error_type")
+                            if error_msg:
+                                break
+                    except Exception:
+                        pass
+        if not error_msg:
+            for message in reversed(messages):
+                if not getattr(message, "tool_calls", None):
+                    content = getattr(message, "content", None)
+                    if content and isinstance(content, str) and content.strip():
+                        error_msg = content.strip()
+                        break
+        if not error_msg:
+            error_msg = "The agent did not return an executed SQL query."
+        result = [{"error": error_msg, "status": "failed"}]
+
+    return _QueryResult(sql=sql, result=result)
+
+
+# ---------------------------------------------------------------------------
+# Logging setup
+# ---------------------------------------------------------------------------
+def setup_logging() -> tuple[logging.Logger, Path]:
+    """
+    Configure a logger that writes to both the console and a new, uniquely
+    timestamped log file.  Each run gets its own file inside generation_logs/.
+    """
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_path = LOGS_DIR / f"generation_test_{timestamp}.log"
+
+    logger = logging.getLogger("gen_test")
+    logger.setLevel(logging.DEBUG)
+
+    # Prevent duplicate handlers if called multiple times
+    if logger.handlers:
+        logger.handlers.clear()
+
+    fmt = logging.Formatter(
+        fmt="%(asctime)s | %(levelname)-8s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    # --- File handler (write mode — fresh file per run) ---
+    fh = logging.FileHandler(log_path, mode="w", encoding="utf-8")
+    fh.setLevel(logging.DEBUG)
+    fh.setFormatter(fmt)
+
+    # --- Console (stream) handler ---
+    sh = logging.StreamHandler(sys.stdout)
+    sh.setLevel(logging.INFO)
+    sh.setFormatter(fmt)
+
+    logger.addHandler(fh)
+    logger.addHandler(sh)
+    return logger, log_path
+
+
+# ---------------------------------------------------------------------------
+# SQL normalisation helper
+# ---------------------------------------------------------------------------
 def normalize_sql(sql: str) -> str:
     if not sql:
         return ""
-    # Remove database prefix "curated_datamodels."
     sql = sql.replace("curated_datamodels.", "")
-    # Lowercase
     sql = sql.lower()
-    # Normalize whitespaces
     sql = re.sub(r"\s+", " ", sql).strip()
-    # Remove optional trailing semicolons or quotes
     sql = sql.rstrip(";").strip()
     return sql
 
-async def test_all_generations():
+
+# ---------------------------------------------------------------------------
+# Main async test runner
+# ---------------------------------------------------------------------------
+async def test_all_generations(limit: int | None = None) -> None:
+    log, log_path = setup_logging()
+
+    session_start = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log.info("=" * 80)
+    log.info(f"SESSION START  {session_start}  (limit={limit if limit else 'ALL'})")
+    log.info("=" * 80)
+
+    # ---- Load fewshots ----
     if not FEWSHOTS_PATH.is_file():
-        print(f"Error: Fewshots file not found at {FEWSHOTS_PATH}")
+        log.error(f"Fewshots file not found: {FEWSHOTS_PATH}")
         sys.exit(1)
 
-    print(f"Reading few-shots from: {FEWSHOTS_PATH}")
-    lines = FEWSHOTS_PATH.read_text(encoding="utf-8").splitlines()
+    log.info(f"Reading few-shots from: {FEWSHOTS_PATH}")
+    raw_lines = FEWSHOTS_PATH.read_text(encoding="utf-8").splitlines()
 
-    print("Building LangGraph agent...")
+    # Filter blank lines first so --limit counts actual entries
+    lines = [l for l in raw_lines if l.strip()]
+    if limit:
+        lines = lines[:limit]
+
+    log.info(f"Questions to test: {len(lines)}")
+
+    # ---- Build agent ----
+    log.info("Building LangGraph agent ...")
     try:
         graph = await build_graph()
-        print("Agent built successfully.")
-    except Exception as e:
-        print(f"Error building agent graph: {e}")
+        log.info("Agent built successfully.")
+    except Exception as exc:
+        log.exception(f"Failed to build agent graph: {exc}")
         sys.exit(1)
 
-    results = []
+    # ---- Run tests ----
     total_time = 0.0
     success_count = 0
     failure_count = 0
     match_count = 0
+    results: list[dict] = []
 
-    print("\nStarting generation tests over all fewshots...")
-    print("=" * 80)
+    log.info("-" * 80)
 
     for idx, line in enumerate(lines, 1):
-        if not line.strip():
-            continue
-
         try:
             data = json.loads(line)
-        except json.JSONDecodeError as e:
-            print(f"Line {idx}: JSON Decode Error: {e}")
+        except json.JSONDecodeError as exc:
+            log.warning(f"[{idx:03d}] Skipping line — JSON decode error: {exc}")
             continue
 
         qid = data.get("id")
@@ -82,18 +259,18 @@ async def test_all_generations():
         ground_truth_sql = data.get("sql", "")
 
         if not qid or not question:
-            print(f"Line {idx}: Missing 'id' or 'question'")
+            log.warning(f"[{idx:03d}] Skipping — missing 'id' or 'question' in: {data}")
             continue
 
-        print(f"[{idx:03d}/{len(lines):03d}] ID: {qid} | Question: {question[:60]}...")
-        
-        # Measure time for generation request
+        log.info(f"[{idx:03d}/{len(lines):03d}] ID={qid} | Q: {question[:80]}")
+
+        # ---- Stream the graph ----
         start_time = time.perf_counter()
         generation_time = 0.0
         execution_time = 0.0
         tool_node_count = 0
         last_time = start_time
-        
+
         try:
             state = {
                 "user_query": question,
@@ -103,25 +280,21 @@ async def test_all_generations():
                 "verify_calls": 0,
                 "verified": False,
             }
-            
-            # Stream the steps of the graph to measure node-specific durations
+
             async for event in graph.astream(state, stream_mode="updates"):
                 now = time.perf_counter()
                 step_duration = now - last_time
                 last_time = now
-                
+
                 for node_name, update in event.items():
-                    # Merge update into state dictionary
                     for k, v in update.items():
                         if k == "messages":
                             state["messages"].extend(v)
                         else:
                             state[k] = v
-                    
+
                     if node_name == "tool_node":
                         tool_node_count += 1
-                        # The first tool_node is RAG schema retrieval (generation phase).
-                        # Subsequent tool_nodes run execute_sql (execution phase).
                         if tool_node_count == 1:
                             generation_time += step_duration
                         else:
@@ -133,17 +306,16 @@ async def test_all_generations():
 
             elapsed = time.perf_counter() - start_time
             total_time += elapsed
-            
-            # Fallback split if sum of parts is zero
+
             if generation_time == 0.0 and execution_time == 0.0:
                 generation_time = elapsed
-                execution_time = 0.0
 
-            resp_obj = _extract_sql_and_result(state.get("messages", []), "test_user")
+            # ---- Extract result ----
+            resp_obj = _extract_sql_and_result(state.get("messages", []))
             generated_sql = resp_obj.sql
             result_rows = resp_obj.result
-            
-            # Detect failure fallback payload
+
+            # ---- Detect agent-level failure payload ----
             is_failed = False
             error_msg = None
             if result_rows and isinstance(result_rows, list):
@@ -152,89 +324,135 @@ async def test_all_generations():
                     is_failed = True
                     error_msg = first_row.get("error", "Unknown agent error.")
 
-            # Compare generated SQL against ground truth
+            # ---- Ground truth comparison ----
             norm_generated = normalize_sql(generated_sql)
             norm_truth = normalize_sql(ground_truth_sql)
-            is_match = (norm_generated == norm_truth)
+            is_match = norm_generated == norm_truth
 
             if is_failed:
                 failure_count += 1
-                status_str = "FAILED"
-                print(f"    -> Result: FAIL | Total: {elapsed:.2f}s (Gen: {generation_time:.2f}s, Exec: {execution_time:.2f}s) | Error: {error_msg}")
+                log.error(
+                    f"[{idx:03d}] FAILED  | ID={qid} "
+                    f"| Total={elapsed:.2f}s (Gen={generation_time:.2f}s, Exec={execution_time:.2f}s) "
+                    f"| Error: {error_msg}"
+                )
             else:
                 success_count += 1
-                status_str = "SUCCESS"
                 match_str = "MATCH" if is_match else "MISMATCH"
                 if is_match:
                     match_count += 1
-                print(f"    -> Result: OK   | Total: {elapsed:.2f}s (Gen: {generation_time:.2f}s, Exec: {execution_time:.2f}s) | Ground Truth: {match_str} | SQL: {generated_sql.strip().replace(chr(10), ' ')[:50]}...")
-            
-            results.append({
-                "id": qid,
-                "question": question,
-                "status": status_str,
-                "time_seconds": elapsed,
-                "generation_time_seconds": generation_time,
-                "execution_time_seconds": execution_time,
-                "matches_ground_truth": is_match,
-                "generated_sql": generated_sql,
-                "ground_truth_sql": ground_truth_sql,
-                "error": error_msg
-            })
+                sql_preview = generated_sql.strip().replace("\n", " ")[:80]
+                log.info(
+                    f"[{idx:03d}] SUCCESS | ID={qid} "
+                    f"| Total={elapsed:.2f}s (Gen={generation_time:.2f}s, Exec={execution_time:.2f}s) "
+                    f"| GroundTruth={match_str} "
+                    f"| SQL(preview): {sql_preview}..."
+                )
+                if not is_match:
+                    log.debug(
+                        f"[{idx:03d}] SQL mismatch details\n"
+                        f"  Generated : {norm_generated}\n"
+                        f"  GroundTruth: {norm_truth}"
+                    )
 
-        except Exception as e:
+            results.append(
+                {
+                    "id": qid,
+                    "question": question,
+                    "status": "FAILED" if is_failed else "SUCCESS",
+                    "time_seconds": elapsed,
+                    "generation_time_seconds": generation_time,
+                    "execution_time_seconds": execution_time,
+                    "matches_ground_truth": is_match,
+                    "generated_sql": generated_sql,
+                    "ground_truth_sql": ground_truth_sql,
+                    "error": error_msg,
+                }
+            )
+
+        except Exception as exc:
             elapsed = time.perf_counter() - start_time
             failure_count += 1
-            print(f"    -> Result: EXCEPTION | Time: {elapsed:.2f}s | Error: {e}")
-            results.append({
-                "id": qid,
-                "question": question,
-                "status": "EXCEPTION",
-                "time_seconds": elapsed,
-                "generation_time_seconds": elapsed,
-                "execution_time_seconds": 0.0,
-                "matches_ground_truth": False,
-                "generated_sql": "",
-                "ground_truth_sql": ground_truth_sql,
-                "error": str(e)
-            })
+            log.exception(
+                f"[{idx:03d}] EXCEPTION | ID={qid} "
+                f"| Time={elapsed:.2f}s | Error: {exc}"
+            )
+            results.append(
+                {
+                    "id": qid,
+                    "question": question,
+                    "status": "EXCEPTION",
+                    "time_seconds": elapsed,
+                    "generation_time_seconds": elapsed,
+                    "execution_time_seconds": 0.0,
+                    "matches_ground_truth": False,
+                    "generated_sql": "",
+                    "ground_truth_sql": ground_truth_sql,
+                    "error": str(exc),
+                }
+            )
 
-    # Save detailed report
-    report = {
-        "summary": {
-            "total_tested": len(results),
-            "success_count": success_count,
-            "failure_count": failure_count,
-            "success_rate_pct": (success_count / len(results)) * 100 if results else 0,
-            "match_count": match_count,
-            "match_rate_pct": (match_count / len(results)) * 100 if results else 0,
-            "total_time_seconds": total_time,
-            "avg_time_seconds": total_time / len(results) if results else 0,
-            "max_time_seconds": max(r["time_seconds"] for r in results) if results else 0,
-            "min_time_seconds": min(r["time_seconds"] for r in results) if results else 0,
-            "total_generation_time_seconds": sum(r.get("generation_time_seconds", 0.0) for r in results),
-            "avg_generation_time_seconds": sum(r.get("generation_time_seconds", 0.0) for r in results) / len(results) if results else 0,
-            "total_execution_time_seconds": sum(r.get("execution_time_seconds", 0.0) for r in results),
-            "avg_execution_time_seconds": sum(r.get("execution_time_seconds", 0.0) for r in results) / len(results) if results else 0,
-        },
-        "details": results
-    }
+    # --------------------------------------------------------------------------
+    # Summary
+    # --------------------------------------------------------------------------
+    total_tested = len(results)
+    success_rate = (success_count / total_tested * 100) if total_tested else 0.0
+    match_rate = (match_count / total_tested * 100) if total_tested else 0.0
+    avg_time = total_time / total_tested if total_tested else 0.0
+    all_times = [r["time_seconds"] for r in results]
+    min_time = min(all_times) if all_times else 0.0
+    max_time = max(all_times) if all_times else 0.0
+    total_gen = sum(r.get("generation_time_seconds", 0.0) for r in results)
+    total_exec = sum(r.get("execution_time_seconds", 0.0) for r in results)
+    avg_gen = total_gen / total_tested if total_tested else 0.0
+    avg_exec = total_exec / total_tested if total_tested else 0.0
 
-    with open(REPORT_PATH, "w", encoding="utf-8") as f:
-        json.dump(report, f, indent=2)
+    log.info("=" * 80)
+    log.info("SUMMARY")
+    log.info("=" * 80)
+    log.info(f"  Total tested          : {total_tested}")
+    log.info(f"  Successful            : {success_count}")
+    log.info(f"  Failed / Exceptions   : {failure_count}")
+    log.info(f"  Success rate          : {success_rate:.2f}%")
+    log.info(f"  SQL ground-truth match: {match_count} ({match_rate:.2f}%)")
+    log.info(f"  Total wall-clock time : {total_time:.2f}s")
+    log.info(f"  Avg time per question : {avg_time:.2f}s")
+    log.info(f"  Min / Max time        : {min_time:.2f}s / {max_time:.2f}s")
+    log.info(f"  Total Gen / Exec time : {total_gen:.2f}s / {total_exec:.2f}s")
+    log.info(f"  Avg   Gen / Exec time : {avg_gen:.2f}s / {avg_exec:.2f}s")
 
-    print("=" * 80)
-    print("\nGeneration Verification Summary:")
-    print(f"  Total Questions tested: {report['summary']['total_tested']}")
-    print(f"  Success count         : {report['summary']['success_count']}")
-    print(f"  Failure count         : {report['summary']['failure_count']}")
-    print(f"  Success Rate          : {report['summary']['success_rate_pct']:.2f}%")
-    print(f"  SQL Ground Truth Match: {report['summary']['match_count']} ({report['summary']['match_rate_pct']:.2f}%)")
-    print(f"  Total Time            : {report['summary']['total_time_seconds']:.2f}s")
-    print(f"  Total Gen / Exec Time : {report['summary']['total_generation_time_seconds']:.2f}s / {report['summary']['total_execution_time_seconds']:.2f}s")
-    print(f"  Avg Time per Question : {report['summary']['avg_time_seconds']:.2f}s (Gen: {report['summary']['avg_generation_time_seconds']:.2f}s, Exec: {report['summary']['avg_execution_time_seconds']:.2f}s)")
-    print(f"  Min / Max Time        : {report['summary']['min_time_seconds']:.2f}s / {report['summary']['max_time_seconds']:.2f}s")
-    print(f"\nDetailed report saved to {REPORT_PATH}")
+    # Log per-query failure details in the summary block for easy review
+    failed_results = [r for r in results if r["status"] in ("FAILED", "EXCEPTION")]
+    if failed_results:
+        log.info("-" * 80)
+        log.info(f"FAILED QUERIES ({len(failed_results)}):")
+        for r in failed_results:
+            log.error(
+                f"  ID={r['id']} | Status={r['status']} "
+                f"| Error: {r.get('error') or 'n/a'} "
+                f"| Q: {r['question'][:80]}"
+            )
 
+    log.info("=" * 80)
+    log.info(f"Full log written to: {log_path}")
+    log.info("SESSION END")
+    log.info("=" * 80)
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    asyncio.run(test_all_generations())
+    parser = argparse.ArgumentParser(
+        description="Test SQL generation against fewshot ground truth."
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        metavar="N",
+        help="Only test the first N fewshot entries (e.g. --limit 2 for a quick smoke-test).",
+    )
+    args = parser.parse_args()
+
+    asyncio.run(test_all_generations(limit=args.limit))

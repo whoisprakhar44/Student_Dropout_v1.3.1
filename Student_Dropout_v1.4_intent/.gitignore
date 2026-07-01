@@ -4,3 +4,4 @@ __pycache__/
 .zip
 MCP/milvus_schemas.db/
 database/schema.db
+generation_logs
