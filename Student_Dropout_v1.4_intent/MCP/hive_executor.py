@@ -281,7 +281,37 @@ class HiveExecutor:
             except Exception:
                 pass
 
+    def _ping(self) -> bool:
+        """Return True if the existing connection is still alive.
+
+        Uses a lightweight SELECT 1 wrapped in a short timeout so that stale
+        sockets (server closed the TCP connection during idle time) are caught
+        *before* impyla's internal retry loop fires and raises the misleading
+        ``TTransportException: already open`` error.
+        """
+        if self._conn is None:
+            return False
+        try:
+            cur = self._conn.cursor()
+            cur.execute("SELECT 1")
+            cur.fetchall()
+            cur.close()
+            return True
+        except Exception as exc:
+            logger.info("[ping] Connection stale (%s) — will reconnect", exc)
+            return False
+
     def _get_connection(self):
+        """Return a live connection, creating or recreating one as needed.
+
+        Calls _ping() to validate the cached connection before returning it.
+        A stale connection is silently replaced so callers never see the
+        ``TTransportException: already open`` error that impyla raises when
+        it attempts to re-open a transport that was never properly closed.
+        """
+        if self._conn is not None and not self._ping():
+            # Server side closed the socket; clean up before reconnecting.
+            self._reset_connection()
         if self._conn is None:
             self._connect()
         return self._conn
@@ -531,9 +561,11 @@ class HiveExecutor:
             try:
                 with self._lock:
                     conn = self._get_connection()
-
-                cursor = conn.cursor()
-                cursor_holder["cursor"] = cursor
+                    # Open cursor inside the lock so concurrent threads cannot
+                    # race on the same connection object and trigger the
+                    # "TTransportException: already open" impyla bug.
+                    cursor = conn.cursor()
+                    cursor_holder["cursor"] = cursor
 
                 cursor.execute(query)
 
@@ -552,7 +584,8 @@ class HiveExecutor:
 
             except Exception as exc:
                 logger.error("[execute] error: %s", exc)
-                self._reset_connection()
+                with self._lock:
+                    self._reset_connection()
                 error_holder["exc"] = exc
 
         thread = threading.Thread(target=_run, daemon=True)
