@@ -138,11 +138,20 @@ class VectorDB:
                 )
             ]
         elif self.provider=="milvus":
+            # Split top_k as a COMBINED budget so total chunks never exceed top_k.
+            # Old behaviour: schema=top_k + few_shots=top_k//2 → up to 1.5×top_k chunks
+            # which overflows the LLM context window at TOP_K≥6.
+            # New behaviour: few_shots + schema = top_k exactly.
+            #   few-shots  → 1/3 of budget  (SQL pattern signal)
+            #   schema DDL → 2/3 of budget  (exact column names — more important)
+            n_fewshot = max(1, top_k // 3)
+            n_schema  = top_k - n_fewshot
+
             # ── Search schema_store (actual DDL) ─────────────────────────────
             schema_res = self.client.search(
                 collection_name=self.collection,
                 data=[embedding],
-                limit=top_k,
+                limit=n_schema,
                 output_fields=["database_name", "table_name", "raw_ddl", "embedding_text"],
                 search_params={"metric_type": "COSINE"},
                 partition_names=["schema_store"],
@@ -164,7 +173,7 @@ class VectorDB:
                 fewshot_res = self.client.search(
                     collection_name=self.collection,
                     data=[embedding],
-                    limit=max(1, top_k // 2),
+                    limit=n_fewshot,
                     output_fields=["database_name", "table_name", "raw_ddl", "embedding_text"],
                     search_params={"metric_type": "COSINE"},
                     partition_names=["few_shot_store"],

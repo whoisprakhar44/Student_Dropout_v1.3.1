@@ -183,7 +183,8 @@ def llm_node(state: AgentState) -> dict:
 
     # Hard cap on LLM calls to prevent infinite loops
     current_calls = state.get("llm_calls", 0)
-    max_llm_calls = int(os.getenv("MAX_LLM_CALLS", "15"))
+    current_rag_calls = state.get("rag_calls", 0)
+    max_llm_calls = int(os.getenv("MAX_LLM_CALLS", "25"))
     if current_calls >= max_llm_calls:
         logger.warning("llm_node: Max LLM call limit reached (%d). Ending conversation.", current_calls)
 
@@ -200,6 +201,7 @@ def llm_node(state: AgentState) -> dict:
             return {
                 "messages": [AIMessage(content=summary or "Query executed successfully.")],
                 "llm_calls": current_calls,
+                "rag_calls": current_rag_calls,
                 "verified": True,
             }
 
@@ -220,6 +222,7 @@ def llm_node(state: AgentState) -> dict:
         return {
             "messages": [AIMessage(content=f"I encountered multiple issues or errors while trying to query the database. Please try rephrasing your request.{error_hint}")],
             "llm_calls": current_calls,
+            "rag_calls": current_rag_calls,
             "verified": True,
         }
 
@@ -236,6 +239,7 @@ def llm_node(state: AgentState) -> dict:
             return {
                 "messages": [AIMessage(content=summary)],
                 "llm_calls": current_calls,
+                "rag_calls": current_rag_calls,
             }
 
     system_message = SystemMessage(content=SYSTEM_PROMPT)
@@ -250,17 +254,33 @@ def llm_node(state: AgentState) -> dict:
         # The LLM must use ONLY table and column names from the SCHEMA DDLs section.
         # It may call retrive_schema_rag again if it needs schema for a different table.
         dialect_name = "Hive SQL" if _HIVE_ENABLED else "SQLite SQL"
-        messages_for_llm.append(SystemMessage(
-            content=(
-                "The schema context above contains two sections:\n"
-                "1. REFERENCE SQL EXAMPLES \u2014 use these as a structural pattern for your query.\n"
-                "2. SCHEMA DDLs \u2014 these are the authoritative table and column names. "
-                "You MUST use ONLY the exact table names and column names from the SCHEMA DDLs section. "
-                "Do NOT guess, assume, or invent any column names, table names, or joins. "
-                "If a column or table you want to query is not present in the SCHEMA DDLs section, you must call retrive_schema_rag again to fetch the correct schema instead of guessing it. "
-                "Now call execute_sql with a correct {dialect} query."
-            ).format(dialect=dialect_name)
-        ))
+        if current_rag_calls >= _MAX_RAG_CALLS:
+            # RAG call budget exhausted — stop asking for more schema retrieval.
+            # Force the LLM to write SQL with whatever schema is already in context.
+            logger.warning(
+                "llm_node: RAG call cap (%d) reached. Forcing SQL generation with existing schema context.",
+                _MAX_RAG_CALLS,
+            )
+            messages_for_llm.append(SystemMessage(
+                content=(
+                    "You have already retrieved schema context multiple times. "
+                    "Do NOT call retrive_schema_rag again. "
+                    "Use ONLY the table and column names already present in the conversation above. "
+                    f"Call execute_sql now with a valid {dialect_name} SELECT query."
+                )
+            ))
+        else:
+            messages_for_llm.append(SystemMessage(
+                content=(
+                    "The schema context above contains two sections:\n"
+                    "1. REFERENCE SQL EXAMPLES — use these as a structural pattern for your query.\n"
+                    "2. SCHEMA DDLs — these are the authoritative table and column names. "
+                    "You MUST use ONLY the exact table names and column names from the SCHEMA DDLs section. "
+                    "Do NOT guess, assume, or invent any column names, table names, or joins. "
+                    "If a column or table you want to query is not present in the SCHEMA DDLs section, you must call retrive_schema_rag again to fetch the correct schema instead of guessing it. "
+                    "Now call execute_sql with a correct {dialect} query."
+                ).format(dialect=dialect_name)
+            ))
     model = _get_model()
         
     response = model.invoke(messages_for_llm)
@@ -331,10 +351,16 @@ def llm_node(state: AgentState) -> dict:
         response = _get_model().invoke(messages_for_llm + [sql_nudge])
         llm_steps += 1
 
-    logger.info("llm_node: completed in %.2fs", time.perf_counter() - t0)
+    # Count how many RAG tool calls the LLM emitted in this node turn
+    rag_increment = sum(
+        1 for tc in (getattr(response, "tool_calls", None) or [])
+        if tc.get("name") == "retrive_schema_rag"
+    )
+    logger.info("llm_node: completed in %.2fs (rag_calls this turn: %d)", time.perf_counter() - t0, rag_increment)
     return {
         "messages": [response],
         "llm_calls": state.get("llm_calls", 0) + llm_steps,
+        "rag_calls": current_rag_calls + rag_increment,
     }
 
 
@@ -349,6 +375,7 @@ def build_tool_node() -> ToolNode:
 # Verification node
 # ---------------------------------------------------------------------------
 _MAX_VERIFY_LOOPS = int(os.getenv("MAX_VERIFY_LOOPS", "10"))
+_MAX_RAG_CALLS   = int(os.getenv("MAX_RAG_CALLS", "4"))
 
 _VERIFY_PROMPT = """You are a strict SQL result verifier.
 
@@ -490,6 +517,7 @@ def verify_node(state: AgentState) -> dict:
         return {
             "messages": [forced_rag_msg],
             "verify_calls": verify_calls + 1,
+            "rag_calls": state.get("rag_calls", 0) + 1,
             "verified": False,
         }
 

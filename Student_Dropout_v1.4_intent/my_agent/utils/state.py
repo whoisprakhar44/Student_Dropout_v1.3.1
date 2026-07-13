@@ -17,6 +17,9 @@ class AgentState(TypedDict):
     # Tracks how many times the LLM has been invoked
     llm_calls: int
 
+    # Tracks how many RAG (retrive_schema_rag) calls have been made
+    rag_calls: int
+
     # Set when a template SQL fast-path is used (skip extra LLM turns)
     fast_sql: NotRequired[str | None]
 

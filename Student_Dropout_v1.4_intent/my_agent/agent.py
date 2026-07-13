@@ -132,6 +132,7 @@ async def main():
             "messages": [HumanMessage(content=user_query)],
             "retrieved_context": [],
             "llm_calls": 0,
+            "rag_calls": 0,
             "verify_calls": 0,
             "verified": False,
             # intent_node will populate these at runtime:

@@ -575,6 +575,7 @@ async def ask(payload: AskRequest):
                                 "messages": history_messages + [HumanMessage(content=payload.question)],
                                 "retrieved_context": [],
                                 "llm_calls": 0,
+                                "rag_calls": 0,
                                 "verify_calls": 0,
                                 "verified": False,
                                 # intent_node will populate these during the run

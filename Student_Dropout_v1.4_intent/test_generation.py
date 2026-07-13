@@ -321,6 +321,7 @@ async def test_all_generations(limit: int | None = None) -> None:
                 "messages": [HumanMessage(content=question)],
                 "retrieved_context": [],
                 "llm_calls": 0,
+                "rag_calls": 0,
                 "verify_calls": 0,
                 "verified": False,
             }
