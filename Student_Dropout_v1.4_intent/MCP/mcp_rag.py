@@ -202,6 +202,27 @@ class VectorDB:
 # =========================
 # POST PROCESSING
 # =========================
+
+# Fact tables excluded from RAG results.
+# These are Data Transfer API infrastructure tables and P4/population aggregates
+# that have no analytical value for the Student Dropout NL2SQL use-case.
+# The Milvus index and metadata structure are unchanged — exclusion happens
+# purely at query-time, after vector search returns results.
+EXCLUDED_FACT_TABLES: set[str] = {
+    # Data Transfer API — event infrastructure
+    "fact_event_details",
+    "fact_event_request_registry",
+    "fact_event_index",
+    "fact_event_acknowledgement",
+    "fact_event_status_update",
+    # P4 scoring — geo aggregates & leaderboard (citizen-level score kept)
+    "fact_p4_geo_score",
+    "fact_p4_ranking",
+    # Utility trend — macro monthly indices, not useful for dropout queries
+    "fact_utility_trend",
+}
+
+
 def dedupe(rows: List[Dict]):
     seen = set()
     out = []
@@ -218,6 +239,21 @@ def dedupe(rows: List[Dict]):
 
 def threshold(rows: List[Dict], min_score: float = 0.35):
     return [r for r in rows if r["score"] >= min_score]
+
+
+def exclude_facts(rows: List[Dict]) -> List[Dict]:
+    """Drop schema_ddl chunks whose table_name is in EXCLUDED_FACT_TABLES.
+    Few-shot examples are never filtered — they don't expose harmful DDL
+    and removing them would degrade query-pattern matching."""
+    out = []
+    for r in rows:
+        if r.get("chunk_type") == "few_shot_example":
+            out.append(r)
+        elif r.get("table_name") in EXCLUDED_FACT_TABLES:
+            logger.debug("exclude_facts: dropped %s", r.get("table_name"))
+        else:
+            out.append(r)
+    return out
 
 
 # =========================
@@ -245,6 +281,7 @@ def retrive_schema_rag(query: str, top_k: int = 15):
     results = vector_db.search(emb, top_k)
     results = dedupe(results)
     results = threshold(results)
+    results = exclude_facts(results)
     
     logger.info(f"RAG retrieved {len(results)} chunks for query '{query}':")
     for idx, hit in enumerate(results):

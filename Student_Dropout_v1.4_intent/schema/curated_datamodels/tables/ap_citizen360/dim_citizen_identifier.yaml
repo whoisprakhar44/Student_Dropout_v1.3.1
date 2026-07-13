@@ -1,0 +1,96 @@
+database: ap_citizen360
+table: dim_citizen_identifier
+department: ap_citizen360
+description: One row per government-issued identifier held by a person (Aadhaar, Voter ID, Driving License, Bank Account,
+  ...) — a person can hold multiple identifiers of different types, and dim_person itself stores none of them directly.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_citizen_identifier
+partitioned_by: null
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_citizen_identifier`(\n  `identifier_id` STRING COMMENT 'Primary Key:\
+  \ identifier-record id.',\n  `person_id` STRING COMMENT 'Foreign Key: References dim_person.person_id.',\n  `identifier_type`\
+  \ STRING COMMENT 'Type of identifier, e.g. \\'Aadhaar\\', \\'VoterID\\', \\'DrivingLicense\\', \\'BankAccount\\'. [Value\
+  \ Examples: \\'Aadhaar\\', \\'VoterID\\', \\'DrivingLicense\\', \\'BankAccount\\']',\n  `identifier_value` STRING COMMENT\
+  \ 'The identifier\\'s value/number itself (PII — masked in most API responses).',\n  `is_primary` BOOLEAN COMMENT 'Boolean\
+  \ flag. True if this is the person\\'s primary identifier of this type, when more than one of the same type is on file.',\n\
+  \  `issuing_authority` STRING COMMENT 'Authority that issued the identifier, e.g. \\'UIDAI\\', \\'Election Commission of\
+  \ AP\\'. [Value Examples: \\'UIDAI\\', \\'Election Commission of AP\\']',\n  `issued_date` DATE COMMENT 'Date the identifier\
+  \ was issued.',\n  `expiry_date` DATE COMMENT 'Expiry date of the identifier, where applicable (e.g. driving licenses).',\n\
+  \  `is_active` BOOLEAN COMMENT 'Boolean flag. True if the identifier is currently active/valid (not cancelled or superseded).',\n\
+  \  `verified_flag` BOOLEAN COMMENT 'Boolean flag. True if the identifier has been verified against its issuing authority\\\
+  's system (e.g. aadhaar e-kyc verified), distinct from merely being on file.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp\
+  \ this identifier record was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED\
+  \ BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_citizen_identifier'"
+columns:
+- name: identifier_id
+  type: STRING
+  nullable: true
+  description: 'Primary Key: identifier-record id.'
+- name: person_id
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: References dim_person.person_id.'
+- name: identifier_type
+  type: STRING
+  nullable: true
+  description: 'Type of identifier, e.g. ''Aadhaar'', ''VoterID'', ''DrivingLicense'', ''BankAccount''. [Value Examples: ''Aadhaar'',
+    ''VoterID'', ''DrivingLicense'', ''BankAccount'']'
+- name: identifier_value
+  type: STRING
+  nullable: true
+  description: The identifier's value/number itself (PII — masked in most API responses).
+- name: is_primary
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if this is the person's primary identifier of this type, when more than one of the same
+    type is on file.
+- name: issuing_authority
+  type: STRING
+  nullable: true
+  description: 'Authority that issued the identifier, e.g. ''UIDAI'', ''Election Commission of AP''. [Value Examples: ''UIDAI'',
+    ''Election Commission of AP'']'
+- name: issued_date
+  type: DATE
+  nullable: true
+  description: Date the identifier was issued.
+- name: expiry_date
+  type: DATE
+  nullable: true
+  description: Expiry date of the identifier, where applicable (e.g. driving licenses).
+- name: is_active
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if the identifier is currently active/valid (not cancelled or superseded).
+- name: verified_flag
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if the identifier has been verified against its issuing authority's system (e.g. aadhaar
+    e-kyc verified), distinct from merely being on file.
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp this identifier record was last updated.
+primary_key:
+- identifier_id
+relationships:
+- dim_citizen_identifier.person_id is a foreign key to dim_person.person_id.
+business_terms:
+- ap_citizen360
+- person___household___identity
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_citizen_identifier
+- join dim_citizen_identifier to dim_person via person_id
+- filter dim_citizen_identifier by district_id or mandal_id

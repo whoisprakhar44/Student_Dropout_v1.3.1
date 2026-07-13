@@ -1,0 +1,56 @@
+database: ap_citizen360
+table: dim_tax_profile
+department: ap_citizen360
+description: One row per person summarizing income-tax and GST liability — distinct from dim_property_tax, which covers municipal
+  property tax rather than income/GST.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_tax_profile
+partitioned_by: null
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_tax_profile`(\n  `person_id` STRING COMMENT 'Primary Key: Foreign key\
+  \ to dim_person.person_id.',\n  `income_tax_paid` BOOLEAN COMMENT 'Boolean flag. True if the person has a record of having\
+  \ paid income tax in the relevant assessment period.',\n  `gst_paid_annual` DECIMAL(15,2) COMMENT 'Annual GST paid by the\
+  \ person (e.g. as a registered business owner), in INR. Unit: INR.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this tax\
+  \ profile was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_tax_profile'"
+columns:
+- name: person_id
+  type: STRING
+  nullable: true
+  description: 'Primary Key: Foreign key to dim_person.person_id.'
+- name: income_tax_paid
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if the person has a record of having paid income tax in the relevant assessment period.
+- name: gst_paid_annual
+  type: DECIMAL(15,2)
+  nullable: true
+  description: 'Annual GST paid by the person (e.g. as a registered business owner), in INR. Unit: INR.'
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp this tax profile was last updated.
+primary_key:
+- person_id
+relationships:
+- dim_tax_profile.person_id is a foreign key to dim_person.person_id.
+business_terms:
+- ap_citizen360
+- person___household___identity
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_tax_profile
+- join dim_tax_profile to dim_person via person_id
+- filter dim_tax_profile by district_id or mandal_id

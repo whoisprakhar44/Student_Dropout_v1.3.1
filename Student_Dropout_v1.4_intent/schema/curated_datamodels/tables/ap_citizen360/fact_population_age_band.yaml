@@ -1,0 +1,65 @@
+database: ap_citizen360
+table: fact_population_age_band
+department: ap_citizen360
+description: Pre-aggregated population age-distribution snapshot per geography — backs the population age-pyramid chart.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_population_age_band
+partitioned_by: null
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_population_age_band`(\n  `age_band_id` STRING COMMENT 'Primary Key:\
+  \ age-band record identifier.',\n  `geo_level` STRING COMMENT 'Geography level this age-band aggregate covers, e.g. \\'state\\\
+  ', \\'district\\'. [Value Examples: \\'state\\', \\'district\\']',\n  `geo_id` STRING COMMENT 'Identifier of the specific\
+  \ geography at geo_level.',\n  `age_band` STRING COMMENT 'Age range this row covers, e.g. \\'0-14\\', \\'15-59\\', \\'60+\\\
+  '. [Value Examples: \\'0-14\\', \\'15-59\\', \\'60+\\']',\n  `percentage` DOUBLE COMMENT 'Percentage of the geography\\\
+  's population falling in this age band. Unit: percentage (0-100).',\n  `snapshot_date` DATE COMMENT 'Date this age-distribution\
+  \ snapshot was taken/computed.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_population_age_band'"
+columns:
+- name: age_band_id
+  type: STRING
+  nullable: true
+  description: 'Primary Key: age-band record identifier.'
+- name: geo_level
+  type: STRING
+  nullable: true
+  description: 'Geography level this age-band aggregate covers, e.g. ''state'', ''district''. [Value Examples: ''state'',
+    ''district'']'
+- name: geo_id
+  type: STRING
+  nullable: true
+  description: Identifier of the specific geography at geo_level.
+- name: age_band
+  type: STRING
+  nullable: true
+  description: 'Age range this row covers, e.g. ''0-14'', ''15-59'', ''60+''. [Value Examples: ''0-14'', ''15-59'', ''60+'']'
+- name: percentage
+  type: DOUBLE
+  nullable: true
+  description: 'Percentage of the geography''s population falling in this age band. Unit: percentage (0-100).'
+- name: snapshot_date
+  type: DATE
+  nullable: true
+  description: Date this age-distribution snapshot was taken/computed.
+primary_key:
+- age_band_id
+relationships: []
+business_terms:
+- ap_citizen360
+- population_and_utility_trends
+- fact
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- aggregate measures in fact_population_age_band by geography and time period
+- join fact_population_age_band with dimension tables via person_id or scheme_id
+- filter fact_population_age_band by district_id or fiscal_year

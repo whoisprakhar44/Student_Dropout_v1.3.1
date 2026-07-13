@@ -1,0 +1,155 @@
+database: ap_citizen360
+table: dim_district
+department: ap_citizen360
+description: One row per district per effective-dated period (slowly-changing dimension), nested under dim_state via state_id.
+  Backs the District Profile drilldown view.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_district
+partitioned_by: null
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_district`(\n  `district_id` STRING COMMENT 'Primary Key: district code,\
+  \ e.g. \\'guntur\\'.',\n  `district_name` STRING COMMENT 'Display name of the district.',\n  `state_id` STRING COMMENT 'Foreign\
+  \ Key: References dim_state.state_id.',\n  `population` BIGINT COMMENT 'Total district population.',\n  `households` BIGINT\
+  \ COMMENT 'Total household count in the district.',\n  `literacy_rate` DOUBLE COMMENT 'District literacy rate, percentage\
+  \ (0-100). Unit: percentage (0-100).',\n  `sex_ratio` INT COMMENT 'Females per 1000 males in the district.',\n  `urbanization_pct`\
+  \ DOUBLE COMMENT 'Percentage of the district\\'s population classified urban. Unit: percentage (0-100).',\n  `ration_cards_total`\
+  \ BIGINT COMMENT 'Total NFSA ration cards issued in the district.',\n  `ration_aay` BIGINT COMMENT 'District ration cards\
+  \ under the Antyodaya Anna Yojana category.',\n  `ration_phh` BIGINT COMMENT 'District ration cards under the Priority Household\
+  \ category.',\n  `ration_nphh` BIGINT COMMENT 'District ration cards under the Non-Priority Household category.',\n  `ration_others`\
+  \ BIGINT COMMENT 'Categorical column. Distinct values: \\'District ration cards under other\\', \\'legacy categories.\\\
+  '. District ration cards under other/legacy categories.',\n  `vehicles` BIGINT COMMENT 'Total registered vehicles in the\
+  \ district.',\n  `land_acres` BIGINT COMMENT 'Total land extent recorded in the district, in acres. Unit: acres.',\n  `agri_land_acres`\
+  \ BIGINT COMMENT 'Total agricultural land extent in the district, in acres. Unit: acres.',\n  `properties` BIGINT COMMENT\
+  \ 'Categorical column. Distinct values: \\'Total registered properties (residential\\', \\'commercial) in the district.\\\
+  '. Total registered properties (residential/commercial) in the district.',\n  `gas_connections` BIGINT COMMENT 'Total registered\
+  \ domestic gas connections in the district.',\n  `electricity_consumers` BIGINT COMMENT 'Total registered electricity consumer\
+  \ connections in the district.',\n  `avg_monthly_kwh` INT COMMENT 'Average monthly electricity consumption per consumer,\
+  \ in kWh. Unit: kWh.',\n  `property_tax_coverage` INT COMMENT 'Percentage of assessed properties that are current on property\
+  \ tax. Unit: percentage (0-100).',\n  `effective_from` DATE COMMENT 'Start date this snapshot row is valid from (SCD2 versioning).',\n\
+  \  `effective_to` DATE COMMENT 'End date this snapshot row is valid until; null/open-ended for the current row.',\n  `is_current`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if this is the latest/active version of the district snapshot.')\nROW FORMAT SERDE\n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\n\
+  LOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_district'"
+columns:
+- name: district_id
+  type: STRING
+  nullable: true
+  description: 'Primary Key: district code, e.g. ''guntur''.'
+- name: district_name
+  type: STRING
+  nullable: true
+  description: Display name of the district.
+- name: state_id
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: References dim_state.state_id.'
+- name: population
+  type: BIGINT
+  nullable: true
+  description: Total district population.
+- name: households
+  type: BIGINT
+  nullable: true
+  description: Total household count in the district.
+- name: literacy_rate
+  type: DOUBLE
+  nullable: true
+  description: 'District literacy rate, percentage (0-100). Unit: percentage (0-100).'
+- name: sex_ratio
+  type: INT
+  nullable: true
+  description: Females per 1000 males in the district.
+- name: urbanization_pct
+  type: DOUBLE
+  nullable: true
+  description: 'Percentage of the district''s population classified urban. Unit: percentage (0-100).'
+- name: ration_cards_total
+  type: BIGINT
+  nullable: true
+  description: Total NFSA ration cards issued in the district.
+- name: ration_aay
+  type: BIGINT
+  nullable: true
+  description: District ration cards under the Antyodaya Anna Yojana category.
+- name: ration_phh
+  type: BIGINT
+  nullable: true
+  description: District ration cards under the Priority Household category.
+- name: ration_nphh
+  type: BIGINT
+  nullable: true
+  description: District ration cards under the Non-Priority Household category.
+- name: ration_others
+  type: BIGINT
+  nullable: true
+  description: 'Categorical column. Distinct values: ''District ration cards under other'', ''legacy categories.''. District
+    ration cards under other/legacy categories.'
+- name: vehicles
+  type: BIGINT
+  nullable: true
+  description: Total registered vehicles in the district.
+- name: land_acres
+  type: BIGINT
+  nullable: true
+  description: 'Total land extent recorded in the district, in acres. Unit: acres.'
+- name: agri_land_acres
+  type: BIGINT
+  nullable: true
+  description: 'Total agricultural land extent in the district, in acres. Unit: acres.'
+- name: properties
+  type: BIGINT
+  nullable: true
+  description: 'Categorical column. Distinct values: ''Total registered properties (residential'', ''commercial) in the district.''.
+    Total registered properties (residential/commercial) in the district.'
+- name: gas_connections
+  type: BIGINT
+  nullable: true
+  description: Total registered domestic gas connections in the district.
+- name: electricity_consumers
+  type: BIGINT
+  nullable: true
+  description: Total registered electricity consumer connections in the district.
+- name: avg_monthly_kwh
+  type: INT
+  nullable: true
+  description: 'Average monthly electricity consumption per consumer, in kWh. Unit: kWh.'
+- name: property_tax_coverage
+  type: INT
+  nullable: true
+  description: 'Percentage of assessed properties that are current on property tax. Unit: percentage (0-100).'
+- name: effective_from
+  type: DATE
+  nullable: true
+  description: Start date this snapshot row is valid from (SCD2 versioning).
+- name: effective_to
+  type: DATE
+  nullable: true
+  description: End date this snapshot row is valid until; null/open-ended for the current row.
+- name: is_current
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if this is the latest/active version of the district snapshot.
+primary_key:
+- district_id
+relationships:
+- dim_district.state_id is a foreign key to dim_state.state_id.
+business_terms:
+- ap_citizen360
+- geography
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_district
+- join dim_district to dim_person via person_id
+- filter dim_district by district_id or mandal_id
