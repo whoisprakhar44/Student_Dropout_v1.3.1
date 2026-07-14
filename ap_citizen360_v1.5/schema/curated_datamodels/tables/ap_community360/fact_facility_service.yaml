@@ -1,0 +1,118 @@
+database: ap_community360
+table: fact_facility_service
+department: ap_community360
+description: Periodic (typically monthly) utilisation/throughput for a facility — footfall, beneficiaries served, revenue.
+  This is what the overview's per-facility 'recent service' history and any utilisation-trend view are built from. One row
+  per facility per period; partitioned by month since queries are almost always time-bounded.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_community360/fact_facility_service
+partitioned_by: months(period_date)
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: ap_community360_canonical_schema.json
+raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`fact_facility_service`(\n  `facility_service_id` BIGINT COMMENT 'Primary\
+  \ Key: service-period row.',\n  `canonical_facility_id` STRING COMMENT 'FK to dim_facility.canonical_facility_id.',\n  `facility_type_id`\
+  \ INT COMMENT 'Denormalized FK to dim_facility_type.facility_type_id, for fast type-scoped aggregation without a join back\
+  \ to dim_facility.',\n  `geography_id` BIGINT COMMENT 'Denormalized FK to dim_geography.geography_id, for fast geo-scoped\
+  \ aggregation.',\n  `period_date` DATE COMMENT 'Start date of the reporting period this row covers. Partition key.',\n \
+  \ `period_grain` STRING COMMENT 'Granularity of the period, e.g. \\'month\\' | \\'quarter\\'. [Value Examples: \\'month\\\
+  ', \\'quarter\\']',\n  `footfall` BIGINT COMMENT 'Categorical column. Distinct values: \\'Total visitor\\', \\'footfall\
+  \ count for the period.\\'. Total visitor/footfall count for the period.',\n  `beneficiaries_served` BIGINT COMMENT 'Distinct\
+  \ beneficiaries actually served in the period (subset of footfall).',\n  `throughput_units` BIGINT COMMENT 'Facility-type-specific\
+  \ throughput unit for the period, e.g. patients treated, students taught.',\n  `occupancy_pct` DECIMAL(5,2) COMMENT 'Capacity\
+  \ utilisation for the period, as a percentage. Unit: percentage (0-100).',\n  `revenue_amount` DECIMAL(16,2) COMMENT 'Revenue\
+  \ generated in the period, in INR, where applicable (e.g. a rentable community center). Unit: INR.',\n  `utilization_index`\
+  \ DECIMAL(6,3) COMMENT 'Composite utilisation score for the period, combining footfall/occupancy/throughput into one comparable\
+  \ figure across facility types.',\n  `source_system` STRING COMMENT 'Upstream system this row was loaded from, e.g. \\'udise_plus\\\
+  ', \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\', \\'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load\
+  \ batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.',\n  `load_ts` TIMESTAMP\
+  \ COMMENT 'When this row was first written to the canonical table.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/fact_facility_service'\n\
+  PARTITIONED BY (months(period_date))"
+columns:
+- name: facility_service_id
+  type: BIGINT
+  nullable: true
+  description: 'Primary Key: service-period row.'
+- name: canonical_facility_id
+  type: STRING
+  nullable: true
+  description: FK to dim_facility.canonical_facility_id.
+- name: facility_type_id
+  type: INT
+  nullable: true
+  description: Denormalized FK to dim_facility_type.facility_type_id, for fast type-scoped aggregation without a join back
+    to dim_facility.
+- name: geography_id
+  type: BIGINT
+  nullable: true
+  description: Denormalized FK to dim_geography.geography_id, for fast geo-scoped aggregation.
+- name: period_date
+  type: DATE
+  nullable: true
+  description: Start date of the reporting period this row covers. Partition key.
+- name: period_grain
+  type: STRING
+  nullable: true
+  description: 'Granularity of the period, e.g. ''month'' | ''quarter''. [Value Examples: ''month'', ''quarter'']'
+- name: footfall
+  type: BIGINT
+  nullable: true
+  description: 'Categorical column. Distinct values: ''Total visitor'', ''footfall count for the period.''. Total visitor/footfall
+    count for the period.'
+- name: beneficiaries_served
+  type: BIGINT
+  nullable: true
+  description: Distinct beneficiaries actually served in the period (subset of footfall).
+- name: throughput_units
+  type: BIGINT
+  nullable: true
+  description: Facility-type-specific throughput unit for the period, e.g. patients treated, students taught.
+- name: occupancy_pct
+  type: DECIMAL(5,2)
+  nullable: true
+  description: 'Capacity utilisation for the period, as a percentage. Unit: percentage (0-100).'
+- name: revenue_amount
+  type: DECIMAL(16,2)
+  nullable: true
+  description: 'Revenue generated in the period, in INR, where applicable (e.g. a rentable community center). Unit: INR.'
+- name: utilization_index
+  type: DECIMAL(6,3)
+  nullable: true
+  description: Composite utilisation score for the period, combining footfall/occupancy/throughput into one comparable figure
+    across facility types.
+- name: source_system
+  type: STRING
+  nullable: true
+  description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+    ''hmis'', ''seed'']'
+- name: batch_id
+  type: STRING
+  nullable: true
+  description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+- name: load_ts
+  type: TIMESTAMP
+  nullable: true
+  description: When this row was first written to the canonical table.
+primary_key:
+- facility_service_id
+relationships:
+- fact_facility_service.facility_type_id joins to dim_facility (via facility_type_id).
+business_terms:
+- ap_community360
+- facts_—_service_and_access
+- fact
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- aggregate measures in fact_facility_service by geography and time period
+- join fact_facility_service with dimension tables via facility_id or person_id
+- filter fact_facility_service by district_id or period_date

@@ -1,0 +1,189 @@
+database: ap_community360
+table: dim_facility_hospital
+department: ap_community360
+description: Hospital/health-facility-specific attributes, aligned to HMIS (Health Management Information System) conventions.
+  One row per facility where dim_facility.facility_type_id resolves to the HOSPITAL type. Backs the hospital ownership/24x7/min-beds
+  critical filters in the Community 360 UI.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_community360/dim_facility_hospital
+partitioned_by: null
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: ap_community360_canonical_schema.json
+raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility_hospital`(\n  `canonical_facility_id` STRING COMMENT 'Primary\
+  \ Key: FK to dim_facility.canonical_facility_id — one row per hospital/health facility.',\n  `hmis_facility_code` STRING\
+  \ COMMENT 'National HMIS facility code.',\n  `nin` STRING COMMENT 'National Identification Number for the health facility\
+  \ (Ayushman Bharat Digital Mission registry).',\n  `facility_level` STRING COMMENT 'Tier of care, e.g. \\'PHC\\' | \\'CHC\\\
+  ' | \\'Area Hospital\\' | \\'District Hospital\\'. [Value Examples: \\'PHC\\', \\'CHC\\', \\'Area Hospital\\', \\'District\
+  \ Hospital\\']',\n  `ownership` STRING COMMENT 'Who owns/operates the facility, e.g. \\'Government\\' | \\'Private\\' |\
+  \ \\'Trust\\' — one of the critical filter fields. [Value Examples: \\'Government\\', \\'Private\\', \\'Trust\\']',\n  `total_beds`\
+  \ INT COMMENT 'Total sanctioned beds — the other critical filter field (min-beds threshold).',\n  `icu_beds` INT COMMENT\
+  \ 'ICU beds among the total.',\n  `maternity_beds` INT COMMENT 'Categorical column. Distinct values: \\'Maternity\\', \\\
+  'labour-ward beds among the total.\\'. Maternity/labour-ward beds among the total.',\n  `emergency_beds` INT COMMENT 'Emergency-ward\
+  \ beds among the total.',\n  `specialties` ARRAY<STRING> COMMENT 'ARRAY<STRING> column. Contains Medical specialties available\
+  \ at this facility, e.g. [\\'General Medicine\\', \\'Pediatrics\\'].',\n  `doctors_count` INT COMMENT 'Doctors currently\
+  \ on staff.',\n  `nurses_count` INT COMMENT 'Nurses currently on staff.',\n  `paramedic_count` INT COMMENT 'Paramedic staff\
+  \ currently on strength.',\n  `has_pharmacy` BOOLEAN COMMENT 'Boolean flag. True if an in-house pharmacy exists.',\n  `has_diagnostic_lab`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if a diagnostic lab exists on-site.',\n  `has_blood_bank` BOOLEAN COMMENT 'Boolean\
+  \ flag. True if a blood bank exists on-site.',\n  `has_operation_theatre` BOOLEAN COMMENT 'Boolean flag. True if an operation\
+  \ theatre exists.',\n  `has_ambulance` BOOLEAN COMMENT 'Boolean flag. True if the facility has its own ambulance.',\n  `has_emergency_services`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if a dedicated emergency department exists.',\n  `is_24x7` BOOLEAN COMMENT 'Boolean\
+  \ flag. True if the facility operates round the clock — the \\'24x7 only\\' critical filter.',\n  `operating_hours` STRING\
+  \ COMMENT 'Categorical column. Distinct values: \\'Free-text operating hours, e.g. \\'24x7\\', \\'9AM-5PM\\'.\\'. Free-text\
+  \ operating hours, e.g. \\'24x7\\' | \\'9AM-5PM\\'. [Value Examples: \\'24x7\\', \\'9AM-5PM\\']',\n  `is_aarogyasri_empanelled`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if empanelled under the ysr aarogyasri state health insurance scheme.',\n  `aarogyasri_id`\
+  \ STRING COMMENT 'Aarogyasri empanelment ID, when empanelled.',\n  `is_pmjay_empanelled` BOOLEAN COMMENT 'Boolean flag.\
+  \ True if empanelled under the national pm-jay health insurance scheme.',\n  `source_system` STRING COMMENT 'Upstream system\
+  \ this row was loaded from, e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\', \\'hmis\\\
+  ', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load batch identifier — groups every row written by the same ingestion run,\
+  \ for reprocessing/rollback.',\n  `load_ts` TIMESTAMP COMMENT 'When this row was first written to the canonical table.',\n\
+  \  `updated_ts` TIMESTAMP COMMENT 'Categorical column. Distinct values: \\'When this row was last updated (upsert\\', \\\
+  'merge timestamp).\\'. When this row was last updated (upsert/merge timestamp).',\n  `record_status` STRING COMMENT 'Row\
+  \ lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\' — soft-delete marker; rows are never hard-deleted. [Value Examples:\
+  \ \\'ACTIVE\\', \\'RETIRED\\']')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility_hospital'"
+columns:
+- name: canonical_facility_id
+  type: STRING
+  nullable: true
+  description: 'Primary Key: FK to dim_facility.canonical_facility_id — one row per hospital/health facility.'
+- name: hmis_facility_code
+  type: STRING
+  nullable: true
+  description: National HMIS facility code.
+- name: nin
+  type: STRING
+  nullable: true
+  description: National Identification Number for the health facility (Ayushman Bharat Digital Mission registry).
+- name: facility_level
+  type: STRING
+  nullable: true
+  description: 'Tier of care, e.g. ''PHC'' | ''CHC'' | ''Area Hospital'' | ''District Hospital''. [Value Examples: ''PHC'',
+    ''CHC'', ''Area Hospital'', ''District Hospital'']'
+- name: ownership
+  type: STRING
+  nullable: true
+  description: 'Who owns/operates the facility, e.g. ''Government'' | ''Private'' | ''Trust'' — one of the critical filter
+    fields. [Value Examples: ''Government'', ''Private'', ''Trust'']'
+- name: total_beds
+  type: INT
+  nullable: true
+  description: Total sanctioned beds — the other critical filter field (min-beds threshold).
+- name: icu_beds
+  type: INT
+  nullable: true
+  description: ICU beds among the total.
+- name: maternity_beds
+  type: INT
+  nullable: true
+  description: 'Categorical column. Distinct values: ''Maternity'', ''labour-ward beds among the total.''. Maternity/labour-ward
+    beds among the total.'
+- name: emergency_beds
+  type: INT
+  nullable: true
+  description: Emergency-ward beds among the total.
+- name: specialties
+  type: ARRAY<STRING>
+  nullable: true
+  description: ARRAY<STRING> column. Contains Medical specialties available at this facility, e.g. ['General Medicine', 'Pediatrics'].
+- name: doctors_count
+  type: INT
+  nullable: true
+  description: Doctors currently on staff.
+- name: nurses_count
+  type: INT
+  nullable: true
+  description: Nurses currently on staff.
+- name: paramedic_count
+  type: INT
+  nullable: true
+  description: Paramedic staff currently on strength.
+- name: has_pharmacy
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if an in-house pharmacy exists.
+- name: has_diagnostic_lab
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if a diagnostic lab exists on-site.
+- name: has_blood_bank
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if a blood bank exists on-site.
+- name: has_operation_theatre
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if an operation theatre exists.
+- name: has_ambulance
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if the facility has its own ambulance.
+- name: has_emergency_services
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if a dedicated emergency department exists.
+- name: is_24x7
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if the facility operates round the clock — the '24x7 only' critical filter.
+- name: operating_hours
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: ''Free-text operating hours, e.g. ''24x7'', ''9AM-5PM''.''. Free-text
+    operating hours, e.g. ''24x7'' | ''9AM-5PM''. [Value Examples: ''24x7'', ''9AM-5PM'']'
+- name: is_aarogyasri_empanelled
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if empanelled under the ysr aarogyasri state health insurance scheme.
+- name: aarogyasri_id
+  type: STRING
+  nullable: true
+  description: Aarogyasri empanelment ID, when empanelled.
+- name: is_pmjay_empanelled
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if empanelled under the national pm-jay health insurance scheme.
+- name: source_system
+  type: STRING
+  nullable: true
+  description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+    ''hmis'', ''seed'']'
+- name: batch_id
+  type: STRING
+  nullable: true
+  description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+- name: load_ts
+  type: TIMESTAMP
+  nullable: true
+  description: When this row was first written to the canonical table.
+- name: updated_ts
+  type: TIMESTAMP
+  nullable: true
+  description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''. When
+    this row was last updated (upsert/merge timestamp).'
+- name: record_status
+  type: STRING
+  nullable: true
+  description: 'Row lifecycle flag, e.g. ''ACTIVE'' | ''RETIRED'' — soft-delete marker; rows are never hard-deleted. [Value
+    Examples: ''ACTIVE'', ''RETIRED'']'
+primary_key:
+- canonical_facility_id
+relationships: []
+business_terms:
+- ap_community360
+- facility_subtypes
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_facility_hospital
+- join dim_facility_hospital to ap_community360.dim_geography via geography_id
+- filter dim_facility_hospital by district_name or mandal_name

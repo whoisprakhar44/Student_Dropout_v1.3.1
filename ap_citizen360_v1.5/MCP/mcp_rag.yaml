@@ -11,7 +11,7 @@
 embedding:
   provider: ollama
   model: nomic-embed-text     # or mxbai-embed-large
-  ollama_url: http://localhost:11434/api/embeddings
+  # ollama_url is now controlled globally by OLLAMA_BASE_URL in .env
   batch_size: 32
 
 vector_db:

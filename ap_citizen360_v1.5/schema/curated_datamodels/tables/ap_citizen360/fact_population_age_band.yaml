@@ -61,5 +61,5 @@ business_terms:
 - ICEBERG
 common_operations:
 - aggregate measures in fact_population_age_band by geography and time period
-- join fact_population_age_band with dimension tables via person_id or scheme_id
-- filter fact_population_age_band by district_id or fiscal_year
+- join fact_population_age_band with dimension tables via facility_id or person_id
+- filter fact_population_age_band by district_id or period_date

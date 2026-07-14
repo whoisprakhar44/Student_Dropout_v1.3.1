@@ -65,10 +65,8 @@ class Embedder:
         elif self.provider == "ollama":
             import requests
             self.requests = requests
-            self.url = cfg["embedding"].get(
-                "ollama_url",
-                "http://localhost:11434/api/embeddings"
-            )
+            base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
+            self.url = cfg["embedding"].get("ollama_url", f"{base_url}/api/embeddings")
 
     def embed(self, text: str):
         if self.provider == "openai":

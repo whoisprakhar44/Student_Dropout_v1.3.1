@@ -94,8 +94,8 @@ primary_key:
 - assessment_year
 relationships:
 - dim_property_tax.person_id is a foreign key to dim_person.person_id.
-- dim_property_tax.department_id is a foreign key to dim_department.department_id.
 - dim_property_tax.ptin joins to dim_property.ptin.
+- dim_property_tax.department_id is a foreign key to dim_department.department_id.
 business_terms:
 - ap_citizen360
 - assets_—_land_and_property

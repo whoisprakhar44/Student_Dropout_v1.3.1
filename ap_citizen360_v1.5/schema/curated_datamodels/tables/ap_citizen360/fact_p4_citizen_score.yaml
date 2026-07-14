@@ -116,5 +116,5 @@ business_terms:
 - ICEBERG
 common_operations:
 - aggregate measures in fact_p4_citizen_score by geography and time period
-- join fact_p4_citizen_score with dimension tables via person_id or scheme_id
-- filter fact_p4_citizen_score by district_id or fiscal_year
+- join fact_p4_citizen_score with dimension tables via facility_id or person_id
+- filter fact_p4_citizen_score by district_id or period_date

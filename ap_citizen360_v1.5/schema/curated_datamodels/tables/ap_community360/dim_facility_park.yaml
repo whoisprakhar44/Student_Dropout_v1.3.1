@@ -1,0 +1,147 @@
+database: ap_community360
+table: dim_facility_park
+department: ap_community360
+description: Park / open-space-specific attributes. One row per facility where dim_facility.facility_type_id resolves to the
+  PARK type.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_community360/dim_facility_park
+partitioned_by: null
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: ap_community360_canonical_schema.json
+raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility_park`(\n  `canonical_facility_id` STRING COMMENT 'Primary\
+  \ Key: FK to dim_facility.canonical_facility_id.',\n  `park_type` STRING COMMENT 'Scale/classification of the park, e.g.\
+  \ \\'Neighborhood Park\\' | \\'District Park\\'. [Value Examples: \\'Neighborhood Park\\', \\'District Park\\']',\n  `area_acres`\
+  \ DECIMAL(10,2) COMMENT 'Park area in acres. Unit: acres.',\n  `maintained_by` STRING COMMENT 'Body responsible for maintenance.',\n\
+  \  `has_walking_track` BOOLEAN COMMENT 'Boolean flag. True if a walking/jogging track exists.',\n  `has_childrens_play_area`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if a children\\'s play area exists.',\n  `has_open_gym` BOOLEAN COMMENT 'Boolean flag.\
+  \ True if outdoor gym equipment is installed.',\n  `has_seating` BOOLEAN COMMENT 'Boolean flag. True if public seating is\
+  \ provided.',\n  `has_lighting` BOOLEAN COMMENT 'Boolean flag. True if the park has lighting for evening use.',\n  `has_toilets`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if public toilets are available.',\n  `has_drinking_water` BOOLEAN COMMENT 'Boolean\
+  \ flag. True if drinking water is available.',\n  `has_parking` BOOLEAN COMMENT 'Boolean flag. True if parking is available\
+  \ nearby.',\n  `has_water_body` BOOLEAN COMMENT 'Boolean flag. True if the park includes a pond/lake/water feature.',\n\
+  \  `tree_count` INT COMMENT 'Approximate number of trees in the park.',\n  `is_free_entry` BOOLEAN COMMENT 'Boolean flag.\
+  \ True if entry is free.',\n  `entry_fee` DECIMAL(8,2) COMMENT 'Entry fee in INR, when is_free_entry is false. Unit: INR.',\n\
+  \  `opening_hours` STRING COMMENT 'Free-text opening hours, e.g. \\'5AM-9PM\\'. [Value Examples: \\'5AM-9PM\\']',\n  `source_system`\
+  \ STRING COMMENT 'Upstream system this row was loaded from, e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples:\
+  \ \\'udise_plus\\', \\'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load batch identifier — groups every row written\
+  \ by the same ingestion run, for reprocessing/rollback.',\n  `load_ts` TIMESTAMP COMMENT 'When this row was first written\
+  \ to the canonical table.',\n  `updated_ts` TIMESTAMP COMMENT 'Categorical column. Distinct values: \\'When this row was\
+  \ last updated (upsert\\', \\'merge timestamp).\\'. When this row was last updated (upsert/merge timestamp).',\n  `record_status`\
+  \ STRING COMMENT 'Row lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\' — soft-delete marker; rows are never hard-deleted.\
+  \ [Value Examples: \\'ACTIVE\\', \\'RETIRED\\']')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED\
+  \ BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility_park'"
+columns:
+- name: canonical_facility_id
+  type: STRING
+  nullable: true
+  description: 'Primary Key: FK to dim_facility.canonical_facility_id.'
+- name: park_type
+  type: STRING
+  nullable: true
+  description: 'Scale/classification of the park, e.g. ''Neighborhood Park'' | ''District Park''. [Value Examples: ''Neighborhood
+    Park'', ''District Park'']'
+- name: area_acres
+  type: DECIMAL(10,2)
+  nullable: true
+  description: 'Park area in acres. Unit: acres.'
+- name: maintained_by
+  type: STRING
+  nullable: true
+  description: Body responsible for maintenance.
+- name: has_walking_track
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if a walking/jogging track exists.
+- name: has_childrens_play_area
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if a children's play area exists.
+- name: has_open_gym
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if outdoor gym equipment is installed.
+- name: has_seating
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if public seating is provided.
+- name: has_lighting
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if the park has lighting for evening use.
+- name: has_toilets
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if public toilets are available.
+- name: has_drinking_water
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if drinking water is available.
+- name: has_parking
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if parking is available nearby.
+- name: has_water_body
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if the park includes a pond/lake/water feature.
+- name: tree_count
+  type: INT
+  nullable: true
+  description: Approximate number of trees in the park.
+- name: is_free_entry
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if entry is free.
+- name: entry_fee
+  type: DECIMAL(8,2)
+  nullable: true
+  description: 'Entry fee in INR, when is_free_entry is false. Unit: INR.'
+- name: opening_hours
+  type: STRING
+  nullable: true
+  description: 'Free-text opening hours, e.g. ''5AM-9PM''. [Value Examples: ''5AM-9PM'']'
+- name: source_system
+  type: STRING
+  nullable: true
+  description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+    ''hmis'', ''seed'']'
+- name: batch_id
+  type: STRING
+  nullable: true
+  description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+- name: load_ts
+  type: TIMESTAMP
+  nullable: true
+  description: When this row was first written to the canonical table.
+- name: updated_ts
+  type: TIMESTAMP
+  nullable: true
+  description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''. When
+    this row was last updated (upsert/merge timestamp).'
+- name: record_status
+  type: STRING
+  nullable: true
+  description: 'Row lifecycle flag, e.g. ''ACTIVE'' | ''RETIRED'' — soft-delete marker; rows are never hard-deleted. [Value
+    Examples: ''ACTIVE'', ''RETIRED'']'
+primary_key:
+- canonical_facility_id
+relationships: []
+business_terms:
+- ap_community360
+- facility_subtypes
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_facility_park
+- join dim_facility_park to ap_community360.dim_geography via geography_id
+- filter dim_facility_park by district_name or mandal_name

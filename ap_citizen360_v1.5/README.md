@@ -50,7 +50,7 @@ python MCP/build_milvus_index.py
 
 # 4. Inject few-shot NL→SQL pairs (into few_shot_store partition)
 # (Ensure the FastAPI/uvicorn server is stopped)
-python pipeline.py --config config.yaml --fewshots school_dropout_fewshots_combined.jsonl
+python pipeline.py --config config.yaml --fewshots fewshots_combined.json
 
 # 5. Start the server
 python -m uvicorn app:app --host 0.0.0.0 --port 8000
@@ -68,7 +68,7 @@ On a fresh server, after installing dependencies and pulling Ollama models, buil
 ```bash
 # First time setup / index rebuild:
 python MCP/build_milvus_index.py
-python pipeline.py --config config.yaml --fewshots school_dropout_fewshots_combined.jsonl
+python pipeline.py --config config.yaml --fewshots fewshots_combined.json
 
 # Start the server
 python -m uvicorn app:app --host 0.0.0.0 --port 8000
@@ -112,7 +112,7 @@ Then start the server (inject vectors first if not already done):
 ```bash
 # First time only (ensure uvicorn is stopped first to avoid database locking)
 python MCP/build_milvus_index.py
-python pipeline.py --config config.yaml --fewshots school_dropout_fewshots_combined.jsonl
+python pipeline.py --config config.yaml --fewshots fewshots_combined.json
 
 # Start
 python -m uvicorn app:app --host 0.0.0.0 --port 8000
@@ -148,7 +148,7 @@ yaml_dir: ./schema/curated_datamodels/tables   # recursive YAML scan
 embedding:
   provider: ollama          # openai | sentence_transformers | ollama
   model: nomic-embed-text   # dim=768; change dim in milvus block if you switch models
-  ollama_url: http://localhost:11434/api/embeddings
+  # ollama_url is now controlled globally by OLLAMA_BASE_URL in .env
 
 vector_db:
   provider: milvus

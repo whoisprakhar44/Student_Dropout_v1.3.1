@@ -102,5 +102,5 @@ business_terms:
 - ICEBERG
 common_operations:
 - aggregate measures in fact_scheme_disbursement by geography and time period
-- join fact_scheme_disbursement with dimension tables via person_id or scheme_id
-- filter fact_scheme_disbursement by district_id or fiscal_year
+- join fact_scheme_disbursement with dimension tables via facility_id or person_id
+- filter fact_scheme_disbursement by district_id or period_date

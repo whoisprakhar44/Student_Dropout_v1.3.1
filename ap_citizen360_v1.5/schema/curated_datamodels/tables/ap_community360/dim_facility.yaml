@@ -1,0 +1,214 @@
+database: ap_community360
+table: dim_facility
+department: ap_community360
+description: 'One row per physical facility, regardless of type — the ''supertype'' every facility has in common (name, location,
+  ownership, operational status). Type-specific detail (school/hospital/park/... attributes) lives in the matching subtype
+  table named by dim_facility_type.subtype_table and joined back on canonical_facility_id, instead of one enormous table with
+  hundreds of mostly-NULL columns. Partitioned by facility_type_id since almost every query filters or groups by type. valid_from/valid_to/is_current
+  make this a slowly-changing dimension: a facility that changes operational status doesn''t overwrite history, it closes
+  the old row and opens a new one.'
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_community360/dim_facility
+partitioned_by: facility_type_id
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: ap_community360_canonical_schema.json
+raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility`(\n  `canonical_facility_id` STRING COMMENT 'Primary Key:\
+  \ Canonical, permanent facility identifier — the key every other Community 360 table joins on. Stable even if the facility\\\
+  's upstream source-system code changes.',\n  `facility_type_id` INT COMMENT 'FK to dim_facility_type.facility_type_id —\
+  \ which type this facility is, and therefore which subtype table (if any) to join for extra attributes. Partition key.',\n\
+  \  `facility_category` STRING COMMENT 'Denormalized copy of the type\\'s category (e.g. \\'Health\\', \\'Education\\') for\
+  \ fast filtering without a join. [Value Examples: \\'Health\\', \\'Education\\']',\n  `facility_name` STRING COMMENT 'Facility\\\
+  's display name.',\n  `facility_short_name` STRING COMMENT 'Categorical column. Distinct values: \\'Short name\\', \\'abbreviation,\
+  \ for compact UI labels.\\'. Short name/abbreviation, for compact UI labels.',\n  `ownership_type` STRING COMMENT 'Actual\
+  \ ownership of this specific facility, e.g. \\'Government\\' | \\'Private\\' | \\'Trust\\' — the per-row value (vs. dim_facility_type.sector\\\
+  's type-level default). [Value Examples: \\'Government\\', \\'Private\\', \\'Trust\\']',\n  `managing_authority` STRING\
+  \ COMMENT 'The specific department/authority operating this facility (may be more specific than dim_facility_type.governing_department,\
+  \ e.g. a named municipal body).',\n  `operational_status` STRING COMMENT 'Current operational state, e.g. \\'Operational\\\
+  ' | \\'Under Review\\' | \\'Closed\\' — drives the summary\\'s operational-facilities count and the priority-facilities\
+  \ panel. [Value Examples: \\'Operational\\', \\'Under Review\\', \\'Closed\\']',\n  `established_date` DATE COMMENT 'Date\
+  \ the facility was established/commissioned.',\n  `geography_id` BIGINT COMMENT 'FK to dim_geography.geography_id — the\
+  \ shared-spine join point back to Citizen 360\\'s district/mandal/village.',\n  `address_line` STRING COMMENT 'Free-text\
+  \ street address.',\n  `locality` STRING COMMENT 'Locality/area name within the geography, for search matching.',\n  `pincode`\
+  \ STRING COMMENT 'Postal PIN code (may be more precise than dim_geography.pincode for the facility\\'s exact location).',\n\
+  \  `latitude` DOUBLE COMMENT 'Facility\\'s exact latitude, for map plotting and distance calculations.',\n  `longitude`\
+  \ DOUBLE COMMENT 'Facility\\'s exact longitude.',\n  `geohash` STRING COMMENT 'Geohash of the facility\\'s coordinates,\
+  \ for proximity indexing/clustering. NULL until computed.',\n  `h3_index` STRING COMMENT 'H3 hexagonal grid index of the\
+  \ facility\\'s coordinates, for spatial aggregation. NULL until computed.',\n  `boundary_wkt` STRING COMMENT 'Well-Known-Text\
+  \ footprint of the facility\\'s premises, if captured (e.g. a large hospital campus).',\n  `contact_phone` STRING COMMENT\
+  \ 'Facility\\'s public contact phone number.',\n  `contact_email` STRING COMMENT 'Facility\\'s public contact email.',\n\
+  \  `website` STRING COMMENT 'Facility\\'s website, if any.',\n  `verification_status` STRING COMMENT 'Data-quality flag,\
+  \ e.g. \\'Verified\\' | \\'Pending\\' — whether a human/field-survey has confirmed this record. [Value Examples: \\'Verified\\\
+  ', \\'Pending\\']',\n  `golden_source` STRING COMMENT 'Which upstream source system is treated as authoritative for this\
+  \ facility\\'s core attributes, when more than one source has contributed data about it.',\n  `valid_from` TIMESTAMP COMMENT\
+  \ 'Start of this row\\'s validity period (slowly-changing dimension).',\n  `valid_to` TIMESTAMP COMMENT 'End of this row\\\
+  's validity period; NULL while the row is current.',\n  `is_current` BOOLEAN COMMENT 'Boolean flag. True if this is the\
+  \ current version of the facility record — every query filters on is_current = true unless explicitly asking for history.',\n\
+  \  `source_system` STRING COMMENT 'Upstream system this row was loaded from, e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\\
+  '. [Value Examples: \\'udise_plus\\', \\'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load batch identifier — groups\
+  \ every row written by the same ingestion run, for reprocessing/rollback.',\n  `load_ts` TIMESTAMP COMMENT 'When this row\
+  \ was first written to the canonical table.',\n  `updated_ts` TIMESTAMP COMMENT 'Categorical column. Distinct values: \\\
+  'When this row was last updated (upsert\\', \\'merge timestamp).\\'. When this row was last updated (upsert/merge timestamp).',\n\
+  \  `record_status` STRING COMMENT 'Row lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\' — soft-delete marker; rows are\
+  \ never hard-deleted. [Value Examples: \\'ACTIVE\\', \\'RETIRED\\']')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility'\n\
+  PARTITIONED BY (facility_type_id)"
+columns:
+- name: canonical_facility_id
+  type: STRING
+  nullable: true
+  description: 'Primary Key: Canonical, permanent facility identifier — the key every other Community 360 table joins on.
+    Stable even if the facility''s upstream source-system code changes.'
+- name: facility_type_id
+  type: INT
+  nullable: true
+  description: FK to dim_facility_type.facility_type_id — which type this facility is, and therefore which subtype table (if
+    any) to join for extra attributes. Partition key.
+- name: facility_category
+  type: STRING
+  nullable: true
+  description: 'Denormalized copy of the type''s category (e.g. ''Health'', ''Education'') for fast filtering without a join.
+    [Value Examples: ''Health'', ''Education'']'
+- name: facility_name
+  type: STRING
+  nullable: true
+  description: Facility's display name.
+- name: facility_short_name
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: ''Short name'', ''abbreviation, for compact UI labels.''. Short name/abbreviation,
+    for compact UI labels.'
+- name: ownership_type
+  type: STRING
+  nullable: true
+  description: 'Actual ownership of this specific facility, e.g. ''Government'' | ''Private'' | ''Trust'' — the per-row value
+    (vs. dim_facility_type.sector''s type-level default). [Value Examples: ''Government'', ''Private'', ''Trust'']'
+- name: managing_authority
+  type: STRING
+  nullable: true
+  description: The specific department/authority operating this facility (may be more specific than dim_facility_type.governing_department,
+    e.g. a named municipal body).
+- name: operational_status
+  type: STRING
+  nullable: true
+  description: 'Current operational state, e.g. ''Operational'' | ''Under Review'' | ''Closed'' — drives the summary''s operational-facilities
+    count and the priority-facilities panel. [Value Examples: ''Operational'', ''Under Review'', ''Closed'']'
+- name: established_date
+  type: DATE
+  nullable: true
+  description: Date the facility was established/commissioned.
+- name: geography_id
+  type: BIGINT
+  nullable: true
+  description: FK to dim_geography.geography_id — the shared-spine join point back to Citizen 360's district/mandal/village.
+- name: address_line
+  type: STRING
+  nullable: true
+  description: Free-text street address.
+- name: locality
+  type: STRING
+  nullable: true
+  description: Locality/area name within the geography, for search matching.
+- name: pincode
+  type: STRING
+  nullable: true
+  description: Postal PIN code (may be more precise than dim_geography.pincode for the facility's exact location).
+- name: latitude
+  type: DOUBLE
+  nullable: true
+  description: Facility's exact latitude, for map plotting and distance calculations.
+- name: longitude
+  type: DOUBLE
+  nullable: true
+  description: Facility's exact longitude.
+- name: geohash
+  type: STRING
+  nullable: true
+  description: Geohash of the facility's coordinates, for proximity indexing/clustering. NULL until computed.
+- name: h3_index
+  type: STRING
+  nullable: true
+  description: H3 hexagonal grid index of the facility's coordinates, for spatial aggregation. NULL until computed.
+- name: boundary_wkt
+  type: STRING
+  nullable: true
+  description: Well-Known-Text footprint of the facility's premises, if captured (e.g. a large hospital campus).
+- name: contact_phone
+  type: STRING
+  nullable: true
+  description: Facility's public contact phone number.
+- name: contact_email
+  type: STRING
+  nullable: true
+  description: Facility's public contact email.
+- name: website
+  type: STRING
+  nullable: true
+  description: Facility's website, if any.
+- name: verification_status
+  type: STRING
+  nullable: true
+  description: 'Data-quality flag, e.g. ''Verified'' | ''Pending'' — whether a human/field-survey has confirmed this record.
+    [Value Examples: ''Verified'', ''Pending'']'
+- name: golden_source
+  type: STRING
+  nullable: true
+  description: Which upstream source system is treated as authoritative for this facility's core attributes, when more than
+    one source has contributed data about it.
+- name: valid_from
+  type: TIMESTAMP
+  nullable: true
+  description: Start of this row's validity period (slowly-changing dimension).
+- name: valid_to
+  type: TIMESTAMP
+  nullable: true
+  description: End of this row's validity period; NULL while the row is current.
+- name: is_current
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if this is the current version of the facility record — every query filters on is_current
+    = true unless explicitly asking for history.
+- name: source_system
+  type: STRING
+  nullable: true
+  description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+    ''hmis'', ''seed'']'
+- name: batch_id
+  type: STRING
+  nullable: true
+  description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+- name: load_ts
+  type: TIMESTAMP
+  nullable: true
+  description: When this row was first written to the canonical table.
+- name: updated_ts
+  type: TIMESTAMP
+  nullable: true
+  description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''. When
+    this row was last updated (upsert/merge timestamp).'
+- name: record_status
+  type: STRING
+  nullable: true
+  description: 'Row lifecycle flag, e.g. ''ACTIVE'' | ''RETIRED'' — soft-delete marker; rows are never hard-deleted. [Value
+    Examples: ''ACTIVE'', ''RETIRED'']'
+primary_key:
+- canonical_facility_id
+relationships: []
+business_terms:
+- ap_community360
+- facility_supertype
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_facility
+- join dim_facility to ap_community360.dim_geography via geography_id
+- filter dim_facility by district_name or mandal_name

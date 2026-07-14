@@ -69,5 +69,5 @@ business_terms:
 - ICEBERG
 common_operations:
 - aggregate measures in fact_population_hierarchy by geography and time period
-- join fact_population_hierarchy with dimension tables via person_id or scheme_id
-- filter fact_population_hierarchy by district_id or fiscal_year
+- join fact_population_hierarchy with dimension tables via facility_id or person_id
+- filter fact_population_hierarchy by district_id or period_date

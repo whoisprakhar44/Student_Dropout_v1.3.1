@@ -1,0 +1,150 @@
+database: ap_community360
+table: dim_facility_anganwadi
+department: ap_community360
+description: Anganwadi centre attributes, aligned to ICDS (Integrated Child Development Services) reporting. One row per facility
+  where dim_facility.facility_type_id resolves to the ANGANWADI type.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_community360/dim_facility_anganwadi
+partitioned_by: null
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: ap_community360_canonical_schema.json
+raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility_anganwadi`(\n  `canonical_facility_id` STRING COMMENT 'Primary\
+  \ Key: FK to dim_facility.canonical_facility_id.',\n  `awc_code` STRING COMMENT 'National Anganwadi Centre (AWC) code.',\n\
+  \  `project_name` STRING COMMENT 'ICDS project this centre falls under.',\n  `sector_name` STRING COMMENT 'ICDS sector this\
+  \ centre falls under, within the project.',\n  `center_type` STRING COMMENT 'Categorical column. Distinct values: \\'Anganwadi\\\
+  ' | \\'Mini Anganwadi\\', \\'full vs. reduced-scale centre.\\'. \\'Anganwadi\\' | \\'Mini Anganwadi\\' — full vs. reduced-scale\
+  \ centre.',\n  `building_type` STRING COMMENT 'Where the centre operates from, e.g. \\'Own Building\\' | \\'Rented\\' |\
+  \ \\'School Premises\\'. [Value Examples: \\'Own Building\\', \\'Rented\\', \\'School Premises\\']',\n  `registered_children`\
+  \ INT COMMENT 'Children currently registered at the centre.',\n  `registered_pregnant_women` INT COMMENT 'Pregnant women\
+  \ currently registered for ante-natal services.',\n  `registered_lactating_mothers` INT COMMENT 'Lactating mothers currently\
+  \ registered.',\n  `worker_present` BOOLEAN COMMENT 'Boolean flag. True if an anganwadi worker is currently posted and present.',\n\
+  \  `helper_present` BOOLEAN COMMENT 'Boolean flag. True if an anganwadi helper is currently posted and present.',\n  `serves_hot_meal`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if the centre serves a hot cooked meal.',\n  `has_toilet` BOOLEAN COMMENT 'Boolean\
+  \ flag. True if a toilet facility exists.',\n  `has_drinking_water` BOOLEAN COMMENT 'Boolean flag. True if drinking water\
+  \ is available.',\n  `has_electricity` BOOLEAN COMMENT 'Boolean flag. True if an electricity connection exists.',\n  `has_kitchen`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if a kitchen/cooking area exists.',\n  `has_preschool_kit` BOOLEAN COMMENT 'Boolean\
+  \ flag. True if pre-school learning kit materials are available.',\n  `source_system` STRING COMMENT 'Upstream system this\
+  \ row was loaded from, e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\', \\'hmis\\', \\\
+  'seed\\']',\n  `batch_id` STRING COMMENT 'Load batch identifier — groups every row written by the same ingestion run, for\
+  \ reprocessing/rollback.',\n  `load_ts` TIMESTAMP COMMENT 'When this row was first written to the canonical table.',\n \
+  \ `updated_ts` TIMESTAMP COMMENT 'Categorical column. Distinct values: \\'When this row was last updated (upsert\\', \\\
+  'merge timestamp).\\'. When this row was last updated (upsert/merge timestamp).',\n  `record_status` STRING COMMENT 'Row\
+  \ lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\' — soft-delete marker; rows are never hard-deleted. [Value Examples:\
+  \ \\'ACTIVE\\', \\'RETIRED\\']')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility_anganwadi'"
+columns:
+- name: canonical_facility_id
+  type: STRING
+  nullable: true
+  description: 'Primary Key: FK to dim_facility.canonical_facility_id.'
+- name: awc_code
+  type: STRING
+  nullable: true
+  description: National Anganwadi Centre (AWC) code.
+- name: project_name
+  type: STRING
+  nullable: true
+  description: ICDS project this centre falls under.
+- name: sector_name
+  type: STRING
+  nullable: true
+  description: ICDS sector this centre falls under, within the project.
+- name: center_type
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: ''Anganwadi'' | ''Mini Anganwadi'', ''full vs. reduced-scale centre.''.
+    ''Anganwadi'' | ''Mini Anganwadi'' — full vs. reduced-scale centre.'
+- name: building_type
+  type: STRING
+  nullable: true
+  description: 'Where the centre operates from, e.g. ''Own Building'' | ''Rented'' | ''School Premises''. [Value Examples:
+    ''Own Building'', ''Rented'', ''School Premises'']'
+- name: registered_children
+  type: INT
+  nullable: true
+  description: Children currently registered at the centre.
+- name: registered_pregnant_women
+  type: INT
+  nullable: true
+  description: Pregnant women currently registered for ante-natal services.
+- name: registered_lactating_mothers
+  type: INT
+  nullable: true
+  description: Lactating mothers currently registered.
+- name: worker_present
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if an anganwadi worker is currently posted and present.
+- name: helper_present
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if an anganwadi helper is currently posted and present.
+- name: serves_hot_meal
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if the centre serves a hot cooked meal.
+- name: has_toilet
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if a toilet facility exists.
+- name: has_drinking_water
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if drinking water is available.
+- name: has_electricity
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if an electricity connection exists.
+- name: has_kitchen
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if a kitchen/cooking area exists.
+- name: has_preschool_kit
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if pre-school learning kit materials are available.
+- name: source_system
+  type: STRING
+  nullable: true
+  description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+    ''hmis'', ''seed'']'
+- name: batch_id
+  type: STRING
+  nullable: true
+  description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+- name: load_ts
+  type: TIMESTAMP
+  nullable: true
+  description: When this row was first written to the canonical table.
+- name: updated_ts
+  type: TIMESTAMP
+  nullable: true
+  description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''. When
+    this row was last updated (upsert/merge timestamp).'
+- name: record_status
+  type: STRING
+  nullable: true
+  description: 'Row lifecycle flag, e.g. ''ACTIVE'' | ''RETIRED'' — soft-delete marker; rows are never hard-deleted. [Value
+    Examples: ''ACTIVE'', ''RETIRED'']'
+primary_key:
+- canonical_facility_id
+relationships: []
+business_terms:
+- ap_community360
+- facility_subtypes
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_facility_anganwadi
+- join dim_facility_anganwadi to ap_community360.dim_geography via geography_id
+- filter dim_facility_anganwadi by district_name or mandal_name

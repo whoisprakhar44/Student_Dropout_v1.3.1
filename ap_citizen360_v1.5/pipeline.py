@@ -200,7 +200,8 @@ class EmbeddingGenerator:
             self._client = SentenceTransformer(self.model)
 
         elif self.provider == "ollama":
-            self._ollama_url = cfg.get("ollama_url", "http://localhost:11434/api/embeddings")
+            base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
+            self._ollama_url = cfg.get("ollama_url", f"{base_url}/api/embeddings")
 
         else:
             raise ValueError(f"Unsupported embedding provider: {self.provider}")

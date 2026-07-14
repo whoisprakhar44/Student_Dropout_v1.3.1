@@ -135,8 +135,9 @@ def embed_text(text: str, cfg: dict) -> list[float]:
     emb_cfg = cfg["embedding"]
     if emb_cfg["provider"] != "ollama":
         raise ValueError("Only ollama embeddings supported for index build")
-
-    url = emb_cfg.get("ollama_url", "http://localhost:11434/api/embeddings")
+    
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
+    url = emb_cfg.get("ollama_url", f"{base_url}/api/embeddings")
     model = emb_cfg["model"]
     # Truncate to avoid Ollama 500s on huge DDLs
     prompt = text[:_MAX_EMBED_CHARS]

@@ -601,20 +601,21 @@ def verify_node(state: AgentState) -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 
 INTENT_DEPARTMENT_MAP: dict[str, list[str]] = {
-    "student_risk_list":             ["school", "canonicalmodel"],
-    "school_hotspot":                ["school", "canonicalmodel"],
-    "equity_risk_slice":             ["school", "canonicalmodel"],
-    "scheme_delivery_gap":           ["school", "canonicalmodel"],
-    "eligibility_blocker":           ["school", "canonicalmodel"],
-    "gsws_case_load":                ["school", "canonicalmodel"],
-    "nutrition_service_gap":         ["school", "canonicalmodel"],
-    "facility_root_cause":           ["school", "canonicalmodel"],
-    "household_poverty_risk":        ["canonicalmodel"],
-    "citizen_socioeconomic_profile": ["canonicalmodel"],
-    "teacher_attendance":            ["school", "canonicalmodel"],
-    "academic_performance":          ["school", "canonicalmodel"],
-    "general_query":                 ["school", "canonicalmodel"],
+    "student_risk_list":             ["ap_citizen360"],
+    "school_hotspot":                ["ap_community360"],
+    "equity_risk_slice":             ["ap_citizen360"],
+    "scheme_delivery_gap":           ["ap_citizen360"],
+    "eligibility_blocker":           ["ap_citizen360"],
+    "gsws_case_load":                ["ap_citizen360"],
+    "nutrition_service_gap":         ["ap_community360"],
+    "facility_root_cause":           ["ap_community360"],
+    "household_poverty_risk":        ["ap_citizen360"],
+    "citizen_socioeconomic_profile": ["ap_citizen360"],
+    "teacher_attendance":            ["ap_citizen360", "ap_community360"],
+    "academic_performance":          ["ap_citizen360"],
+    "general_query":                 ["ap_citizen360", "ap_community360"],
 }
+
 
 INTENT_DESCRIPTIONS = """
 - student_risk_list: listing individual at-risk or dropout-risk students by absence, failure, or grade

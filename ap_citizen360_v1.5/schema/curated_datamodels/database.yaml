@@ -1,41 +1,10 @@
-database: ap_citizen360
-title: AP Citizen 360 Canonical Data Model
-description: Canonical Iceberg data model for AP Citizen 360, generated from citizen360_canonical_schema.json v3.0.
-source_ddl:
-- citizen360_canonical_schema.json
-full_schema: full_schema.yaml
+title: Combined AP 360 Canonical Schema
+description: Two-database combined schema for NL2SQL RAG indexing.
+databases:
+- database: ap_citizen360
+  department: ap_citizen360
+  source: citizen360_canonical_schema.json
+- database: ap_community360
+  department: ap_community360
+  source: ap_community360_canonical_schema.json
 tables_dir: tables
-tables:
-- dim_state
-- dim_district
-- dim_mandal
-- dim_village
-- dim_person
-- dim_household
-- dim_family_member
-- dim_citizen_identifier
-- dim_consent
-- dim_tax_profile
-- dim_occupation
-- dim_student
-- dim_vehicle
-- dim_vehicle_compliance
-- dim_land
-- dim_property
-- dim_property_tax
-- dim_health_profile
-- dim_agriculture_profile
-- dim_crop_sale
-- dim_social_welfare
-- dim_utility_connection
-- dim_epfo_contribution
-- dim_department
-- dim_scheme
-- dim_department_client
-- fact_entitlement
-- fact_benefit_transaction
-- fact_scheme_disbursement
-- dim_p4_kpi
-- fact_p4_citizen_score
-- fact_population_hierarchy
-- fact_population_age_band

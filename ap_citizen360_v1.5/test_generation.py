@@ -44,7 +44,7 @@ from my_agent.agent import build_graph
 # app.py owns chat history, sessions, and memory continuity — none of which
 # belong in an isolated benchmark run.  The helpers below are minimal, self-
 # contained copies of the logic we actually need.
-FEWSHOTS_PATH = ROOT_DIR / "school_dropout_fewshots_combined.jsonl"
+FEWSHOTS_PATH = ROOT_DIR / "fewshots_combined.json"
 LOGS_DIR = ROOT_DIR / "generation_logs"
 
 

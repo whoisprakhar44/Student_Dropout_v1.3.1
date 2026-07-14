@@ -1,6 +1,8 @@
-database: ap_citizen360
-title: AP Citizen 360 Canonical Data Model
-description: All dimension and fact tables in ap_citizen360, generated from citizen360_canonical_schema.json v3.0
+title: AP Citizen 360 + AP Community 360 — Combined Canonical Schema
+description: All RAG-indexed tables from ap_citizen360 and ap_community360.
+databases:
+- ap_community360
+- ap_citizen360
 tables:
 - database: ap_citizen360
   table: dim_state
@@ -2183,8 +2185,8 @@ tables:
   - assessment_year
   relationships:
   - dim_property_tax.person_id is a foreign key to dim_person.person_id.
-  - dim_property_tax.department_id is a foreign key to dim_department.department_id.
   - dim_property_tax.ptin joins to dim_property.ptin.
+  - dim_property_tax.department_id is a foreign key to dim_department.department_id.
   business_terms:
   - ap_citizen360
   - assets_—_land_and_property
@@ -3212,8 +3214,8 @@ tables:
   - ICEBERG
   common_operations:
   - aggregate measures in fact_entitlement by geography and time period
-  - join fact_entitlement with dimension tables via person_id or scheme_id
-  - filter fact_entitlement by district_id or fiscal_year
+  - join fact_entitlement with dimension tables via facility_id or person_id
+  - filter fact_entitlement by district_id or period_date
 - database: ap_citizen360
   table: fact_benefit_transaction
   department: ap_citizen360
@@ -3287,8 +3289,8 @@ tables:
   - ICEBERG
   common_operations:
   - aggregate measures in fact_benefit_transaction by geography and time period
-  - join fact_benefit_transaction with dimension tables via person_id or scheme_id
-  - filter fact_benefit_transaction by district_id or fiscal_year
+  - join fact_benefit_transaction with dimension tables via facility_id or person_id
+  - filter fact_benefit_transaction by district_id or period_date
 - database: ap_citizen360
   table: fact_scheme_disbursement
   department: ap_citizen360
@@ -3394,8 +3396,8 @@ tables:
   - ICEBERG
   common_operations:
   - aggregate measures in fact_scheme_disbursement by geography and time period
-  - join fact_scheme_disbursement with dimension tables via person_id or scheme_id
-  - filter fact_scheme_disbursement by district_id or fiscal_year
+  - join fact_scheme_disbursement with dimension tables via facility_id or person_id
+  - filter fact_scheme_disbursement by district_id or period_date
 - database: ap_citizen360
   table: dim_p4_kpi
   department: ap_citizen360
@@ -3592,8 +3594,8 @@ tables:
   - ICEBERG
   common_operations:
   - aggregate measures in fact_p4_citizen_score by geography and time period
-  - join fact_p4_citizen_score with dimension tables via person_id or scheme_id
-  - filter fact_p4_citizen_score by district_id or fiscal_year
+  - join fact_p4_citizen_score with dimension tables via facility_id or person_id
+  - filter fact_p4_citizen_score by district_id or period_date
 - database: ap_citizen360
   table: fact_population_hierarchy
   department: ap_citizen360
@@ -3665,8 +3667,8 @@ tables:
   - ICEBERG
   common_operations:
   - aggregate measures in fact_population_hierarchy by geography and time period
-  - join fact_population_hierarchy with dimension tables via person_id or scheme_id
-  - filter fact_population_hierarchy by district_id or fiscal_year
+  - join fact_population_hierarchy with dimension tables via facility_id or person_id
+  - filter fact_population_hierarchy by district_id or period_date
 - database: ap_citizen360
   table: fact_population_age_band
   department: ap_citizen360
@@ -3730,5 +3732,1774 @@ tables:
   - ICEBERG
   common_operations:
   - aggregate measures in fact_population_age_band by geography and time period
-  - join fact_population_age_band with dimension tables via person_id or scheme_id
-  - filter fact_population_age_band by district_id or fiscal_year
+  - join fact_population_age_band with dimension tables via facility_id or person_id
+  - filter fact_population_age_band by district_id or period_date
+- database: ap_community360
+  table: dim_facility_type
+  department: ap_community360
+  description: The controlled vocabulary of facility types (School, Hospital, Anganwadi, Community Center, Park, Govt Office,
+    ...). subtype_table points at the type-specific attribute table for that type (e.g. 'dim_facility_school'), so a consumer
+    can join dim_facility -> dim_facility_type -> the right subtype table without hardcoding the mapping app-side. This is
+    what lets new facility types be added by inserting a row here, not by changing code.
+  table_format: ICEBERG
+  location: hdfs://ap-datalake/CURATED/ap_community360/dim_facility_type
+  partitioned_by: null
+  tblproperties:
+    engine.hive.enabled: 'true'
+    external: 'true'
+    parquet.compression: SNAPPY
+    table_type: ICEBERG
+    write.delete.mode: merge-on-read
+    write.format.default: parquet
+    write.merge.mode: merge-on-read
+    write.update.mode: merge-on-read
+  source_file: ap_community360_canonical_schema.json
+  raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility_type`(\n  `facility_type_id` INT COMMENT 'Primary Key: facility\
+    \ type. Referenced by dim_facility.facility_type_id and every fact_facility_* table.',\n  `type_code` STRING COMMENT 'Short\
+    \ stable code, e.g. \\'HOSPITAL\\', \\'SCHOOL\\' — safe to use in URLs/filters; won\\'t change even if type_name\\'s display\
+    \ wording does. [Value Examples: \\'HOSPITAL\\', \\'SCHOOL\\', \\'t change even if type_name\\']',\n  `type_name` STRING\
+    \ COMMENT 'Human-readable display name, e.g. \\'Hospital\\'. What the UI shows; what users filter by. [Value Examples:\
+    \ \\'Hospital\\']',\n  `type_category` STRING COMMENT 'Broad grouping the type belongs to, e.g. \\'Health\\', \\'Education\\\
+    ', \\'Civic\\' — used for the facility-mix breakdown. [Value Examples: \\'Health\\', \\'Education\\', \\'Civic\\']',\n\
+    \  `sector` STRING COMMENT 'Public/Private/Trust sector this type is normally operated under (a default, not a per-facility\
+    \ override — see dim_facility.ownership_type for the actual per-row value).',\n  `parent_type_id` INT COMMENT 'Self-referencing\
+    \ FK to facility_type_id, for hierarchical types (e.g. a specialty clinic as a sub-type of Hospital). NULL for top-level\
+    \ types.',\n  `subtype_table` STRING COMMENT 'Name of the ap_community360 table holding this type\\'s extra attributes\
+    \ (e.g. \\'dim_facility_school\\'). NULL when a type has no subtype attributes yet (e.g. Govt Office). [Value Examples:\
+    \ \\'dim_facility_school\\']',\n  `governing_department` STRING COMMENT 'Cross-schema FK (by name): References ap_citizen360.dim_department.department_id.\
+    \ which government department owns/regulates this facility type.',\n  `service_norm_radius_km` DECIMAL(6,2) COMMENT 'The\
+    \ planning-norm catchment radius for this facility type (e.g. a Hospital should be within 8km) — the yardstick fact_facility_access.within_norm_distance\
+    \ is measured against.',\n  `description` STRING COMMENT 'Free-text description of the facility type for documentation/tooltips.',\n\
+    \  `is_active` BOOLEAN COMMENT 'Boolean flag. True if this type is still in active use for new facility records (retiring\
+    \ a type doesn\\'t delete history).',\n  `source_system` STRING COMMENT 'Upstream system this row was loaded from, e.g.\
+    \ \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\', \\'hmis\\', \\'seed\\']',\n  `batch_id`\
+    \ STRING COMMENT 'Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.',\n\
+    \  `load_ts` TIMESTAMP COMMENT 'When this row was first written to the canonical table.',\n  `updated_ts` TIMESTAMP COMMENT\
+    \ 'Categorical column. Distinct values: \\'When this row was last updated (upsert\\', \\'merge timestamp).\\'. When this\
+    \ row was last updated (upsert/merge timestamp).',\n  `record_status` STRING COMMENT 'Row lifecycle flag, e.g. \\'ACTIVE\\\
+    ' | \\'RETIRED\\' — soft-delete marker; rows are never hard-deleted. [Value Examples: \\'ACTIVE\\', \\'RETIRED\\']')\n\
+    ROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+    \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility_type'"
+  columns:
+  - name: facility_type_id
+    type: INT
+    nullable: true
+    description: 'Primary Key: facility type. Referenced by dim_facility.facility_type_id and every fact_facility_* table.'
+  - name: type_code
+    type: STRING
+    nullable: true
+    description: 'Short stable code, e.g. ''HOSPITAL'', ''SCHOOL'' — safe to use in URLs/filters; won''t change even if type_name''s
+      display wording does. [Value Examples: ''HOSPITAL'', ''SCHOOL'', ''t change even if type_name'']'
+  - name: type_name
+    type: STRING
+    nullable: true
+    description: 'Human-readable display name, e.g. ''Hospital''. What the UI shows; what users filter by. [Value Examples:
+      ''Hospital'']'
+  - name: type_category
+    type: STRING
+    nullable: true
+    description: 'Broad grouping the type belongs to, e.g. ''Health'', ''Education'', ''Civic'' — used for the facility-mix
+      breakdown. [Value Examples: ''Health'', ''Education'', ''Civic'']'
+  - name: sector
+    type: STRING
+    nullable: true
+    description: Public/Private/Trust sector this type is normally operated under (a default, not a per-facility override
+      — see dim_facility.ownership_type for the actual per-row value).
+  - name: parent_type_id
+    type: INT
+    nullable: true
+    description: Self-referencing FK to facility_type_id, for hierarchical types (e.g. a specialty clinic as a sub-type of
+      Hospital). NULL for top-level types.
+  - name: subtype_table
+    type: STRING
+    nullable: true
+    description: 'Name of the ap_community360 table holding this type''s extra attributes (e.g. ''dim_facility_school'').
+      NULL when a type has no subtype attributes yet (e.g. Govt Office). [Value Examples: ''dim_facility_school'']'
+  - name: governing_department
+    type: STRING
+    nullable: true
+    description: 'Cross-schema FK (by name): References ap_citizen360.dim_department.department_id. which government department
+      owns/regulates this facility type.'
+  - name: service_norm_radius_km
+    type: DECIMAL(6,2)
+    nullable: true
+    description: The planning-norm catchment radius for this facility type (e.g. a Hospital should be within 8km) — the yardstick
+      fact_facility_access.within_norm_distance is measured against.
+  - name: description
+    type: STRING
+    nullable: true
+    description: Free-text description of the facility type for documentation/tooltips.
+  - name: is_active
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if this type is still in active use for new facility records (retiring a type doesn't
+      delete history).
+  - name: source_system
+    type: STRING
+    nullable: true
+    description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+      ''hmis'', ''seed'']'
+  - name: batch_id
+    type: STRING
+    nullable: true
+    description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+  - name: load_ts
+    type: TIMESTAMP
+    nullable: true
+    description: When this row was first written to the canonical table.
+  - name: updated_ts
+    type: TIMESTAMP
+    nullable: true
+    description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''.
+      When this row was last updated (upsert/merge timestamp).'
+  - name: record_status
+    type: STRING
+    nullable: true
+    description: 'Row lifecycle flag, e.g. ''ACTIVE'' | ''RETIRED'' — soft-delete marker; rows are never hard-deleted. [Value
+      Examples: ''ACTIVE'', ''RETIRED'']'
+  primary_key:
+  - facility_type_id
+  relationships:
+  - dim_facility_type.governing_department cross-schema reference (by name) to ap_citizen360.dim_department.department_id.
+  business_terms:
+  - ap_community360
+  - reference_taxonomy
+  - dimension
+  - Hive
+  - Iceberg
+  - ICEBERG
+  common_operations:
+  - profile records in dim_facility_type
+  - join dim_facility_type to ap_community360.dim_geography via geography_id
+  - filter dim_facility_type by district_name or mandal_name
+- database: ap_community360
+  table: dim_geography
+  department: ap_community360
+  description: 'The conformed geography spine shared with Citizen 360 — this is the join point that lets a Community 360 facility
+    be located against the exact same district/mandal/village hierarchy Citizen 360 uses, without Community 360 owning a second,
+    divergent copy of AP''s administrative boundaries. geo_level tells you which columns on a given row are populated: a ''district''
+    row only has district_name filled in; a ''village'' row has the full district -> mandal -> village chain. Citizen 360''s
+    own dim_district/dim_mandal/dim_village are NOT modified by this table — district_id/mandal_id here are matched by NAME
+    (district_name / mandal_name), resolved from Citizen 360''s dim_district.district_id / dim_mandal.mandal_id at query time,
+    since the two models were built independently and don''t share a physical foreign key.'
+  table_format: ICEBERG
+  location: hdfs://ap-datalake/CURATED/ap_community360/dim_geography
+  partitioned_by: null
+  tblproperties:
+    engine.hive.enabled: 'true'
+    external: 'true'
+    parquet.compression: SNAPPY
+    table_type: ICEBERG
+    write.delete.mode: merge-on-read
+    write.format.default: parquet
+    write.merge.mode: merge-on-read
+    write.update.mode: merge-on-read
+  source_file: ap_community360_canonical_schema.json
+  raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_geography`(\n  `geography_id` BIGINT COMMENT 'Primary Key: geography\
+    \ row. Referenced by dim_facility.geography_id and every fact_facility_* table.',\n  `geo_level` STRING COMMENT 'Which\
+    \ level of the hierarchy this row represents: \\'state\\' | \\'district\\' | \\'mandal\\' | \\'village\\'. Determines\
+    \ which of the columns below are meaningful for this row.',\n  `state_name` STRING COMMENT 'State name — \\'Andhra Pradesh\\\
+    ' for every row in this deployment.',\n  `district_name` STRING COMMENT 'District name. The field the Community 360 geo\
+    \ filter resolves a Citizen 360 district_id into, then matches against here.',\n  `revenue_division` STRING COMMENT 'Revenue\
+    \ division (a sub-district administrative grouping) this geography sits in, when applicable.',\n  `mandal_name` STRING\
+    \ COMMENT 'Mandal name, populated for \\'mandal\\' and \\'village\\' level rows.',\n  `gram_panchayat` STRING COMMENT\
+    \ 'Gram panchayat (village self-government unit) name, for rural geographies.',\n  `ward_name` STRING COMMENT 'Urban ward\
+    \ name, for ULB (urban local body) geographies instead of gram panchayat.',\n  `village_habitation` STRING COMMENT 'Village/habitation\
+    \ name, populated for \\'village\\' level rows — matched against Citizen 360\\'s dim_village.village_name.',\n  `ulb_name`\
+    \ STRING COMMENT 'Categorical column. Distinct values: \\'Urban Local Body name (municipality\\', \\'corporation), for\
+    \ urban geographies.\\'. Urban Local Body name (municipality/corporation), for urban geographies.',\n  `ulb_type` STRING\
+    \ COMMENT 'Type of ULB, e.g. \\'Municipal Corporation\\', \\'Municipality\\', \\'Nagar Panchayat\\'. [Value Examples:\
+    \ \\'Municipal Corporation\\', \\'Municipality\\', \\'Nagar Panchayat\\']',\n  `pincode` STRING COMMENT 'Postal PIN code\
+    \ for this geography, when known at this granularity.',\n  `lgd_state_code` STRING COMMENT 'Local Government Directory\
+    \ (Govt of India) state code — the national standard code for cross-system geography matching.',\n  `lgd_district_code`\
+    \ STRING COMMENT 'LGD district code.',\n  `lgd_mandal_code` STRING COMMENT 'Categorical column. Distinct values: \\'LGD\
+    \ mandal\\', \\'block code.\\'. LGD mandal/block code.',\n  `lgd_village_code` STRING COMMENT 'LGD village code.',\n \
+    \ `assembly_constituency` STRING COMMENT 'State assembly constituency this geography falls in.',\n  `parliament_constituency`\
+    \ STRING COMMENT 'Parliamentary constituency this geography falls in.',\n  `latitude` DOUBLE COMMENT 'Representative latitude\
+    \ (centroid) for this geography.',\n  `longitude` DOUBLE COMMENT 'Representative longitude (centroid) for this geography.',\n\
+    \  `boundary_wkt` STRING COMMENT 'Well-Known-Text polygon of this geography\\'s boundary, for map rendering. NULL where\
+    \ boundary data hasn\\'t been captured.',\n  `population` BIGINT COMMENT 'Population of this geography — the number district-coverage/citizens-reached\
+    \ rollups sum over the facilities located within it.',\n  `households` BIGINT COMMENT 'Household count of this geography.',\n\
+    \  `area_sqkm` DECIMAL(12,3) COMMENT 'Area of this geography in square kilometers — used for density-style metrics.',\n\
+    \  `source_system` STRING COMMENT 'Upstream system this row was loaded from, e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\\
+    '. [Value Examples: \\'udise_plus\\', \\'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load batch identifier —\
+    \ groups every row written by the same ingestion run, for reprocessing/rollback.',\n  `load_ts` TIMESTAMP COMMENT 'When\
+    \ this row was first written to the canonical table.',\n  `updated_ts` TIMESTAMP COMMENT 'Categorical column. Distinct\
+    \ values: \\'When this row was last updated (upsert\\', \\'merge timestamp).\\'. When this row was last updated (upsert/merge\
+    \ timestamp).',\n  `record_status` STRING COMMENT 'Row lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\' — soft-delete\
+    \ marker; rows are never hard-deleted. [Value Examples: \\'ACTIVE\\', \\'RETIRED\\']')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+    STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_geography'"
+  columns:
+  - name: geography_id
+    type: BIGINT
+    nullable: true
+    description: 'Primary Key: geography row. Referenced by dim_facility.geography_id and every fact_facility_* table.'
+  - name: geo_level
+    type: STRING
+    nullable: true
+    description: 'Which level of the hierarchy this row represents: ''state'' | ''district'' | ''mandal'' | ''village''. Determines
+      which of the columns below are meaningful for this row.'
+  - name: state_name
+    type: STRING
+    nullable: true
+    description: State name — 'Andhra Pradesh' for every row in this deployment.
+  - name: district_name
+    type: STRING
+    nullable: true
+    description: District name. The field the Community 360 geo filter resolves a Citizen 360 district_id into, then matches
+      against here.
+  - name: revenue_division
+    type: STRING
+    nullable: true
+    description: Revenue division (a sub-district administrative grouping) this geography sits in, when applicable.
+  - name: mandal_name
+    type: STRING
+    nullable: true
+    description: Mandal name, populated for 'mandal' and 'village' level rows.
+  - name: gram_panchayat
+    type: STRING
+    nullable: true
+    description: Gram panchayat (village self-government unit) name, for rural geographies.
+  - name: ward_name
+    type: STRING
+    nullable: true
+    description: Urban ward name, for ULB (urban local body) geographies instead of gram panchayat.
+  - name: village_habitation
+    type: STRING
+    nullable: true
+    description: Village/habitation name, populated for 'village' level rows — matched against Citizen 360's dim_village.village_name.
+  - name: ulb_name
+    type: STRING
+    nullable: true
+    description: 'Categorical column. Distinct values: ''Urban Local Body name (municipality'', ''corporation), for urban
+      geographies.''. Urban Local Body name (municipality/corporation), for urban geographies.'
+  - name: ulb_type
+    type: STRING
+    nullable: true
+    description: 'Type of ULB, e.g. ''Municipal Corporation'', ''Municipality'', ''Nagar Panchayat''. [Value Examples: ''Municipal
+      Corporation'', ''Municipality'', ''Nagar Panchayat'']'
+  - name: pincode
+    type: STRING
+    nullable: true
+    description: Postal PIN code for this geography, when known at this granularity.
+  - name: lgd_state_code
+    type: STRING
+    nullable: true
+    description: Local Government Directory (Govt of India) state code — the national standard code for cross-system geography
+      matching.
+  - name: lgd_district_code
+    type: STRING
+    nullable: true
+    description: LGD district code.
+  - name: lgd_mandal_code
+    type: STRING
+    nullable: true
+    description: 'Categorical column. Distinct values: ''LGD mandal'', ''block code.''. LGD mandal/block code.'
+  - name: lgd_village_code
+    type: STRING
+    nullable: true
+    description: LGD village code.
+  - name: assembly_constituency
+    type: STRING
+    nullable: true
+    description: State assembly constituency this geography falls in.
+  - name: parliament_constituency
+    type: STRING
+    nullable: true
+    description: Parliamentary constituency this geography falls in.
+  - name: latitude
+    type: DOUBLE
+    nullable: true
+    description: Representative latitude (centroid) for this geography.
+  - name: longitude
+    type: DOUBLE
+    nullable: true
+    description: Representative longitude (centroid) for this geography.
+  - name: boundary_wkt
+    type: STRING
+    nullable: true
+    description: Well-Known-Text polygon of this geography's boundary, for map rendering. NULL where boundary data hasn't
+      been captured.
+  - name: population
+    type: BIGINT
+    nullable: true
+    description: Population of this geography — the number district-coverage/citizens-reached rollups sum over the facilities
+      located within it.
+  - name: households
+    type: BIGINT
+    nullable: true
+    description: Household count of this geography.
+  - name: area_sqkm
+    type: DECIMAL(12,3)
+    nullable: true
+    description: Area of this geography in square kilometers — used for density-style metrics.
+  - name: source_system
+    type: STRING
+    nullable: true
+    description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+      ''hmis'', ''seed'']'
+  - name: batch_id
+    type: STRING
+    nullable: true
+    description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+  - name: load_ts
+    type: TIMESTAMP
+    nullable: true
+    description: When this row was first written to the canonical table.
+  - name: updated_ts
+    type: TIMESTAMP
+    nullable: true
+    description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''.
+      When this row was last updated (upsert/merge timestamp).'
+  - name: record_status
+    type: STRING
+    nullable: true
+    description: 'Row lifecycle flag, e.g. ''ACTIVE'' | ''RETIRED'' — soft-delete marker; rows are never hard-deleted. [Value
+      Examples: ''ACTIVE'', ''RETIRED'']'
+  primary_key:
+  - geography_id
+  relationships: []
+  business_terms:
+  - ap_community360
+  - geography
+  - dimension
+  - Hive
+  - Iceberg
+  - ICEBERG
+  common_operations:
+  - profile records in dim_geography
+  - join dim_geography to ap_community360.dim_geography via geography_id
+  - filter dim_geography by district_name or mandal_name
+- database: ap_community360
+  table: dim_facility
+  department: ap_community360
+  description: 'One row per physical facility, regardless of type — the ''supertype'' every facility has in common (name,
+    location, ownership, operational status). Type-specific detail (school/hospital/park/... attributes) lives in the matching
+    subtype table named by dim_facility_type.subtype_table and joined back on canonical_facility_id, instead of one enormous
+    table with hundreds of mostly-NULL columns. Partitioned by facility_type_id since almost every query filters or groups
+    by type. valid_from/valid_to/is_current make this a slowly-changing dimension: a facility that changes operational status
+    doesn''t overwrite history, it closes the old row and opens a new one.'
+  table_format: ICEBERG
+  location: hdfs://ap-datalake/CURATED/ap_community360/dim_facility
+  partitioned_by: facility_type_id
+  tblproperties:
+    engine.hive.enabled: 'true'
+    external: 'true'
+    parquet.compression: SNAPPY
+    table_type: ICEBERG
+    write.delete.mode: merge-on-read
+    write.format.default: parquet
+    write.merge.mode: merge-on-read
+    write.update.mode: merge-on-read
+  source_file: ap_community360_canonical_schema.json
+  raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility`(\n  `canonical_facility_id` STRING COMMENT 'Primary Key:\
+    \ Canonical, permanent facility identifier — the key every other Community 360 table joins on. Stable even if the facility\\\
+    's upstream source-system code changes.',\n  `facility_type_id` INT COMMENT 'FK to dim_facility_type.facility_type_id\
+    \ — which type this facility is, and therefore which subtype table (if any) to join for extra attributes. Partition key.',\n\
+    \  `facility_category` STRING COMMENT 'Denormalized copy of the type\\'s category (e.g. \\'Health\\', \\'Education\\')\
+    \ for fast filtering without a join. [Value Examples: \\'Health\\', \\'Education\\']',\n  `facility_name` STRING COMMENT\
+    \ 'Facility\\'s display name.',\n  `facility_short_name` STRING COMMENT 'Categorical column. Distinct values: \\'Short\
+    \ name\\', \\'abbreviation, for compact UI labels.\\'. Short name/abbreviation, for compact UI labels.',\n  `ownership_type`\
+    \ STRING COMMENT 'Actual ownership of this specific facility, e.g. \\'Government\\' | \\'Private\\' | \\'Trust\\' — the\
+    \ per-row value (vs. dim_facility_type.sector\\'s type-level default). [Value Examples: \\'Government\\', \\'Private\\\
+    ', \\'Trust\\']',\n  `managing_authority` STRING COMMENT 'The specific department/authority operating this facility (may\
+    \ be more specific than dim_facility_type.governing_department, e.g. a named municipal body).',\n  `operational_status`\
+    \ STRING COMMENT 'Current operational state, e.g. \\'Operational\\' | \\'Under Review\\' | \\'Closed\\' — drives the summary\\\
+    's operational-facilities count and the priority-facilities panel. [Value Examples: \\'Operational\\', \\'Under Review\\\
+    ', \\'Closed\\']',\n  `established_date` DATE COMMENT 'Date the facility was established/commissioned.',\n  `geography_id`\
+    \ BIGINT COMMENT 'FK to dim_geography.geography_id — the shared-spine join point back to Citizen 360\\'s district/mandal/village.',\n\
+    \  `address_line` STRING COMMENT 'Free-text street address.',\n  `locality` STRING COMMENT 'Locality/area name within\
+    \ the geography, for search matching.',\n  `pincode` STRING COMMENT 'Postal PIN code (may be more precise than dim_geography.pincode\
+    \ for the facility\\'s exact location).',\n  `latitude` DOUBLE COMMENT 'Facility\\'s exact latitude, for map plotting\
+    \ and distance calculations.',\n  `longitude` DOUBLE COMMENT 'Facility\\'s exact longitude.',\n  `geohash` STRING COMMENT\
+    \ 'Geohash of the facility\\'s coordinates, for proximity indexing/clustering. NULL until computed.',\n  `h3_index` STRING\
+    \ COMMENT 'H3 hexagonal grid index of the facility\\'s coordinates, for spatial aggregation. NULL until computed.',\n\
+    \  `boundary_wkt` STRING COMMENT 'Well-Known-Text footprint of the facility\\'s premises, if captured (e.g. a large hospital\
+    \ campus).',\n  `contact_phone` STRING COMMENT 'Facility\\'s public contact phone number.',\n  `contact_email` STRING\
+    \ COMMENT 'Facility\\'s public contact email.',\n  `website` STRING COMMENT 'Facility\\'s website, if any.',\n  `verification_status`\
+    \ STRING COMMENT 'Data-quality flag, e.g. \\'Verified\\' | \\'Pending\\' — whether a human/field-survey has confirmed\
+    \ this record. [Value Examples: \\'Verified\\', \\'Pending\\']',\n  `golden_source` STRING COMMENT 'Which upstream source\
+    \ system is treated as authoritative for this facility\\'s core attributes, when more than one source has contributed\
+    \ data about it.',\n  `valid_from` TIMESTAMP COMMENT 'Start of this row\\'s validity period (slowly-changing dimension).',\n\
+    \  `valid_to` TIMESTAMP COMMENT 'End of this row\\'s validity period; NULL while the row is current.',\n  `is_current`\
+    \ BOOLEAN COMMENT 'Boolean flag. True if this is the current version of the facility record — every query filters on is_current\
+    \ = true unless explicitly asking for history.',\n  `source_system` STRING COMMENT 'Upstream system this row was loaded\
+    \ from, e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\', \\'hmis\\', \\'seed\\']',\n\
+    \  `batch_id` STRING COMMENT 'Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.',\n\
+    \  `load_ts` TIMESTAMP COMMENT 'When this row was first written to the canonical table.',\n  `updated_ts` TIMESTAMP COMMENT\
+    \ 'Categorical column. Distinct values: \\'When this row was last updated (upsert\\', \\'merge timestamp).\\'. When this\
+    \ row was last updated (upsert/merge timestamp).',\n  `record_status` STRING COMMENT 'Row lifecycle flag, e.g. \\'ACTIVE\\\
+    ' | \\'RETIRED\\' — soft-delete marker; rows are never hard-deleted. [Value Examples: \\'ACTIVE\\', \\'RETIRED\\']')\n\
+    ROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+    \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility'\nPARTITIONED BY (facility_type_id)"
+  columns:
+  - name: canonical_facility_id
+    type: STRING
+    nullable: true
+    description: 'Primary Key: Canonical, permanent facility identifier — the key every other Community 360 table joins on.
+      Stable even if the facility''s upstream source-system code changes.'
+  - name: facility_type_id
+    type: INT
+    nullable: true
+    description: FK to dim_facility_type.facility_type_id — which type this facility is, and therefore which subtype table
+      (if any) to join for extra attributes. Partition key.
+  - name: facility_category
+    type: STRING
+    nullable: true
+    description: 'Denormalized copy of the type''s category (e.g. ''Health'', ''Education'') for fast filtering without a
+      join. [Value Examples: ''Health'', ''Education'']'
+  - name: facility_name
+    type: STRING
+    nullable: true
+    description: Facility's display name.
+  - name: facility_short_name
+    type: STRING
+    nullable: true
+    description: 'Categorical column. Distinct values: ''Short name'', ''abbreviation, for compact UI labels.''. Short name/abbreviation,
+      for compact UI labels.'
+  - name: ownership_type
+    type: STRING
+    nullable: true
+    description: 'Actual ownership of this specific facility, e.g. ''Government'' | ''Private'' | ''Trust'' — the per-row
+      value (vs. dim_facility_type.sector''s type-level default). [Value Examples: ''Government'', ''Private'', ''Trust'']'
+  - name: managing_authority
+    type: STRING
+    nullable: true
+    description: The specific department/authority operating this facility (may be more specific than dim_facility_type.governing_department,
+      e.g. a named municipal body).
+  - name: operational_status
+    type: STRING
+    nullable: true
+    description: 'Current operational state, e.g. ''Operational'' | ''Under Review'' | ''Closed'' — drives the summary''s
+      operational-facilities count and the priority-facilities panel. [Value Examples: ''Operational'', ''Under Review'',
+      ''Closed'']'
+  - name: established_date
+    type: DATE
+    nullable: true
+    description: Date the facility was established/commissioned.
+  - name: geography_id
+    type: BIGINT
+    nullable: true
+    description: FK to dim_geography.geography_id — the shared-spine join point back to Citizen 360's district/mandal/village.
+  - name: address_line
+    type: STRING
+    nullable: true
+    description: Free-text street address.
+  - name: locality
+    type: STRING
+    nullable: true
+    description: Locality/area name within the geography, for search matching.
+  - name: pincode
+    type: STRING
+    nullable: true
+    description: Postal PIN code (may be more precise than dim_geography.pincode for the facility's exact location).
+  - name: latitude
+    type: DOUBLE
+    nullable: true
+    description: Facility's exact latitude, for map plotting and distance calculations.
+  - name: longitude
+    type: DOUBLE
+    nullable: true
+    description: Facility's exact longitude.
+  - name: geohash
+    type: STRING
+    nullable: true
+    description: Geohash of the facility's coordinates, for proximity indexing/clustering. NULL until computed.
+  - name: h3_index
+    type: STRING
+    nullable: true
+    description: H3 hexagonal grid index of the facility's coordinates, for spatial aggregation. NULL until computed.
+  - name: boundary_wkt
+    type: STRING
+    nullable: true
+    description: Well-Known-Text footprint of the facility's premises, if captured (e.g. a large hospital campus).
+  - name: contact_phone
+    type: STRING
+    nullable: true
+    description: Facility's public contact phone number.
+  - name: contact_email
+    type: STRING
+    nullable: true
+    description: Facility's public contact email.
+  - name: website
+    type: STRING
+    nullable: true
+    description: Facility's website, if any.
+  - name: verification_status
+    type: STRING
+    nullable: true
+    description: 'Data-quality flag, e.g. ''Verified'' | ''Pending'' — whether a human/field-survey has confirmed this record.
+      [Value Examples: ''Verified'', ''Pending'']'
+  - name: golden_source
+    type: STRING
+    nullable: true
+    description: Which upstream source system is treated as authoritative for this facility's core attributes, when more than
+      one source has contributed data about it.
+  - name: valid_from
+    type: TIMESTAMP
+    nullable: true
+    description: Start of this row's validity period (slowly-changing dimension).
+  - name: valid_to
+    type: TIMESTAMP
+    nullable: true
+    description: End of this row's validity period; NULL while the row is current.
+  - name: is_current
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if this is the current version of the facility record — every query filters on is_current
+      = true unless explicitly asking for history.
+  - name: source_system
+    type: STRING
+    nullable: true
+    description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+      ''hmis'', ''seed'']'
+  - name: batch_id
+    type: STRING
+    nullable: true
+    description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+  - name: load_ts
+    type: TIMESTAMP
+    nullable: true
+    description: When this row was first written to the canonical table.
+  - name: updated_ts
+    type: TIMESTAMP
+    nullable: true
+    description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''.
+      When this row was last updated (upsert/merge timestamp).'
+  - name: record_status
+    type: STRING
+    nullable: true
+    description: 'Row lifecycle flag, e.g. ''ACTIVE'' | ''RETIRED'' — soft-delete marker; rows are never hard-deleted. [Value
+      Examples: ''ACTIVE'', ''RETIRED'']'
+  primary_key:
+  - canonical_facility_id
+  relationships: []
+  business_terms:
+  - ap_community360
+  - facility_supertype
+  - dimension
+  - Hive
+  - Iceberg
+  - ICEBERG
+  common_operations:
+  - profile records in dim_facility
+  - join dim_facility to ap_community360.dim_geography via geography_id
+  - filter dim_facility by district_name or mandal_name
+- database: ap_community360
+  table: dim_facility_identifier
+  department: ap_community360
+  description: Crosswalk of every external code a facility is known by across source systems (UDISE+ code for a school, HMIS
+    code for a hospital, AWC code for an anganwadi, ...). Kept separate from dim_facility instead of adding one column per
+    source system, and separate from the per-type subtype tables since the same facility can accumulate identifiers from multiple
+    systems over time, each with its own confidence/match provenance.
+  table_format: ICEBERG
+  location: hdfs://ap-datalake/CURATED/ap_community360/dim_facility_identifier
+  partitioned_by: null
+  tblproperties:
+    engine.hive.enabled: 'true'
+    external: 'true'
+    parquet.compression: SNAPPY
+    table_type: ICEBERG
+    write.delete.mode: merge-on-read
+    write.format.default: parquet
+    write.merge.mode: merge-on-read
+    write.update.mode: merge-on-read
+  source_file: ap_community360_canonical_schema.json
+  raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility_identifier`(\n  `facility_identifier_id` BIGINT COMMENT\
+    \ 'Primary Key: identifier row.',\n  `canonical_facility_id` STRING COMMENT 'FK to dim_facility.canonical_facility_id.',\n\
+    \  `identifier_type` STRING COMMENT 'What kind of identifier this is, e.g. \\'UDISE_CODE\\', \\'HMIS_CODE\\', \\'AWC_CODE\\\
+    '. [Value Examples: \\'UDISE_CODE\\', \\'HMIS_CODE\\', \\'AWC_CODE\\']',\n  `identifier_value_hash` STRING COMMENT 'Hashed\
+    \ identifier value — stored hashed rather than plaintext since some source-system codes are treated as sensitive/internal.',\n\
+    \  `id_class` STRING COMMENT 'Classification of the identifier, e.g. \\'govt\\' | \\'internal\\' — informs which consumers\
+    \ are allowed to see/use it. [Value Examples: \\'govt\\', \\'internal\\']',\n  `source_system` STRING COMMENT 'Upstream\
+    \ system this identifier came from.',\n  `match_method` STRING COMMENT 'How this identifier was linked to the facility,\
+    \ e.g. \\'exact\\' | \\'fuzzy\\' | \\'manual\\' — the entity-resolution method used. [Value Examples: \\'exact\\', \\\
+    'fuzzy\\', \\'manual\\']',\n  `confidence_score` DECIMAL(4,3) COMMENT 'Confidence (0-1) that this identifier genuinely\
+    \ belongs to this facility, from the match_method\\'s resolution process.',\n  `valid_from` TIMESTAMP COMMENT 'Start of\
+    \ this identifier mapping\\'s validity.',\n  `valid_to` TIMESTAMP COMMENT 'End of this identifier mapping\\'s validity;\
+    \ NULL while active.',\n  `is_active` BOOLEAN COMMENT 'Boolean flag. True if this identifier mapping is currently active.',\n\
+    \  `source_batch_id` STRING COMMENT 'Load batch that produced this identifier mapping.',\n  `load_ts` TIMESTAMP COMMENT\
+    \ 'When this row was first written.',\n  `updated_ts` TIMESTAMP COMMENT 'When this row was last updated.',\n  `record_status`\
+    \ STRING COMMENT 'Categorical column. Distinct values: \\'Row lifecycle flag, e.g. \\'ACTIVE\\', \\'RETIRED\\'.\\'. Row\
+    \ lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\'. [Value Examples: \\'ACTIVE\\', \\'RETIRED\\']')\nROW FORMAT SERDE\n\
+    \  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+    \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility_identifier'"
+  columns:
+  - name: facility_identifier_id
+    type: BIGINT
+    nullable: true
+    description: 'Primary Key: identifier row.'
+  - name: canonical_facility_id
+    type: STRING
+    nullable: true
+    description: FK to dim_facility.canonical_facility_id.
+  - name: identifier_type
+    type: STRING
+    nullable: true
+    description: 'What kind of identifier this is, e.g. ''UDISE_CODE'', ''HMIS_CODE'', ''AWC_CODE''. [Value Examples: ''UDISE_CODE'',
+      ''HMIS_CODE'', ''AWC_CODE'']'
+  - name: identifier_value_hash
+    type: STRING
+    nullable: true
+    description: Hashed identifier value — stored hashed rather than plaintext since some source-system codes are treated
+      as sensitive/internal.
+  - name: id_class
+    type: STRING
+    nullable: true
+    description: 'Classification of the identifier, e.g. ''govt'' | ''internal'' — informs which consumers are allowed to
+      see/use it. [Value Examples: ''govt'', ''internal'']'
+  - name: source_system
+    type: STRING
+    nullable: true
+    description: Upstream system this identifier came from.
+  - name: match_method
+    type: STRING
+    nullable: true
+    description: 'How this identifier was linked to the facility, e.g. ''exact'' | ''fuzzy'' | ''manual'' — the entity-resolution
+      method used. [Value Examples: ''exact'', ''fuzzy'', ''manual'']'
+  - name: confidence_score
+    type: DECIMAL(4,3)
+    nullable: true
+    description: Confidence (0-1) that this identifier genuinely belongs to this facility, from the match_method's resolution
+      process.
+  - name: valid_from
+    type: TIMESTAMP
+    nullable: true
+    description: Start of this identifier mapping's validity.
+  - name: valid_to
+    type: TIMESTAMP
+    nullable: true
+    description: End of this identifier mapping's validity; NULL while active.
+  - name: is_active
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if this identifier mapping is currently active.
+  - name: source_batch_id
+    type: STRING
+    nullable: true
+    description: Load batch that produced this identifier mapping.
+  - name: load_ts
+    type: TIMESTAMP
+    nullable: true
+    description: When this row was first written.
+  - name: updated_ts
+    type: TIMESTAMP
+    nullable: true
+    description: When this row was last updated.
+  - name: record_status
+    type: STRING
+    nullable: true
+    description: 'Categorical column. Distinct values: ''Row lifecycle flag, e.g. ''ACTIVE'', ''RETIRED''.''. Row lifecycle
+      flag, e.g. ''ACTIVE'' | ''RETIRED''. [Value Examples: ''ACTIVE'', ''RETIRED'']'
+  primary_key:
+  - facility_identifier_id
+  relationships: []
+  business_terms:
+  - ap_community360
+  - facility_supertype
+  - dimension
+  - Hive
+  - Iceberg
+  - ICEBERG
+  common_operations:
+  - profile records in dim_facility_identifier
+  - join dim_facility_identifier to ap_community360.dim_geography via geography_id
+  - filter dim_facility_identifier by district_name or mandal_name
+- database: ap_community360
+  table: dim_facility_school
+  department: ap_community360
+  description: School-specific attributes, aligned to the UDISE+ (Unified District Information System for Education Plus)
+    national schema, so this table can be reconciled against the UDISE+ feed directly. One row per facility where dim_facility.facility_type_id
+    resolves to the SCHOOL type; joined back to dim_facility on canonical_facility_id. Backs the school-medium/management
+    critical filters in the Community 360 UI.
+  table_format: ICEBERG
+  location: hdfs://ap-datalake/CURATED/ap_community360/dim_facility_school
+  partitioned_by: null
+  tblproperties:
+    engine.hive.enabled: 'true'
+    external: 'true'
+    parquet.compression: SNAPPY
+    table_type: ICEBERG
+    write.delete.mode: merge-on-read
+    write.format.default: parquet
+    write.merge.mode: merge-on-read
+    write.update.mode: merge-on-read
+  source_file: ap_community360_canonical_schema.json
+  raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility_school`(\n  `canonical_facility_id` STRING COMMENT 'Primary\
+    \ Key: FK to dim_facility.canonical_facility_id — one row per school facility.',\n  `udise_plus_code` STRING COMMENT 'National\
+    \ UDISE+ school code — the authoritative cross-system key for this school.',\n  `school_management` STRING COMMENT 'Who\
+    \ manages the school, e.g. \\'Government\\' | \\'Aided\\' | \\'Private Unaided\\' — one of the critical filter fields.\
+    \ [Value Examples: \\'Government\\', \\'Aided\\', \\'Private Unaided\\']',\n  `school_category` STRING COMMENT 'Categorical\
+    \ column. Distinct values: \\'School category by level, e.g. \\'Primary\\', \\'High School\\'.\\'. School category by\
+    \ level, e.g. \\'Primary\\' | \\'High School\\'. [Value Examples: \\'Primary\\', \\'High School\\']',\n  `lowest_class`\
+    \ INT COMMENT 'Categorical column. Distinct values: \\'Lowest class\\', \\'grade taught at this school.\\'. Lowest class/grade\
+    \ taught at this school.',\n  `highest_class` INT COMMENT 'Categorical column. Distinct values: \\'Highest class\\', \\\
+    'grade taught at this school.\\'. Highest class/grade taught at this school.',\n  `board_affiliation` STRING COMMENT 'Examining\
+    \ board the school is affiliated to, e.g. \\'State Board\\' | \\'CBSE\\'. [Value Examples: \\'State Board\\', \\'CBSE\\\
+    ']',\n  `medium_of_instruction` STRING COMMENT 'Primary teaching language, e.g. \\'Telugu\\' | \\'English\\' | \\'Urdu\\\
+    ' | \\'Bilingual\\' — the other critical filter field. [Value Examples: \\'Telugu\\', \\'English\\', \\'Urdu\\', \\'Bilingual\\\
+    ']',\n  `gender_type` STRING COMMENT 'Categorical column. Distinct values: \\'Student intake policy: \\'Co-Ed\\', \\'Boys\\\
+    ', \\'Girls\\'.\\'. Student intake policy: \\'Co-Ed\\' | \\'Boys\\' | \\'Girls\\'.',\n  `total_students` INT COMMENT 'Total\
+    \ enrolled students.',\n  `total_boys` INT COMMENT 'Enrolled boys count.',\n  `total_girls` INT COMMENT 'Enrolled girls\
+    \ count.',\n  `total_teachers` INT COMMENT 'Teachers currently in position.',\n  `sanctioned_teachers` INT COMMENT 'Sanctioned\
+    \ teacher posts (may exceed total_teachers where there\\'s a staffing gap).',\n  `student_teacher_ratio` DECIMAL(6,2)\
+    \ COMMENT 'Categorical column. Distinct values: \\'Students per teacher\\', \\'a standard school-quality indicator.\\\
+    '. Students per teacher — a standard school-quality indicator.',\n  `total_classrooms` INT COMMENT 'Total classrooms in\
+    \ the building.',\n  `classrooms_good_condition` INT COMMENT 'Classrooms rated in good structural condition.',\n  `building_status`\
+    \ STRING COMMENT 'Categorical column. Distinct values: \\'Overall building condition, e.g. \\'Good\\', \\'Needs Repair\\\
+    '.\\'. Overall building condition, e.g. \\'Good\\' | \\'Needs Repair\\'. [Value Examples: \\'Good\\', \\'Needs Repair\\\
+    ']',\n  `has_electricity` BOOLEAN COMMENT 'Boolean flag. True if the school has an electricity connection.',\n  `has_drinking_water`\
+    \ BOOLEAN COMMENT 'Boolean flag. True if safe drinking water is available.',\n  `has_boys_toilet` BOOLEAN COMMENT 'Boolean\
+    \ flag. True if a boys\\' toilet facility exists.',\n  `has_girls_toilet` BOOLEAN COMMENT 'Boolean flag. True if a girls\\\
+    ' toilet facility exists.',\n  `has_cwsn_toilet` BOOLEAN COMMENT 'Boolean flag. True if a toilet accessible to children\
+    \ with special needs exists.',\n  `has_ramp` BOOLEAN COMMENT 'Boolean flag. True if a wheelchair ramp exists.',\n  `has_library`\
+    \ BOOLEAN COMMENT 'Boolean flag. True if the school has a library.',\n  `has_computer_lab` BOOLEAN COMMENT 'Boolean flag.\
+    \ True if the school has a computer lab.',\n  `has_smart_classroom` BOOLEAN COMMENT 'Boolean flag. True if at least one\
+    \ smart/digital classroom exists.',\n  `has_playground` BOOLEAN COMMENT 'Boolean flag. True if a playground exists.',\n\
+    \  `has_boundary_wall` BOOLEAN COMMENT 'Boolean flag. True if the campus has a boundary wall.',\n  `has_midday_meal` BOOLEAN\
+    \ COMMENT 'Boolean flag. True if the school serves the midday meal scheme.',\n  `internet_available` BOOLEAN COMMENT 'Boolean\
+    \ flag. True if internet connectivity is available at the school.',\n  `academic_session` STRING COMMENT 'Academic year\
+    \ these figures were captured for, e.g. \\'2025-26\\'. [Value Examples: \\'2025-26\\']',\n  `source_system` STRING COMMENT\
+    \ 'Upstream system this row was loaded from, e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\\
+    ', \\'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load batch identifier — groups every row written by the same\
+    \ ingestion run, for reprocessing/rollback.',\n  `load_ts` TIMESTAMP COMMENT 'When this row was first written to the canonical\
+    \ table.',\n  `updated_ts` TIMESTAMP COMMENT 'Categorical column. Distinct values: \\'When this row was last updated (upsert\\\
+    ', \\'merge timestamp).\\'. When this row was last updated (upsert/merge timestamp).',\n  `record_status` STRING COMMENT\
+    \ 'Row lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\' — soft-delete marker; rows are never hard-deleted. [Value Examples:\
+    \ \\'ACTIVE\\', \\'RETIRED\\']')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+    \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility_school'"
+  columns:
+  - name: canonical_facility_id
+    type: STRING
+    nullable: true
+    description: 'Primary Key: FK to dim_facility.canonical_facility_id — one row per school facility.'
+  - name: udise_plus_code
+    type: STRING
+    nullable: true
+    description: National UDISE+ school code — the authoritative cross-system key for this school.
+  - name: school_management
+    type: STRING
+    nullable: true
+    description: 'Who manages the school, e.g. ''Government'' | ''Aided'' | ''Private Unaided'' — one of the critical filter
+      fields. [Value Examples: ''Government'', ''Aided'', ''Private Unaided'']'
+  - name: school_category
+    type: STRING
+    nullable: true
+    description: 'Categorical column. Distinct values: ''School category by level, e.g. ''Primary'', ''High School''.''. School
+      category by level, e.g. ''Primary'' | ''High School''. [Value Examples: ''Primary'', ''High School'']'
+  - name: lowest_class
+    type: INT
+    nullable: true
+    description: 'Categorical column. Distinct values: ''Lowest class'', ''grade taught at this school.''. Lowest class/grade
+      taught at this school.'
+  - name: highest_class
+    type: INT
+    nullable: true
+    description: 'Categorical column. Distinct values: ''Highest class'', ''grade taught at this school.''. Highest class/grade
+      taught at this school.'
+  - name: board_affiliation
+    type: STRING
+    nullable: true
+    description: 'Examining board the school is affiliated to, e.g. ''State Board'' | ''CBSE''. [Value Examples: ''State Board'',
+      ''CBSE'']'
+  - name: medium_of_instruction
+    type: STRING
+    nullable: true
+    description: 'Primary teaching language, e.g. ''Telugu'' | ''English'' | ''Urdu'' | ''Bilingual'' — the other critical
+      filter field. [Value Examples: ''Telugu'', ''English'', ''Urdu'', ''Bilingual'']'
+  - name: gender_type
+    type: STRING
+    nullable: true
+    description: 'Categorical column. Distinct values: ''Student intake policy: ''Co-Ed'', ''Boys'', ''Girls''.''. Student
+      intake policy: ''Co-Ed'' | ''Boys'' | ''Girls''.'
+  - name: total_students
+    type: INT
+    nullable: true
+    description: Total enrolled students.
+  - name: total_boys
+    type: INT
+    nullable: true
+    description: Enrolled boys count.
+  - name: total_girls
+    type: INT
+    nullable: true
+    description: Enrolled girls count.
+  - name: total_teachers
+    type: INT
+    nullable: true
+    description: Teachers currently in position.
+  - name: sanctioned_teachers
+    type: INT
+    nullable: true
+    description: Sanctioned teacher posts (may exceed total_teachers where there's a staffing gap).
+  - name: student_teacher_ratio
+    type: DECIMAL(6,2)
+    nullable: true
+    description: 'Categorical column. Distinct values: ''Students per teacher'', ''a standard school-quality indicator.''.
+      Students per teacher — a standard school-quality indicator.'
+  - name: total_classrooms
+    type: INT
+    nullable: true
+    description: Total classrooms in the building.
+  - name: classrooms_good_condition
+    type: INT
+    nullable: true
+    description: Classrooms rated in good structural condition.
+  - name: building_status
+    type: STRING
+    nullable: true
+    description: 'Categorical column. Distinct values: ''Overall building condition, e.g. ''Good'', ''Needs Repair''.''. Overall
+      building condition, e.g. ''Good'' | ''Needs Repair''. [Value Examples: ''Good'', ''Needs Repair'']'
+  - name: has_electricity
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if the school has an electricity connection.
+  - name: has_drinking_water
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if safe drinking water is available.
+  - name: has_boys_toilet
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if a boys' toilet facility exists.
+  - name: has_girls_toilet
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if a girls' toilet facility exists.
+  - name: has_cwsn_toilet
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if a toilet accessible to children with special needs exists.
+  - name: has_ramp
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if a wheelchair ramp exists.
+  - name: has_library
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if the school has a library.
+  - name: has_computer_lab
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if the school has a computer lab.
+  - name: has_smart_classroom
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if at least one smart/digital classroom exists.
+  - name: has_playground
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if a playground exists.
+  - name: has_boundary_wall
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if the campus has a boundary wall.
+  - name: has_midday_meal
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if the school serves the midday meal scheme.
+  - name: internet_available
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if internet connectivity is available at the school.
+  - name: academic_session
+    type: STRING
+    nullable: true
+    description: 'Academic year these figures were captured for, e.g. ''2025-26''. [Value Examples: ''2025-26'']'
+  - name: source_system
+    type: STRING
+    nullable: true
+    description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+      ''hmis'', ''seed'']'
+  - name: batch_id
+    type: STRING
+    nullable: true
+    description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+  - name: load_ts
+    type: TIMESTAMP
+    nullable: true
+    description: When this row was first written to the canonical table.
+  - name: updated_ts
+    type: TIMESTAMP
+    nullable: true
+    description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''.
+      When this row was last updated (upsert/merge timestamp).'
+  - name: record_status
+    type: STRING
+    nullable: true
+    description: 'Row lifecycle flag, e.g. ''ACTIVE'' | ''RETIRED'' — soft-delete marker; rows are never hard-deleted. [Value
+      Examples: ''ACTIVE'', ''RETIRED'']'
+  primary_key:
+  - canonical_facility_id
+  relationships: []
+  business_terms:
+  - ap_community360
+  - facility_subtypes
+  - dimension
+  - Hive
+  - Iceberg
+  - ICEBERG
+  common_operations:
+  - profile records in dim_facility_school
+  - join dim_facility_school to ap_community360.dim_geography via geography_id
+  - filter dim_facility_school by district_name or mandal_name
+- database: ap_community360
+  table: dim_facility_hospital
+  department: ap_community360
+  description: Hospital/health-facility-specific attributes, aligned to HMIS (Health Management Information System) conventions.
+    One row per facility where dim_facility.facility_type_id resolves to the HOSPITAL type. Backs the hospital ownership/24x7/min-beds
+    critical filters in the Community 360 UI.
+  table_format: ICEBERG
+  location: hdfs://ap-datalake/CURATED/ap_community360/dim_facility_hospital
+  partitioned_by: null
+  tblproperties:
+    engine.hive.enabled: 'true'
+    external: 'true'
+    parquet.compression: SNAPPY
+    table_type: ICEBERG
+    write.delete.mode: merge-on-read
+    write.format.default: parquet
+    write.merge.mode: merge-on-read
+    write.update.mode: merge-on-read
+  source_file: ap_community360_canonical_schema.json
+  raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility_hospital`(\n  `canonical_facility_id` STRING COMMENT 'Primary\
+    \ Key: FK to dim_facility.canonical_facility_id — one row per hospital/health facility.',\n  `hmis_facility_code` STRING\
+    \ COMMENT 'National HMIS facility code.',\n  `nin` STRING COMMENT 'National Identification Number for the health facility\
+    \ (Ayushman Bharat Digital Mission registry).',\n  `facility_level` STRING COMMENT 'Tier of care, e.g. \\'PHC\\' | \\\
+    'CHC\\' | \\'Area Hospital\\' | \\'District Hospital\\'. [Value Examples: \\'PHC\\', \\'CHC\\', \\'Area Hospital\\', \\\
+    'District Hospital\\']',\n  `ownership` STRING COMMENT 'Who owns/operates the facility, e.g. \\'Government\\' | \\'Private\\\
+    ' | \\'Trust\\' — one of the critical filter fields. [Value Examples: \\'Government\\', \\'Private\\', \\'Trust\\']',\n\
+    \  `total_beds` INT COMMENT 'Total sanctioned beds — the other critical filter field (min-beds threshold).',\n  `icu_beds`\
+    \ INT COMMENT 'ICU beds among the total.',\n  `maternity_beds` INT COMMENT 'Categorical column. Distinct values: \\'Maternity\\\
+    ', \\'labour-ward beds among the total.\\'. Maternity/labour-ward beds among the total.',\n  `emergency_beds` INT COMMENT\
+    \ 'Emergency-ward beds among the total.',\n  `specialties` ARRAY<STRING> COMMENT 'ARRAY<STRING> column. Contains Medical\
+    \ specialties available at this facility, e.g. [\\'General Medicine\\', \\'Pediatrics\\'].',\n  `doctors_count` INT COMMENT\
+    \ 'Doctors currently on staff.',\n  `nurses_count` INT COMMENT 'Nurses currently on staff.',\n  `paramedic_count` INT\
+    \ COMMENT 'Paramedic staff currently on strength.',\n  `has_pharmacy` BOOLEAN COMMENT 'Boolean flag. True if an in-house\
+    \ pharmacy exists.',\n  `has_diagnostic_lab` BOOLEAN COMMENT 'Boolean flag. True if a diagnostic lab exists on-site.',\n\
+    \  `has_blood_bank` BOOLEAN COMMENT 'Boolean flag. True if a blood bank exists on-site.',\n  `has_operation_theatre` BOOLEAN\
+    \ COMMENT 'Boolean flag. True if an operation theatre exists.',\n  `has_ambulance` BOOLEAN COMMENT 'Boolean flag. True\
+    \ if the facility has its own ambulance.',\n  `has_emergency_services` BOOLEAN COMMENT 'Boolean flag. True if a dedicated\
+    \ emergency department exists.',\n  `is_24x7` BOOLEAN COMMENT 'Boolean flag. True if the facility operates round the clock\
+    \ — the \\'24x7 only\\' critical filter.',\n  `operating_hours` STRING COMMENT 'Categorical column. Distinct values: \\\
+    'Free-text operating hours, e.g. \\'24x7\\', \\'9AM-5PM\\'.\\'. Free-text operating hours, e.g. \\'24x7\\' | \\'9AM-5PM\\\
+    '. [Value Examples: \\'24x7\\', \\'9AM-5PM\\']',\n  `is_aarogyasri_empanelled` BOOLEAN COMMENT 'Boolean flag. True if\
+    \ empanelled under the ysr aarogyasri state health insurance scheme.',\n  `aarogyasri_id` STRING COMMENT 'Aarogyasri empanelment\
+    \ ID, when empanelled.',\n  `is_pmjay_empanelled` BOOLEAN COMMENT 'Boolean flag. True if empanelled under the national\
+    \ pm-jay health insurance scheme.',\n  `source_system` STRING COMMENT 'Upstream system this row was loaded from, e.g.\
+    \ \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\', \\'hmis\\', \\'seed\\']',\n  `batch_id`\
+    \ STRING COMMENT 'Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.',\n\
+    \  `load_ts` TIMESTAMP COMMENT 'When this row was first written to the canonical table.',\n  `updated_ts` TIMESTAMP COMMENT\
+    \ 'Categorical column. Distinct values: \\'When this row was last updated (upsert\\', \\'merge timestamp).\\'. When this\
+    \ row was last updated (upsert/merge timestamp).',\n  `record_status` STRING COMMENT 'Row lifecycle flag, e.g. \\'ACTIVE\\\
+    ' | \\'RETIRED\\' — soft-delete marker; rows are never hard-deleted. [Value Examples: \\'ACTIVE\\', \\'RETIRED\\']')\n\
+    ROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+    \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility_hospital'"
+  columns:
+  - name: canonical_facility_id
+    type: STRING
+    nullable: true
+    description: 'Primary Key: FK to dim_facility.canonical_facility_id — one row per hospital/health facility.'
+  - name: hmis_facility_code
+    type: STRING
+    nullable: true
+    description: National HMIS facility code.
+  - name: nin
+    type: STRING
+    nullable: true
+    description: National Identification Number for the health facility (Ayushman Bharat Digital Mission registry).
+  - name: facility_level
+    type: STRING
+    nullable: true
+    description: 'Tier of care, e.g. ''PHC'' | ''CHC'' | ''Area Hospital'' | ''District Hospital''. [Value Examples: ''PHC'',
+      ''CHC'', ''Area Hospital'', ''District Hospital'']'
+  - name: ownership
+    type: STRING
+    nullable: true
+    description: 'Who owns/operates the facility, e.g. ''Government'' | ''Private'' | ''Trust'' — one of the critical filter
+      fields. [Value Examples: ''Government'', ''Private'', ''Trust'']'
+  - name: total_beds
+    type: INT
+    nullable: true
+    description: Total sanctioned beds — the other critical filter field (min-beds threshold).
+  - name: icu_beds
+    type: INT
+    nullable: true
+    description: ICU beds among the total.
+  - name: maternity_beds
+    type: INT
+    nullable: true
+    description: 'Categorical column. Distinct values: ''Maternity'', ''labour-ward beds among the total.''. Maternity/labour-ward
+      beds among the total.'
+  - name: emergency_beds
+    type: INT
+    nullable: true
+    description: Emergency-ward beds among the total.
+  - name: specialties
+    type: ARRAY<STRING>
+    nullable: true
+    description: ARRAY<STRING> column. Contains Medical specialties available at this facility, e.g. ['General Medicine',
+      'Pediatrics'].
+  - name: doctors_count
+    type: INT
+    nullable: true
+    description: Doctors currently on staff.
+  - name: nurses_count
+    type: INT
+    nullable: true
+    description: Nurses currently on staff.
+  - name: paramedic_count
+    type: INT
+    nullable: true
+    description: Paramedic staff currently on strength.
+  - name: has_pharmacy
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if an in-house pharmacy exists.
+  - name: has_diagnostic_lab
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if a diagnostic lab exists on-site.
+  - name: has_blood_bank
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if a blood bank exists on-site.
+  - name: has_operation_theatre
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if an operation theatre exists.
+  - name: has_ambulance
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if the facility has its own ambulance.
+  - name: has_emergency_services
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if a dedicated emergency department exists.
+  - name: is_24x7
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if the facility operates round the clock — the '24x7 only' critical filter.
+  - name: operating_hours
+    type: STRING
+    nullable: true
+    description: 'Categorical column. Distinct values: ''Free-text operating hours, e.g. ''24x7'', ''9AM-5PM''.''. Free-text
+      operating hours, e.g. ''24x7'' | ''9AM-5PM''. [Value Examples: ''24x7'', ''9AM-5PM'']'
+  - name: is_aarogyasri_empanelled
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if empanelled under the ysr aarogyasri state health insurance scheme.
+  - name: aarogyasri_id
+    type: STRING
+    nullable: true
+    description: Aarogyasri empanelment ID, when empanelled.
+  - name: is_pmjay_empanelled
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if empanelled under the national pm-jay health insurance scheme.
+  - name: source_system
+    type: STRING
+    nullable: true
+    description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+      ''hmis'', ''seed'']'
+  - name: batch_id
+    type: STRING
+    nullable: true
+    description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+  - name: load_ts
+    type: TIMESTAMP
+    nullable: true
+    description: When this row was first written to the canonical table.
+  - name: updated_ts
+    type: TIMESTAMP
+    nullable: true
+    description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''.
+      When this row was last updated (upsert/merge timestamp).'
+  - name: record_status
+    type: STRING
+    nullable: true
+    description: 'Row lifecycle flag, e.g. ''ACTIVE'' | ''RETIRED'' — soft-delete marker; rows are never hard-deleted. [Value
+      Examples: ''ACTIVE'', ''RETIRED'']'
+  primary_key:
+  - canonical_facility_id
+  relationships: []
+  business_terms:
+  - ap_community360
+  - facility_subtypes
+  - dimension
+  - Hive
+  - Iceberg
+  - ICEBERG
+  common_operations:
+  - profile records in dim_facility_hospital
+  - join dim_facility_hospital to ap_community360.dim_geography via geography_id
+  - filter dim_facility_hospital by district_name or mandal_name
+- database: ap_community360
+  table: dim_facility_community_center
+  department: ap_community360
+  description: Community hall / Kalyana Mandapam-specific attributes — capacity, amenities, and rental terms. One row per
+    facility where dim_facility.facility_type_id resolves to the COMMUNITY_CENTER type.
+  table_format: ICEBERG
+  location: hdfs://ap-datalake/CURATED/ap_community360/dim_facility_community_center
+  partitioned_by: null
+  tblproperties:
+    engine.hive.enabled: 'true'
+    external: 'true'
+    parquet.compression: SNAPPY
+    table_type: ICEBERG
+    write.delete.mode: merge-on-read
+    write.format.default: parquet
+    write.merge.mode: merge-on-read
+    write.update.mode: merge-on-read
+  source_file: ap_community360_canonical_schema.json
+  raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility_community_center`(\n  `canonical_facility_id` STRING COMMENT\
+    \ 'Primary Key: FK to dim_facility.canonical_facility_id.',\n  `center_type` STRING COMMENT 'Type of venue, e.g. \\'Kalyana\
+    \ Mandapam\\' (marriage hall) | \\'Community Hall\\'. [Value Examples: \\'Kalyana Mandapam\\', \\'Community Hall\\']',\n\
+    \  `managing_authority` STRING COMMENT 'Categorical column. Distinct values: \\'Body managing bookings\\', \\'upkeep of\
+    \ this center.\\'. Body managing bookings/upkeep of this center.',\n  `seating_capacity` INT COMMENT 'Maximum seating\
+    \ capacity.',\n  `hall_area_sqft` DECIMAL(10,2) COMMENT 'Hall floor area in square feet.',\n  `has_stage` BOOLEAN COMMENT\
+    \ 'Boolean flag. True if a stage is present.',\n  `has_kitchen` BOOLEAN COMMENT 'Boolean flag. True if a kitchen/catering\
+    \ area is present.',\n  `has_ac` BOOLEAN COMMENT 'Boolean flag. True if the hall is air-conditioned.',\n  `has_power_backup`\
+    \ BOOLEAN COMMENT 'Boolean flag. True if generator/power backup is available.',\n  `has_parking` BOOLEAN COMMENT 'Boolean\
+    \ flag. True if dedicated parking is available.',\n  `has_toilets` BOOLEAN COMMENT 'Boolean flag. True if toilet facilities\
+    \ are available.',\n  `is_disabled_friendly` BOOLEAN COMMENT 'Boolean flag. True if the venue has step-free/accessible\
+    \ access.',\n  `amenities` ARRAY<STRING> COMMENT 'ARRAY<STRING> column. Contains Additional amenities available, e.g.\
+    \ [\\'Sound System\\', \\'Generator\\'].',\n  `rental_available` BOOLEAN COMMENT 'Boolean flag. True if the venue can\
+    \ be booked by the public.',\n  `rental_rate_per_day` DECIMAL(10,2) COMMENT 'Daily rental rate in INR, when rental_available\
+    \ is true. Unit: INR.',\n  `source_system` STRING COMMENT 'Upstream system this row was loaded from, e.g. \\'udise_plus\\\
+    ', \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\', \\'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load\
+    \ batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.',\n  `load_ts` TIMESTAMP\
+    \ COMMENT 'When this row was first written to the canonical table.',\n  `updated_ts` TIMESTAMP COMMENT 'Categorical column.\
+    \ Distinct values: \\'When this row was last updated (upsert\\', \\'merge timestamp).\\'. When this row was last updated\
+    \ (upsert/merge timestamp).',\n  `record_status` STRING COMMENT 'Row lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\\
+    ' — soft-delete marker; rows are never hard-deleted. [Value Examples: \\'ACTIVE\\', \\'RETIRED\\']')\nROW FORMAT SERDE\n\
+    \  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+    \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility_community_center'"
+  columns:
+  - name: canonical_facility_id
+    type: STRING
+    nullable: true
+    description: 'Primary Key: FK to dim_facility.canonical_facility_id.'
+  - name: center_type
+    type: STRING
+    nullable: true
+    description: 'Type of venue, e.g. ''Kalyana Mandapam'' (marriage hall) | ''Community Hall''. [Value Examples: ''Kalyana
+      Mandapam'', ''Community Hall'']'
+  - name: managing_authority
+    type: STRING
+    nullable: true
+    description: 'Categorical column. Distinct values: ''Body managing bookings'', ''upkeep of this center.''. Body managing
+      bookings/upkeep of this center.'
+  - name: seating_capacity
+    type: INT
+    nullable: true
+    description: Maximum seating capacity.
+  - name: hall_area_sqft
+    type: DECIMAL(10,2)
+    nullable: true
+    description: Hall floor area in square feet.
+  - name: has_stage
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if a stage is present.
+  - name: has_kitchen
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if a kitchen/catering area is present.
+  - name: has_ac
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if the hall is air-conditioned.
+  - name: has_power_backup
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if generator/power backup is available.
+  - name: has_parking
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if dedicated parking is available.
+  - name: has_toilets
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if toilet facilities are available.
+  - name: is_disabled_friendly
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if the venue has step-free/accessible access.
+  - name: amenities
+    type: ARRAY<STRING>
+    nullable: true
+    description: ARRAY<STRING> column. Contains Additional amenities available, e.g. ['Sound System', 'Generator'].
+  - name: rental_available
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if the venue can be booked by the public.
+  - name: rental_rate_per_day
+    type: DECIMAL(10,2)
+    nullable: true
+    description: 'Daily rental rate in INR, when rental_available is true. Unit: INR.'
+  - name: source_system
+    type: STRING
+    nullable: true
+    description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+      ''hmis'', ''seed'']'
+  - name: batch_id
+    type: STRING
+    nullable: true
+    description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+  - name: load_ts
+    type: TIMESTAMP
+    nullable: true
+    description: When this row was first written to the canonical table.
+  - name: updated_ts
+    type: TIMESTAMP
+    nullable: true
+    description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''.
+      When this row was last updated (upsert/merge timestamp).'
+  - name: record_status
+    type: STRING
+    nullable: true
+    description: 'Row lifecycle flag, e.g. ''ACTIVE'' | ''RETIRED'' — soft-delete marker; rows are never hard-deleted. [Value
+      Examples: ''ACTIVE'', ''RETIRED'']'
+  primary_key:
+  - canonical_facility_id
+  relationships: []
+  business_terms:
+  - ap_community360
+  - facility_subtypes
+  - dimension
+  - Hive
+  - Iceberg
+  - ICEBERG
+  common_operations:
+  - profile records in dim_facility_community_center
+  - join dim_facility_community_center to ap_community360.dim_geography via geography_id
+  - filter dim_facility_community_center by district_name or mandal_name
+- database: ap_community360
+  table: dim_facility_park
+  department: ap_community360
+  description: Park / open-space-specific attributes. One row per facility where dim_facility.facility_type_id resolves to
+    the PARK type.
+  table_format: ICEBERG
+  location: hdfs://ap-datalake/CURATED/ap_community360/dim_facility_park
+  partitioned_by: null
+  tblproperties:
+    engine.hive.enabled: 'true'
+    external: 'true'
+    parquet.compression: SNAPPY
+    table_type: ICEBERG
+    write.delete.mode: merge-on-read
+    write.format.default: parquet
+    write.merge.mode: merge-on-read
+    write.update.mode: merge-on-read
+  source_file: ap_community360_canonical_schema.json
+  raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility_park`(\n  `canonical_facility_id` STRING COMMENT 'Primary\
+    \ Key: FK to dim_facility.canonical_facility_id.',\n  `park_type` STRING COMMENT 'Scale/classification of the park, e.g.\
+    \ \\'Neighborhood Park\\' | \\'District Park\\'. [Value Examples: \\'Neighborhood Park\\', \\'District Park\\']',\n  `area_acres`\
+    \ DECIMAL(10,2) COMMENT 'Park area in acres. Unit: acres.',\n  `maintained_by` STRING COMMENT 'Body responsible for maintenance.',\n\
+    \  `has_walking_track` BOOLEAN COMMENT 'Boolean flag. True if a walking/jogging track exists.',\n  `has_childrens_play_area`\
+    \ BOOLEAN COMMENT 'Boolean flag. True if a children\\'s play area exists.',\n  `has_open_gym` BOOLEAN COMMENT 'Boolean\
+    \ flag. True if outdoor gym equipment is installed.',\n  `has_seating` BOOLEAN COMMENT 'Boolean flag. True if public seating\
+    \ is provided.',\n  `has_lighting` BOOLEAN COMMENT 'Boolean flag. True if the park has lighting for evening use.',\n \
+    \ `has_toilets` BOOLEAN COMMENT 'Boolean flag. True if public toilets are available.',\n  `has_drinking_water` BOOLEAN\
+    \ COMMENT 'Boolean flag. True if drinking water is available.',\n  `has_parking` BOOLEAN COMMENT 'Boolean flag. True if\
+    \ parking is available nearby.',\n  `has_water_body` BOOLEAN COMMENT 'Boolean flag. True if the park includes a pond/lake/water\
+    \ feature.',\n  `tree_count` INT COMMENT 'Approximate number of trees in the park.',\n  `is_free_entry` BOOLEAN COMMENT\
+    \ 'Boolean flag. True if entry is free.',\n  `entry_fee` DECIMAL(8,2) COMMENT 'Entry fee in INR, when is_free_entry is\
+    \ false. Unit: INR.',\n  `opening_hours` STRING COMMENT 'Free-text opening hours, e.g. \\'5AM-9PM\\'. [Value Examples:\
+    \ \\'5AM-9PM\\']',\n  `source_system` STRING COMMENT 'Upstream system this row was loaded from, e.g. \\'udise_plus\\',\
+    \ \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\', \\'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load\
+    \ batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.',\n  `load_ts` TIMESTAMP\
+    \ COMMENT 'When this row was first written to the canonical table.',\n  `updated_ts` TIMESTAMP COMMENT 'Categorical column.\
+    \ Distinct values: \\'When this row was last updated (upsert\\', \\'merge timestamp).\\'. When this row was last updated\
+    \ (upsert/merge timestamp).',\n  `record_status` STRING COMMENT 'Row lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\\
+    ' — soft-delete marker; rows are never hard-deleted. [Value Examples: \\'ACTIVE\\', \\'RETIRED\\']')\nROW FORMAT SERDE\n\
+    \  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+    \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility_park'"
+  columns:
+  - name: canonical_facility_id
+    type: STRING
+    nullable: true
+    description: 'Primary Key: FK to dim_facility.canonical_facility_id.'
+  - name: park_type
+    type: STRING
+    nullable: true
+    description: 'Scale/classification of the park, e.g. ''Neighborhood Park'' | ''District Park''. [Value Examples: ''Neighborhood
+      Park'', ''District Park'']'
+  - name: area_acres
+    type: DECIMAL(10,2)
+    nullable: true
+    description: 'Park area in acres. Unit: acres.'
+  - name: maintained_by
+    type: STRING
+    nullable: true
+    description: Body responsible for maintenance.
+  - name: has_walking_track
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if a walking/jogging track exists.
+  - name: has_childrens_play_area
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if a children's play area exists.
+  - name: has_open_gym
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if outdoor gym equipment is installed.
+  - name: has_seating
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if public seating is provided.
+  - name: has_lighting
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if the park has lighting for evening use.
+  - name: has_toilets
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if public toilets are available.
+  - name: has_drinking_water
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if drinking water is available.
+  - name: has_parking
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if parking is available nearby.
+  - name: has_water_body
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if the park includes a pond/lake/water feature.
+  - name: tree_count
+    type: INT
+    nullable: true
+    description: Approximate number of trees in the park.
+  - name: is_free_entry
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if entry is free.
+  - name: entry_fee
+    type: DECIMAL(8,2)
+    nullable: true
+    description: 'Entry fee in INR, when is_free_entry is false. Unit: INR.'
+  - name: opening_hours
+    type: STRING
+    nullable: true
+    description: 'Free-text opening hours, e.g. ''5AM-9PM''. [Value Examples: ''5AM-9PM'']'
+  - name: source_system
+    type: STRING
+    nullable: true
+    description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+      ''hmis'', ''seed'']'
+  - name: batch_id
+    type: STRING
+    nullable: true
+    description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+  - name: load_ts
+    type: TIMESTAMP
+    nullable: true
+    description: When this row was first written to the canonical table.
+  - name: updated_ts
+    type: TIMESTAMP
+    nullable: true
+    description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''.
+      When this row was last updated (upsert/merge timestamp).'
+  - name: record_status
+    type: STRING
+    nullable: true
+    description: 'Row lifecycle flag, e.g. ''ACTIVE'' | ''RETIRED'' — soft-delete marker; rows are never hard-deleted. [Value
+      Examples: ''ACTIVE'', ''RETIRED'']'
+  primary_key:
+  - canonical_facility_id
+  relationships: []
+  business_terms:
+  - ap_community360
+  - facility_subtypes
+  - dimension
+  - Hive
+  - Iceberg
+  - ICEBERG
+  common_operations:
+  - profile records in dim_facility_park
+  - join dim_facility_park to ap_community360.dim_geography via geography_id
+  - filter dim_facility_park by district_name or mandal_name
+- database: ap_community360
+  table: dim_facility_anganwadi
+  department: ap_community360
+  description: Anganwadi centre attributes, aligned to ICDS (Integrated Child Development Services) reporting. One row per
+    facility where dim_facility.facility_type_id resolves to the ANGANWADI type.
+  table_format: ICEBERG
+  location: hdfs://ap-datalake/CURATED/ap_community360/dim_facility_anganwadi
+  partitioned_by: null
+  tblproperties:
+    engine.hive.enabled: 'true'
+    external: 'true'
+    parquet.compression: SNAPPY
+    table_type: ICEBERG
+    write.delete.mode: merge-on-read
+    write.format.default: parquet
+    write.merge.mode: merge-on-read
+    write.update.mode: merge-on-read
+  source_file: ap_community360_canonical_schema.json
+  raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility_anganwadi`(\n  `canonical_facility_id` STRING COMMENT 'Primary\
+    \ Key: FK to dim_facility.canonical_facility_id.',\n  `awc_code` STRING COMMENT 'National Anganwadi Centre (AWC) code.',\n\
+    \  `project_name` STRING COMMENT 'ICDS project this centre falls under.',\n  `sector_name` STRING COMMENT 'ICDS sector\
+    \ this centre falls under, within the project.',\n  `center_type` STRING COMMENT 'Categorical column. Distinct values:\
+    \ \\'Anganwadi\\' | \\'Mini Anganwadi\\', \\'full vs. reduced-scale centre.\\'. \\'Anganwadi\\' | \\'Mini Anganwadi\\\
+    ' — full vs. reduced-scale centre.',\n  `building_type` STRING COMMENT 'Where the centre operates from, e.g. \\'Own Building\\\
+    ' | \\'Rented\\' | \\'School Premises\\'. [Value Examples: \\'Own Building\\', \\'Rented\\', \\'School Premises\\']',\n\
+    \  `registered_children` INT COMMENT 'Children currently registered at the centre.',\n  `registered_pregnant_women` INT\
+    \ COMMENT 'Pregnant women currently registered for ante-natal services.',\n  `registered_lactating_mothers` INT COMMENT\
+    \ 'Lactating mothers currently registered.',\n  `worker_present` BOOLEAN COMMENT 'Boolean flag. True if an anganwadi worker\
+    \ is currently posted and present.',\n  `helper_present` BOOLEAN COMMENT 'Boolean flag. True if an anganwadi helper is\
+    \ currently posted and present.',\n  `serves_hot_meal` BOOLEAN COMMENT 'Boolean flag. True if the centre serves a hot\
+    \ cooked meal.',\n  `has_toilet` BOOLEAN COMMENT 'Boolean flag. True if a toilet facility exists.',\n  `has_drinking_water`\
+    \ BOOLEAN COMMENT 'Boolean flag. True if drinking water is available.',\n  `has_electricity` BOOLEAN COMMENT 'Boolean\
+    \ flag. True if an electricity connection exists.',\n  `has_kitchen` BOOLEAN COMMENT 'Boolean flag. True if a kitchen/cooking\
+    \ area exists.',\n  `has_preschool_kit` BOOLEAN COMMENT 'Boolean flag. True if pre-school learning kit materials are available.',\n\
+    \  `source_system` STRING COMMENT 'Upstream system this row was loaded from, e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\\
+    '. [Value Examples: \\'udise_plus\\', \\'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load batch identifier —\
+    \ groups every row written by the same ingestion run, for reprocessing/rollback.',\n  `load_ts` TIMESTAMP COMMENT 'When\
+    \ this row was first written to the canonical table.',\n  `updated_ts` TIMESTAMP COMMENT 'Categorical column. Distinct\
+    \ values: \\'When this row was last updated (upsert\\', \\'merge timestamp).\\'. When this row was last updated (upsert/merge\
+    \ timestamp).',\n  `record_status` STRING COMMENT 'Row lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\' — soft-delete\
+    \ marker; rows are never hard-deleted. [Value Examples: \\'ACTIVE\\', \\'RETIRED\\']')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+    STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility_anganwadi'"
+  columns:
+  - name: canonical_facility_id
+    type: STRING
+    nullable: true
+    description: 'Primary Key: FK to dim_facility.canonical_facility_id.'
+  - name: awc_code
+    type: STRING
+    nullable: true
+    description: National Anganwadi Centre (AWC) code.
+  - name: project_name
+    type: STRING
+    nullable: true
+    description: ICDS project this centre falls under.
+  - name: sector_name
+    type: STRING
+    nullable: true
+    description: ICDS sector this centre falls under, within the project.
+  - name: center_type
+    type: STRING
+    nullable: true
+    description: 'Categorical column. Distinct values: ''Anganwadi'' | ''Mini Anganwadi'', ''full vs. reduced-scale centre.''.
+      ''Anganwadi'' | ''Mini Anganwadi'' — full vs. reduced-scale centre.'
+  - name: building_type
+    type: STRING
+    nullable: true
+    description: 'Where the centre operates from, e.g. ''Own Building'' | ''Rented'' | ''School Premises''. [Value Examples:
+      ''Own Building'', ''Rented'', ''School Premises'']'
+  - name: registered_children
+    type: INT
+    nullable: true
+    description: Children currently registered at the centre.
+  - name: registered_pregnant_women
+    type: INT
+    nullable: true
+    description: Pregnant women currently registered for ante-natal services.
+  - name: registered_lactating_mothers
+    type: INT
+    nullable: true
+    description: Lactating mothers currently registered.
+  - name: worker_present
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if an anganwadi worker is currently posted and present.
+  - name: helper_present
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if an anganwadi helper is currently posted and present.
+  - name: serves_hot_meal
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if the centre serves a hot cooked meal.
+  - name: has_toilet
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if a toilet facility exists.
+  - name: has_drinking_water
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if drinking water is available.
+  - name: has_electricity
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if an electricity connection exists.
+  - name: has_kitchen
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if a kitchen/cooking area exists.
+  - name: has_preschool_kit
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if pre-school learning kit materials are available.
+  - name: source_system
+    type: STRING
+    nullable: true
+    description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+      ''hmis'', ''seed'']'
+  - name: batch_id
+    type: STRING
+    nullable: true
+    description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+  - name: load_ts
+    type: TIMESTAMP
+    nullable: true
+    description: When this row was first written to the canonical table.
+  - name: updated_ts
+    type: TIMESTAMP
+    nullable: true
+    description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''.
+      When this row was last updated (upsert/merge timestamp).'
+  - name: record_status
+    type: STRING
+    nullable: true
+    description: 'Row lifecycle flag, e.g. ''ACTIVE'' | ''RETIRED'' — soft-delete marker; rows are never hard-deleted. [Value
+      Examples: ''ACTIVE'', ''RETIRED'']'
+  primary_key:
+  - canonical_facility_id
+  relationships: []
+  business_terms:
+  - ap_community360
+  - facility_subtypes
+  - dimension
+  - Hive
+  - Iceberg
+  - ICEBERG
+  common_operations:
+  - profile records in dim_facility_anganwadi
+  - join dim_facility_anganwadi to ap_community360.dim_geography via geography_id
+  - filter dim_facility_anganwadi by district_name or mandal_name
+- database: ap_community360
+  table: fact_facility_service
+  department: ap_community360
+  description: Periodic (typically monthly) utilisation/throughput for a facility — footfall, beneficiaries served, revenue.
+    This is what the overview's per-facility 'recent service' history and any utilisation-trend view are built from. One row
+    per facility per period; partitioned by month since queries are almost always time-bounded.
+  table_format: ICEBERG
+  location: hdfs://ap-datalake/CURATED/ap_community360/fact_facility_service
+  partitioned_by: months(period_date)
+  tblproperties:
+    engine.hive.enabled: 'true'
+    external: 'true'
+    parquet.compression: SNAPPY
+    table_type: ICEBERG
+    write.delete.mode: merge-on-read
+    write.format.default: parquet
+    write.merge.mode: merge-on-read
+    write.update.mode: merge-on-read
+  source_file: ap_community360_canonical_schema.json
+  raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`fact_facility_service`(\n  `facility_service_id` BIGINT COMMENT 'Primary\
+    \ Key: service-period row.',\n  `canonical_facility_id` STRING COMMENT 'FK to dim_facility.canonical_facility_id.',\n\
+    \  `facility_type_id` INT COMMENT 'Denormalized FK to dim_facility_type.facility_type_id, for fast type-scoped aggregation\
+    \ without a join back to dim_facility.',\n  `geography_id` BIGINT COMMENT 'Denormalized FK to dim_geography.geography_id,\
+    \ for fast geo-scoped aggregation.',\n  `period_date` DATE COMMENT 'Start date of the reporting period this row covers.\
+    \ Partition key.',\n  `period_grain` STRING COMMENT 'Granularity of the period, e.g. \\'month\\' | \\'quarter\\'. [Value\
+    \ Examples: \\'month\\', \\'quarter\\']',\n  `footfall` BIGINT COMMENT 'Categorical column. Distinct values: \\'Total\
+    \ visitor\\', \\'footfall count for the period.\\'. Total visitor/footfall count for the period.',\n  `beneficiaries_served`\
+    \ BIGINT COMMENT 'Distinct beneficiaries actually served in the period (subset of footfall).',\n  `throughput_units` BIGINT\
+    \ COMMENT 'Facility-type-specific throughput unit for the period, e.g. patients treated, students taught.',\n  `occupancy_pct`\
+    \ DECIMAL(5,2) COMMENT 'Capacity utilisation for the period, as a percentage. Unit: percentage (0-100).',\n  `revenue_amount`\
+    \ DECIMAL(16,2) COMMENT 'Revenue generated in the period, in INR, where applicable (e.g. a rentable community center).\
+    \ Unit: INR.',\n  `utilization_index` DECIMAL(6,3) COMMENT 'Composite utilisation score for the period, combining footfall/occupancy/throughput\
+    \ into one comparable figure across facility types.',\n  `source_system` STRING COMMENT 'Upstream system this row was\
+    \ loaded from, e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\', \\'hmis\\', \\'seed\\\
+    ']',\n  `batch_id` STRING COMMENT 'Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.',\n\
+    \  `load_ts` TIMESTAMP COMMENT 'When this row was first written to the canonical table.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+    STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/fact_facility_service'\n\
+    PARTITIONED BY (months(period_date))"
+  columns:
+  - name: facility_service_id
+    type: BIGINT
+    nullable: true
+    description: 'Primary Key: service-period row.'
+  - name: canonical_facility_id
+    type: STRING
+    nullable: true
+    description: FK to dim_facility.canonical_facility_id.
+  - name: facility_type_id
+    type: INT
+    nullable: true
+    description: Denormalized FK to dim_facility_type.facility_type_id, for fast type-scoped aggregation without a join back
+      to dim_facility.
+  - name: geography_id
+    type: BIGINT
+    nullable: true
+    description: Denormalized FK to dim_geography.geography_id, for fast geo-scoped aggregation.
+  - name: period_date
+    type: DATE
+    nullable: true
+    description: Start date of the reporting period this row covers. Partition key.
+  - name: period_grain
+    type: STRING
+    nullable: true
+    description: 'Granularity of the period, e.g. ''month'' | ''quarter''. [Value Examples: ''month'', ''quarter'']'
+  - name: footfall
+    type: BIGINT
+    nullable: true
+    description: 'Categorical column. Distinct values: ''Total visitor'', ''footfall count for the period.''. Total visitor/footfall
+      count for the period.'
+  - name: beneficiaries_served
+    type: BIGINT
+    nullable: true
+    description: Distinct beneficiaries actually served in the period (subset of footfall).
+  - name: throughput_units
+    type: BIGINT
+    nullable: true
+    description: Facility-type-specific throughput unit for the period, e.g. patients treated, students taught.
+  - name: occupancy_pct
+    type: DECIMAL(5,2)
+    nullable: true
+    description: 'Capacity utilisation for the period, as a percentage. Unit: percentage (0-100).'
+  - name: revenue_amount
+    type: DECIMAL(16,2)
+    nullable: true
+    description: 'Revenue generated in the period, in INR, where applicable (e.g. a rentable community center). Unit: INR.'
+  - name: utilization_index
+    type: DECIMAL(6,3)
+    nullable: true
+    description: Composite utilisation score for the period, combining footfall/occupancy/throughput into one comparable figure
+      across facility types.
+  - name: source_system
+    type: STRING
+    nullable: true
+    description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+      ''hmis'', ''seed'']'
+  - name: batch_id
+    type: STRING
+    nullable: true
+    description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+  - name: load_ts
+    type: TIMESTAMP
+    nullable: true
+    description: When this row was first written to the canonical table.
+  primary_key:
+  - facility_service_id
+  relationships:
+  - fact_facility_service.facility_type_id joins to dim_facility (via facility_type_id).
+  business_terms:
+  - ap_community360
+  - facts_—_service_and_access
+  - fact
+  - Hive
+  - Iceberg
+  - ICEBERG
+  common_operations:
+  - aggregate measures in fact_facility_service by geography and time period
+  - join fact_facility_service with dimension tables via facility_id or person_id
+  - filter fact_facility_service by district_id or period_date
+- database: ap_community360
+  table: fact_facility_access
+  department: ap_community360
+  description: 'The catchment/access bridge: for a given geography, how far away and how well-served is it by a given facility.
+    This is the table that turns ''a facility exists somewhere'' into ''this village is/isn''t within reach of a hospital''
+    — it''s what powers the district access-rate, gap-count, and citizens-in-linked-geographies numbers in the Community 360
+    overview, all computed relative to dim_facility_type.service_norm_radius_km. Partitioned by facility_type_id since access
+    analysis is almost always scoped to one facility type at a time (e.g. ''hospital access'' vs. ''school access'').'
+  table_format: ICEBERG
+  location: hdfs://ap-datalake/CURATED/ap_community360/fact_facility_access
+  partitioned_by: facility_type_id
+  tblproperties:
+    engine.hive.enabled: 'true'
+    external: 'true'
+    parquet.compression: SNAPPY
+    table_type: ICEBERG
+    write.delete.mode: merge-on-read
+    write.format.default: parquet
+    write.merge.mode: merge-on-read
+    write.update.mode: merge-on-read
+  source_file: ap_community360_canonical_schema.json
+  raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`fact_facility_access`(\n  `facility_access_id` BIGINT COMMENT 'Primary\
+    \ Key: access-bridge row.',\n  `geography_id` BIGINT COMMENT 'FK to dim_geography.geography_id — the geography this row\
+    \ measures access FROM.',\n  `canonical_facility_id` STRING COMMENT 'FK to dim_facility.canonical_facility_id — the facility\
+    \ this row measures access TO.',\n  `facility_type_id` INT COMMENT 'Denormalized FK to dim_facility_type.facility_type_id.\
+    \ Partition key.',\n  `distance_km` DECIMAL(7,3) COMMENT 'Distance in kilometers from the geography\\'s centroid to the\
+    \ facility.',\n  `travel_time_min` DECIMAL(7,2) COMMENT 'Estimated travel time in minutes.',\n  `is_nearest_of_type` BOOLEAN\
+    \ COMMENT 'Boolean flag. True if this facility is the nearest one of its type to this geography (as opposed to just one\
+    \ of several within range).',\n  `within_norm_distance` BOOLEAN COMMENT 'Boolean flag. True if distance_km is within dim_facility_type.service_norm_radius_km\
+    \ for this facility\\'s type — the pass/fail flag behind district access-rate and gap-count.',\n  `population_served`\
+    \ BIGINT COMMENT 'Population of this geography attributed to this facility for service-planning purposes.',\n  `households_served`\
+    \ BIGINT COMMENT 'Households of this geography attributed to this facility.',\n  `computed_date` DATE COMMENT 'Date this\
+    \ access computation was last run (distances are recomputed periodically, not stored as a live calculation).',\n  `source_system`\
+    \ STRING COMMENT 'Upstream system this row was loaded from, e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples:\
+    \ \\'udise_plus\\', \\'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load batch identifier — groups every row written\
+    \ by the same ingestion run, for reprocessing/rollback.',\n  `load_ts` TIMESTAMP COMMENT 'When this row was first written\
+    \ to the canonical table.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+    \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/fact_facility_access'\nPARTITIONED BY (facility_type_id)"
+  columns:
+  - name: facility_access_id
+    type: BIGINT
+    nullable: true
+    description: 'Primary Key: access-bridge row.'
+  - name: geography_id
+    type: BIGINT
+    nullable: true
+    description: FK to dim_geography.geography_id — the geography this row measures access FROM.
+  - name: canonical_facility_id
+    type: STRING
+    nullable: true
+    description: FK to dim_facility.canonical_facility_id — the facility this row measures access TO.
+  - name: facility_type_id
+    type: INT
+    nullable: true
+    description: Denormalized FK to dim_facility_type.facility_type_id. Partition key.
+  - name: distance_km
+    type: DECIMAL(7,3)
+    nullable: true
+    description: Distance in kilometers from the geography's centroid to the facility.
+  - name: travel_time_min
+    type: DECIMAL(7,2)
+    nullable: true
+    description: Estimated travel time in minutes.
+  - name: is_nearest_of_type
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if this facility is the nearest one of its type to this geography (as opposed to just
+      one of several within range).
+  - name: within_norm_distance
+    type: BOOLEAN
+    nullable: true
+    description: Boolean flag. True if distance_km is within dim_facility_type.service_norm_radius_km for this facility's
+      type — the pass/fail flag behind district access-rate and gap-count.
+  - name: population_served
+    type: BIGINT
+    nullable: true
+    description: Population of this geography attributed to this facility for service-planning purposes.
+  - name: households_served
+    type: BIGINT
+    nullable: true
+    description: Households of this geography attributed to this facility.
+  - name: computed_date
+    type: DATE
+    nullable: true
+    description: Date this access computation was last run (distances are recomputed periodically, not stored as a live calculation).
+  - name: source_system
+    type: STRING
+    nullable: true
+    description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
+      ''hmis'', ''seed'']'
+  - name: batch_id
+    type: STRING
+    nullable: true
+    description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+  - name: load_ts
+    type: TIMESTAMP
+    nullable: true
+    description: When this row was first written to the canonical table.
+  primary_key:
+  - facility_access_id
+  relationships: []
+  business_terms:
+  - ap_community360
+  - facts_—_service_and_access
+  - fact
+  - Hive
+  - Iceberg
+  - ICEBERG
+  common_operations:
+  - aggregate measures in fact_facility_access by geography and time period
+  - join fact_facility_access with dimension tables via facility_id or person_id
+  - filter fact_facility_access by district_id or period_date

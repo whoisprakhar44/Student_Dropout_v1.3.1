@@ -81,5 +81,5 @@ business_terms:
 - ICEBERG
 common_operations:
 - aggregate measures in fact_entitlement by geography and time period
-- join fact_entitlement with dimension tables via person_id or scheme_id
-- filter fact_entitlement by district_id or fiscal_year
+- join fact_entitlement with dimension tables via facility_id or person_id
+- filter fact_entitlement by district_id or period_date

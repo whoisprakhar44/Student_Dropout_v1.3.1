@@ -28,7 +28,7 @@ embedding:
   provider: ollama
   model: nomic-embed-text          # dim must match vector_db.milvus.dim below
   batch_size: 32
-  ollama_url: http://localhost:11434/api/embeddings
+  # ollama_url is now controlled globally by OLLAMA_BASE_URL in .env
 
 # ── Vector DB ─────────────────────────────────────────────────────────────────
 # provider: chromadb  →  local persistent store (no server needed)
