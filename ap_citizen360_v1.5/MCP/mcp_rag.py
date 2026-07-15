@@ -143,7 +143,7 @@ class VectorDB:
             #   few-shots  → 1/3 of budget  (SQL pattern signal)
             #   schema DDL → 2/3 of budget  (exact column names — more important)
             n_fewshot = max(1, top_k // 3)
-            n_schema  = top_k - n_fewshot
+            n_schema  = max(1, top_k - n_fewshot)
 
             # ── Search schema_store (actual DDL) ─────────────────────────────
             schema_res = self.client.search(

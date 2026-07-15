@@ -122,7 +122,7 @@ _FORBIDDEN_KEYWORDS = [
     # DDL
     "create", "drop", "truncate", "alter",
     # Hive-specific DDL / admin
-    "msck", "repair", "load",
+    "msck", "load",
     # Privilege / session
     "replace", "grant", "revoke",
     # Transaction / proc
