@@ -1,9 +1,10 @@
 database: ap_citizen360
 table: dim_family_member
 department: ap_citizen360
-description: One row per other household member as recorded against a primary person_id's household — used to show a citizen's
-  family composition without requiring every relative to themselves be a fully resolved dim_person row (handles cases where
-  a household member's own person_id record doesn't exist or isn't linked yet).
+description: One row per other household member as recorded against a primary person_id's
+  household — used to show a citizen's family composition without requiring every
+  relative to themselves be a fully resolved dim_person row (handles cases where a
+  household member's own person_id record doesn't exist or isn't linked yet).
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_family_member
 partitioned_by: null
@@ -17,14 +18,19 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_family_member`(\n  `family_member_id` STRING COMMENT 'Primary Key: identifier\
-  \ for this family-member record.',\n  `person_id` STRING COMMENT 'Foreign Key: References dim_person.person_id. the citizen\
-  \ whose profile this family member is listed under.',\n  `household_id` STRING COMMENT 'Foreign Key: References dim_household.household_id.',\n\
-  \  `member_name` STRING COMMENT 'Name of the family member.',\n  `relation` STRING COMMENT 'Relationship to the primary\
-  \ person_id, e.g. \\'Spouse\\', \\'Son\\', \\'Daughter\\'. [Value Examples: \\'Spouse\\', \\'Son\\', \\'Daughter\\']',\n\
-  \  `age` INT COMMENT 'Family member\\'s age in years.',\n  `gender` STRING COMMENT 'Family member\\'s gender.',\n  `updated_at`\
-  \ TIMESTAMP COMMENT 'Timestamp this family-member record was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_family_member'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_family_member`(\n  `family_member_id`\
+  \ STRING COMMENT 'Primary Key: identifier for this family-member record.',\n  `person_id`\
+  \ STRING COMMENT 'Foreign Key: References dim_person.person_id. the citizen whose\
+  \ profile this family member is listed under.',\n  `household_id` STRING COMMENT\
+  \ 'Foreign Key: References dim_household.household_id.',\n  `member_name` STRING\
+  \ COMMENT 'Name of the family member.',\n  `relation` STRING COMMENT 'Relationship\
+  \ to the primary person_id, e.g. \\'Spouse\\', \\'Son\\', \\'Daughter\\'. [Value\
+  \ Examples: \\'Spouse\\', \\'Son\\', \\'Daughter\\']',\n  `age` INT COMMENT 'Family\
+  \ member\\'s age in years.',\n  `gender` STRING COMMENT 'Family member\\'s gender.',\n\
+  \  `updated_at` TIMESTAMP COMMENT 'Timestamp this family-member record was last\
+  \ updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_family_member'"
 columns:
 - name: family_member_id
   type: STRING
@@ -33,7 +39,8 @@ columns:
 - name: person_id
   type: STRING
   nullable: true
-  description: 'Foreign Key: References dim_person.person_id. the citizen whose profile this family member is listed under.'
+  description: 'Foreign Key: References dim_person.person_id. the citizen whose profile
+    this family member is listed under.'
 - name: household_id
   type: STRING
   nullable: true
@@ -45,8 +52,8 @@ columns:
 - name: relation
   type: STRING
   nullable: true
-  description: 'Relationship to the primary person_id, e.g. ''Spouse'', ''Son'', ''Daughter''. [Value Examples: ''Spouse'',
-    ''Son'', ''Daughter'']'
+  description: 'Relationship to the primary person_id, e.g. ''Spouse'', ''Son'', ''Daughter''.
+    [Value Examples: ''Spouse'', ''Son'', ''Daughter'']'
 - name: age
   type: INT
   nullable: true
@@ -55,6 +62,7 @@ columns:
   type: STRING
   nullable: true
   description: Family member's gender.
+  value_description: '[''Male'', ''Female'', ''Others'', ''Transgender'']'
 - name: updated_at
   type: TIMESTAMP
   nullable: true

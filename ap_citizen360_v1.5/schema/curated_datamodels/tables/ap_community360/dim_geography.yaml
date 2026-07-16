@@ -1,13 +1,17 @@
 database: ap_community360
 table: dim_geography
 department: ap_community360
-description: 'The conformed geography spine shared with Citizen 360 — this is the join point that lets a Community 360 facility
-  be located against the exact same district/mandal/village hierarchy Citizen 360 uses, without Community 360 owning a second,
-  divergent copy of AP''s administrative boundaries. geo_level tells you which columns on a given row are populated: a ''district''
-  row only has district_name filled in; a ''village'' row has the full district -> mandal -> village chain. Citizen 360''s
-  own dim_district/dim_mandal/dim_village are NOT modified by this table — district_id/mandal_id here are matched by NAME
-  (district_name / mandal_name), resolved from Citizen 360''s dim_district.district_id / dim_mandal.mandal_id at query time,
-  since the two models were built independently and don''t share a physical foreign key.'
+description: 'The conformed geography spine shared with Citizen 360 — this is the
+  join point that lets a Community 360 facility be located against the exact same
+  district/mandal/village hierarchy Citizen 360 uses, without Community 360 owning
+  a second, divergent copy of AP''s administrative boundaries. geo_level tells you
+  which columns on a given row are populated: a ''district'' row only has district_name
+  filled in; a ''village'' row has the full district -> mandal -> village chain. Citizen
+  360''s own dim_district/dim_mandal/dim_village are NOT modified by this table —
+  district_id/mandal_id here are matched by NAME (district_name / mandal_name), resolved
+  from Citizen 360''s dim_district.district_id / dim_mandal.mandal_id at query time,
+  since the two models were built independently and don''t share a physical foreign
+  key.'
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_community360/dim_geography
 partitioned_by: null
@@ -21,50 +25,69 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: ap_community360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_geography`(\n  `geography_id` BIGINT COMMENT 'Primary Key: geography\
-  \ row. Referenced by dim_facility.geography_id and every fact_facility_* table.',\n  `geo_level` STRING COMMENT 'Which level\
-  \ of the hierarchy this row represents: \\'state\\' | \\'district\\' | \\'mandal\\' | \\'village\\'. Determines which of\
-  \ the columns below are meaningful for this row.',\n  `state_name` STRING COMMENT 'State name — \\'Andhra Pradesh\\' for\
-  \ every row in this deployment.',\n  `district_name` STRING COMMENT 'District name. The field the Community 360 geo filter\
-  \ resolves a Citizen 360 district_id into, then matches against here.',\n  `revenue_division` STRING COMMENT 'Revenue division\
-  \ (a sub-district administrative grouping) this geography sits in, when applicable.',\n  `mandal_name` STRING COMMENT 'Mandal\
-  \ name, populated for \\'mandal\\' and \\'village\\' level rows.',\n  `gram_panchayat` STRING COMMENT 'Gram panchayat (village\
-  \ self-government unit) name, for rural geographies.',\n  `ward_name` STRING COMMENT 'Urban ward name, for ULB (urban local\
-  \ body) geographies instead of gram panchayat.',\n  `village_habitation` STRING COMMENT 'Village/habitation name, populated\
-  \ for \\'village\\' level rows — matched against Citizen 360\\'s dim_village.village_name.',\n  `ulb_name` STRING COMMENT\
-  \ 'Categorical column. Distinct values: \\'Urban Local Body name (municipality\\', \\'corporation), for urban geographies.\\\
-  '. Urban Local Body name (municipality/corporation), for urban geographies.',\n  `ulb_type` STRING COMMENT 'Type of ULB,\
-  \ e.g. \\'Municipal Corporation\\', \\'Municipality\\', \\'Nagar Panchayat\\'. [Value Examples: \\'Municipal Corporation\\\
-  ', \\'Municipality\\', \\'Nagar Panchayat\\']',\n  `pincode` STRING COMMENT 'Postal PIN code for this geography, when known\
-  \ at this granularity.',\n  `lgd_state_code` STRING COMMENT 'Local Government Directory (Govt of India) state code — the\
-  \ national standard code for cross-system geography matching.',\n  `lgd_district_code` STRING COMMENT 'LGD district code.',\n\
-  \  `lgd_mandal_code` STRING COMMENT 'Categorical column. Distinct values: \\'LGD mandal\\', \\'block code.\\'. LGD mandal/block\
-  \ code.',\n  `lgd_village_code` STRING COMMENT 'LGD village code.',\n  `assembly_constituency` STRING COMMENT 'State assembly\
-  \ constituency this geography falls in.',\n  `parliament_constituency` STRING COMMENT 'Parliamentary constituency this geography\
-  \ falls in.',\n  `latitude` DOUBLE COMMENT 'Representative latitude (centroid) for this geography.',\n  `longitude` DOUBLE\
-  \ COMMENT 'Representative longitude (centroid) for this geography.',\n  `boundary_wkt` STRING COMMENT 'Well-Known-Text polygon\
-  \ of this geography\\'s boundary, for map rendering. NULL where boundary data hasn\\'t been captured.',\n  `population`\
-  \ BIGINT COMMENT 'Population of this geography — the number district-coverage/citizens-reached rollups sum over the facilities\
-  \ located within it.',\n  `households` BIGINT COMMENT 'Household count of this geography.',\n  `area_sqkm` DECIMAL(12,3)\
-  \ COMMENT 'Area of this geography in square kilometers — used for density-style metrics.',\n  `source_system` STRING COMMENT\
-  \ 'Upstream system this row was loaded from, e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\\
-  ', \\'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load batch identifier — groups every row written by the same\
-  \ ingestion run, for reprocessing/rollback.',\n  `load_ts` TIMESTAMP COMMENT 'When this row was first written to the canonical\
-  \ table.',\n  `updated_ts` TIMESTAMP COMMENT 'Categorical column. Distinct values: \\'When this row was last updated (upsert\\\
-  ', \\'merge timestamp).\\'. When this row was last updated (upsert/merge timestamp).',\n  `record_status` STRING COMMENT\
-  \ 'Row lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\' — soft-delete marker; rows are never hard-deleted. [Value Examples:\
-  \ \\'ACTIVE\\', \\'RETIRED\\']')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_geography`(\n  `geography_id`\
+  \ BIGINT COMMENT 'Primary Key: geography row. Referenced by dim_facility.geography_id\
+  \ and every fact_facility_* table.',\n  `geo_level` STRING COMMENT 'Which level\
+  \ of the hierarchy this row represents: \\'state\\' | \\'district\\' | \\'mandal\\\
+  ' | \\'village\\'. Determines which of the columns below are meaningful for this\
+  \ row.',\n  `state_name` STRING COMMENT 'State name — \\'Andhra Pradesh\\' for every\
+  \ row in this deployment.',\n  `district_name` STRING COMMENT 'District name. The\
+  \ field the Community 360 geo filter resolves a Citizen 360 district_id into, then\
+  \ matches against here.',\n  `revenue_division` STRING COMMENT 'Revenue division\
+  \ (a sub-district administrative grouping) this geography sits in, when applicable.',\n\
+  \  `mandal_name` STRING COMMENT 'Mandal name, populated for \\'mandal\\' and \\\
+  'village\\' level rows.',\n  `gram_panchayat` STRING COMMENT 'Gram panchayat (village\
+  \ self-government unit) name, for rural geographies.',\n  `ward_name` STRING COMMENT\
+  \ 'Urban ward name, for ULB (urban local body) geographies instead of gram panchayat.',\n\
+  \  `village_habitation` STRING COMMENT 'Village/habitation name, populated for \\\
+  'village\\' level rows — matched against Citizen 360\\'s dim_village.village_name.',\n\
+  \  `ulb_name` STRING COMMENT 'Categorical column. Distinct values: \\'Urban Local\
+  \ Body name (municipality\\', \\'corporation), for urban geographies.\\'. Urban\
+  \ Local Body name (municipality/corporation), for urban geographies.',\n  `ulb_type`\
+  \ STRING COMMENT 'Type of ULB, e.g. \\'Municipal Corporation\\', \\'Municipality\\\
+  ', \\'Nagar Panchayat\\'. [Value Examples: \\'Municipal Corporation\\', \\'Municipality\\\
+  ', \\'Nagar Panchayat\\']',\n  `pincode` STRING COMMENT 'Postal PIN code for this\
+  \ geography, when known at this granularity.',\n  `lgd_state_code` STRING COMMENT\
+  \ 'Local Government Directory (Govt of India) state code — the national standard\
+  \ code for cross-system geography matching.',\n  `lgd_district_code` STRING COMMENT\
+  \ 'LGD district code.',\n  `lgd_mandal_code` STRING COMMENT 'Categorical column.\
+  \ Distinct values: \\'LGD mandal\\', \\'block code.\\'. LGD mandal/block code.',\n\
+  \  `lgd_village_code` STRING COMMENT 'LGD village code.',\n  `assembly_constituency`\
+  \ STRING COMMENT 'State assembly constituency this geography falls in.',\n  `parliament_constituency`\
+  \ STRING COMMENT 'Parliamentary constituency this geography falls in.',\n  `latitude`\
+  \ DOUBLE COMMENT 'Representative latitude (centroid) for this geography.',\n  `longitude`\
+  \ DOUBLE COMMENT 'Representative longitude (centroid) for this geography.',\n  `boundary_wkt`\
+  \ STRING COMMENT 'Well-Known-Text polygon of this geography\\'s boundary, for map\
+  \ rendering. NULL where boundary data hasn\\'t been captured.',\n  `population`\
+  \ BIGINT COMMENT 'Population of this geography — the number district-coverage/citizens-reached\
+  \ rollups sum over the facilities located within it.',\n  `households` BIGINT COMMENT\
+  \ 'Household count of this geography.',\n  `area_sqkm` DECIMAL(12,3) COMMENT 'Area\
+  \ of this geography in square kilometers — used for density-style metrics.',\n \
+  \ `source_system` STRING COMMENT 'Upstream system this row was loaded from, e.g.\
+  \ \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\', \\\
+  'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load batch identifier — groups\
+  \ every row written by the same ingestion run, for reprocessing/rollback.',\n  `load_ts`\
+  \ TIMESTAMP COMMENT 'When this row was first written to the canonical table.',\n\
+  \  `updated_ts` TIMESTAMP COMMENT 'Categorical column. Distinct values: \\'When\
+  \ this row was last updated (upsert\\', \\'merge timestamp).\\'. When this row was\
+  \ last updated (upsert/merge timestamp).',\n  `record_status` STRING COMMENT 'Row\
+  \ lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\' — soft-delete marker; rows are\
+  \ never hard-deleted. [Value Examples: \\'ACTIVE\\', \\'RETIRED\\']')\nROW FORMAT\
+  \ SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
   \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_geography'"
 columns:
 - name: geography_id
   type: BIGINT
   nullable: true
-  description: 'Primary Key: geography row. Referenced by dim_facility.geography_id and every fact_facility_* table.'
+  description: 'Primary Key: geography row. Referenced by dim_facility.geography_id
+    and every fact_facility_* table.'
 - name: geo_level
   type: STRING
   nullable: true
-  description: 'Which level of the hierarchy this row represents: ''state'' | ''district'' | ''mandal'' | ''village''. Determines
-    which of the columns below are meaningful for this row.'
+  description: 'Which level of the hierarchy this row represents: ''state'' | ''district''
+    | ''mandal'' | ''village''. Determines which of the columns below are meaningful
+    for this row.'
+  value_description: '[''VILLAGE'', ''MANDAL'', ''DISTRICT'', ''STATE'']'
 - name: state_name
   type: STRING
   nullable: true
@@ -72,12 +95,13 @@ columns:
 - name: district_name
   type: STRING
   nullable: true
-  description: District name. The field the Community 360 geo filter resolves a Citizen 360 district_id into, then matches
-    against here.
+  description: District name. The field the Community 360 geo filter resolves a Citizen
+    360 district_id into, then matches against here.
 - name: revenue_division
   type: STRING
   nullable: true
-  description: Revenue division (a sub-district administrative grouping) this geography sits in, when applicable.
+  description: Revenue division (a sub-district administrative grouping) this geography
+    sits in, when applicable.
 - name: mandal_name
   type: STRING
   nullable: true
@@ -89,21 +113,25 @@ columns:
 - name: ward_name
   type: STRING
   nullable: true
-  description: Urban ward name, for ULB (urban local body) geographies instead of gram panchayat.
+  description: Urban ward name, for ULB (urban local body) geographies instead of
+    gram panchayat.
 - name: village_habitation
   type: STRING
   nullable: true
-  description: Village/habitation name, populated for 'village' level rows — matched against Citizen 360's dim_village.village_name.
+  description: Village/habitation name, populated for 'village' level rows — matched
+    against Citizen 360's dim_village.village_name.
 - name: ulb_name
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: ''Urban Local Body name (municipality'', ''corporation), for urban geographies.''.
-    Urban Local Body name (municipality/corporation), for urban geographies.'
+  description: 'Categorical column. Distinct values: ''Urban Local Body name (municipality'',
+    ''corporation), for urban geographies.''. Urban Local Body name (municipality/corporation),
+    for urban geographies.'
 - name: ulb_type
   type: STRING
   nullable: true
-  description: 'Type of ULB, e.g. ''Municipal Corporation'', ''Municipality'', ''Nagar Panchayat''. [Value Examples: ''Municipal
-    Corporation'', ''Municipality'', ''Nagar Panchayat'']'
+  description: 'Type of ULB, e.g. ''Municipal Corporation'', ''Municipality'', ''Nagar
+    Panchayat''. [Value Examples: ''Municipal Corporation'', ''Municipality'', ''Nagar
+    Panchayat'']'
 - name: pincode
   type: STRING
   nullable: true
@@ -111,8 +139,8 @@ columns:
 - name: lgd_state_code
   type: STRING
   nullable: true
-  description: Local Government Directory (Govt of India) state code — the national standard code for cross-system geography
-    matching.
+  description: Local Government Directory (Govt of India) state code — the national
+    standard code for cross-system geography matching.
 - name: lgd_district_code
   type: STRING
   nullable: true
@@ -120,7 +148,8 @@ columns:
 - name: lgd_mandal_code
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: ''LGD mandal'', ''block code.''. LGD mandal/block code.'
+  description: 'Categorical column. Distinct values: ''LGD mandal'', ''block code.''.
+    LGD mandal/block code.'
 - name: lgd_village_code
   type: STRING
   nullable: true
@@ -144,13 +173,13 @@ columns:
 - name: boundary_wkt
   type: STRING
   nullable: true
-  description: Well-Known-Text polygon of this geography's boundary, for map rendering. NULL where boundary data hasn't been
-    captured.
+  description: Well-Known-Text polygon of this geography's boundary, for map rendering.
+    NULL where boundary data hasn't been captured.
 - name: population
   type: BIGINT
   nullable: true
-  description: Population of this geography — the number district-coverage/citizens-reached rollups sum over the facilities
-    located within it.
+  description: Population of this geography — the number district-coverage/citizens-reached
+    rollups sum over the facilities located within it.
 - name: households
   type: BIGINT
   nullable: true
@@ -158,16 +187,20 @@ columns:
 - name: area_sqkm
   type: DECIMAL(12,3)
   nullable: true
-  description: Area of this geography in square kilometers — used for density-style metrics.
+  description: Area of this geography in square kilometers — used for density-style
+    metrics.
 - name: source_system
   type: STRING
   nullable: true
-  description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'',
-    ''hmis'', ''seed'']'
+  description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'',
+    ''seed''. [Value Examples: ''udise_plus'', ''hmis'', ''seed'']'
+  value_description: '[''gsws_sec_secretariat_master'', ''ap_citizen360.dim_mandal'',
+    ''ap_citizen360.dim_district'', ''ap_citizen360.dim_state'']'
 - name: batch_id
   type: STRING
   nullable: true
-  description: Load batch identifier — groups every row written by the same ingestion run, for reprocessing/rollback.
+  description: Load batch identifier — groups every row written by the same ingestion
+    run, for reprocessing/rollback.
 - name: load_ts
   type: TIMESTAMP
   nullable: true
@@ -175,13 +208,15 @@ columns:
 - name: updated_ts
   type: TIMESTAMP
   nullable: true
-  description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''. When
-    this row was last updated (upsert/merge timestamp).'
+  description: 'Categorical column. Distinct values: ''When this row was last updated
+    (upsert'', ''merge timestamp).''. When this row was last updated (upsert/merge
+    timestamp).'
 - name: record_status
   type: STRING
   nullable: true
-  description: 'Row lifecycle flag, e.g. ''ACTIVE'' | ''RETIRED'' — soft-delete marker; rows are never hard-deleted. [Value
-    Examples: ''ACTIVE'', ''RETIRED'']'
+  description: 'Row lifecycle flag, e.g. ''ACTIVE'' | ''RETIRED'' — soft-delete marker;
+    rows are never hard-deleted. [Value Examples: ''ACTIVE'', ''RETIRED'']'
+  value_description: '[''ACTIVE'']'
 primary_key:
 - geography_id
 relationships: []

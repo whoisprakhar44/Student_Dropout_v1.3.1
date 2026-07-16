@@ -10,60 +10,281 @@ from MCP.hive_executor import HiveExecutor
 
 # Dictionary of categorical columns extracted from impala_tables_sample.txt
 CATEGORICAL_COLUMNS = {
-    'curated_datamodels.absent_reason_dim': ['IS_ACTIVE', 'IS_CURRENT', 'IS_GOVT_APPROVED', 'REASON_CATEGORY', 'REASON_CODE'],
-    'curated_datamodels.assessment_dim': ['assessment_code', 'assessment_type', 'board_code', 'grade_scheme', 'is_active', 'is_current', 'is_summative'],
-    'curated_datamodels.beneficiary_type_dim': ['beneficiary_type_code', 'is_active', 'is_current'],
-    'curated_datamodels.benefit_type_dim': ['benefit_type_code', 'delivery_mode', 'is_active', 'is_current', 'is_monetary'],
-    'curated_datamodels.citizen_address_master': ['ADDRESS_STATUS_CODE', 'ADDRESS_TYPE', 'IS_PRIMARY', 'LGD_DIST_CODE', 'LGD_MANDAL_CODE', 'PIN_CODE', 'RURAL_URBAN_FLAG', 'SECRETARIAT_CODE'],
-    'curated_datamodels.citizen_address_master_test': ['is_current', 'is_deleted', 'is_primary', 'pin_code'],
-    'curated_datamodels.citizen_agriculture_land': ['CROP_TYPE', 'CULTIVATOR_TYPE', 'VILLAGE_CODE'],
-    'curated_datamodels.citizen_asset_electricity': ['CATEGORY_DESCRIPTION', 'METER_TYPE'],
-    'curated_datamodels.citizen_asset_vaahan': ['FUEL_TYPE', 'MODEL'],
-    'curated_datamodels.citizen_asset_vaahan_type': ['CLASS_DESCRIPTION', 'CLASS_TYPE', 'CONVERTIBLE_CLASSES', 'TRANSPORT_CATEGORY'],
-    'curated_datamodels.citizen_bank_accounts': ['bank_ifsc_code', 'bank_type'],
-    'curated_datamodels.citizen_consent': ['is_revocable'],
-    'curated_datamodels.citizen_document': ['STATUS', 'UID_FLAG'],
-    'curated_datamodels.citizen_document_testing': ['STATUS', 'UID_FLAG'],
-    'curated_datamodels.citizen_education': ['CURRENT_QUALIFICATION_FLAG', 'INSTITUTION_CODE', 'MEDIUM_OF_INSTRUCTION', 'MODE_OF_STUDY', 'QUALIFICATION_LEVEL', 'SCHOLARSHIP_SCHEME'],
-    'curated_datamodels.citizen_family_master': ['HH_UPDATE_STATUS', 'IS_HOFAMILY', 'IS_MARRIED', 'IS_MEMBERADDED', 'IS_MEMBERDELETED'],
-    'curated_datamodels.citizen_health_schemes_master': ['CATEGORY', 'SCHEME_ACTIVE_STATUS', 'SCHEME_BENEFITS', 'SCHEME_CODE', 'SCHEME_TYPE', 'SUB_CATEGORY'],
-    'curated_datamodels.citizen_idty_type': ['CITIZEN_IDTY_TYPE', 'IDTY_DESCRIPTION'],
-    'curated_datamodels.citizen_land': ['encumbrance_status', 'irrigation_type', 'land_type', 'soil_type'],
-    'curated_datamodels.citizen_master': ['CASTE', 'GENDER', 'MARITAL_STATUS', 'RELIGION', 'RESIDENCY_STATUS', 'STATUS_CODE'],
-    'curated_datamodels.citizen_property': ['owner_type', 'property_type'],
-    'curated_datamodels.citizen_school': ['BUILDING_STATUS', 'DISTRICT_LGD_CODE', 'DRINKING_WATER_AVAILABILITY_FLAG', 'ELECTRICITY_AVAILABILITY_FLAG', 'FIRE_SAFETY_FLAG', 'FUNCTIONAL_STATUS', 'HEALTH_SAFETY_FLAG', 'ICT_ENABLED_FLAG', 'IS_CURRENT', 'MANDAL_LGD_CODE', 'MAX_CLASS', 'MIN_CLASS', 'NOC_AVAILABLE_FLAG', 'NOC_REQUIRED_FLAG', 'PLAYGROUND_FLAG', 'PRE_PRIMARY_FLAG', 'SCHOOL_DEPT_CODE', 'SCHOOL_UDISE_CODE', 'TOILET_BOYS_FLAG', 'TOILET_GIRLS_FLAG', 'URBAN_RURAL_FLAG', 'VILLAGE_LGD_CODE', 'VOCATIONAL_FLAG'],
-    'curated_datamodels.citizen_school_teacher': ['DISABILITY_CATEGORY', 'EMPLOYMENT_TYPE', 'GENDER', 'IS_CURRENT', 'IS_SINGLE_PARENT', 'NATIONAL_TEACHER_CODE', 'PRESENT_DESIGNATION_TEACHING_TYPE', 'SERVICE_STATUS', 'SUBJECT_SPECIALIZATION_KEY', 'TET_PASSED_FLAG'],
-    'curated_datamodels.citizen_student': ['ADMISSION_FLAG', 'DISABILITY_FLAG', 'GENDER', 'IS_CURRENT', 'IS_CURRENT_FLAG', 'MEDIUM_KEY', 'MINORITY_STATUS', 'SOCIAL_CATEGORY', 'STATUS_LEVEL_1', 'STATUS_LEVEL_2'],
-    'curated_datamodels.citizen_utility_connection': ['ELECTRICITY_CONNECTION_STATUS', 'GAS_CONNECTION_STATUS', 'WATER_CONNECTION_STATUS'],
-    'curated_datamodels.citizen_welfare_schemes_master': ['CATEGORY', 'SCHEME_ACTIVE_STATUS', 'SCHEME_BENEFITS', 'SCHEME_CODE', 'SCHEME_ELIGIBILITY_CONDITION1', 'SCHEME_ELIGIBILITY_CONDITION2', 'SUB_CATEGORY'],
-    'curated_datamodels.core_temple_auvs_summary_tab_test_dummy': ['DELETED_FLAG'],
-    'curated_datamodels.core_temple_ddns': ['DELETED_FLAG'],
-    'curated_datamodels.core_temple_ddrf_test_dummy': ['DELETED_FLAG'],
-    'curated_datamodels.gsws_sec_secretariat_master': ['IS_CMS_ENABLED', 'IS_FLOOD', 'IS_P4', 'LGD_DIST_CODE', 'LGD_MANDAL_CODE', 'OLD_LGD_DIST_CODE', 'RURAL_URBAN_FLAG', 'SECRETARIAT_CODE'],
-    'curated_datamodels.health_scheme_code': ['health_scheme_code'],
-    'curated_datamodels.infrastructure_category_dim': ['infra_category_code', 'is_active', 'is_current'],
-    'curated_datamodels.infrastructure_component_dim': ['infra_component_code', 'is_active', 'is_current', 'is_functional_track', 'unit_type'],
-    'curated_datamodels.meal_type_dim': ['IS_ACTIVE', 'IS_COMPULSORY', 'IS_CURRENT', 'MEAL_TYPE_CODE', 'MEAL_TYPE_NAME'],
-    'curated_datamodels.mid_day_meal_serving_fact': ['FOOD_TASTED_FLAG', 'GEO_TAGGED_FLAG', 'HYGIENE_COMPLIANT_FLAG', 'INSPECTION_REMARKS_CODE', 'MEAL_NOT_SERVED_REASON_CODE', 'MEAL_SERVED_FLAG', 'MEDICAL_INCIDENT_REPORTED_FLAG', 'PHOTO_CAPTURED_FLAG', 'SUPPLY_SHORTAGE_FLAG', 'TEACHER_SUPERVISED_FLAG'],
-    'curated_datamodels.nutrition_item_dim': ['is_active', 'is_current', 'item_code', 'nutrition_category'],
-    'curated_datamodels.ration_card_citizen': ['STATUS_CODE'],
-    'curated_datamodels.ration_card_citizen_reason': ['reason_code', 'reason_description'],
-    'curated_datamodels.ration_card_family': ['CARD_TYPE_CODE', 'FPS_CODE', 'ISSUING_DISTRICT_CODE', 'STATUS_CODE'],
-    'curated_datamodels.ration_card_type': ['CARD_TYPE_CODE', 'CARD_TYPE_DESCRIPTION', 'RATION_CARD_TYPE_NAME'],
-    'curated_datamodels.scheme_benefits_fact': ['aadhaar_seeded_flag', 'attendance_eligible_flag', 'bank_account_verified_flag', 'benefit_delivered_flag', 'benefit_disbursed_flag', 'benefit_rejected_flag', 'benefit_sanctioned_flag', 'benefit_withheld_flag', 'bgm_eligible_flag', 'cwsn_flag', 'delivery_mode', 'eligible_beneficiary_flag', 'eligible_flag', 'girl_child_flag', 'kyc_completed_flag', 'payment_failure_reason_code', 'rejection_reason_code', 'scheme_uptake_rate', 'social_category'],
-    'curated_datamodels.school_academic_performance_fact': ['ABSENT_FLAG', 'EVALUATION_TYPE', 'EXAM_TYPE', 'FAIL_FLAG', 'MEDIUM_OF_EXAM', 'PASS_FLAG', 'WITHHELD_FLAG', 'YEAR_ON_YEAR_IMPROVEMENT_FLAG'],
-    'curated_datamodels.school_category': ['CATEGORY_CODE', 'CATEGORY_TYPE', 'MAX_CLASS', 'MIN_CLASS', 'UDISE_TYPE'],
-    'curated_datamodels.school_infra_category_dim': ['is_active', 'is_current', 'school_infra_category_code'],
-    'curated_datamodels.school_infra_component_dim': ['component_code', 'is_active', 'is_current', 'is_digital', 'measurement_type'],
-    'curated_datamodels.school_infrastructure_progress_fact': ['delay_reason_code', 'geo_tagged_flag', 'inspection_remarks_code', 'is_functional_flag', 'is_safety_compliant_flag', 'is_structurally_certified_flag', 'maintenance_required_flag', 'work_status'],
-    'curated_datamodels.school_meal_menu_dim': ['is_active', 'is_current', 'is_planned', 'weekday_code'],
-    'curated_datamodels.school_medium': ['MEDIUM_CODE'],
-    'curated_datamodels.school_scheme_master': ['applicable_level', 'delivery_mode', 'is_active', 'is_current', 'scheme_category', 'scheme_code', 'scheme_status'],
-    'curated_datamodels.school_student_attendance_fact': ['ABSENT_FLAG', 'ATTENDANCE_REASON_CODE', 'ATTENDANCE_STATUS_CODE', 'CHIKKI_ELIGIBLE_FLAG', 'EGGS_ELIGIBLE_FLAG', 'HALF_DAY_FLAG', 'HM_APPROVAL_FLAG', 'IMAGE_AVAILABLE_FLAG', 'MARKED_BY_ROLE', 'MDM_ELIGIBLE_FLAG', 'MEALS_CONSUMED_FLAG', 'PRESENT_FLAG', 'RAGI_JAVA_ELIGIBLE_FLAG'],
-    'curated_datamodels.school_subject_master': ['BOARD_CODE', 'IS_COMPULSORY_FLAG', 'IS_SKILL_SUBJECT_FLAG', 'IS_VOCATIONAL_FLAG', 'MARKS_SCHEME', 'MAX_CLASS', 'MIN_CLASS', 'SUBJECT_CATEGORY', 'SUBJECT_CODE', 'SUBJECT_STATUS', 'SUBJECT_TYPE'],
-    'curated_datamodels.school_teacher_attendance_fact': ['approval_role', 'approval_status_code', 'approved_leave_flag', 'attendance_status_code', 'image_available_flag', 'late_flag', 'leave_type', 'on_duty_flag', 'on_leave_flag', 'present_flag'],
-    'curated_datamodels.source_department_code': ['source_department_code'],
-    'curated_datamodels.student_class_dim': ['CLASS_CODE', 'CLASS_NAME', 'IS_ACTIVE']
+    "ap_citizen360.dim_agriculture_profile": [
+        "AADHAAR_MAPPED",
+        "CROP_SEASON",
+        "FARMER_TYPE",
+        "IRRIGATION_SOURCE",
+        "KCC_BANK",
+        "MARKET_LINKAGE",
+        "PMFBY_ENROLLED",
+        "PM_KISAN_BENEFICIARY",
+        "PRIMARY_CROP",
+        "RYTHU_BHAROSA_BENEFICIARY",
+        "SECONDARY_CROP"
+    ],
+    "ap_citizen360.dim_citizen_identifier": [
+        "IDENTIFIER_TYPE",
+        "IS_ACTIVE",
+        "IS_PRIMARY",
+        "SOURCE",
+        "VERIFIED_FLAG"
+    ],
+    "ap_citizen360.dim_consent": [
+        "is_revocable"
+    ],
+    "ap_citizen360.dim_department_client": [
+        "IS_ACTIVE"
+    ],
+    "ap_citizen360.dim_district": [
+        "IS_CURRENT"
+    ],
+    "ap_citizen360.dim_family_member": [
+        "GENDER"
+    ],
+    "ap_citizen360.dim_health_profile": [
+        "AAROGYASRI_STATUS",
+        "BLOOD_GROUP",
+        "CGHS_COVERED",
+        "COVID_DOSES",
+        "COVID_VACCINATED",
+        "ESI_COVERED",
+        "HAS_CANCER",
+        "HAS_DIABETES",
+        "HAS_HIV",
+        "HAS_HYPERTENSION",
+        "HAS_MENTAL_HEALTH_CONDITION",
+        "HAS_TUBERCULOSIS",
+        "INSTITUTIONAL_DELIVERY",
+        "IS_PREGNANT",
+        "MENTAL_HEALTH_TYPE",
+        "RSBY_COVERED"
+    ],
+    "ap_citizen360.dim_household": [
+        "DWELLING_TYPE",
+        "HEAD_GENDER",
+        "HOUSEHOLD_INCOME_CATEGORY",
+        "INCOME_BAND",
+        "RATION_CARD_TYPE",
+        "SOCIAL_CATEGORY"
+    ],
+    "ap_citizen360.dim_land": [
+        "AADHAAR_MAPPED",
+        "ENCUMBRANCE_STATUS",
+        "IRRIGATION_TYPE",
+        "IS_ASSIGNED_LAND",
+        "LAND_TYPE",
+        "SOIL_TYPE"
+    ],
+    "ap_citizen360.dim_occupation": [
+        "EMPLOYMENT_STATUS",
+        "IS_CURRENT",
+        "OCCUPATION_TYPE",
+        "SOURCE"
+    ],
+    "ap_citizen360.dim_person": [
+        "CASTE_DERIVED_FLAG",
+        "CASTE_NAME",
+        "DOMICILE_STATUS",
+        "DWELLING_TYPE",
+        "GENDER",
+        "GOVT_EMPLOYMENT_TYPE",
+        "INCOME_BAND",
+        "IS_DECEASED",
+        "MARITAL_STATUS",
+        "RELIGION",
+        "RURAL_URBAN_FLAG",
+        "SOCIAL_CATEGORY"
+    ],
+    "ap_citizen360.dim_property": [
+        "AADHAAR_MAPPED",
+        "CONSTRUCTION_TYPE",
+        "MUNICIPAL_BODY",
+        "PROPERTY_SUB_TYPE",
+        "PROPERTY_TYPE",
+        "ROOF_TYPE",
+        "USAGE_TYPE"
+    ],
+    "ap_citizen360.dim_property_tax": [
+        "exemption_category",
+        "municipal_body",
+        "payment_mode",
+        "tax_status"
+    ],
+    "ap_citizen360.dim_scheme": [
+        "BENEFIT_TYPE"
+    ],
+    "ap_citizen360.dim_social_welfare": [
+        "disability_type",
+        "is_disabled",
+        "ntr_bharosa_flag",
+        "pension_status",
+        "pension_type",
+        "shg_role"
+    ],
+    "ap_citizen360.dim_state": [
+        "IS_CURRENT"
+    ],
+    "ap_citizen360.dim_student": [
+        "AADHAAR_SEEDED",
+        "DIGITAL_LITERACY_LEVEL",
+        "DROPOUT_REASON",
+        "EDUCATION_LEVEL",
+        "IS_CURRENT_LEVEL",
+        "IS_DROPOUT",
+        "MEDIUM_OF_INSTRUCTION",
+        "NTR_VIDYA_DEEVENA",
+        "POST_MATRIC_SCHOLARSHIP",
+        "PRE_MATRIC_SCHOLARSHIP",
+        "THALLIKI_VANDANAM"
+    ],
+    "ap_citizen360.dim_tax_profile": [
+        "GST_PAID_ANNUAL"
+    ],
+    "ap_citizen360.dim_utility_connection": [
+        "ELECTRICITY_STATUS",
+        "ELECTRICITY_STATUS_UPDATED_ON",
+        "GAS_CONNECTION_STATUS",
+        "WATER_CONNECTION_STATUS"
+    ],
+    "ap_citizen360.dim_vehicle": [
+        "COLOR",
+        "DATA_SOURCE",
+        "FUEL_TYPE",
+        "MAKE",
+        "MODEL",
+        "RTO_OFFICE",
+        "VEHICLE_TYPE"
+    ],
+    "ap_citizen360.dim_vehicle_compliance": [
+        "CHALLAN_PENDING",
+        "HSRP_ISSUED",
+        "HYPOTHECATION_STATUS",
+        "INSURANCE_COMPANY",
+        "PERMIT_TYPE"
+    ],
+    "ap_citizen360.fact_entitlement": [
+        "ENROLLMENT_STATUS"
+    ],
+    "ap_citizen360.fact_population_hierarchy": [
+        "GENDER",
+        "GEO_LEVEL",
+        "SOCIAL_CATEGORY"
+    ],
+    "ap_citizen360.fact_scheme_disbursement": [
+        "GEO_LEVEL"
+    ],
+    "ap_community360.dim_facility": [
+        "FACILITY_CATEGORY",
+        "GOLDEN_SOURCE",
+        "IS_CURRENT",
+        "OPERATIONAL_STATUS",
+        "OWNERSHIP_TYPE",
+        "RECORD_STATUS",
+        "SOURCE_SYSTEM",
+        "VERIFICATION_STATUS"
+    ],
+    "ap_community360.dim_facility_anganwadi": [
+        "building_type",
+        "center_type",
+        "has_drinking_water",
+        "has_electricity",
+        "has_kitchen",
+        "has_preschool_kit",
+        "has_toilet",
+        "record_status",
+        "source_system"
+    ],
+    "ap_community360.dim_facility_community_center": [
+        "center_type",
+        "has_ac",
+        "has_kitchen",
+        "has_parking",
+        "has_power_backup",
+        "has_stage",
+        "has_toilets",
+        "is_disabled_friendly",
+        "record_status",
+        "source_system"
+    ],
+    "ap_community360.dim_facility_hospital": [
+        "facility_level",
+        "has_ambulance",
+        "has_blood_bank",
+        "has_diagnostic_lab",
+        "has_emergency_services",
+        "has_operation_theatre",
+        "has_pharmacy",
+        "is_24x7",
+        "is_aarogyasri_empanelled",
+        "is_pmjay_empanelled",
+        "record_status",
+        "source_system"
+    ],
+    "ap_community360.dim_facility_identifier": [
+        "IDENTIFIER_TYPE",
+        "IS_ACTIVE",
+        "RECORD_STATUS",
+        "SOURCE_SYSTEM"
+    ],
+    "ap_community360.dim_facility_park": [
+        "has_childrens_play_area",
+        "has_drinking_water",
+        "has_lighting",
+        "has_open_gym",
+        "has_parking",
+        "has_seating",
+        "has_toilets",
+        "has_walking_track",
+        "has_water_body",
+        "is_free_entry",
+        "park_type",
+        "record_status",
+        "source_system"
+    ],
+    "ap_community360.dim_facility_school": [
+        "BOARD_AFFILIATION",
+        "BUILDING_STATUS",
+        "GENDER_TYPE",
+        "HAS_BOUNDARY_WALL",
+        "HAS_BOYS_TOILET",
+        "HAS_COMPUTER_LAB",
+        "HAS_CWSN_TOILET",
+        "HAS_DRINKING_WATER",
+        "HAS_ELECTRICITY",
+        "HAS_GIRLS_TOILET",
+        "HAS_LIBRARY",
+        "HAS_MIDDAY_MEAL",
+        "HAS_PLAYGROUND",
+        "HAS_RAMP",
+        "HAS_SMART_CLASSROOM",
+        "INTERNET_AVAILABLE",
+        "MEDIUM_OF_INSTRUCTION",
+        "RECORD_STATUS",
+        "SCHOOL_CATEGORY",
+        "SOURCE_SYSTEM"
+    ],
+    "ap_community360.dim_facility_type": [
+        "IS_ACTIVE",
+        "RECORD_STATUS",
+        "SOURCE_SYSTEM",
+        "SUBTYPE_TABLE",
+        "TYPE_CATEGORY",
+        "TYPE_CODE"
+    ],
+    "ap_community360.dim_geography": [
+        "GEO_LEVEL",
+        "RECORD_STATUS",
+        "SOURCE_SYSTEM",
+        "ULB_TYPE"
+    ],
+    "ap_community360.fact_facility_access": [
+        "is_nearest_of_type",
+        "source_system"
+    ],
+    "ap_community360.fact_facility_service": [
+        "source_system"
+    ]
 }
 
 def main():

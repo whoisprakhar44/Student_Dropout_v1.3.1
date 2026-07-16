@@ -1,10 +1,11 @@
 database: ap_citizen360
 table: dim_department_client
 department: ap_citizen360
-description: Registered Data Transfer API clients — backs the OAuth2 client-credentials grant at POST /auth/token and verify_bearer_token's
-  suspension check. department_id here is a separate registry-style namespace (e.g. 'DEPT-SWD-001') from dim_department's
-  canonical codes, and has no department_name column — readable names for these specific IDs are maintained as a small static
-  lookup in app code, not in the warehouse.
+description: Registered Data Transfer API clients — backs the OAuth2 client-credentials
+  grant at POST /auth/token and verify_bearer_token's suspension check. department_id
+  here is a separate registry-style namespace (e.g. 'DEPT-SWD-001') from dim_department's
+  canonical codes, and has no department_name column — readable names for these specific
+  IDs are maintained as a small static lookup in app code, not in the warehouse.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_department_client
 partitioned_by: null
@@ -18,39 +19,48 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_department_client`(\n  `department_id` STRING COMMENT 'Primary Key: Registered\
-  \ client identifier, e.g. \\'DEPT-SWD-001\\' — presented as the OAuth2 client_id.',\n  `client_secret_hash` STRING COMMENT\
-  \ 'Salted hash of the client\\'s secret credential — the secret itself is never stored.',\n  `scopes` ARRAY<STRING> COMMENT\
-  \ 'ARRAY<STRING> column. Contains codes this client is authorized to request, e.g. \\'SCHEME_ELIGIBILITY_CHECK\\', \\'AUDIT\\\
-  '.',\n  `dimensions` ARRAY<STRING> COMMENT 'ARRAY<STRING> column. Contains dimensions this client is authorized to request,\
-  \ e.g. \\'PERSON\\', \\'HOUSEHOLD\\', \\'HEALTH\\'.',\n  `is_active` BOOLEAN COMMENT 'Boolean flag. True if this client\\\
-  's credentials are currently active; false suspends/revokes api access immediately.',\n  `created_at` TIMESTAMP COMMENT\
-  \ 'Timestamp this client registration was created.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this client registration\
-  \ was last updated (e.g. on scope change or suspension).')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_department_client'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_department_client`(\n  `department_id`\
+  \ STRING COMMENT 'Primary Key: Registered client identifier, e.g. \\'DEPT-SWD-001\\\
+  ' — presented as the OAuth2 client_id.',\n  `client_secret_hash` STRING COMMENT\
+  \ 'Salted hash of the client\\'s secret credential — the secret itself is never\
+  \ stored.',\n  `scopes` ARRAY<STRING> COMMENT 'ARRAY<STRING> column. Contains codes\
+  \ this client is authorized to request, e.g. \\'SCHEME_ELIGIBILITY_CHECK\\', \\\
+  'AUDIT\\'.',\n  `dimensions` ARRAY<STRING> COMMENT 'ARRAY<STRING> column. Contains\
+  \ dimensions this client is authorized to request, e.g. \\'PERSON\\', \\'HOUSEHOLD\\\
+  ', \\'HEALTH\\'.',\n  `is_active` BOOLEAN COMMENT 'Boolean flag. True if this client\\\
+  's credentials are currently active; false suspends/revokes api access immediately.',\n\
+  \  `created_at` TIMESTAMP COMMENT 'Timestamp this client registration was created.',\n\
+  \  `updated_at` TIMESTAMP COMMENT 'Timestamp this client registration was last updated\
+  \ (e.g. on scope change or suspension).')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_department_client'"
 columns:
 - name: department_id
   type: STRING
   nullable: true
-  description: 'Primary Key: Registered client identifier, e.g. ''DEPT-SWD-001'' — presented as the OAuth2 client_id.'
+  description: 'Primary Key: Registered client identifier, e.g. ''DEPT-SWD-001'' —
+    presented as the OAuth2 client_id.'
 - name: client_secret_hash
   type: STRING
   nullable: true
-  description: Salted hash of the client's secret credential — the secret itself is never stored.
+  description: Salted hash of the client's secret credential — the secret itself is
+    never stored.
 - name: scopes
   type: ARRAY<STRING>
   nullable: true
-  description: ARRAY<STRING> column. Contains codes this client is authorized to request, e.g. 'SCHEME_ELIGIBILITY_CHECK',
-    'AUDIT'.
+  description: ARRAY<STRING> column. Contains codes this client is authorized to request,
+    e.g. 'SCHEME_ELIGIBILITY_CHECK', 'AUDIT'.
 - name: dimensions
   type: ARRAY<STRING>
   nullable: true
-  description: ARRAY<STRING> column. Contains dimensions this client is authorized to request, e.g. 'PERSON', 'HOUSEHOLD',
-    'HEALTH'.
+  description: ARRAY<STRING> column. Contains dimensions this client is authorized
+    to request, e.g. 'PERSON', 'HOUSEHOLD', 'HEALTH'.
 - name: is_active
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if this client's credentials are currently active; false suspends/revokes api access immediately.
+  description: Boolean flag. True if this client's credentials are currently active;
+    false suspends/revokes api access immediately.
+  value_description: '[''True'']'
 - name: created_at
   type: TIMESTAMP
   nullable: true
@@ -58,7 +68,8 @@ columns:
 - name: updated_at
   type: TIMESTAMP
   nullable: true
-  description: Timestamp this client registration was last updated (e.g. on scope change or suspension).
+  description: Timestamp this client registration was last updated (e.g. on scope
+    change or suspension).
 primary_key:
 - department_id
 relationships: []

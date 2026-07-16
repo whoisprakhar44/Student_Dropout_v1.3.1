@@ -39,7 +39,8 @@
         },
         "type_code": {
           "type": "STRING",
-          "description": "Short stable code, e.g. 'HOSPITAL', 'SCHOOL' \u2014 safe to use in URLs/filters; won't change even if type_name's display wording does."
+          "description": "Short stable code, e.g. 'HOSPITAL', 'SCHOOL' \u2014 safe to use in URLs/filters; won't change even if type_name's display wording does.",
+          "value_description": "['ANGANWADI', 'PARK', 'HOSPITAL', 'GOVT_OFFICE', 'SCHOOL', 'WORSHIP', 'SHOP', 'FAIR_PRICE_SHOP', 'COMMUNITY_CENTER']"
         },
         "type_name": {
           "type": "STRING",
@@ -47,7 +48,8 @@
         },
         "type_category": {
           "type": "STRING",
-          "description": "Broad grouping the type belongs to, e.g. 'Health', 'Education', 'Civic' \u2014 used for the facility-mix breakdown."
+          "description": "Broad grouping the type belongs to, e.g. 'Health', 'Education', 'Civic' \u2014 used for the facility-mix breakdown.",
+          "value_description": "['WELFARE', 'SOCIAL', 'EDUCATION', 'ADMIN', 'RECREATION', 'RELIGIOUS', 'COMMERCE', 'HEALTH']"
         },
         "sector": {
           "type": "STRING",
@@ -59,7 +61,8 @@
         },
         "subtype_table": {
           "type": "STRING",
-          "description": "Name of the ap_community360 table holding this type's extra attributes (e.g. 'dim_facility_school'). NULL when a type has no subtype attributes yet (e.g. Govt Office)."
+          "description": "Name of the ap_community360 table holding this type's extra attributes (e.g. 'dim_facility_school'). NULL when a type has no subtype attributes yet (e.g. Govt Office).",
+          "value_description": "['dim_facility_hospital', 'dim_facility_park', 'dim_facility_school', 'dim_facility_community_center', 'dim_facility_shop', 'dim_facility_worship', 'dim_facility_govt_office', 'dim_facility_fair_price_shop', 'dim_facility_anganwadi']"
         },
         "governing_department": {
           "type": "STRING",
@@ -75,11 +78,13 @@
         },
         "is_active": {
           "type": "BOOLEAN",
-          "description": "Whether this type is still in active use for new facility records (retiring a type doesn't delete history)."
+          "description": "Whether this type is still in active use for new facility records (retiring a type doesn't delete history).",
+          "value_description": "['True']"
         },
         "source_system": {
           "type": "STRING",
-          "description": "Upstream system this row was loaded from, e.g. 'udise_plus', 'hmis', 'seed'."
+          "description": "Upstream system this row was loaded from, e.g. 'udise_plus', 'hmis', 'seed'.",
+          "value_description": "['COMMUNITY360_REFERENCE']"
         },
         "batch_id": {
           "type": "STRING",
@@ -95,7 +100,8 @@
         },
         "record_status": {
           "type": "STRING",
-          "description": "Row lifecycle flag, e.g. 'ACTIVE' | 'RETIRED' \u2014 soft-delete marker; rows are never hard-deleted."
+          "description": "Row lifecycle flag, e.g. 'ACTIVE' | 'RETIRED' \u2014 soft-delete marker; rows are never hard-deleted.",
+          "value_description": "['ACTIVE']"
         }
       }
     },
@@ -113,7 +119,8 @@
         },
         "geo_level": {
           "type": "STRING",
-          "description": "Which level of the hierarchy this row represents: 'state' | 'district' | 'mandal' | 'village'. Determines which of the columns below are meaningful for this row."
+          "description": "Which level of the hierarchy this row represents: 'state' | 'district' | 'mandal' | 'village'. Determines which of the columns below are meaningful for this row.",
+          "value_description": "['VILLAGE', 'MANDAL', 'DISTRICT', 'STATE']"
         },
         "state_name": {
           "type": "STRING",
@@ -205,7 +212,8 @@
         },
         "source_system": {
           "type": "STRING",
-          "description": "Upstream system this row was loaded from, e.g. 'udise_plus', 'hmis', 'seed'."
+          "description": "Upstream system this row was loaded from, e.g. 'udise_plus', 'hmis', 'seed'.",
+          "value_description": "['gsws_sec_secretariat_master', 'ap_citizen360.dim_mandal', 'ap_citizen360.dim_district', 'ap_citizen360.dim_state']"
         },
         "batch_id": {
           "type": "STRING",
@@ -221,7 +229,8 @@
         },
         "record_status": {
           "type": "STRING",
-          "description": "Row lifecycle flag, e.g. 'ACTIVE' | 'RETIRED' \u2014 soft-delete marker; rows are never hard-deleted."
+          "description": "Row lifecycle flag, e.g. 'ACTIVE' | 'RETIRED' \u2014 soft-delete marker; rows are never hard-deleted.",
+          "value_description": "['ACTIVE']"
         }
       }
     },
@@ -245,7 +254,8 @@
         },
         "facility_category": {
           "type": "STRING",
-          "description": "Denormalized copy of the type's category (e.g. 'Health', 'Education') for fast filtering without a join."
+          "description": "Denormalized copy of the type's category (e.g. 'Health', 'Education') for fast filtering without a join.",
+          "value_description": "['EDUCATION']"
         },
         "facility_name": {
           "type": "STRING",
@@ -265,7 +275,8 @@
         },
         "operational_status": {
           "type": "STRING",
-          "description": "Current operational state, e.g. 'Operational' | 'Under Review' | 'Closed' \u2014 drives the summary's operational-facilities count and the priority-facilities panel."
+          "description": "Current operational state, e.g. 'Operational' | 'Under Review' | 'Closed' \u2014 drives the summary's operational-facilities count and the priority-facilities panel.",
+          "value_description": "['OPERATIONAL']"
         },
         "established_date": {
           "type": "DATE",
@@ -321,11 +332,13 @@
         },
         "verification_status": {
           "type": "STRING",
-          "description": "Data-quality flag, e.g. 'Verified' | 'Pending' \u2014 whether a human/field-survey has confirmed this record."
+          "description": "Data-quality flag, e.g. 'Verified' | 'Pending' \u2014 whether a human/field-survey has confirmed this record.",
+          "value_description": "['UNVERIFIED']"
         },
         "golden_source": {
           "type": "STRING",
-          "description": "Which upstream source system is treated as authoritative for this facility's core attributes, when more than one source has contributed data about it."
+          "description": "Which upstream source system is treated as authoritative for this facility's core attributes, when more than one source has contributed data about it.",
+          "value_description": "['ap_citizen360.dim_school']"
         },
         "valid_from": {
           "type": "TIMESTAMP",
@@ -337,11 +350,13 @@
         },
         "is_current": {
           "type": "BOOLEAN",
-          "description": "Whether this is the current version of the facility record \u2014 every query filters on is_current = true unless explicitly asking for history."
+          "description": "Whether this is the current version of the facility record \u2014 every query filters on is_current = true unless explicitly asking for history.",
+          "value_description": "['True']"
         },
         "source_system": {
           "type": "STRING",
-          "description": "Upstream system this row was loaded from, e.g. 'udise_plus', 'hmis', 'seed'."
+          "description": "Upstream system this row was loaded from, e.g. 'udise_plus', 'hmis', 'seed'.",
+          "value_description": "['AP_CITIZEN360']"
         },
         "batch_id": {
           "type": "STRING",
@@ -357,7 +372,8 @@
         },
         "record_status": {
           "type": "STRING",
-          "description": "Row lifecycle flag, e.g. 'ACTIVE' | 'RETIRED' \u2014 soft-delete marker; rows are never hard-deleted."
+          "description": "Row lifecycle flag, e.g. 'ACTIVE' | 'RETIRED' \u2014 soft-delete marker; rows are never hard-deleted.",
+          "value_description": "['ACTIVE']"
         }
       }
     },
@@ -379,7 +395,8 @@
         },
         "identifier_type": {
           "type": "STRING",
-          "description": "What kind of identifier this is, e.g. 'UDISE_CODE', 'HMIS_CODE', 'AWC_CODE'."
+          "description": "What kind of identifier this is, e.g. 'UDISE_CODE', 'HMIS_CODE', 'AWC_CODE'.",
+          "value_description": "['UDISE_CODE']"
         },
         "identifier_value_hash": {
           "type": "STRING",
@@ -391,7 +408,8 @@
         },
         "source_system": {
           "type": "STRING",
-          "description": "Upstream system this identifier came from."
+          "description": "Upstream system this identifier came from.",
+          "value_description": "['ap_citizen360.dim_school']"
         },
         "match_method": {
           "type": "STRING",
@@ -411,7 +429,8 @@
         },
         "is_active": {
           "type": "BOOLEAN",
-          "description": "Whether this identifier mapping is currently active."
+          "description": "Whether this identifier mapping is currently active.",
+          "value_description": "['True']"
         },
         "source_batch_id": {
           "type": "STRING",
@@ -427,7 +446,8 @@
         },
         "record_status": {
           "type": "STRING",
-          "description": "Row lifecycle flag, e.g. 'ACTIVE' | 'RETIRED'."
+          "description": "Row lifecycle flag, e.g. 'ACTIVE' | 'RETIRED'.",
+          "value_description": "['ACTIVE']"
         }
       }
     },
@@ -453,7 +473,8 @@
         },
         "school_category": {
           "type": "STRING",
-          "description": "School category by level, e.g. 'Primary' | 'High School'."
+          "description": "School category by level, e.g. 'Primary' | 'High School'.",
+          "value_description": "['PRIMARY', 'UPPER PR. AND SECONDARY', 'PRIMARY WITH UPPER PRIMARY', 'PR. UP PR. AND SECONDARY ONLY', 'HIGHER SECONDARY ONLY', 'UP. PR. SECONDARY AND HIGHER SEC', 'PR. WITH UP.PR. SEC. AND H.SEC.', '2', 'UPPER PRIMARY ONLY', '1', '6', '11', '7']"
         },
         "lowest_class": {
           "type": "INT",
@@ -469,7 +490,8 @@
         },
         "medium_of_instruction": {
           "type": "STRING",
-          "description": "Primary teaching language, e.g. 'Telugu' | 'English' | 'Urdu' | 'Bilingual' \u2014 the other critical filter field."
+          "description": "Primary teaching language, e.g. 'Telugu' | 'English' | 'Urdu' | 'Bilingual' \u2014 the other critical filter field.",
+          "value_description": "['Telugu', 'English', 'Urdu', 'Oriya', 'Tamil', 'Kannada', 'Sanskrit', 'Hindi']"
         },
         "gender_type": {
           "type": "STRING",
@@ -509,51 +531,63 @@
         },
         "building_status": {
           "type": "STRING",
-          "description": "Overall building condition, e.g. 'Good' | 'Needs Repair'."
+          "description": "Overall building condition, e.g. 'Good' | 'Needs Repair'.",
+          "value_description": "['3', '1', '2', '4', '6', '0', '5']"
         },
         "has_electricity": {
           "type": "BOOLEAN",
-          "description": "Whether the school has an electricity connection."
+          "description": "Whether the school has an electricity connection.",
+          "value_description": "['True', 'False']"
         },
         "has_drinking_water": {
           "type": "BOOLEAN",
-          "description": "Whether safe drinking water is available."
+          "description": "Whether safe drinking water is available.",
+          "value_description": "['True', 'False']"
         },
         "has_boys_toilet": {
           "type": "BOOLEAN",
-          "description": "Whether a boys' toilet facility exists."
+          "description": "Whether a boys' toilet facility exists.",
+          "value_description": "['True', 'False']"
         },
         "has_girls_toilet": {
           "type": "BOOLEAN",
-          "description": "Whether a girls' toilet facility exists."
+          "description": "Whether a girls' toilet facility exists.",
+          "value_description": "['True', 'False']"
         },
         "has_cwsn_toilet": {
           "type": "BOOLEAN",
-          "description": "Whether a toilet accessible to Children With Special Needs exists."
+          "description": "Whether a toilet accessible to Children With Special Needs exists.",
+          "value_description": "['False', 'True']"
         },
         "has_ramp": {
           "type": "BOOLEAN",
-          "description": "Whether a wheelchair ramp exists."
+          "description": "Whether a wheelchair ramp exists.",
+          "value_description": "['True', 'False']"
         },
         "has_library": {
           "type": "BOOLEAN",
-          "description": "Whether the school has a library."
+          "description": "Whether the school has a library.",
+          "value_description": "['True', 'False']"
         },
         "has_computer_lab": {
           "type": "BOOLEAN",
-          "description": "Whether the school has a computer lab."
+          "description": "Whether the school has a computer lab.",
+          "value_description": "['True', 'False']"
         },
         "has_smart_classroom": {
           "type": "BOOLEAN",
-          "description": "Whether at least one smart/digital classroom exists."
+          "description": "Whether at least one smart/digital classroom exists.",
+          "value_description": "['True', 'False']"
         },
         "has_playground": {
           "type": "BOOLEAN",
-          "description": "Whether a playground exists."
+          "description": "Whether a playground exists.",
+          "value_description": "['True', 'False']"
         },
         "has_boundary_wall": {
           "type": "BOOLEAN",
-          "description": "Whether the campus has a boundary wall."
+          "description": "Whether the campus has a boundary wall.",
+          "value_description": "['True', 'False']"
         },
         "has_midday_meal": {
           "type": "BOOLEAN",
@@ -561,7 +595,8 @@
         },
         "internet_available": {
           "type": "BOOLEAN",
-          "description": "Whether internet connectivity is available at the school."
+          "description": "Whether internet connectivity is available at the school.",
+          "value_description": "['True', 'False']"
         },
         "academic_session": {
           "type": "STRING",
@@ -569,7 +604,8 @@
         },
         "source_system": {
           "type": "STRING",
-          "description": "Upstream system this row was loaded from, e.g. 'udise_plus', 'hmis', 'seed'."
+          "description": "Upstream system this row was loaded from, e.g. 'udise_plus', 'hmis', 'seed'.",
+          "value_description": "['UDISE_PLUS']"
         },
         "batch_id": {
           "type": "STRING",
@@ -585,7 +621,8 @@
         },
         "record_status": {
           "type": "STRING",
-          "description": "Row lifecycle flag, e.g. 'ACTIVE' | 'RETIRED' \u2014 soft-delete marker; rows are never hard-deleted."
+          "description": "Row lifecycle flag, e.g. 'ACTIVE' | 'RETIRED' \u2014 soft-delete marker; rows are never hard-deleted.",
+          "value_description": "['ACTIVE']"
         }
       }
     },

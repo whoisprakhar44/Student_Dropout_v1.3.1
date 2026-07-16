@@ -2,7 +2,8 @@ database: ap_citizen360
 table: dim_student
 department: ap_citizen360
 description: One row per person PER education level reached (Primary/Secondary/Intermediate/Polytechnic/Degree/PostGraduate)
-  — so a person's full education history is retrievable, not just their latest/highest level.
+  — so a person's full education history is retrievable, not just their latest/highest
+  level.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_student
 partitioned_by: null
@@ -16,37 +17,52 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_student`(\n  `student_record_id` STRING COMMENT 'Primary Key: identifier\
-  \ for this education-level record.',\n  `person_id` STRING COMMENT 'Foreign Key: References dim_person.person_id.',\n  `education_level`\
-  \ STRING COMMENT 'Normalized education tier this record represents — Primary / Secondary / Intermediate / Polytechnic /\
-  \ Degree / PostGraduate. This is what eligibility filters match against (not highest_qualification).',\n  `highest_qualification`\
-  \ STRING COMMENT 'Free-text specific qualification within this level, e.g. \\'10th Class\\', \\'B.Tech (CSE)\\', \\'M.Tech\\\
-  ' — finer-grained detail than education_level. [Value Examples: \\'10th Class\\']',\n  `institution_id` STRING COMMENT 'Canonical\
-  \ identifier of the educational institution attended.',\n  `institution_code` STRING COMMENT 'Government-assigned code for\
-  \ the institution (e.g. UDISE code for schools).',\n  `school_name` STRING COMMENT 'Name of the school/college/institution\
-  \ attended.',\n  `education_board` STRING COMMENT 'Examining board/university for this level, e.g. \\'BSEAP\\', \\'AP State\
-  \ Board\\'. [Value Examples: \\'BSEAP\\', \\'AP State Board\\']',\n  `class_currently_enrolled` INT COMMENT 'Class/grade\
-  \ currently enrolled in, for ongoing levels.',\n  `academic_year` STRING COMMENT 'Academic year this record pertains to.',\n\
-  \  `is_current_level` BOOLEAN COMMENT 'Boolean flag. True if this is the person\\'s currently active education level among\
-  \ possibly several historical records.',\n  `is_dropout` BOOLEAN COMMENT 'Boolean flag. True if the person dropped out at\
-  \ this education level without completing it.',\n  `dropout_reason` STRING COMMENT 'Reason recorded for the dropout, where\
-  \ is_dropout is true.',\n  `medium_of_instruction` STRING COMMENT 'Language of instruction at this level, e.g. \\'Telugu\\\
-  ', \\'English\\'. [Value Examples: \\'Telugu\\', \\'English\\']',\n  `aadhaar_seeded` BOOLEAN COMMENT 'Boolean flag. True\
-  \ if this education record has been seeded/linked with the person\\'s aadhaar.',\n  `has_apaar_id` BOOLEAN COMMENT 'Boolean\
-  \ flag. True if the student has been issued an apaar (automated permanent academic account registry) id.',\n  `apaar_id`\
-  \ STRING COMMENT 'The student\\'s APAAR ID, when has_apaar_id is true.',\n  `student_id` STRING COMMENT 'School/institution-issued\
-  \ student roll number or ID.',\n  `aposs_id` STRING COMMENT 'Andhra Pradesh Open School Society enrollment ID, for open-schooling\
-  \ students.',\n  `epass_id` STRING COMMENT 'AP ePass scholarship portal enrollment ID.',\n  `epass_amount` DECIMAL(10,2)\
-  \ COMMENT 'Scholarship amount disbursed via AP ePass for this education level, in INR. Unit: INR.',\n  `thalliki_vandanam`\
-  \ BOOLEAN COMMENT 'Boolean flag. True if this education level\\'s enrollment qualified the family for the thalliki vandanam\
-  \ scheme (cash support to mothers for sending children to school).',\n  `ntr_vidya_deevena` BOOLEAN COMMENT 'Boolean flag.\
-  \ True if this education level\\'s enrollment qualified for the ntr vidya deevena fee-reimbursement scheme.',\n  `pre_matric_scholarship`\
-  \ BOOLEAN COMMENT 'Boolean flag. True if a pre-matriculation scholarship was received for this level.',\n  `post_matric_scholarship`\
-  \ BOOLEAN COMMENT 'Boolean flag. True if a post-matriculation scholarship was received for this level.',\n  `digital_literacy_level`\
-  \ STRING COMMENT 'Self-assessed/tested digital literacy at this education level — None / Basic / Intermediate / Advanced.',\n\
-  \  `scholarship_scheme_ids` ARRAY<STRING> COMMENT 'ARRAY<STRING> column. Contains Array of dim_scheme.scheme_id values for\
-  \ every scholarship scheme linked to this education-level record.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this education\
-  \ record was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_student`(\n  `student_record_id`\
+  \ STRING COMMENT 'Primary Key: identifier for this education-level record.',\n \
+  \ `person_id` STRING COMMENT 'Foreign Key: References dim_person.person_id.',\n\
+  \  `education_level` STRING COMMENT 'Normalized education tier this record represents\
+  \ — Primary / Secondary / Intermediate / Polytechnic / Degree / PostGraduate. This\
+  \ is what eligibility filters match against (not highest_qualification).',\n  `highest_qualification`\
+  \ STRING COMMENT 'Free-text specific qualification within this level, e.g. \\'10th\
+  \ Class\\', \\'B.Tech (CSE)\\', \\'M.Tech\\' — finer-grained detail than education_level.\
+  \ [Value Examples: \\'10th Class\\']',\n  `institution_id` STRING COMMENT 'Canonical\
+  \ identifier of the educational institution attended.',\n  `institution_code` STRING\
+  \ COMMENT 'Government-assigned code for the institution (e.g. UDISE code for schools).',\n\
+  \  `school_name` STRING COMMENT 'Name of the school/college/institution attended.',\n\
+  \  `education_board` STRING COMMENT 'Examining board/university for this level,\
+  \ e.g. \\'BSEAP\\', \\'AP State Board\\'. [Value Examples: \\'BSEAP\\', \\'AP State\
+  \ Board\\']',\n  `class_currently_enrolled` INT COMMENT 'Class/grade currently enrolled\
+  \ in, for ongoing levels.',\n  `academic_year` STRING COMMENT 'Academic year this\
+  \ record pertains to.',\n  `is_current_level` BOOLEAN COMMENT 'Boolean flag. True\
+  \ if this is the person\\'s currently active education level among possibly several\
+  \ historical records.',\n  `is_dropout` BOOLEAN COMMENT 'Boolean flag. True if the\
+  \ person dropped out at this education level without completing it.',\n  `dropout_reason`\
+  \ STRING COMMENT 'Reason recorded for the dropout, where is_dropout is true.',\n\
+  \  `medium_of_instruction` STRING COMMENT 'Language of instruction at this level,\
+  \ e.g. \\'Telugu\\', \\'English\\'. [Value Examples: \\'Telugu\\', \\'English\\\
+  ']',\n  `aadhaar_seeded` BOOLEAN COMMENT 'Boolean flag. True if this education record\
+  \ has been seeded/linked with the person\\'s aadhaar.',\n  `has_apaar_id` BOOLEAN\
+  \ COMMENT 'Boolean flag. True if the student has been issued an apaar (automated\
+  \ permanent academic account registry) id.',\n  `apaar_id` STRING COMMENT 'The student\\\
+  's APAAR ID, when has_apaar_id is true.',\n  `student_id` STRING COMMENT 'School/institution-issued\
+  \ student roll number or ID.',\n  `aposs_id` STRING COMMENT 'Andhra Pradesh Open\
+  \ School Society enrollment ID, for open-schooling students.',\n  `epass_id` STRING\
+  \ COMMENT 'AP ePass scholarship portal enrollment ID.',\n  `epass_amount` DECIMAL(10,2)\
+  \ COMMENT 'Scholarship amount disbursed via AP ePass for this education level, in\
+  \ INR. Unit: INR.',\n  `thalliki_vandanam` BOOLEAN COMMENT 'Boolean flag. True if\
+  \ this education level\\'s enrollment qualified the family for the thalliki vandanam\
+  \ scheme (cash support to mothers for sending children to school).',\n  `ntr_vidya_deevena`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if this education level\\'s enrollment qualified\
+  \ for the ntr vidya deevena fee-reimbursement scheme.',\n  `pre_matric_scholarship`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if a pre-matriculation scholarship was received\
+  \ for this level.',\n  `post_matric_scholarship` BOOLEAN COMMENT 'Boolean flag.\
+  \ True if a post-matriculation scholarship was received for this level.',\n  `digital_literacy_level`\
+  \ STRING COMMENT 'Self-assessed/tested digital literacy at this education level\
+  \ — None / Basic / Intermediate / Advanced.',\n  `scholarship_scheme_ids` ARRAY<STRING>\
+  \ COMMENT 'ARRAY<STRING> column. Contains Array of dim_scheme.scheme_id values for\
+  \ every scholarship scheme linked to this education-level record.',\n  `updated_at`\
+  \ TIMESTAMP COMMENT 'Timestamp this education record was last updated.')\nROW FORMAT\
+  \ SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
   \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_student'"
 columns:
 - name: student_record_id
@@ -60,13 +76,16 @@ columns:
 - name: education_level
   type: STRING
   nullable: true
-  description: Normalized education tier this record represents — Primary / Secondary / Intermediate / Polytechnic / Degree
-    / PostGraduate. This is what eligibility filters match against (not highest_qualification).
+  description: Normalized education tier this record represents — Primary / Secondary
+    / Intermediate / Polytechnic / Degree / PostGraduate. This is what eligibility
+    filters match against (not highest_qualification).
+  value_description: '[''Secondary'', ''Primary'', ''Intermediate'']'
 - name: highest_qualification
   type: STRING
   nullable: true
-  description: 'Free-text specific qualification within this level, e.g. ''10th Class'', ''B.Tech (CSE)'', ''M.Tech'' — finer-grained
-    detail than education_level. [Value Examples: ''10th Class'']'
+  description: 'Free-text specific qualification within this level, e.g. ''10th Class'',
+    ''B.Tech (CSE)'', ''M.Tech'' — finer-grained detail than education_level. [Value
+    Examples: ''10th Class'']'
 - name: institution_id
   type: STRING
   nullable: true
@@ -82,8 +101,8 @@ columns:
 - name: education_board
   type: STRING
   nullable: true
-  description: 'Examining board/university for this level, e.g. ''BSEAP'', ''AP State Board''. [Value Examples: ''BSEAP'',
-    ''AP State Board'']'
+  description: 'Examining board/university for this level, e.g. ''BSEAP'', ''AP State
+    Board''. [Value Examples: ''BSEAP'', ''AP State Board'']'
 - name: class_currently_enrolled
   type: INT
   nullable: true
@@ -95,29 +114,44 @@ columns:
 - name: is_current_level
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if this is the person's currently active education level among possibly several historical
-    records.
+  description: Boolean flag. True if this is the person's currently active education
+    level among possibly several historical records.
+  value_description: '[''True'', ''False'']'
 - name: is_dropout
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if the person dropped out at this education level without completing it.
+  description: Boolean flag. True if the person dropped out at this education level
+    without completing it.
+  value_description: '[''True'']'
 - name: dropout_reason
   type: STRING
   nullable: true
   description: Reason recorded for the dropout, where is_dropout is true.
+  value_description: '[''Class 12 - Passed Out'', ''Active for Import/Status Not Known'',
+    ''Others Reasons'', ''Student absent since many days'', ''Gone for Some other
+    Mode of Study/Courses'', ''Migrated to Other State'', ''Gone for ITI/Polytechnic'',
+    ''Gone for Study in Open Schooling / Un-Recognized Schools'', ''Migrated to Other
+    Block/District'', ''Economic Reason'', ''Wrong Entry'', ''Gone for Study in Non-Regular
+    Mode'', ''Duplicate Entry'', ''Due to Death'', ''Transportation Difficulties'',
+    ''Employment'', ''Studying in Other School in Same Block'', ''Migrated to Other
+    Country'', ''Orphan'']'
 - name: medium_of_instruction
   type: STRING
   nullable: true
-  description: 'Language of instruction at this level, e.g. ''Telugu'', ''English''. [Value Examples: ''Telugu'', ''English'']'
+  description: 'Language of instruction at this level, e.g. ''Telugu'', ''English''.
+    [Value Examples: ''Telugu'', ''English'']'
+  value_description: '[''English'', ''Telugu'', ''Urdu'', ''Sanskrit'', ''Tamil'']'
 - name: aadhaar_seeded
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if this education record has been seeded/linked with the person's aadhaar.
+  description: Boolean flag. True if this education record has been seeded/linked
+    with the person's aadhaar.
+  value_description: '[''True'']'
 - name: has_apaar_id
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if the student has been issued an apaar (automated permanent academic account registry)
-    id.
+  description: Boolean flag. True if the student has been issued an apaar (automated
+    permanent academic account registry) id.
 - name: apaar_id
   type: STRING
   nullable: true
@@ -129,7 +163,8 @@ columns:
 - name: aposs_id
   type: STRING
   nullable: true
-  description: Andhra Pradesh Open School Society enrollment ID, for open-schooling students.
+  description: Andhra Pradesh Open School Society enrollment ID, for open-schooling
+    students.
 - name: epass_id
   type: STRING
   nullable: true
@@ -137,34 +172,43 @@ columns:
 - name: epass_amount
   type: DECIMAL(10,2)
   nullable: true
-  description: 'Scholarship amount disbursed via AP ePass for this education level, in INR. Unit: INR.'
+  description: 'Scholarship amount disbursed via AP ePass for this education level,
+    in INR. Unit: INR.'
 - name: thalliki_vandanam
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if this education level's enrollment qualified the family for the thalliki vandanam scheme
-    (cash support to mothers for sending children to school).
+  description: Boolean flag. True if this education level's enrollment qualified the
+    family for the thalliki vandanam scheme (cash support to mothers for sending children
+    to school).
+  value_description: '[''False'']'
 - name: ntr_vidya_deevena
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if this education level's enrollment qualified for the ntr vidya deevena fee-reimbursement
-    scheme.
+  description: Boolean flag. True if this education level's enrollment qualified for
+    the ntr vidya deevena fee-reimbursement scheme.
+  value_description: '[''False'']'
 - name: pre_matric_scholarship
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if a pre-matriculation scholarship was received for this level.
+  description: Boolean flag. True if a pre-matriculation scholarship was received
+    for this level.
+  value_description: '[''False'']'
 - name: post_matric_scholarship
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if a post-matriculation scholarship was received for this level.
+  description: Boolean flag. True if a post-matriculation scholarship was received
+    for this level.
+  value_description: '[''False'']'
 - name: digital_literacy_level
   type: STRING
   nullable: true
-  description: Self-assessed/tested digital literacy at this education level — None / Basic / Intermediate / Advanced.
+  description: Self-assessed/tested digital literacy at this education level — None
+    / Basic / Intermediate / Advanced.
 - name: scholarship_scheme_ids
   type: ARRAY<STRING>
   nullable: true
-  description: ARRAY<STRING> column. Contains Array of dim_scheme.scheme_id values for every scholarship scheme linked to
-    this education-level record.
+  description: ARRAY<STRING> column. Contains Array of dim_scheme.scheme_id values
+    for every scholarship scheme linked to this education-level record.
 - name: updated_at
   type: TIMESTAMP
   nullable: true

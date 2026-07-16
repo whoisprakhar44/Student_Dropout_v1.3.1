@@ -1,8 +1,9 @@
 database: ap_citizen360
 table: fact_scheme_disbursement
 department: ap_citizen360
-description: Pre-aggregated scheme disbursement totals per geography per fiscal year, broken down by social category — backs
-  the Budget Integrity / disbursement dashboards without having to aggregate fact_benefit_transaction at query time. Partitioned
+description: Pre-aggregated scheme disbursement totals per geography per fiscal year,
+  broken down by social category — backs the Budget Integrity / disbursement dashboards
+  without having to aggregate fact_benefit_transaction at query time. Partitioned
   by geo_level and fiscal_year.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_scheme_disbursement
@@ -17,21 +18,29 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_scheme_disbursement`(\n  `disbursement_id` STRING COMMENT 'Primary Key:\
-  \ disbursement-aggregate identifier.',\n  `scheme_id` STRING COMMENT 'Foreign Key: References dim_scheme.scheme_id.',\n\
-  \  `department_id` STRING COMMENT 'Foreign Key: References dim_department.department_id.',\n  `geo_level` STRING COMMENT\
-  \ 'Geography level this aggregate is rolled up to, e.g. \\'state\\', \\'district\\', \\'mandal\\'. [Value Examples: \\'state\\\
-  ', \\'district\\', \\'mandal\\']',\n  `geo_id` STRING COMMENT 'Identifier of the specific geography at geo_level (e.g. a\
-  \ district_id when geo_level=\\'district\\'). [Value Examples: \\'district\\']',\n  `fiscal_year` STRING COMMENT 'Fiscal\
-  \ year this aggregate covers. Partition key.',\n  `total_crores` DECIMAL(12,2) COMMENT 'Total disbursement amount, in INR\
-  \ crores. Unit: INR.',\n  `beneficiaries` BIGINT COMMENT 'Total count of beneficiaries covered by this aggregate.',\n  `amount_oc`\
-  \ DECIMAL(12,2) COMMENT 'Disbursement amount attributable to OC-category beneficiaries, in INR crores. Unit: INR.',\n  `amount_bc`\
-  \ DECIMAL(12,2) COMMENT 'Disbursement amount attributable to BC-category beneficiaries, in INR crores. Unit: INR.',\n  `amount_sc`\
-  \ DECIMAL(12,2) COMMENT 'Disbursement amount attributable to SC-category beneficiaries, in INR crores. Unit: INR.',\n  `amount_st`\
-  \ DECIMAL(12,2) COMMENT 'Disbursement amount attributable to ST-category beneficiaries, in INR crores. Unit: INR.',\n  `amount_others`\
-  \ DECIMAL(12,2) COMMENT 'Disbursement amount attributable to beneficiaries outside the OC/BC/SC/ST categories, in INR crores.\
-  \ Unit: INR.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
-  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_scheme_disbursement'\nPARTITIONED BY (geo_level, fiscal_year)"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_scheme_disbursement`(\n  `disbursement_id`\
+  \ STRING COMMENT 'Primary Key: disbursement-aggregate identifier.',\n  `scheme_id`\
+  \ STRING COMMENT 'Foreign Key: References dim_scheme.scheme_id.',\n  `department_id`\
+  \ STRING COMMENT 'Foreign Key: References dim_department.department_id.',\n  `geo_level`\
+  \ STRING COMMENT 'Geography level this aggregate is rolled up to, e.g. \\'state\\\
+  ', \\'district\\', \\'mandal\\'. [Value Examples: \\'state\\', \\'district\\', \\\
+  'mandal\\']',\n  `geo_id` STRING COMMENT 'Identifier of the specific geography at\
+  \ geo_level (e.g. a district_id when geo_level=\\'district\\'). [Value Examples:\
+  \ \\'district\\']',\n  `fiscal_year` STRING COMMENT 'Fiscal year this aggregate\
+  \ covers. Partition key.',\n  `total_crores` DECIMAL(12,2) COMMENT 'Total disbursement\
+  \ amount, in INR crores. Unit: INR.',\n  `beneficiaries` BIGINT COMMENT 'Total count\
+  \ of beneficiaries covered by this aggregate.',\n  `amount_oc` DECIMAL(12,2) COMMENT\
+  \ 'Disbursement amount attributable to OC-category beneficiaries, in INR crores.\
+  \ Unit: INR.',\n  `amount_bc` DECIMAL(12,2) COMMENT 'Disbursement amount attributable\
+  \ to BC-category beneficiaries, in INR crores. Unit: INR.',\n  `amount_sc` DECIMAL(12,2)\
+  \ COMMENT 'Disbursement amount attributable to SC-category beneficiaries, in INR\
+  \ crores. Unit: INR.',\n  `amount_st` DECIMAL(12,2) COMMENT 'Disbursement amount\
+  \ attributable to ST-category beneficiaries, in INR crores. Unit: INR.',\n  `amount_others`\
+  \ DECIMAL(12,2) COMMENT 'Disbursement amount attributable to beneficiaries outside\
+  \ the OC/BC/SC/ST categories, in INR crores. Unit: INR.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_scheme_disbursement'\nPARTITIONED\
+  \ BY (geo_level, fiscal_year)"
 columns:
 - name: disbursement_id
   type: STRING
@@ -48,13 +57,14 @@ columns:
 - name: geo_level
   type: STRING
   nullable: true
-  description: 'Geography level this aggregate is rolled up to, e.g. ''state'', ''district'', ''mandal''. [Value Examples:
-    ''state'', ''district'', ''mandal'']'
+  description: 'Geography level this aggregate is rolled up to, e.g. ''state'', ''district'',
+    ''mandal''. [Value Examples: ''state'', ''district'', ''mandal'']'
+  value_description: '[''district'']'
 - name: geo_id
   type: STRING
   nullable: true
-  description: 'Identifier of the specific geography at geo_level (e.g. a district_id when geo_level=''district''). [Value
-    Examples: ''district'']'
+  description: 'Identifier of the specific geography at geo_level (e.g. a district_id
+    when geo_level=''district''). [Value Examples: ''district'']'
 - name: fiscal_year
   type: STRING
   nullable: true
@@ -70,24 +80,28 @@ columns:
 - name: amount_oc
   type: DECIMAL(12,2)
   nullable: true
-  description: 'Disbursement amount attributable to OC-category beneficiaries, in INR crores. Unit: INR.'
+  description: 'Disbursement amount attributable to OC-category beneficiaries, in
+    INR crores. Unit: INR.'
 - name: amount_bc
   type: DECIMAL(12,2)
   nullable: true
-  description: 'Disbursement amount attributable to BC-category beneficiaries, in INR crores. Unit: INR.'
+  description: 'Disbursement amount attributable to BC-category beneficiaries, in
+    INR crores. Unit: INR.'
 - name: amount_sc
   type: DECIMAL(12,2)
   nullable: true
-  description: 'Disbursement amount attributable to SC-category beneficiaries, in INR crores. Unit: INR.'
+  description: 'Disbursement amount attributable to SC-category beneficiaries, in
+    INR crores. Unit: INR.'
 - name: amount_st
   type: DECIMAL(12,2)
   nullable: true
-  description: 'Disbursement amount attributable to ST-category beneficiaries, in INR crores. Unit: INR.'
+  description: 'Disbursement amount attributable to ST-category beneficiaries, in
+    INR crores. Unit: INR.'
 - name: amount_others
   type: DECIMAL(12,2)
   nullable: true
-  description: 'Disbursement amount attributable to beneficiaries outside the OC/BC/SC/ST categories, in INR crores. Unit:
-    INR.'
+  description: 'Disbursement amount attributable to beneficiaries outside the OC/BC/SC/ST
+    categories, in INR crores. Unit: INR.'
 primary_key:
 - disbursement_id
 relationships:

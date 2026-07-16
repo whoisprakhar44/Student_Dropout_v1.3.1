@@ -1,8 +1,9 @@
 database: ap_citizen360
 table: dim_health_profile
 department: ap_citizen360
-description: One row per person summarizing their health-system identifiers, chronic conditions, maternal-health status, and
-  government health-scheme coverage. The aggregation point for everything the Health department tracks about a citizen.
+description: One row per person summarizing their health-system identifiers, chronic
+  conditions, maternal-health status, and government health-scheme coverage. The aggregation
+  point for everything the Health department tracks about a citizen.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_health_profile
 partitioned_by: null
@@ -16,39 +17,55 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_health_profile`(\n  `person_id` STRING COMMENT 'Primary Key: Foreign\
-  \ key to dim_person.person_id.',\n  `abdm_id` STRING COMMENT 'Ayushman Bharat Digital Mission health ID.',\n  `abha_address`\
-  \ STRING COMMENT 'Ayushman Bharat Health Account address (the ABDM health-ID\\'s human-readable handle).',\n  `aarogyasri_card_no`\
-  \ STRING COMMENT 'NTR Vaidya Seva (Aarogyasri) health insurance card number.',\n  `aarogyasri_status` STRING COMMENT 'Enrollment\
-  \ status under Aarogyasri, e.g. \\'Active\\', \\'Not Enrolled\\'. [Value Examples: \\'Active\\', \\'Not Enrolled\\']',\n\
-  \  `pmjay_beneficiary_id` STRING COMMENT 'Ayushman Bharat PM-JAY beneficiary ID.',\n  `pmjay_family_id` STRING COMMENT 'Ayushman\
-  \ Bharat PM-JAY family unit ID.',\n  `blood_group` STRING COMMENT 'Blood group, e.g. \\'O+\\', \\'AB-\\'. [Value Examples:\
-  \ \\'O+\\', \\'AB-\\']',\n  `height_cm` INT COMMENT 'Height in centimetres, from the most recent recorded measurement.',\n\
-  \  `weight_kg` DOUBLE COMMENT 'Weight in kilograms, from the most recent recorded measurement.',\n  `bmi` DOUBLE COMMENT\
-  \ 'Body mass index, computed from the most recent height/weight.',\n  `conditions` ARRAY<STRING> COMMENT 'ARRAY<STRING>\
-  \ column. Contains chronic conditions/diagnoses on file, beyond the specific boolean flags below.',\n  `has_diabetes` BOOLEAN\
-  \ COMMENT 'Boolean flag. True if diagnosed with diabetes.',\n  `has_hypertension` BOOLEAN COMMENT 'Boolean flag. True if\
-  \ diagnosed with hypertension.',\n  `has_tuberculosis` BOOLEAN COMMENT 'Boolean flag. True if diagnosed with active or treated\
-  \ tuberculosis.',\n  `has_hiv` BOOLEAN COMMENT 'Boolean flag. True if hiv-positive per health records.',\n  `has_cancer`\
-  \ BOOLEAN COMMENT 'Boolean flag. True if diagnosed with cancer (any type).',\n  `registered_phc` STRING COMMENT 'Primary\
-  \ Health Centre the person is registered with.',\n  `assigned_asha_worker` STRING COMMENT 'Name/ID of the assigned ASHA\
-  \ (community health) worker.',\n  `is_pregnant` BOOLEAN COMMENT 'Boolean flag. True if currently pregnant per the latest\
-  \ anc record.',\n  `lmp_date` DATE COMMENT 'Last menstrual period date, for current/recent pregnancies.',\n  `edd_date`\
-  \ DATE COMMENT 'Expected date of delivery, for current pregnancies.',\n  `anc_registrations` INT COMMENT 'Count of antenatal\
-  \ care check-up registrations for the current/most recent pregnancy.',\n  `institutional_delivery` BOOLEAN COMMENT 'Boolean\
-  \ flag. True if the most recent delivery took place in a healthcare institution rather than at home.',\n  `covid_vaccinated`\
-  \ BOOLEAN COMMENT 'Boolean flag. True if the person has received at least one covid-19 vaccine dose.',\n  `covid_doses`\
-  \ INT COMMENT 'Total number of COVID-19 vaccine doses received.',\n  `esi_covered` BOOLEAN COMMENT 'Boolean flag. True if\
-  \ covered under employee state insurance.',\n  `cghs_covered` BOOLEAN COMMENT 'Boolean flag. True if covered under the central\
-  \ government health scheme.',\n  `rsby_covered` BOOLEAN COMMENT 'Boolean flag. True if covered under the rashtriya swasthya\
-  \ bima yojana.',\n  `has_mental_health_condition` BOOLEAN COMMENT 'Boolean flag. True if a mental health condition is on\
-  \ file.',\n  `mental_health_type` STRING COMMENT 'Type of mental health condition, where has_mental_health_condition is\
-  \ true.',\n  `last_encounter_date` DATE COMMENT 'Date of the most recent recorded healthcare encounter of any kind.',\n\
-  \  `linked_scheme_ids` ARRAY<STRING> COMMENT 'ARRAY<STRING> column. Contains Array of dim_scheme.scheme_id values for every\
-  \ health-related welfare scheme this person is linked to.',\n  `department_id` STRING COMMENT 'Foreign Key: References dim_department.department_id.\
-  \ the Health department record owner.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this health profile was last updated.')\n\
-  ROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
-  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_health_profile'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_health_profile`(\n  `person_id`\
+  \ STRING COMMENT 'Primary Key: Foreign key to dim_person.person_id.',\n  `abdm_id`\
+  \ STRING COMMENT 'Ayushman Bharat Digital Mission health ID.',\n  `abha_address`\
+  \ STRING COMMENT 'Ayushman Bharat Health Account address (the ABDM health-ID\\'s\
+  \ human-readable handle).',\n  `aarogyasri_card_no` STRING COMMENT 'NTR Vaidya Seva\
+  \ (Aarogyasri) health insurance card number.',\n  `aarogyasri_status` STRING COMMENT\
+  \ 'Enrollment status under Aarogyasri, e.g. \\'Active\\', \\'Not Enrolled\\'. [Value\
+  \ Examples: \\'Active\\', \\'Not Enrolled\\']',\n  `pmjay_beneficiary_id` STRING\
+  \ COMMENT 'Ayushman Bharat PM-JAY beneficiary ID.',\n  `pmjay_family_id` STRING\
+  \ COMMENT 'Ayushman Bharat PM-JAY family unit ID.',\n  `blood_group` STRING COMMENT\
+  \ 'Blood group, e.g. \\'O+\\', \\'AB-\\'. [Value Examples: \\'O+\\', \\'AB-\\']',\n\
+  \  `height_cm` INT COMMENT 'Height in centimetres, from the most recent recorded\
+  \ measurement.',\n  `weight_kg` DOUBLE COMMENT 'Weight in kilograms, from the most\
+  \ recent recorded measurement.',\n  `bmi` DOUBLE COMMENT 'Body mass index, computed\
+  \ from the most recent height/weight.',\n  `conditions` ARRAY<STRING> COMMENT 'ARRAY<STRING>\
+  \ column. Contains chronic conditions/diagnoses on file, beyond the specific boolean\
+  \ flags below.',\n  `has_diabetes` BOOLEAN COMMENT 'Boolean flag. True if diagnosed\
+  \ with diabetes.',\n  `has_hypertension` BOOLEAN COMMENT 'Boolean flag. True if\
+  \ diagnosed with hypertension.',\n  `has_tuberculosis` BOOLEAN COMMENT 'Boolean\
+  \ flag. True if diagnosed with active or treated tuberculosis.',\n  `has_hiv` BOOLEAN\
+  \ COMMENT 'Boolean flag. True if hiv-positive per health records.',\n  `has_cancer`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if diagnosed with cancer (any type).',\n \
+  \ `registered_phc` STRING COMMENT 'Primary Health Centre the person is registered\
+  \ with.',\n  `assigned_asha_worker` STRING COMMENT 'Name/ID of the assigned ASHA\
+  \ (community health) worker.',\n  `is_pregnant` BOOLEAN COMMENT 'Boolean flag. True\
+  \ if currently pregnant per the latest anc record.',\n  `lmp_date` DATE COMMENT\
+  \ 'Last menstrual period date, for current/recent pregnancies.',\n  `edd_date` DATE\
+  \ COMMENT 'Expected date of delivery, for current pregnancies.',\n  `anc_registrations`\
+  \ INT COMMENT 'Count of antenatal care check-up registrations for the current/most\
+  \ recent pregnancy.',\n  `institutional_delivery` BOOLEAN COMMENT 'Boolean flag.\
+  \ True if the most recent delivery took place in a healthcare institution rather\
+  \ than at home.',\n  `covid_vaccinated` BOOLEAN COMMENT 'Boolean flag. True if the\
+  \ person has received at least one covid-19 vaccine dose.',\n  `covid_doses` INT\
+  \ COMMENT 'Total number of COVID-19 vaccine doses received.',\n  `esi_covered` BOOLEAN\
+  \ COMMENT 'Boolean flag. True if covered under employee state insurance.',\n  `cghs_covered`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if covered under the central government health\
+  \ scheme.',\n  `rsby_covered` BOOLEAN COMMENT 'Boolean flag. True if covered under\
+  \ the rashtriya swasthya bima yojana.',\n  `has_mental_health_condition` BOOLEAN\
+  \ COMMENT 'Boolean flag. True if a mental health condition is on file.',\n  `mental_health_type`\
+  \ STRING COMMENT 'Type of mental health condition, where has_mental_health_condition\
+  \ is true.',\n  `last_encounter_date` DATE COMMENT 'Date of the most recent recorded\
+  \ healthcare encounter of any kind.',\n  `linked_scheme_ids` ARRAY<STRING> COMMENT\
+  \ 'ARRAY<STRING> column. Contains Array of dim_scheme.scheme_id values for every\
+  \ health-related welfare scheme this person is linked to.',\n  `department_id` STRING\
+  \ COMMENT 'Foreign Key: References dim_department.department_id. the Health department\
+  \ record owner.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this health profile\
+  \ was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_health_profile'"
 columns:
 - name: person_id
   type: STRING
@@ -61,7 +78,8 @@ columns:
 - name: abha_address
   type: STRING
   nullable: true
-  description: Ayushman Bharat Health Account address (the ABDM health-ID's human-readable handle).
+  description: Ayushman Bharat Health Account address (the ABDM health-ID's human-readable
+    handle).
 - name: aarogyasri_card_no
   type: STRING
   nullable: true
@@ -69,8 +87,8 @@ columns:
 - name: aarogyasri_status
   type: STRING
   nullable: true
-  description: 'Enrollment status under Aarogyasri, e.g. ''Active'', ''Not Enrolled''. [Value Examples: ''Active'', ''Not
-    Enrolled'']'
+  description: 'Enrollment status under Aarogyasri, e.g. ''Active'', ''Not Enrolled''.
+    [Value Examples: ''Active'', ''Not Enrolled'']'
 - name: pmjay_beneficiary_id
   type: STRING
   nullable: true
@@ -83,6 +101,8 @@ columns:
   type: STRING
   nullable: true
   description: 'Blood group, e.g. ''O+'', ''AB-''. [Value Examples: ''O+'', ''AB-'']'
+  value_description: '[''O+'', ''B+'', ''A+'', ''O-'', ''AB+'', ''A-'', ''B-'', ''AB-'',
+    ''-1'']'
 - name: height_cm
   type: INT
   nullable: true
@@ -98,15 +118,18 @@ columns:
 - name: conditions
   type: ARRAY<STRING>
   nullable: true
-  description: ARRAY<STRING> column. Contains chronic conditions/diagnoses on file, beyond the specific boolean flags below.
+  description: ARRAY<STRING> column. Contains chronic conditions/diagnoses on file,
+    beyond the specific boolean flags below.
 - name: has_diabetes
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if diagnosed with diabetes.
+  value_description: '[''True'']'
 - name: has_hypertension
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if diagnosed with hypertension.
+  value_description: '[''True'']'
 - name: has_tuberculosis
   type: BOOLEAN
   nullable: true
@@ -131,6 +154,7 @@ columns:
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if currently pregnant per the latest anc record.
+  value_description: '[''True'']'
 - name: lmp_date
   type: DATE
   nullable: true
@@ -142,15 +166,18 @@ columns:
 - name: anc_registrations
   type: INT
   nullable: true
-  description: Count of antenatal care check-up registrations for the current/most recent pregnancy.
+  description: Count of antenatal care check-up registrations for the current/most
+    recent pregnancy.
 - name: institutional_delivery
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if the most recent delivery took place in a healthcare institution rather than at home.
+  description: Boolean flag. True if the most recent delivery took place in a healthcare
+    institution rather than at home.
 - name: covid_vaccinated
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if the person has received at least one covid-19 vaccine dose.
+  description: Boolean flag. True if the person has received at least one covid-19
+    vaccine dose.
 - name: covid_doses
   type: INT
   nullable: true
@@ -159,22 +186,27 @@ columns:
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if covered under employee state insurance.
+  value_description: '[''False'']'
 - name: cghs_covered
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if covered under the central government health scheme.
+  value_description: '[''False'']'
 - name: rsby_covered
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if covered under the rashtriya swasthya bima yojana.
+  value_description: '[''False'']'
 - name: has_mental_health_condition
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if a mental health condition is on file.
+  value_description: '[''False'']'
 - name: mental_health_type
   type: STRING
   nullable: true
-  description: Type of mental health condition, where has_mental_health_condition is true.
+  description: Type of mental health condition, where has_mental_health_condition
+    is true.
 - name: last_encounter_date
   type: DATE
   nullable: true
@@ -182,12 +214,13 @@ columns:
 - name: linked_scheme_ids
   type: ARRAY<STRING>
   nullable: true
-  description: ARRAY<STRING> column. Contains Array of dim_scheme.scheme_id values for every health-related welfare scheme
-    this person is linked to.
+  description: ARRAY<STRING> column. Contains Array of dim_scheme.scheme_id values
+    for every health-related welfare scheme this person is linked to.
 - name: department_id
   type: STRING
   nullable: true
-  description: 'Foreign Key: References dim_department.department_id. the Health department record owner.'
+  description: 'Foreign Key: References dim_department.department_id. the Health department
+    record owner.'
 - name: updated_at
   type: TIMESTAMP
   nullable: true
