@@ -1,0 +1,82 @@
+INFO:     Started server process [12628]
+INFO:     Waiting for application startup.
+2026-07-15 22:34:15,132 [INFO] schema-retrieval: Startup successful
+2026-07-15 22:34:15,481 [INFO] SQLAlchemy engine created → SQLite /Users/prakhar/Downloads/Student_Dropout_v1.3.1/ap_citizen360_v1.5/database/schema.db
+2026-07-15 22:34:15,495 [INFO] mcp.server.lowlevel.server: Processing request of type ListToolsRequest
+2026-07-15 22:34:15,496 [INFO] Processing request of type ListToolsRequest
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+ChatOllama model: qwen3.5:2b-mlx  |  thinking=off
+Created empty database at /Users/prakhar/Downloads/Student_Dropout_v1.3.1/ap_citizen360_v1.5/database/schema.db with 44 tables.
+Curated database initialized at /Users/prakhar/Downloads/Student_Dropout_v1.3.1/ap_citizen360_v1.5/database/schema.db
+Chat history database initialized at /Users/prakhar/Downloads/Student_Dropout_v1.3.1/ap_citizen360_v1.5/database/chat_history.db
+Ollama ready: qwen3.5:2b-mlx
+RAG tool loaded : retrive_schema_rag
+LLM tools loaded: ['retrive_schema_rag', 'execute_sql']
+Agent graph compiled successfully.
+LangGraph agent built successfully during startup.
+INFO:     127.0.0.1:55463 - "POST /ask HTTP/1.1" 200 OK
+2026-07-15 22:34:22,076 [INFO] mcp.server.lowlevel.server: Processing request of type CallToolRequest
+2026-07-15 22:34:22,077 [INFO] schema-retrieval: Query: [intent: student_risk_list] How many students dropped out in 2025 in Anantapur district? [district: Anantapur, year: 2025] [departments: ap_citizen360]
+2026-07-15 22:34:22,762 [INFO] schema-retrieval: RAG retrieved 4 chunks for query '[intent: student_risk_list] How many students dropped out in 2025 in Anantapur district? [district: Anantapur, year: 2025] [departments: ap_citizen360]':
+2026-07-15 22:34:22,762 [INFO] schema-retrieval:   [1] Table: ap_citizen360.dim_student | Similarity Score: 0.6644
+2026-07-15 22:34:22,762 [INFO] schema-retrieval:   [2] Table: ap_citizen360.dim_district | Similarity Score: 0.6457
+2026-07-15 22:34:22,762 [INFO] schema-retrieval:   [3] Table: ap_community360.dim_facility_school | Similarity Score: 0.6311
+2026-07-15 22:34:22,762 [INFO] schema-retrieval:   [4] Table: ap_citizen360.fact_population_hierarchy | Similarity Score: 0.6179
+2026-07-15 22:34:22,765 [INFO] schema-retrieval: Returned 4 chunks
+2026-07-15 22:34:46,921 [INFO] Processing request of type CallToolRequest
+2026-07-15 22:34:46,930 [INFO] [execute_sql] SELECT COUNT(*) FROM ap_citizen360.dim_student WHERE district_id = 'anantapur' AND is_dropout = true AND academic_year = '2025'
+2026-07-15 22:34:46,956 [ERROR] [execute_sql] error: (sqlite3.OperationalError) no such column: district_id
+[SQL: SELECT COUNT(*) FROM dim_student WHERE district_id = 'anantapur' AND is_dropout = true AND academic_year = '2025']
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+verify_node: SQL failed execution (error: (sqlite3.OperationalError) no such column: district_id
+[SQL: SELECT COUNT(*) FROM dim_student WHERE district_id = 'anantapur' AND is_dropout = true AND academic_year = '2025']
+(Background on this error at: https://sqlalche.me/e/20/e3q8)). Forcing RAG re-retrieval before correction.
+2026-07-15 22:34:46,976 [INFO] mcp.server.lowlevel.server: Processing request of type CallToolRequest
+2026-07-15 22:34:46,976 [INFO] schema-retrieval: Query: How many students dropped out in 2025 in Anantapur district?
+2026-07-15 22:34:47,039 [INFO] schema-retrieval: RAG retrieved 4 chunks for query 'How many students dropped out in 2025 in Anantapur district?':
+2026-07-15 22:34:47,040 [INFO] schema-retrieval:   [1] Table: ap_citizen360.dim_student | Similarity Score: 0.5367
+2026-07-15 22:34:47,040 [INFO] schema-retrieval:   [2] Table: ap_citizen360.dim_district | Similarity Score: 0.5127
+2026-07-15 22:34:47,040 [INFO] schema-retrieval:   [3] Table: ap_community360.dim_facility_school | Similarity Score: 0.5064
+2026-07-15 22:34:47,040 [INFO] schema-retrieval:   [4] Table: ap_citizen360.fact_population_hierarchy | Similarity Score: 0.4890
+2026-07-15 22:34:47,042 [INFO] schema-retrieval: Returned 4 chunks
+2026-07-15 22:35:36,161 [INFO] Processing request of type CallToolRequest
+2026-07-15 22:35:36,167 [INFO] [execute_sql] SELECT COUNT(*) FROM ap_citizen360.dim_student WHERE is_dropout = true AND academic_year = '2025' AND district_name = 'Anantapur'
+2026-07-15 22:35:36,186 [ERROR] [execute_sql] error: (sqlite3.OperationalError) no such column: district_name
+[SQL: SELECT COUNT(*) FROM dim_student WHERE is_dropout = true AND academic_year = '2025' AND district_name = 'Anantapur']
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+verify_node: SQL failed execution (error: (sqlite3.OperationalError) no such column: district_name
+[SQL: SELECT COUNT(*) FROM dim_student WHERE is_dropout = true AND academic_year = '2025' AND district_name = 'Anantapur']
+(Background on this error at: https://sqlalche.me/e/20/e3q8)). Forcing RAG re-retrieval before correction.
+2026-07-15 22:35:36,231 [INFO] mcp.server.lowlevel.server: Processing request of type CallToolRequest
+2026-07-15 22:35:36,237 [INFO] schema-retrieval: Query: How many students dropped out in 2025 in Anantapur district?
+2026-07-15 22:35:36,366 [INFO] schema-retrieval: RAG retrieved 4 chunks for query 'How many students dropped out in 2025 in Anantapur district?':
+2026-07-15 22:35:36,366 [INFO] schema-retrieval:   [1] Table: ap_citizen360.dim_student | Similarity Score: 0.5367
+2026-07-15 22:35:36,366 [INFO] schema-retrieval:   [2] Table: ap_citizen360.dim_district | Similarity Score: 0.5127
+2026-07-15 22:35:36,366 [INFO] schema-retrieval:   [3] Table: ap_community360.dim_facility_school | Similarity Score: 0.5064
+2026-07-15 22:35:36,366 [INFO] schema-retrieval:   [4] Table: ap_citizen360.fact_population_hierarchy | Similarity Score: 0.4890
+2026-07-15 22:35:36,368 [INFO] schema-retrieval: Returned 4 chunks
+2026-07-15 22:36:23,209 [INFO] Processing request of type CallToolRequest
+2026-07-15 22:36:23,217 [INFO] [execute_sql] SELECT COUNT(*) FROM ap_citizen360.dim_student WHERE is_dropout = true AND academic_year = '2025' AND district_name = 'Anantapur'
+2026-07-15 22:36:23,234 [ERROR] [execute_sql] error: (sqlite3.OperationalError) no such column: district_name
+[SQL: SELECT COUNT(*) FROM dim_student WHERE is_dropout = true AND academic_year = '2025' AND district_name = 'Anantapur']
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+verify_node: SQL failed execution (error: (sqlite3.OperationalError) no such column: district_name
+[SQL: SELECT COUNT(*) FROM dim_student WHERE is_dropout = true AND academic_year = '2025' AND district_name = 'Anantapur']
+(Background on this error at: https://sqlalche.me/e/20/e3q8)). Forcing RAG re-retrieval before correction.
+2026-07-15 22:36:23,279 [INFO] mcp.server.lowlevel.server: Processing request of type CallToolRequest
+2026-07-15 22:36:23,284 [INFO] schema-retrieval: Query: How many students dropped out in 2025 in Anantapur district?
+2026-07-15 22:36:23,439 [INFO] schema-retrieval: RAG retrieved 4 chunks for query 'How many students dropped out in 2025 in Anantapur district?':
+2026-07-15 22:36:23,439 [INFO] schema-retrieval:   [1] Table: ap_citizen360.dim_student | Similarity Score: 0.5367
+2026-07-15 22:36:23,439 [INFO] schema-retrieval:   [2] Table: ap_citizen360.dim_district | Similarity Score: 0.5127
+2026-07-15 22:36:23,439 [INFO] schema-retrieval:   [3] Table: ap_community360.dim_facility_school | Similarity Score: 0.5064
+2026-07-15 22:36:23,439 [INFO] schema-retrieval:   [4] Table: ap_citizen360.fact_population_hierarchy | Similarity Score: 0.4890
+2026-07-15 22:36:23,441 [INFO] schema-retrieval: Returned 4 chunks
+2026-07-15 22:37:06,727 [INFO] Processing request of type CallToolRequest
+2026-07-15 22:37:06,731 [INFO] [execute_sql] SELECT COUNT(*) FROM ap_citizen360.dim_student WHERE is_dropout = true AND academic_year = '2025' AND district_name = 'Anantapur'
+2026-07-15 22:37:06,746 [ERROR] [execute_sql] error: (sqlite3.OperationalError) no such column: district_name
+[SQL: SELECT COUNT(*) FROM dim_student WHERE is_dropout = true AND academic_year = '2025' AND district_name = 'Anantapur']
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+verify_node: max verification loops (3) reached with failed SQL; accepting error as-is
+I0715 22:38:34.274477  771580 chttp2_transport.cc:1376] ipv4:127.0.0.1:55460: Got goaway [11] err=UNAVAILABLE:GOAWAY received; Error code: 11; Debug Text: too_many_pings {http2_error:11}
+E0715 22:38:34.277787  771580 chttp2_transport.cc:1408] ipv4:127.0.0.1:55460: Received a GOAWAY with error code ENHANCE_YOUR_CALM and debug data equal to "too_many_pings". Current keepalive time (before throttling): 10000ms

@@ -44,3 +44,7 @@ verify_node: SQL failed execution (error: (sqlite3.OperationalError) no such col
 2026-07-14 23:16:20,628 [INFO] [execute_sql] SELECT COUNT(*) FROM ap_citizen360.dim_person WHERE person_id IN (SELECT person_id FROM ap_citizen360.dim_student WHERE education_level = 'Primary' AND is_dropout = 1)
 I0714 23:17:45.308607  637474 chttp2_transport.cc:1376] ipv4:127.0.0.1:54639: Got goaway [11] err=UNAVAILABLE:GOAWAY received; Error code: 11; Debug Text: too_many_pings {http2_error:11}
 E0714 23:17:45.312038  637474 chttp2_transport.cc:1408] ipv4:127.0.0.1:54639: Received a GOAWAY with error code ENHANCE_YOUR_CALM and debug data equal to "too_many_pings". Current keepalive time (before throttling): 10000ms
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [10435]

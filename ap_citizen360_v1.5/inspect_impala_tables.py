@@ -74,19 +74,46 @@ def main():
             "SET MT_DOP=1"
         ]
         print("✓ Connected to Impala. Fetching table data...")
+
+        # Proactively list all tables on the remote database to identify schema mismatches
+        try:
+            conn = executor._get_connection()
+            cursor = conn.cursor()
+
+            cursor.execute("SHOW TABLES IN ap_citizen360")
+            citizen_tables = sorted([row[0].lower() for row in cursor.fetchall()])
+            log("=" * 80)
+            log("📋 EXISTING TABLES IN DATABASE: ap_citizen360")
+            log("-" * 80)
+            for t in citizen_tables:
+                log(f"  - {t}")
+
+            cursor.execute("SHOW TABLES IN ap_community360")
+            community_tables = sorted([row[0].lower() for row in cursor.fetchall()])
+            log()
+            log("📋 EXISTING TABLES IN DATABASE: ap_community360")
+            log("-" * 80)
+            for t in community_tables:
+                log(f"  - {t}")
+            log("=" * 80)
+            log()
+            cursor.close()
+            print("✓ Successfully listed remote tables in the output log.")
+        except Exception as list_err:
+            print(f"Warning: Could not list remote tables: {list_err}")
     except Exception as e:
         print(f"Failed to connect to Impala: {e}")
         print("Please ensure you have a valid Kerberos ticket (run kinit).")
         out_f.close()
         sys.exit(1)
 
-    for idx, table in enumerate(defined_tables, 1):
-        print(f"[{idx}/{len(defined_tables)}] Fetching curated_datamodels.{table}...")
+    for idx, (db, table) in enumerate(defined_tables, 1):
+        print(f"[{idx}/{len(defined_tables)}] Fetching {db}.{table}...")
         log("-" * 80)
-        log(f"Table: curated_datamodels.{table}")
+        log(f"Table: {db}.{table}")
         log("-" * 80)
 
-        query = f"SELECT * FROM curated_datamodels.{table} LIMIT 5;"
+        query = f"SELECT * FROM {db}.{table} LIMIT 5;"
         try:
             res = executor.execute(query)
             payload = json.loads(res)
@@ -154,15 +181,20 @@ def get_yaml_tables(tables_dir):
             if file.endswith('.yaml'):
                 file_path = os.path.join(root, file)
                 try:
+                    db_name = "curated_datamodels"
+                    table_name = None
                     with open(file_path, 'r', encoding='utf-8') as f:
                         for line in f:
-                            if line.strip().startswith('table:'):
-                                table_name = line.split('table:')[1].strip().strip('\'"')
-                                yaml_tables.append(table_name)
-                                break
+                            stripped = line.strip()
+                            if stripped.startswith('database:'):
+                                db_name = stripped.split('database:')[1].strip().strip('\'"')
+                            elif stripped.startswith('table:'):
+                                table_name = stripped.split('table:')[1].strip().strip('\'"')
+                    if table_name:
+                        yaml_tables.append((db_name, table_name))
                 except Exception:
                     pass
-    return sorted(list(set(yaml_tables)))
+    return sorted(list(set(yaml_tables)), key=lambda x: (x[0], x[1]))
 
 if __name__ == '__main__':
     main()
