@@ -30,6 +30,7 @@ Startup behaviour
 import json
 import logging
 import os
+import re
 import sys
 
 from dotenv import load_dotenv
@@ -76,6 +77,55 @@ else:
     )
 
 # ─────────────────────────────────────────────────────────────────────────────
+#  Impala SQL sanitizer
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Impala reserved words that LLMs commonly use as bare aliases.
+# When used after AS or in LATERAL VIEW EXPLODE ... AS <kw>, they must be
+# backtick-escaped, otherwise Impala throws a ParseException.
+_IMPALA_RESERVED_ALIAS_KEYWORDS: set[str] = {
+    "element", "key", "value", "values", "date", "timestamp", "interval",
+    "cast", "count", "sum", "max", "min", "avg", "year", "month", "day",
+    "hour", "minute", "second", "table", "column", "row", "rows", "type",
+    "name", "index", "range", "level", "start", "end", "offset", "size",
+    "comment", "current",
+}
+
+# Pattern: "AS <keyword>" where the keyword is NOT already backtick-quoted.
+# Uses a word-boundary so we don't match partial words.
+_AS_RESERVED_RE = re.compile(
+    r"\bAS\s+(?!`)("
+    + "|".join(re.escape(kw) for kw in sorted(_IMPALA_RESERVED_ALIAS_KEYWORDS, key=len, reverse=True))
+    + r")\b",
+    re.IGNORECASE,
+)
+
+# Pattern: bare `current_date` NOT followed by `(` — must become `current_date()`.
+_CURRENT_DATE_RE = re.compile(r"\bcurrent_date\b(?!\s*\()", re.IGNORECASE)
+
+
+def _sanitize_impala_sql(sql: str) -> str:
+    """
+    Deterministically fix the most common Impala dialect/keyword errors
+    that LLMs produce, before the query is sent to Impala:
+
+    1. ``current_date`` → ``current_date()``
+       Impala requires the parentheses; bare form raises AnalysisException.
+
+    2. ``AS element``, ``AS value``, ``AS date``, etc. (reserved keywords
+       used as aliases) → ``AS `element```, ``AS `value```, …
+       These cause ParseException because Impala reserves these tokens.
+    """
+    # Fix 1: current_date → current_date()
+    sql = _CURRENT_DATE_RE.sub("current_date()", sql)
+
+    # Fix 2: AS <reserved_keyword> → AS `<reserved_keyword>`
+    sql = _AS_RESERVED_RE.sub(lambda m: f"AS `{m.group(1).lower()}`", sql)
+
+    return sql
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 #  MCP server
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -106,6 +156,7 @@ def execute_sql(query: str) -> str:
             "query": query,
         })
 
+    query = _sanitize_impala_sql(query)
     return _executor.execute(query)
 
 

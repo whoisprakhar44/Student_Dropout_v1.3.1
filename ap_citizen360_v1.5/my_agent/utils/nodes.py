@@ -486,20 +486,68 @@ def verify_node(state: AgentState) -> dict:
                 "verified": True,
             }
         
-        # Extract a targeted search term from the error (e.g. the bad table name)
-        # so the forced RAG re-retrieval is more specific than the original query.
+        # Extract a targeted search term from the error so the forced RAG
+        # re-retrieval is more specific than the original query.
+        # Handles three Impala error classes:
+        #   1. AnalysisException: Could not resolve table reference: 'bad.table'
+        #   2. AnalysisException: Could not resolve column/field reference: 'alias.bad_col'
+        #   3. ParseException: reserved keyword used as identifier (e.g. `element`)
         rag_query = state["user_query"]
-        table_match = re.search(r"table reference: '([^']+)'", error_msg, re.IGNORECASE)
+        bad_identifier: str | None = None
+        correction_hint: str = ""
+
+        table_match = re.search(r"table reference: '([^']+)'", error_msg, re.IGNORECASE) or re.search(r"no such table: ([^\s\n]+)", error_msg, re.IGNORECASE)
+        col_match   = re.search(r"column/field reference: '([^']+)'", error_msg, re.IGNORECASE) or re.search(r"no such column: ([^\s\n]+)", error_msg, re.IGNORECASE)
+        parse_match = re.search(r"ParseException", error_msg, re.IGNORECASE) or re.search(r"syntax error", error_msg, re.IGNORECASE)
+
         if table_match:
             bad_table = table_match.group(1).split(".")[-1]  # strip db prefix
-            rag_query = f"{state['user_query']} (looking for table similar to: {bad_table})"
+            bad_identifier = bad_table
+            rag_query = (
+                f"{state['user_query']} "
+                f"(table '{bad_table}' does not exist — find its correct name in the schema)"
+            )
+            correction_hint = (
+                f"The table '{bad_table}' does not exist in the database. "
+                "Use ONLY table names returned by the schema retrieval above."
+            )
+        elif col_match:
+            bad_col_full = col_match.group(1)           # e.g. "f.geography_id"
+            bad_col = bad_col_full.split(".")[-1]        # e.g. "geography_id"
+            bad_identifier = bad_col_full
+            rag_query = (
+                f"{state['user_query']} "
+                f"(column '{bad_col}' does not exist — find its correct column name in the schema)"
+            )
+            correction_hint = (
+                f"The column '{bad_col_full}' does not exist. "
+                "Look at the schema retrieved above and use ONLY column names that appear there. "
+                "Do NOT invent column names."
+            )
+        elif parse_match:
+            # ParseException: usually a reserved keyword used as an alias
+            # e.g. `element` — must be backtick-escaped in Impala
+            kw_match = re.search(
+                r"Encountered: Unknown last token.*?\n.*?\^.*?\nExpected:",
+                error_msg,
+                re.DOTALL,
+            )
+            bad_identifier = "(reserved keyword used as alias)"
+            rag_query = f"{state['user_query']} (fix Impala SQL syntax error)"
+            correction_hint = (
+                "The SQL has a syntax error in Impala. "
+                "Reserved keywords used as aliases (e.g. `element`, `date`, `value`) "
+                "must be backtick-escaped. Also note: Impala requires `current_date()` "
+                "(with parentheses), not bare `current_date`."
+            )
 
         import uuid
         tool_call_id = f"call_{uuid.uuid4().hex}"
         forced_rag_msg = AIMessage(
             content=(
-                f"SQL failed: {error_msg}. "
-                "Calling schema retrieval to find the correct table and column names before retrying."
+                f"Impala error: {error_msg}\n\n"
+                f"{correction_hint}\n"
+                "Retrieving the correct schema now so you can rewrite the SQL using only valid identifiers."
             ),
             tool_calls=[{
                 "id": tool_call_id,
@@ -511,8 +559,9 @@ def verify_node(state: AgentState) -> dict:
             }]
         )
         logger.warning(
-            "verify_node: SQL failed execution (error: %s). Forcing RAG re-retrieval before correction.",
-            error_msg,
+            "verify_node: SQL failed (bad_identifier=%s | error: %s). Forcing targeted RAG re-retrieval.",
+            bad_identifier or "unknown",
+            error_msg[:120],
         )
         return {
             "messages": [forced_rag_msg],

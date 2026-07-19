@@ -41,7 +41,7 @@ active_tasks: dict[str, asyncio.Task] = {}
 
 
 class AskRequest(BaseModel):
-    action: str | None = Field(default=None, description="Action to perform: 'ask', 'cancel', 'history', 'history_session', 'delete_session', 'clear_history'")
+    action: str | None = Field(default=None, description="Action to perform: 'ask', 'cancel', 'history', 'history_session', 'delete_session', 'clear_history', 'chart'")
     question: str | None = Field(default=None, description="Natural-language question.")
     request_id: str | None = Field(
         None,
@@ -49,6 +49,8 @@ class AskRequest(BaseModel):
     )
     session_id: str | None = Field(default=None, description="Optional chat session ID for conversation memory.")
     thread_id: str | None = Field(default=None, description="Optional chat thread ID (alias for session_id) for conversation memory.")
+    chart_type: str | None = Field(default=None, description="Type of chart (e.g., 'bar', 'line', 'pie', 'scatter') for 'chart' action.")
+    data: list[dict[str, Any]] | None = Field(default=None, description="Data to be plotted for 'chart' action.")
     username: str = Field(..., min_length=1, description="Required username to scope the chat history.")
 
 
@@ -537,6 +539,20 @@ async def ask(payload: AskRequest):
             raise HTTPException(status_code=500, detail=f"Failed to clear sessions: {e}")
         finally:
             conn.close()
+
+    # 4b. Action: Chart (generate Vega-Lite SVG)
+    elif action == "chart":
+        if not payload.data or not payload.chart_type:
+            raise HTTPException(status_code=400, detail="Both 'data' and 'chart_type' are required for chart action.")
+        
+        try:
+            # Import dynamically to avoid loading vl-convert if unused
+            from my_agent.utils.chart_generator import generate_svg_chart
+            svg = generate_svg_chart(payload.data, payload.chart_type)
+            return {"status": "success", "svg": svg}
+        except Exception as e:
+            traceback.print_exc()
+            raise HTTPException(status_code=500, detail=f"Failed to generate chart: {e}")
 
     # 5. Action: Ask (NL2SQL Query)
     elif action == "ask":
@@ -1094,6 +1110,7 @@ async def get_ui():
         let currentUsername = "";
         let currentSessionId = "";
         let sessionsMap = new Map(); // session_id -> session object
+        window.__chartData = {}; // msgId -> result data
 
         // Helper to generate UUIDv4
         function generateUUID() {
@@ -1262,8 +1279,44 @@ async def get_ui():
             }
         }
 
+        async function generateChart(msgId) {
+            const data = window.__chartData[msgId];
+            if (!data) return;
+            
+            const select = document.getElementById(`chart-type-${msgId}`);
+            const type = select.value;
+            const container = document.getElementById(`chart-container-${msgId}`);
+            
+            container.innerHTML = `<span class="loader" style="width: 20px; height: 20px; display: inline-block;"></span> <span>Generating ${type} chart...</span>`;
+            
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'chart',
+                        username: currentUsername,
+                        chart_type: type,
+                        data: data
+                    })
+                });
+                
+                if (!response.ok) throw new Error("Chart generation failed");
+                const resJson = await response.json();
+                
+                if (resJson.status === 'success' && resJson.svg) {
+                    container.innerHTML = resJson.svg;
+                } else {
+                    container.innerHTML = `<div style="color: #ef4444;">Error: ${resJson.error || 'Unknown error'}</div>`;
+                }
+            } catch (err) {
+                container.innerHTML = `<div style="color: #ef4444;">Failed to generate chart.</div>`;
+            }
+        }
+
         function renderMessage(role, text, sql = null, result = null) {
             const container = document.getElementById('messagesContainer');
+            const msgId = 'msg_' + Date.now() + Math.random().toString(36).substr(2, 5);
             
             // Remove empty chat state if present
             const emptyState = container.querySelector('.empty-chat');
@@ -1319,6 +1372,24 @@ async def get_ui():
                             </summary>
                             <div class="results-container">
                                 ${renderTable(result)}
+                            </div>
+                        `;
+                        
+                        // Add chart UI for successful results
+                        window.__chartData[msgId] = result;
+                        resultHtml += `
+                            <div style="margin-top: 12px; padding: 12px; background: rgba(15, 23, 42, 0.4); border-radius: 8px; border: 1px solid #334155;">
+                                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                                    <span style="font-size: 12px; color: #94a3b8;">Visualize:</span>
+                                    <select id="chart-type-${msgId}" style="background: #111827; color: #f8fafc; border: 1px solid #374151; border-radius: 4px; padding: 4px 8px; font-size: 12px;">
+                                        <option value="bar">Bar Chart</option>
+                                        <option value="line">Line Chart</option>
+                                        <option value="pie">Pie Chart</option>
+                                        <option value="scatter">Scatter Plot</option>
+                                    </select>
+                                    <button onclick="generateChart('${msgId}')" class="btn btn-secondary" style="padding: 4px 10px; font-size: 11px;">Show Chart</button>
+                                </div>
+                                <div id="chart-container-${msgId}" style="display: flex; justify-content: center; overflow-x: auto; background: white; border-radius: 4px;"></div>
                             </div>
                         `;
                     }

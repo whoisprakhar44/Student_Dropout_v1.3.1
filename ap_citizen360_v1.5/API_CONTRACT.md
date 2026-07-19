@@ -48,11 +48,13 @@ All interactions (executing NL-to-SQL queries, canceling queries, listing histor
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | `username` | `string` | **Required.** Scopes all operations. |
-| `action` | `string` | **Optional.** One of: `"ask"` (default), `"cancel"`, `"history"`, `"history_session"`, `"delete_session"`, `"clear_history"`. |
+| `action` | `string` | **Optional.** One of: `"ask"` (default), `"cancel"`, `"history"`, `"history_session"`, `"delete_session"`, `"clear_history"`, `"chart"`. |
 | `question` | `string` | **Required only for `"ask"` action.** The natural-language database question. |
 | `request_id` | `string` | **Optional.** Custom identifier to track/cancel a running request. |
 | `session_id` | `string` | **Optional.** Chat session ID for conversation memory (used in `"ask"`, `"history_session"`, and `"delete_session"`). |
 | `thread_id` | `string` | **Optional.** Alias for `session_id`. |
+| `chart_type` | `string` | **Required only for `"chart"` action.** Type of chart (e.g., `"bar"`, `"line"`, `"pie"`, `"scatter"`). |
+| `data` | `list[dict]` | **Required only for `"chart"` action.** The JSON result array to plot. |
 
 ---
 
@@ -245,6 +247,32 @@ Response:
 {
   "status": "success",
   "message": "All sessions deleted successfully"
+}
+```
+
+## 6. Action: `"chart"`
+
+Generates an SVG chart from the provided data using Vega-Lite. 
+The backend automatically determines the optimal X and Y axes using a fast LLM call.
+
+Request:
+```json
+{
+  "action": "chart",
+  "username": "test_user",
+  "chart_type": "bar",
+  "data": [
+    {"district_name": "Srikakulam", "total_students": 500},
+    {"district_name": "Visakhapatnam", "total_students": 1200}
+  ]
+}
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" ...></svg>"
 }
 ```
 
