@@ -9,7 +9,7 @@ query_engine:
   type: impala
   host: dl-dev-cl-fn01.datalake-dev.local
   port: 21050
-  database: curated_datamodels        # used by health-check Iceberg read
+  database: ap_citizen360              # used by health-check Iceberg read
 
   kerberos:
     service_name: impala              # passed as kerberos_service_name to Impyla

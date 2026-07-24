@@ -20,7 +20,7 @@ Features
       1. Kerberos ticket (klist)
       2. Impala TCP connectivity
       3. SELECT 1 / SHOW DATABASES
-      4. Iceberg table read (curated_datamodels.citizen_student LIMIT 1)
+      4. Iceberg table read (ap_citizen360.citizen_student LIMIT 1)
 
 Impyla / Impala type handling
 ─────────────────────────────
@@ -98,7 +98,7 @@ def _get_engine_cfg(cfg: dict) -> dict:
             "type": "impala",
             "host": hive.get("host"),
             "port": hive.get("port", 21050),
-            "database": hive.get("database", "curated_datamodels"),
+            "database": hive.get("database", "ap_citizen360"),
             "kerberos": {
                 "service_name": hive.get("kerberos_service_name", "impala"),
             },
@@ -192,7 +192,7 @@ class HiveExecutor:
         executor = HiveExecutor("path/to/config.yaml")
 
         result_json = executor.execute(
-            "SELECT COUNT(*) FROM curated_datamodels.citizen_student"
+            "SELECT COUNT(*) FROM ap_citizen360.citizen_student"
         )
     """
 
@@ -207,7 +207,7 @@ class HiveExecutor:
         # Resolved connection parameters
         self.host                 = self._eng_cfg["host"]
         self.port                 = int(self._eng_cfg.get("port", 21050))
-        self.database             = self._eng_cfg.get("database", "curated_datamodels")
+        self.database             = self._eng_cfg.get("database", "ap_citizen360")
         self.kerberos_service_name = (
             self._eng_cfg.get("kerberos", {}).get("service_name", "impala")
         )
@@ -350,7 +350,7 @@ class HiveExecutor:
         kerberos     — runs `klist`, parses the default principal line
         impala_tcp   — TCP socket-connect to host:port (no Impyla dependency)
         database     — opens a fresh cursor, runs SELECT 1 and SHOW DATABASES
-        iceberg_read — runs SELECT * FROM curated_datamodels.citizen_student LIMIT 1
+        iceberg_read — runs SELECT * FROM ap_citizen360.citizen_student LIMIT 1
                        to validate end-to-end Iceberg read via Impala
         """
         result: dict[str, Any] = {}
@@ -488,7 +488,7 @@ class HiveExecutor:
         """
         Validate end-to-end Iceberg table read via Impala.
 
-        Runs:  SELECT * FROM curated_datamodels.citizen_student LIMIT 1
+        Runs:  SELECT * FROM ap_citizen360.citizen_student LIMIT 1
 
         This is the primary validation that the Iceberg/Parquet stack works
         correctly through Impala (the original motivation for this migration).

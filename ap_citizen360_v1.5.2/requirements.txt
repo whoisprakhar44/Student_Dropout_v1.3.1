@@ -16,3 +16,7 @@ mysql-connector-python
 pysqlite3-binary; sys_platform == 'linux'
 impyla                    # Impala Python DB-API 2 driver (replaces pyhive)
 thrift_sasl               # Kerberos SASL transport for Impyla GSSAPI auth
+faster-whisper
+pydantic-settings
+python-multipart
+openpyxl                  # Excel query log

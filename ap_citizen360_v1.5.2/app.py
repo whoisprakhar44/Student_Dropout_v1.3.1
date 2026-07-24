@@ -12,6 +12,7 @@ import asyncio
 import json
 import os
 import sqlite3
+import threading
 import traceback
 import uuid
 from datetime import datetime
@@ -31,9 +32,83 @@ from my_agent.agent import build_graph
 from my_agent.utils.ollama_check import chat_model_name, check_ollama
 from my_agent.utils.tools import cleanup_tools
 
+# Speech-to-text imports
+from speech_to_text.config import get_settings as get_speech_settings
+from speech_to_text.transcriber import Transcriber
+from speech_to_text.live import LiveTranscriptionSession, LiveSessionLimitError
+from starlette.concurrency import run_in_threadpool
+import base64
+from fastapi import WebSocket, WebSocketDisconnect
+
+speech_settings = get_speech_settings()
+if speech_settings.enable_speech_to_text:
+    speech_transcriber = Transcriber(speech_settings)
+else:
+    speech_transcriber = None
+
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "database", "schema.db")
 HISTORY_DB_PATH = os.path.join(os.path.dirname(__file__), "database", "chat_history.db")
+EXCEL_LOG_PATH = os.path.join(os.path.dirname(__file__), "database", "query_log.xlsx")
+
+# Thread lock for Excel file writes (openpyxl is not thread-safe)
+_excel_lock = threading.Lock()
+
+_EXCEL_HEADERS = [
+    "Timestamp", "Username", "Session ID",
+    "Question", "Generated SQL", "Status",
+    "Answer / Response", "Error",
+]
+
+
+def _init_excel_log() -> None:
+    """Create the Excel log file with headers if it does not exist yet."""
+    import openpyxl
+    os.makedirs(os.path.dirname(EXCEL_LOG_PATH), exist_ok=True)
+    if not os.path.exists(EXCEL_LOG_PATH):
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Query Log"
+        ws.append(_EXCEL_HEADERS)
+        # Freeze the header row
+        ws.freeze_panes = "A2"
+        # Bold headers
+        from openpyxl.styles import Font
+        for cell in ws[1]:
+            cell.font = Font(bold=True)
+        wb.save(EXCEL_LOG_PATH)
+        print(f"Excel query log initialized at {EXCEL_LOG_PATH}")
+
+
+def _append_excel_log(
+    username: str,
+    session_id: str,
+    question: str,
+    sql: str,
+    status: str,
+    answer: str,
+    error: str,
+) -> None:
+    """Append one row to the Excel query log (thread-safe)."""
+    import openpyxl
+    row = [
+        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        username,
+        session_id,
+        question,
+        sql,
+        status,
+        answer[:2000] if answer else "",   # cap long answers
+        error[:1000] if error else "",
+    ]
+    with _excel_lock:
+        try:
+            wb = openpyxl.load_workbook(EXCEL_LOG_PATH)
+            ws = wb.active
+            ws.append(row)
+            wb.save(EXCEL_LOG_PATH)
+        except Exception as exc:
+            print(f"[excel_log] Failed to write row: {exc}")
 
 
 # Mapping of active request IDs to their running asyncio Tasks
@@ -51,6 +126,7 @@ class AskRequest(BaseModel):
     thread_id: str | None = Field(default=None, description="Optional chat thread ID (alias for session_id) for conversation memory.")
     chart_type: str | None = Field(default=None, description="Type of chart (e.g., 'bar', 'line', 'pie', 'scatter') for 'chart' action.")
     data: list[dict[str, Any]] | None = Field(default=None, description="Data to be plotted for 'chart' action.")
+    audio_base64: str | None = Field(default=None, description="Base64 encoded audio for 'speech_to_text' action.")
     username: str = Field(..., min_length=1, description="Required username to scope the chat history.")
 
 
@@ -347,6 +423,7 @@ def _extract_sql_and_result(messages: list[Any], username: str) -> AskResponse:
 async def lifespan(app: FastAPI):
     init_database()
     init_history_database()
+    _init_excel_log()
     ollama_status = check_ollama()
     app.state.ollama_status = ollama_status
     app.state.graph = None
@@ -363,9 +440,19 @@ async def lifespan(app: FastAPI):
             print(f"Failed to build LangGraph agent during startup: {e}")
             traceback.print_exc()
 
+    if speech_settings.enable_speech_to_text and speech_transcriber:
+        print("Speech-to-text enabled. Loading faster-whisper model...")
+        speech_settings.upload_dir.mkdir(parents=True, exist_ok=True)
+        # Note: Transcriber load_model is sync, using run_in_threadpool if it's heavy, or just call it directly.
+        # It's better to load it lazily on first request as per original implementation, but we can do it here.
+        # Actually transcriber uses lazy loading in its transcribe method, so we don't strictly need to load it here,
+        # but let's make sure the upload_dir is created.
+
     yield
     if app.state.graph is not None:
         await cleanup_tools()
+    if speech_settings.enable_speech_to_text and speech_transcriber:
+        speech_transcriber.unload_model()
 
 
 async def _get_graph():
@@ -554,6 +641,31 @@ async def ask(payload: AskRequest):
             traceback.print_exc()
             raise HTTPException(status_code=500, detail=f"Failed to generate chart: {e}")
 
+    # 4c. Action: Speech to Text (Offline file base64)
+    elif action == "speech_to_text":
+        if not speech_settings.enable_speech_to_text or not speech_transcriber:
+            raise HTTPException(status_code=503, detail="Speech-to-text is not enabled.")
+        if not payload.audio_base64:
+            raise HTTPException(status_code=400, detail="audio_base64 is required for speech_to_text action.")
+        try:
+            audio_bytes = base64.b64decode(payload.audio_base64)
+            upload_path = speech_settings.upload_dir / f"{uuid.uuid4().hex}.wav"
+            with upload_path.open("wb") as f:
+                f.write(audio_bytes)
+            
+            result = await run_in_threadpool(speech_transcriber.transcribe, upload_path)
+            
+            try:
+                if upload_path.exists():
+                    upload_path.unlink()
+            except OSError:
+                pass
+
+            return AskResponse(sql="", result=[{"text": result.text}], username=username)
+        except Exception as e:
+            traceback.print_exc()
+            raise HTTPException(status_code=500, detail=f"Failed to transcribe audio: {e}")
+
     # 5. Action: Ask (NL2SQL Query)
     elif action == "ask":
         if not payload.question:
@@ -643,6 +755,24 @@ async def ask(payload: AskRequest):
                     username=username
                 )
 
+                # Determine status and error for Excel log
+                is_error = (
+                    response_obj.result
+                    and len(response_obj.result) > 0
+                    and response_obj.result[0].get("status") in ("failed", "cancelled")
+                )
+                excel_status = response_obj.result[0].get("status", "success") if is_error else "success"
+                excel_error = response_obj.result[0].get("error", "") if is_error else ""
+                _append_excel_log(
+                    username=username,
+                    session_id=session_id,
+                    question=payload.question or "",
+                    sql=response_obj.sql or "",
+                    status=excel_status,
+                    answer=response_text,
+                    error=excel_error,
+                )
+
                 response_obj.username = username
 
                 yield json.dumps(response_obj.model_dump()).encode()
@@ -654,9 +784,27 @@ async def ask(payload: AskRequest):
                 )
                 if cancelled:
                     print(f"Request {req_id} was explicitly cancelled.")
+                    _append_excel_log(
+                        username=username,
+                        session_id=session_id,
+                        question=payload.question or "",
+                        sql="",
+                        status="cancelled",
+                        answer="",
+                        error="Request cancelled by user.",
+                    )
                     yield json.dumps({"sql": "", "result": [{"error": "Request cancelled.", "status": "cancelled"}]}).encode()
                 else:
                     traceback.print_exc()
+                    _append_excel_log(
+                        username=username,
+                        session_id=session_id,
+                        question=payload.question or "",
+                        sql="",
+                        status="error",
+                        answer="",
+                        error=str(exc),
+                    )
                     yield json.dumps({"sql": "", "result": [{"error": str(exc), "status": "failed"}]}).encode()
 
             finally:
@@ -668,6 +816,85 @@ async def ask(payload: AskRequest):
         )
     else:
         raise HTTPException(status_code=400, detail=f"Unsupported action: {action}")
+
+
+@app.websocket("/ws/transcribe/live")
+async def live_transcription(websocket: WebSocket) -> None:
+    await websocket.accept()
+
+    if not speech_settings.enable_speech_to_text or not speech_transcriber:
+        await websocket.send_json({"type": "error", "detail": "Speech-to-text is not enabled"})
+        await websocket.close(code=1008)
+        return
+
+    try:
+        start_message = await websocket.receive_text()
+        start_payload = json.loads(start_message)
+    except (WebSocketDisconnect, json.JSONDecodeError):
+        await websocket.send_json({"type": "error", "detail": "First message must be JSON"})
+        await websocket.close(code=1003)
+        return
+
+    if start_payload.get("type") != "start":
+        await websocket.send_json({"type": "error", "detail": "First message type must be start"})
+        await websocket.close(code=1003)
+        return
+
+    try:
+        sample_rate = int(start_payload.get("sample_rate") or 0)
+    except (TypeError, ValueError):
+        await websocket.send_json({"type": "error", "detail": f"sample_rate must be {speech_settings.live_sample_rate}"})
+        await websocket.close(code=1003)
+        return
+        
+    if sample_rate != speech_settings.live_sample_rate:
+        await websocket.send_json({"type": "error", "detail": f"sample_rate must be {speech_settings.live_sample_rate}"})
+        await websocket.close(code=1003)
+        return
+
+    session = LiveTranscriptionSession(
+        transcriber=speech_transcriber,
+        sample_rate=speech_settings.live_sample_rate,
+        chunk_seconds=speech_settings.live_chunk_seconds,
+        max_session_seconds=speech_settings.live_max_session_seconds,
+    )
+    await websocket.send_json({"type": "ready"})
+
+    try:
+        while True:
+            message = await websocket.receive()
+
+            if message.get("bytes") is not None:
+                try:
+                    events = await run_in_threadpool(session.receive_audio, message["bytes"])
+                except LiveSessionLimitError as exc:
+                    await websocket.send_json({"type": "error", "detail": str(exc)})
+                    await websocket.close(code=1009)
+                    return
+
+                for event in events:
+                    await websocket.send_json(event)
+                continue
+
+            text = message.get("text")
+            if text is None:
+                continue
+
+            try:
+                payload = json.loads(text)
+            except json.JSONDecodeError:
+                await websocket.send_json({"type": "error", "detail": "Text messages must be JSON"})
+                continue
+
+            if payload.get("type") == "stop":
+                final_event = await run_in_threadpool(session.flush)
+                await websocket.send_json(final_event)
+                await websocket.close(code=1000)
+                return
+
+            await websocket.send_json({"type": "error", "detail": "Unsupported message type"})
+    except WebSocketDisconnect:
+        pass
 
 
 @app.get("/", response_class=HTMLResponse)

@@ -80,3 +80,25 @@ verify_node: SQL failed execution (error: (sqlite3.OperationalError) no such col
 verify_node: max verification loops (3) reached with failed SQL; accepting error as-is
 I0715 22:38:34.274477  771580 chttp2_transport.cc:1376] ipv4:127.0.0.1:55460: Got goaway [11] err=UNAVAILABLE:GOAWAY received; Error code: 11; Debug Text: too_many_pings {http2_error:11}
 E0715 22:38:34.277787  771580 chttp2_transport.cc:1408] ipv4:127.0.0.1:55460: Received a GOAWAY with error code ENHANCE_YOUR_CALM and debug data equal to "too_many_pings". Current keepalive time (before throttling): 10000ms
+INFO:     127.0.0.1:60652 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60652 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60652 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60652 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60652 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60652 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60656 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60656 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60656 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60656 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60656 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60660 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60668 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60668 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60668 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60668 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60668 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60668 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60668 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60668 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60668 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60668 - "GET /demo/live HTTP/1.1" 404 Not Found

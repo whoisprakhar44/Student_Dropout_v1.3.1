@@ -292,7 +292,7 @@ def retrive_schema_rag(query: str, top_k: int = 15):
             # 1. Clean raw_ddl
             ddl = hit.get("raw_ddl", "")
             if ddl:
-                ddl = ddl.replace("curated_datamodels.", "")
+                ddl = ddl.replace("ap_citizen360.", "")
                 ddl = ddl.replace("CREATE EXTERNAL TABLE", "CREATE TABLE")
                 for term in ["USING ICEBERG", "PARTITIONED BY", "LOCATION", "TBLPROPERTIES"]:
                     idx = ddl.find(term)
@@ -314,8 +314,8 @@ def retrive_schema_rag(query: str, top_k: int = 15):
             # 2. Clean embedding_text
             emb_text = hit.get("embedding_text", "")
             if emb_text:
-                emb_text = emb_text.replace("Database: curated_datamodels", "Database: SQLite")
-                emb_text = emb_text.replace("curated_datamodels.", "")
+                emb_text = emb_text.replace("Database: ap_citizen360", "Database: SQLite")
+                emb_text = emb_text.replace("ap_citizen360.", "")
                 emb_text = re.sub(r"\bSTRING\b", "TEXT", emb_text)
                 emb_text = re.sub(r"\bBIGINT\b", "INTEGER", emb_text)
                 emb_text = re.sub(r"\bDECIMAL\(\d+,\s*\d+\)", "REAL", emb_text)
