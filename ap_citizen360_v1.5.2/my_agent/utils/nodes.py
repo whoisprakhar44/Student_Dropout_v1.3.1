@@ -46,11 +46,12 @@ _HIVE_ENABLED = os.getenv("HIVE_MCP_ENABLED", "false").strip().lower() in ("true
 _RAG_TOP_K = int(os.getenv("RAG_TOP_K", "15"))
 
 if _HIVE_ENABLED:
-    SYSTEM_PROMPT = """You are a SQL data assistant with a live Hive / Apache Spark SQL database for the ap_citizen360 data model.
+    SYSTEM_PROMPT = """You are a data and document assistant for the ap_citizen360 data model.
 
 Available tools:
 - retrive_schema_rag: retrieve curated table DDL, key joins, columns, and rules when you need schema context.
 - execute_sql: execute read-only Hive SQL SELECT queries against the database.
+- search_documents: search policy documents, circulars, and guidelines (PDF/DOCX/TXT) for rules, procedures, or explanations.
 
 STRICT RULES — follow every rule without exception:
 1. For ANY question about counts, totals, lists, averages, rates, trends, or data values — you MUST call execute_sql.
@@ -63,11 +64,12 @@ STRICT RULES — follow every rule without exception:
 8. NEVER guess, invent, or assume any table names, column names, or join relations. If you lack the DDL context or column definitions for a table, you MUST call retrive_schema_rag to retrieve it. Do not attempt to guess or invent columns/tables under any circumstances.
 """
 else:
-    SYSTEM_PROMPT = """You are a SQL data assistant with a live SQLite sample database for the ap_citizen360 data model.
+    SYSTEM_PROMPT = """You are a data and document assistant for the ap_citizen360 data model.
 
 Available tools:
 - retrive_schema_rag: retrieve curated table DDL, key joins, columns, and rules when you need schema context.
 - execute_sql: execute read-only SQLite SELECT queries against the sample database.
+- search_documents: search policy documents, circulars, and guidelines (PDF/DOCX/TXT) for rules, procedures, or explanations.
 
 STRICT RULES — follow every rule without exception:
 1. For ANY question about counts, totals, lists, averages, rates, trends, or data values — you MUST call execute_sql.
@@ -82,11 +84,11 @@ STRICT RULES — follow every rule without exception:
 def _get_model():
     global _model_with_tools
     if _model_with_tools is None:
-        if not tool_registry.execution_tools:
+        if not tool_registry.all_tools:
             raise RuntimeError(
                 "Tools not loaded. Make sure init_tools() was awaited before compiling the graph."
             )
-        _model_with_tools = _base_model.bind_tools(tool_registry.execution_tools)
+        _model_with_tools = _base_model.bind_tools(tool_registry.all_tools)
     return _model_with_tools
 
 
@@ -365,10 +367,10 @@ def llm_node(state: AgentState) -> dict:
 
 
 def build_tool_node() -> ToolNode:
-    """Returns a ToolNode bound to SQL and RAG MCP tools."""
-    if not tool_registry.execution_tools:
+    """Returns a ToolNode bound to all MCP tools."""
+    if not tool_registry.all_tools:
         raise RuntimeError("Tools not loaded before building tool node.")
-    return ToolNode(tool_registry.execution_tools)
+    return ToolNode(tool_registry.all_tools)
 
 
 # ---------------------------------------------------------------------------
@@ -697,14 +699,19 @@ Given a user question, you must:
 1. Classify it into EXACTLY ONE of these intents:
 {INTENT_DESCRIPTIONS}
 
-2. Extract these entities if mentioned (leave blank string "" if not present):
+2. Classify the query_type:
+   - "data_query": needs SQL (counts, lists, averages, specific data lookups)
+   - "document_query": needs document context (policies, rules, procedures, guidelines, explanations of WHY something exists, eligibility criteria text)
+   - "hybrid": needs BOTH data AND policy/document context
+
+3. Extract these entities if mentioned (leave blank string "" if not present):
    - district_name: AP district (e.g. Guntur, Anantapur, Chittoor, Krishna, Kurnool, Srikakulam, Vizianagaram, Visakhapatnam, East Godavari, West Godavari, Prakasam, Nellore, Kadapa, YSR Kadapa)
    - academic_year: e.g. "2025", "2024-25", "2024"
    - current_grade: class/grade number e.g. "6", "8", "10"
    - social_category: e.g. "SC", "ST", "OBC", "General"
 
 Respond with ONLY valid JSON — no explanation, no markdown, no extra text:
-{{"intent": "...", "entities": {{"district_name": "...", "academic_year": "...", "current_grade": "...", "social_category": "..."}}}}"""
+{{"intent": "...", "query_type": "...", "entities": {{"district_name": "...", "academic_year": "...", "current_grade": "...", "social_category": "..."}}}}"""
 
 
 def _clean_llm_response(text: str) -> str:
@@ -714,25 +721,33 @@ def _clean_llm_response(text: str) -> str:
     return text.strip()
 
 
-def _parse_intent_response(raw: str) -> tuple[str, dict[str, str]]:
+def _parse_intent_response(raw: str) -> tuple[str, str, dict[str, str]]:
     try:
         cleaned = _clean_llm_response(raw)
         data = json.loads(cleaned)
         intent = data.get("intent", "general_query").strip()
+        query_type = data.get("query_type", "data_query").strip()
         if intent not in INTENT_DEPARTMENT_MAP:
             logger.warning("intent_node: unknown intent '%s', falling back to general_query", intent)
             intent = "general_query"
+        if query_type not in ("data_query", "document_query", "hybrid"):
+            query_type = "data_query"
         entities = {k: str(v) for k, v in data.get("entities", {}).items() if v}
-        return intent, entities
+        return intent, query_type, entities
     except (json.JSONDecodeError, AttributeError, TypeError) as e:
         logger.warning("intent_node: failed to parse LLM response (%s). Raw: %s", e, raw[:200])
-        return "general_query", {}
+        return "general_query", "data_query", {}
 
 
 def intent_node(state: AgentState) -> dict:
     """
-    LangGraph node: classify intent and extract entities from user_query.
-    Writes to state: intent, department_scope, entities.
+    LangGraph node: classify intent, query_type, and extract entities from user_query.
+
+    Writes to state:
+        intent          – 1 of 13 domain intent labels
+        query_type      – "data_query" | "document_query" | "hybrid"
+        department_scope – relevant database departments for RAG scoping
+        entities        – extracted district, year, grade, social_category
     """
     t0 = time.perf_counter()
     user_query = state.get("user_query", "")
@@ -743,23 +758,25 @@ def intent_node(state: AgentState) -> dict:
             HumanMessage(content=f"User question: {user_query}"),
         ])
         raw_text = response.content or ""
-        intent, entities = _parse_intent_response(raw_text)
+        intent, query_type, entities = _parse_intent_response(raw_text)
     except Exception as e:
         logger.error("intent_node: LLM call failed (%s). Defaulting to general_query.", e)
-        intent = "general_query"
-        entities = {}
+        intent      = "general_query"
+        query_type  = "data_query"
+        entities    = {}
 
     department_scope = INTENT_DEPARTMENT_MAP.get(intent, ["school", "canonicalmodel"])
 
     logger.info(
-        "intent_node: intent='%s' | scope=%s | entities=%s | %.2fs",
-        intent, department_scope, entities, time.perf_counter() - t0,
+        "intent_node: intent='%s' | query_type='%s' | scope=%s | entities=%s | %.2fs",
+        intent, query_type, department_scope, entities, time.perf_counter() - t0,
     )
 
     return {
-        "intent": intent,
+        "intent":           intent,
+        "query_type":       query_type,
         "department_scope": department_scope,
-        "entities": entities,
+        "entities":         entities,
     }
 
 
@@ -831,5 +848,75 @@ def initialize_node(state: AgentState) -> dict:
     return {
         "messages": [forced_tool_call_msg],
         "llm_calls": 0,
+    }
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Document Search and Synthesis Nodes
+# ─────────────────────────────────────────────────────────────────────────────
+
+def route_node(state: AgentState) -> str:
+    """Returns the next node name based on query_type."""
+    qt = state.get("query_type", "data_query")
+    if qt == "document_query":
+        return "doc_search_node"
+    elif qt == "hybrid":
+        return "initialize_node"  # Runs both paths (for now, we will map hybrid to data_query but eventually support both)
+    return "initialize_node"   # existing SQL path
+
+def doc_search_node(state: AgentState) -> dict:
+    """Force-calls the document search MCP tool."""
+    import uuid
+    tool_call_id = f"call_{uuid.uuid4().hex}"
+    
+    forced_tool_call_msg = AIMessage(
+        content="",
+        tool_calls=[{
+            "id": tool_call_id,
+            "name": "search_documents",
+            "args": {
+                "query": state["user_query"],
+                "top_k": 5,
+            }
+        }]
+    )
+    
+    return {
+        "messages": [forced_tool_call_msg],
+        "llm_calls": 0,
+    }
+
+def synthesize_node(state: AgentState) -> dict:
+    """LLM call to synthesize document passages into a coherent answer."""
+    t0 = time.perf_counter()
+    history = state.get("messages", [])
+    
+    # Extract the passages returned by the search_documents tool
+    doc_results = _tool_messages(history, "search_documents")
+    if doc_results:
+        doc_content = _extract_tool_content(doc_results[-1].content)
+    else:
+        doc_content = "No document passages were found."
+    
+    system_prompt = (
+        "You are an assistant answering questions based on policy documents, circulars, and guidelines. "
+        "Use ONLY the provided DOCUMENT PASSAGES to answer the user's question. "
+        "If the answer is not in the passages, say so explicitly. "
+        "When answering, cite the source document name and location. "
+        "Summarize key points clearly and use bullet points for multi-part answers."
+    )
+    
+    messages_for_llm = [
+        SystemMessage(content=system_prompt),
+        HumanMessage(content=f"User question: {state['user_query']}\n\n{doc_content}")
+    ]
+    
+    model = _base_model  # No tools needed for synthesis
+    response = model.invoke(messages_for_llm)
+    
+    logger.info("synthesize_node: completed in %.2fs", time.perf_counter() - t0)
+    
+    return {
+        "messages": [response],
+        "llm_calls": state.get("llm_calls", 0) + 1,
     }
 

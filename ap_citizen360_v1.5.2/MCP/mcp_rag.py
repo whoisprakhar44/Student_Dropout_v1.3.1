@@ -40,8 +40,10 @@ load_dotenv()
 # =========================
 # CONFIG
 # =========================
-def load_config():
+def load_config() -> dict:
     path = os.environ.get("RETRIEVAL_CONFIG", "mcp_rag.yaml")
+    if not os.path.isabs(path):
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), path)
     with open(path, "r") as f:
         return yaml.safe_load(f)
 
@@ -49,6 +51,8 @@ def load_config():
 # =========================
 # EMBEDDINGS
 # =========================
+PARTITION_DOCS = "document_store"
+
 class Embedder:
     def __init__(self, cfg):
         self.provider = cfg["embedding"]["provider"]
@@ -378,6 +382,62 @@ def retrive_schema_rag(query: str, top_k: int = 15):
 # =========================
 # RUN
 # =========================
+@mcp.tool()
+def search_documents(query: str, top_k: int = 5) -> str:
+    """
+    Search unstructured documents (PDFs, DOCX, TXT files) for passages that
+    are relevant to the query.
+
+    Use this tool when the user asks about:
+    - Policies, rules, regulations, guidelines, circulars
+    - Eligibility criteria, procedures, definitions
+    - Anything that would be found in a document rather than a database table
+
+    Returns ranked text passages with source document name and location
+    (page number or section) for citations.
+    """
+    logger.info("search_documents query: %s (top_k=%d)", query, top_k)
+    
+    try:
+        embedding = embedder.embed(query)
+        results = vector_db.client.search(
+            collection_name=vector_db.collection,
+            data=[embedding],
+            limit=top_k,
+            output_fields=["database_name", "table_name", "raw_ddl", "embedding_text"],
+            search_params={"metric_type": "COSINE"},
+            partition_names=[PARTITION_DOCS],
+        )
+    except Exception as e:
+        logger.warning("search_documents failed (partition may be empty): %s", e)
+        return "No relevant document passages found for this query."
+
+    if not results or not results[0]:
+        return "No relevant document passages found for this query."
+
+    hits = []
+    for hit in results[0]:
+        score = float(hit["distance"]) # COSINE metric returns similarity in Milvus
+        if score < 0.35: # MIN_SCORE
+            continue
+        hits.append({
+            "score":         score,
+            "source_file":   hit["entity"].get("database_name", "Unknown"),
+            "location":      hit["entity"].get("table_name", ""),
+            "passage":       hit["entity"].get("raw_ddl", ""),
+        })
+
+    if not hits:
+        return "No relevant document passages found for this query."
+
+    sections = ["=== DOCUMENT PASSAGES (use these as the ONLY source of truth for your answer) ==="]
+    for hit in hits:
+        header = f"[Source: {hit['source_file']} | {hit['location']} | Score: {hit['score']:.3f}]"
+        sections.append(f"{header}\n{hit['passage']}")
+
+    return "\n\n".join(sections)
+
+
 if __name__ == "__main__":
     mcp.run(
         transport="stdio",

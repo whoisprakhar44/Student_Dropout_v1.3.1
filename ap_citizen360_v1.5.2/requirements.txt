@@ -20,3 +20,5 @@ faster-whisper
 pydantic-settings
 python-multipart
 openpyxl                  # Excel query log
+PyMuPDF                   # PDF text extraction (fitz)
+python-docx               # DOCX parsing

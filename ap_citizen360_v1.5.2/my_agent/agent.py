@@ -21,7 +21,10 @@ from typing import Literal
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.graph import END, START, StateGraph
 
-from my_agent.utils.nodes import build_tool_node, initialize_node, intent_node, llm_node, verify_node
+from my_agent.utils.nodes import (
+    build_tool_node, initialize_node, intent_node, llm_node, verify_node,
+    route_node, doc_search_node, synthesize_node
+)
 from my_agent.utils.state import AgentState
 from my_agent.utils.tools import cleanup_tools, init_tools
 
@@ -39,10 +42,11 @@ def should_continue(state: AgentState) -> Literal["tool_node", "verify_node", "_
     return END
 
 
-def after_tool_node(state: AgentState) -> Literal["verify_node", "llm_node"]:
+def after_tool_node(state: AgentState) -> Literal["verify_node", "llm_node", "synthesize_node"]:
     """
     After tool_node executes:
     - If the LLM called execute_sql, go to verify_node to verify the query outcome.
+    - If the LLM called search_documents, go to synthesize_node.
     - If it only called schema retrieval, go back to llm_node so it can generate the SQL using the retrieved context.
     """
     last_ai_message = None
@@ -55,6 +59,8 @@ def after_tool_node(state: AgentState) -> Literal["verify_node", "llm_node"]:
         tool_names = [tc["name"] for tc in last_ai_message.tool_calls]
         if "execute_sql" in tool_names:
             return "verify_node"
+        if "search_documents" in tool_names:
+            return "synthesize_node"
 
     return "llm_node"
 
@@ -91,11 +97,20 @@ async def build_graph():
     builder.add_node("llm_node",         llm_node)
     builder.add_node("tool_node",        tool_node)
     builder.add_node("verify_node",      verify_node)
+    builder.add_node("doc_search_node",  doc_search_node)
+    builder.add_node("synthesize_node",  synthesize_node)
 
-    # Intent classification → forced RAG retrieval → tool_node
+    # Intent classification → route_node
     builder.add_edge(START,           "intent_node")
-    builder.add_edge("intent_node",   "initialize_node")
+    
+    builder.add_conditional_edges(
+        "intent_node",
+        route_node,
+        ["initialize_node", "doc_search_node"],
+    )
+    
     builder.add_edge("initialize_node", "tool_node")
+    builder.add_edge("doc_search_node", "tool_node")
 
     # llm_node → tool_node (tool call) or END (plain answer)
     builder.add_conditional_edges(
@@ -104,11 +119,11 @@ async def build_graph():
         ["tool_node", END],
     )
 
-    # tool_node goes to verify_node or llm_node
+    # tool_node goes to verify_node, synthesize_node, or llm_node
     builder.add_conditional_edges(
         "tool_node",
         after_tool_node,
-        ["verify_node", "llm_node"],
+        ["verify_node", "llm_node", "synthesize_node"],
     )
 
     # verify_node → END (correct) or llm_node (retry plain) or tool_node (retry with forced tool call)
@@ -117,6 +132,8 @@ async def build_graph():
         after_verify_node,
         ["llm_node", "tool_node", END],
     )
+    
+    builder.add_edge("synthesize_node", END)
 
     graph = builder.compile()
     print("Agent graph compiled successfully.")

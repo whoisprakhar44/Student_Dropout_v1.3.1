@@ -54,16 +54,17 @@ TOOL_SERVER_CONFIG = {
 
 # ── module-level tool lists (populated by init_tools) ─────────────────────────
 rag_tool: object = None
-execution_tools: list = []
+doc_tool: object = None          # search_documents MCP tool
+execution_tools: list = []       # all tools visible to the LLM during SQL path
+doc_search_tools: list = []      # only search_documents (used during doc path)
 all_tools: list = []
 
 # ── keep session context managers alive for the app lifetime ──────────────────
 _rag_session_ctx  = None
 _tool_session_ctx = None
 
-
 async def init_tools() -> None:
-    global rag_tool, execution_tools, all_tools
+    global rag_tool, doc_tool, execution_tools, doc_search_tools, all_tools
     global _rag_session_ctx, _tool_session_ctx
 
     _rag_client  = MultiServerMCPClient(RAG_SERVER_CONFIG)
@@ -76,22 +77,38 @@ async def init_tools() -> None:
     rag_session  = await _rag_session_ctx.__aenter__()
     tool_session = await _tool_session_ctx.__aenter__()
 
-    rag_tools_list = await load_mcp_tools(rag_session)
-    sql_tools_list = await load_mcp_tools(tool_session)
+    rag_tools_list  = await load_mcp_tools(rag_session)
+    sql_tools_list  = await load_mcp_tools(tool_session)
 
     if not rag_tools_list:
         raise RuntimeError("RAG MCP server returned no tools.")
     if not sql_tools_list:
         raise RuntimeError("Execution MCP server returned no tools.")
 
-    rag_tool = rag_tools_list[0]
+    for t in rag_tools_list:
+        if t.name == "retrive_schema_rag":
+            rag_tool = t
+        elif t.name == "search_documents":
+            doc_tool = t
+
+    if not rag_tool or not doc_tool:
+        raise RuntimeError("RAG server did not return both tools.")
+
+    # SQL path tools: schema RAG + SQL execution
     execution_tools.clear()
-    execution_tools.extend(rag_tools_list + sql_tools_list)
+    execution_tools.extend([rag_tool] + sql_tools_list)
+
+    # Document path tools: only search_documents
+    doc_search_tools.clear()
+    doc_search_tools.extend([doc_tool])
+
+    # all_tools: everything the LLM can ever call
     all_tools.clear()
-    all_tools.extend(execution_tools)
+    all_tools.extend(execution_tools + doc_search_tools)
 
     print("RAG tool loaded :", rag_tool.name)
-    print("LLM tools loaded:", [t.name for t in execution_tools])
+    print("Doc tool loaded :", doc_tool.name)
+    print("LLM tools loaded:", [t.name for t in all_tools])
 
 
 async def cleanup_tools() -> None:
@@ -102,9 +119,7 @@ async def cleanup_tools() -> None:
             continue
         try:
             await ctx.__aexit__(None, None, None)
-        except BaseException as exc:
-            # The MCP stdio adapter can raise noisy cancel-scope errors on
-            # macOS/Windows/Python 3.13 after subprocesses have already exited.
+        except BaseException:
             pass
     _rag_session_ctx = None
     _tool_session_ctx = None

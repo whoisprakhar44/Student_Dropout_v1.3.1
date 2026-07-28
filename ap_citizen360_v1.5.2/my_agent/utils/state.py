@@ -41,3 +41,17 @@ class AgentState(TypedDict):
     # Extracted entities: district_name, academic_year, current_grade, social_category
     entities: NotRequired[Dict[str, str] | None]
 
+    # ── Document routing additions ────────────────────────────────────────────
+
+    # Query routing classification set by intent_node:
+    #   "data_query"     → SQL path only (existing pipeline)
+    #   "document_query" → Document RAG + LLM synthesis path
+    #   "hybrid"         → Both paths (SQL + document context)
+    query_type: NotRequired[str | None]
+
+    # Formatted document passages returned by search_documents MCP tool.
+    # Stored here so synthesize_node can read them from state directly.
+    doc_context: NotRequired[str | None]
+
+    # List of source filenames cited in the document answer (for UI display)
+    doc_sources: NotRequired[List[str] | None]
