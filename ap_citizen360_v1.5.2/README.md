@@ -21,12 +21,13 @@ both table schemas and few-shot NL→SQL exemplars.
 
 ## Milvus Collection Layout
 
-One collection (`schema_chunks`) with **two named partitions**:
+One collection (`schema_chunks`) with **three named partitions**:
 
 | Partition | Contents | `embedding_text` | `raw_ddl` |
 |---|---|---|---|
 | `schema_store` | One doc per table YAML | Schema prose | DDL string |
 | `few_shot_store` | NL→SQL exemplars | NL question | Gold SQL |
+| `document_store` | Extracted PDF/DOCX/TXT chunks | Plain chunk text | Header-prefixed chunk text |
 
 ---
 
@@ -52,7 +53,14 @@ python MCP/build_milvus_index.py
 # (Ensure the FastAPI/uvicorn server is stopped)
 python pipeline.py --config config.yaml --fewshots fewshots_combined.json
 
-# 5. Start the server
+# 5. Ingest unstructured documents (PDF, DOCX, TXT into document_store partition)
+# (Ensure the FastAPI/uvicorn server is stopped)
+python3 MCP/ingest_documents.py
+
+# Optional: Preview document parsing & chunking without writing to Milvus
+python3 MCP/ingest_documents.py --dry_run
+
+# 6. Start the server
 python -m uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
@@ -166,6 +174,34 @@ python pipeline.py --config config.yaml --yaml_dir ./path/to/other/yamls
 
 ---
 
+## Unstructured Document RAG (PDF, DOCX, TXT)
+
+The pipeline supports indexing and querying unstructured documents alongside schema DDLs and few-shot pairs.
+
+### Ingestion
+
+Place documents in the `documents/` directory and run:
+
+```bash
+# Ingest all PDF, DOCX, and TXT files into Milvus document_store partition
+python3 MCP/ingest_documents.py
+
+# Dry-run mode: parse and chunk without writing to Milvus
+python3 MCP/ingest_documents.py --dry_run
+
+# Custom document directory
+python3 MCP/ingest_documents.py --doc_dir /path/to/documents
+```
+
+### Retrieval & Synthesis Flow
+
+1. **Intent Node**: Categorizes incoming queries. Policy/guideline/circular questions are tagged as `document_query`.
+2. **Route Node**: Bypasses SQL generation for `document_query` types and routes directly to document retrieval.
+3. **`search_documents` Tool**: Performs COSINE similarity vector search over `document_store` in Milvus.
+4. **Synthesize Node**: LLM summarizes retrieved passages into a clear response with citations.
+
+---
+
 ## API Endpoints
 
 | Method | Path | Description |
@@ -186,22 +222,33 @@ Response:
 
 ## Agent Flow & Self-Correction
 
-The LangGraph architecture is designed to handle query routing, semantic retrieval, and automatic error healing:
+The LangGraph architecture is designed to handle intent classification, semantic retrieval across both SQL schemas and unstructured documents, and automatic error healing:
 
-```
-                      llm_node (reasoning/SQL generation)
-                         │  ▲                 ▲
-                         ▼  │ (tool calls)    │ (RETRY loop)
-                      tool_node ──────────────┘
-                         │
-                         ▼
-                    verify_node ──(CORRECT/MAX LOOPS)──> END
+```text
+                                        START
+                                          │
+                                     intent_node
+                                          │ (route_node)
+                      ┌───────────────────┴───────────────────┐
+               (document_query)                          (data_query)
+                      │                                       │
+               doc_search_node                         initialize_node
+                      │                                       │
+                      ▼                                       ▼
+                  tool_node <────────────────────────────> llm_node 
+                      │                                       │
+                      ▼                                       ▼
+               synthesize_node                           verify_node 
+                      │                                       │
+                      │                                       │ (RETRY loop)
+                      └─────────────> END <───────────────────┘
 ```
 
 ### Self-Correction & SQL Error Routing
-1. **Verification Node**: A dedicated `verify_node` in `my_agent/utils/nodes.py` intercepts SQL execution outcomes.
-2. **Error Recovery**: If `execute_sql` returns a payload with `"status": "error"`, the `verify_node` captures the failure details, formats them into a corrective `HumanMessage` showing the SQL query and execution error, sets `verified=False`, and loops back to `llm_node`.
-3. **Healing Loop**: The LLM reads the execution error (and retrieves schemas using RAG if needed) to generate a corrected query, preventing premature `502 Bad Gateway` API crashes.
+1. **Intent & Routing**: `intent_node` classifies user intent to route to either unstructured document search (`doc_search_node`) or SQL synthesis (`initialize_node`).
+2. **Verification Node**: A dedicated `verify_node` in `my_agent/utils/nodes.py` intercepts SQL execution outcomes from the `tool_node` for data queries.
+3. **Error Recovery**: If `execute_sql` returns a payload with `"status": "error"`, the `verify_node` captures the failure details, formats them into a corrective `HumanMessage` showing the SQL query and execution error, sets `verified=False`, and loops back to `llm_node`.
+4. **Healing Loop**: The LLM reads the execution error (and retrieves schemas using RAG if needed) to generate a corrected query, preventing premature API crashes.
 4. **Nudge Logic**: Prevents smaller models (e.g. `2b`) from bypassing tools or responding with plain text instead of executing SQL queries.
 
 ---
