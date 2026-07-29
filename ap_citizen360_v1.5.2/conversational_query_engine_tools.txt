@@ -1,0 +1,51 @@
+===============================================================================
+               CONVERSATIONAL QUERY ENGINE TOOLS AND VERSIONS
+===============================================================================
+
+1. LLM AGENT MCP TOOLS (EXPOSED TO LANGGRAPH)
+-------------------------------------------------------------------------------
+Tool Name           : retrive_schema_rag
+MCP Server Script   : MCP/mcp_rag.py
+Role / Function     : Vector retrieval of relevant SQL table schemas & DDLs 
+                      from Milvus 'schema_store' partition.
+
+Tool Name           : search_documents
+MCP Server Script   : MCP/mcp_rag.py
+Role / Function     : Vector similarity search over unstructured PDF, DOCX, and
+                      TXT passages in Milvus 'document_store' partition.
+
+Tool Name           : execute_sql
+MCP Server Script   : MCP/mcp_sql_execution.py or MCP/mcp_hive_execution.py
+Role / Function     : Executes SQL queries against SQLite or Impala/Hive 
+                      databases and returns formatted JSON rows.
+
+
+2. CORE SYSTEM FRAMEWORK & PACKAGE VERSIONS
+-------------------------------------------------------------------------------
+Category            Component / Package      Version     Role
+-------------------------------------------------------------------------------
+Agent Framework     langgraph                1.2.9       StateGraph engine, node routing, self-correction loop
+                    langchain-core           1.5.1       Base message schemas, prompts, and interfaces
+                    langchain-mcp-adapters   0.3.1       LangChain integration layer for Model Context Protocol
+                    langgraph-checkpoint     4.1.1       State checkpointing
+                    langgraph-prebuilt       1.1.0       Prebuilt graph utilities
+
+MCP Protocol        mcp                      1.29.0      FastMCP server & client transport protocol (stdio)
+                    mcp-types                2.0.0       MCP protocol type definitions
+
+Vector DB           pymilvus                 3.0.0       Python client for Milvus vector database
+                    milvus-lite              3.1.1       Embedded local vector database storage (milvus_schemas.db)
+
+LLM & Embeddings    Ollama                   0.6.2       Local model provider (nomic-embed-text & qwen3.5)
+                    langchain-ollama         1.1.0       LangChain bindings for Ollama models
+
+Document Parsers    PyMuPDF (fitz)           1.28.0      PDF text extraction and font/heading detection
+                    python-docx              1.2.0       Microsoft Word (.docx) paragraph & heading extraction
+
+API & Web           fastapi                  0.115.6     REST API Web Server (/ask, /health)
+                    uvicorn                  0.32.1      ASGI server implementation
+                    pydantic                 2.13.4      Data validation and state schemas
+                    pydantic-settings        2.7.0       Environment settings validation
+
+Database Drivers    impyla                   0.24.0      HiveServer2 / Impala connection driver
+                    openpyxl                 3.1.5       Excel log reader/writer for query history
