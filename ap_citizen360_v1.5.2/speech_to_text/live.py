@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from app.schemas import TranscriptionResponse
+from .schemas import TranscriptionResponse
 
 
 @dataclass

@@ -9,8 +9,8 @@ from time import perf_counter
 import numpy as np
 from faster_whisper import WhisperModel
 
-from app.config import Settings
-from app.schemas import SegmentResponse, TranscriptionResponse
+from .config import Settings
+from .schemas import SegmentResponse, TranscriptionResponse
 
 logger = logging.getLogger(__name__)
 
