@@ -183,15 +183,20 @@ The pipeline supports indexing and querying unstructured documents alongside sch
 Place documents in the `documents/` directory and run:
 
 ```bash
-# Ingest all PDF, DOCX, and TXT files into Milvus document_store partition
+# Ingest all PDF, DOCX, and TXT files into Milvus document_store partition (includes OCR for images)
 python3 MCP/ingest_documents.py
 
 # Dry-run mode: parse and chunk without writing to Milvus
 python3 MCP/ingest_documents.py --dry_run
 
+# Disable OCR processing for embedded images
+python3 MCP/ingest_documents.py --disable_ocr
+
 # Custom document directory
 python3 MCP/ingest_documents.py --doc_dir /path/to/documents
 ```
+
+> **OCR Support**: Uses `rapidocr-onnxruntime` to automatically extract text embedded within images inside PDFs and DOCX files without needing external system dependencies.
 
 ### Retrieval & Synthesis Flow
 
