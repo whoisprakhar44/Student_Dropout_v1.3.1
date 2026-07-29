@@ -74,15 +74,11 @@ def load_config() -> dict:
 # STEP 1 — Parsers
 # ---------------------------------------------------------------------------
 
-def _parse_pdf(file_path: str) -> list[dict]:
+def _parse_pdf(file_path: str, ocr_engine=None) -> list[dict]:
     """
-    Extract text from a PDF file page by page.
-    Attempts heading detection via font size — the largest font on a page
-    (above 11pt and bold) is treated as a section heading and injected
-    as context into every chunk from that page.
-
-    Returns a list of dicts:
-        { "text": str, "page": int, "heading": str | None }
+    Extract text and images from a PDF file.
+    Attempts heading detection via font size.
+    Extracts text from images using RapidOCR if provided.
     """
     try:
         import fitz  # PyMuPDF
@@ -100,27 +96,39 @@ def _parse_pdf(file_path: str) -> list[dict]:
         max_font_size = 0.0
 
         for block in blocks:
-            if block.get("type") != 0:  # 0 = text block
-                continue
-            for line in block.get("lines", []):
-                for span in line.get("spans", []):
-                    span_text = span.get("text", "").strip()
-                    if not span_text:
-                        continue
-                    text_parts.append(span_text)
+            # Handle text blocks
+            if block.get("type") == 0:
+                for line in block.get("lines", []):
+                    for span in line.get("spans", []):
+                        span_text = span.get("text", "").strip()
+                        if not span_text:
+                            continue
+                        text_parts.append(span_text)
 
-                    # Heading detection: large bold text that spans < 120 chars
-                    size  = span.get("size", 0)
-                    flags = span.get("flags", 0)
-                    is_bold = bool(flags & 2**4)  # bit 4 = bold in PyMuPDF
-                    if (
-                        size > max_font_size
-                        and size > 11
-                        and is_bold
-                        and len(span_text) < 120
-                    ):
-                        max_font_size = size
-                        heading_candidate = span_text
+                        # Heading detection: large bold text that spans < 120 chars
+                        size  = span.get("size", 0)
+                        flags = span.get("flags", 0)
+                        is_bold = bool(flags & 2**4)
+                        if size > max_font_size and size > 11 and is_bold and len(span_text) < 120:
+                            max_font_size = size
+                            heading_candidate = span_text
+
+            # Handle image blocks using OCR
+            elif block.get("type") == 1 and ocr_engine is not None:
+                try:
+                    rect = fitz.Rect(block["bbox"])
+                    pix = page.get_pixmap(clip=rect)
+                    img_bytes = pix.tobytes("png")
+                    
+                    # Run OCR
+                    result, _ = ocr_engine(img_bytes)
+                    if result:
+                        # result is list of tuples: (bbox, text, confidence)
+                        ocr_text = " ".join([item[1] for item in result]).strip()
+                        if ocr_text:
+                            text_parts.append(ocr_text)
+                except Exception as e:
+                    logger.warning("OCR failed on image block in %s page %d: %s", os.path.basename(file_path), page_num, e)
 
         page_text = " ".join(text_parts).strip()
         if page_text:
@@ -174,8 +182,30 @@ def _parse_docx(file_path: str) -> list[dict]:
             "section": section_num,
             "heading": current_heading,
         })
+        
+    # Extract images via inline_shapes for OCR if engine is provided
+    if ocr_engine is not None:
+        try:
+            for shape in doc.inline_shapes:
+                if shape.type == 3:  # 3 = PICTURE
+                    blip = shape._inline.graphic.graphicData.pic.blipFill.blip
+                    rId = blip.embed
+                    image_part = doc.part.related_parts[rId]
+                    img_bytes = image_part.blob
+                    
+                    result, _ = ocr_engine(img_bytes)
+                    if result:
+                        ocr_text = " ".join([item[1] for item in result]).strip()
+                        if ocr_text:
+                            paragraphs.append({
+                                "text": f"[Image OCR]: {ocr_text}",
+                                "section": section_num,
+                                "heading": current_heading,
+                            })
+        except Exception as e:
+            logger.warning("Failed to extract or OCR images from DOCX '%s': %s", os.path.basename(file_path), e)
 
-    logger.info("DOCX '%s': extracted %d paragraphs", os.path.basename(file_path), len(paragraphs))
+    logger.info("DOCX '%s': extracted %d segments (paragraphs/images)", os.path.basename(file_path), len(paragraphs))
     return paragraphs
 
 
@@ -368,6 +398,7 @@ def main():
     parser = argparse.ArgumentParser(description="Ingest PDF/DOCX/TXT documents into Milvus.")
     parser.add_argument("--doc_dir", default=DEFAULT_DOC_DIR, help="Directory containing documents to ingest")
     parser.add_argument("--dry_run", action="store_true", help="Parse and chunk only — no Milvus writes")
+    parser.add_argument("--disable_ocr", action="store_true", help="Disable OCR extraction for embedded images")
     args = parser.parse_args()
 
     doc_dir = os.path.abspath(args.doc_dir)
@@ -392,6 +423,16 @@ def main():
     cfg      = load_config()
     embedder = OllamaEmbedder(cfg)
 
+    # OCR Setup
+    ocr_engine = None
+    if not args.disable_ocr:
+        try:
+            from rapidocr_onnxruntime import RapidOCR
+            ocr_engine = RapidOCR()
+            logger.info("OCR Engine initialized successfully (rapidocr-onnxruntime)")
+        except ImportError:
+            logger.warning("RapidOCR not installed. Images in documents will be skipped. Run: pip install rapidocr-onnxruntime Pillow")
+
     # Milvus setup
     if not args.dry_run:
         client     = _build_milvus_client(cfg)
@@ -411,9 +452,9 @@ def main():
 
         try:
             if ext == ".pdf":
-                segments = _parse_pdf(file_path)
+                segments = _parse_pdf(file_path, ocr_engine=ocr_engine)
             elif ext == ".docx":
-                segments = _parse_docx(file_path)
+                segments = _parse_docx(file_path, ocr_engine=ocr_engine)
             elif ext == ".txt":
                 segments = _parse_txt(file_path)
             else:

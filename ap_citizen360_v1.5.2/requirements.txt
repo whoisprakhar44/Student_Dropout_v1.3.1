@@ -22,3 +22,5 @@ python-multipart
 openpyxl                  # Excel query log
 PyMuPDF                   # PDF text extraction (fitz)
 python-docx               # DOCX parsing
+rapidocr-onnxruntime      # OCR for images in documents
+Pillow                    # Image processing for OCR
