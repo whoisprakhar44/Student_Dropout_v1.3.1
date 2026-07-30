@@ -1,10 +1,8 @@
 database: ap_citizen360
 table: dim_occupation
 department: ap_citizen360
-description: "Full occupation HISTORY \u2014 one row per person per occupation, since\
-  \ a citizen can hold more than one concurrently (e.g. farmer + seasonal MGNREGA\
-  \ labourer). dim_person.occupation_type remains a denormalized 'current' snapshot\
-  \ for fast filtering; this table is the source of truth for the complete history."
+description: "Full occupation HISTORY \u2014 one row per person per occupation, since a citizen can hold more than one concurrently (e.g. farmer + seasonal MGNREGA labourer). dim_person.occupation_type\
+  \ remains a denormalized 'current' snapshot for fast filtering; this table is the source of truth for the complete history."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_occupation
 partitioned_by: null
@@ -18,27 +16,15 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_occupation`(\n  `occupation_record_id`\
-  \ STRING COMMENT 'Primary Key: identifier for this occupation record.',\n  `person_id`\
-  \ STRING COMMENT 'Foreign Key: References dim_person.person_id.',\n  `occupation_type`\
-  \ STRING COMMENT 'Type of occupation, e.g. \\'Farmer\\', \\'Teacher\\', \\'MGNREGA\
-  \ Worker\\'. [Value Examples: \\'Farmer\\', \\'Teacher\\', \\'MGNREGA Worker\\']',\n\
-  \  `occupation_sector` STRING COMMENT 'Sector this occupation falls under, e.g.\
-  \ \\'Agriculture\\', \\'Government\\', \\'Private\\', \\'Informal\\'. [Value Examples:\
-  \ \\'Agriculture\\', \\'Government\\', \\'Private\\', \\'Informal\\']',\n  `employer_name`\
-  \ STRING COMMENT 'Employer name for this occupation record, where applicable.',\n\
-  \  `designation` STRING COMMENT 'Categorical column. Distinct values: \\'Job title\\\
-  ', \\'designation for this occupation record.\\'. Job title/designation for this\
-  \ occupation record.',\n  `employment_status` STRING COMMENT 'Status of this occupation\
-  \ record, e.g. \\'Active\\', \\'Seasonal\\', \\'Ended\\'. [Value Examples: \\'Active\\\
-  ', \\'Seasonal\\', \\'Ended\\']',\n  `source` STRING COMMENT 'System/department\
-  \ that reported this occupation record.',\n  `occupation_year` STRING COMMENT 'Year\
-  \ (or year range) this occupation record pertains to.',\n  `is_current` BOOLEAN\
-  \ COMMENT 'Boolean flag. True if this is the person\\'s currently active occupation\
-  \ among possibly several historical/concurrent records.',\n  `updated_at` TIMESTAMP\
-  \ COMMENT 'Timestamp this occupation record was last updated.')\nROW FORMAT SERDE\n\
-  \  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
-  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_occupation'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_occupation`(\n  `occupation_record_id` STRING COMMENT 'Primary Key: identifier for this occupation record.',\n  `person_id` STRING COMMENT 'Foreign Key:\
+  \ References dim_person.person_id.',\n  `occupation_type` STRING COMMENT 'Type of occupation, e.g. \\'Farmer\\', \\'Teacher\\', \\'MGNREGA Worker\\'. [Value Examples: \\'Farmer\\', \\'Teacher\\', \\'MGNREGA\
+  \ Worker\\']',\n  `occupation_sector` STRING COMMENT 'Sector this occupation falls under, e.g. \\'Agriculture\\', \\'Government\\', \\'Private\\', \\'Informal\\'. [Value Examples: \\'Agriculture\\', \\\
+  'Government\\', \\'Private\\', \\'Informal\\']',\n  `employer_name` STRING COMMENT 'Employer name for this occupation record, where applicable.',\n  `designation` STRING COMMENT 'Categorical column. Distinct\
+  \ values: \\'Job title\\', \\'designation for this occupation record.\\'. Job title/designation for this occupation record.',\n  `employment_status` STRING COMMENT 'Status of this occupation record, e.g.\
+  \ \\'Active\\', \\'Seasonal\\', \\'Ended\\'. [Value Examples: \\'Active\\', \\'Seasonal\\', \\'Ended\\']',\n  `source` STRING COMMENT 'System/department that reported this occupation record.',\n  `occupation_year`\
+  \ STRING COMMENT 'Year (or year range) this occupation record pertains to.',\n  `is_current` BOOLEAN COMMENT 'Boolean flag. True if this is the person\\'s currently active occupation among possibly several\
+  \ historical/concurrent records.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this occupation record was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_occupation'"
 columns:
 - name: occupation_record_id
   type: STRING
@@ -51,74 +37,44 @@ columns:
 - name: occupation_type
   type: STRING
   nullable: true
-  description: 'Type of occupation, e.g. ''Farmer'', ''Teacher'', ''MGNREGA Worker''.
-    [Value Examples: ''Farmer'', ''Teacher'', ''MGNREGA Worker'']'
-  value_description: '[''Student'', ''Unemployed'', ''SHG member Rural'', ''Farmer'',
-    ''Agriculture & Allied Activities'', ''Senior Citizen'', ''Homemaker'', ''Minor'',
-    ''Pensioner / Retired'', ''SHG member Urban'', ''Regular- Employee'', ''Pensioner'',
-    ''Driver'', ''Auto Driver'', ''Professional'', ''Business / Retail'', ''Skilled
-    Worker'', ''Weaver'', ''Contract- Employee'', ''Service Worker'', ''Tailor'',
-    ''Fisherman'', ''Healthcare'', ''Education'', ''Electrician'', ''Central Government
-    Employee'', ''Fishermen'', ''Carpenter'', ''Dappu Artist'', ''Manufacturing Worker'',
-    ''Traditional Cobblers'', ''Teacher'', ''Artisan / Craft Worker'', ''Goldsmith'',
-    ''Pujari'', ''Transport & Logistics'', ''Pastor'', ''Plumber'', ''Armed Forces'',
-    ''Paramilitary'']'
+  description: 'Type of occupation, e.g. ''Farmer'', ''Teacher'', ''MGNREGA Worker''. [Value Examples: ''Farmer'', ''Teacher'', ''MGNREGA Worker'']'
+  value_description: 'Top distinct values: Student, Unemployed, SHG member Rural, Farmer, Agriculture & Allied Activities, Senior Citizen, Homemaker, Minor, Pensioner / Retired, SHG member Urban'
 - name: occupation_sector
   type: STRING
   nullable: true
-  description: 'Sector this occupation falls under, e.g. ''Agriculture'', ''Government'',
-    ''Private'', ''Informal''. [Value Examples: ''Agriculture'', ''Government'', ''Private'',
-    ''Informal'']'
+  description: 'Sector this occupation falls under, e.g. ''Agriculture'', ''Government'', ''Private'', ''Informal''. [Value Examples: ''Agriculture'', ''Government'', ''Private'', ''Informal'']'
+  value_description: 'Top distinct values: Public, Private'
 - name: employer_name
   type: STRING
   nullable: true
   description: Employer name for this occupation record, where applicable.
-  value_description: '[''School Education Department'', ''Panchayat Raj Department'',
-    ''Public Transport Department'', ''Municipal Administration Department'', ''Director
-    General & Inspector General Of Police'', ''Public Health And Family Welfare Department'',
-    ''Land Administration Department'', ''Medical Education Department'', ''Andhra
-    Pradesh Special Police(Apsp)'', ''Registrar General Of High Court'', ''Tribal
-    Welfare Department'', ''Animal Husbandry Department'', ''Agriculture Department'',
-    ''Excise Department'', ''Intermediate Education Department'', ''Commercial Taxes
-    Department'', ''Special Protection Force'', ''Commissioner Of Police  Vijayawada'',
-    ''Technical Education'', ''Principal Chief Conservator Of Forests'', ''Collegiate
-    Education'', ''Social Welfare Department'', ''Commissioner Of Police  Visakhapatnam'',
-    ''Administration  State Roads & Road Safety Works (Rsw)  Enc (R&B)'', ''Directorate
-    of Secondary Health'', ''Director General Of State Disaster Response And Fire
-    Services'', ''Panchayat Raj  Engineering Department'', ''Women Development & Child
-    Welfare Department'', ''Intelligence Department'', ''Water Resources (Administration)'',
-    ''Treasuries And Accounts Department'', ''Rural Water Supply Department'', ''Prisons
-    & Correctional Services'', ''Registration And Stamps Department'', ''Backward
-    Classes Welfare Department'', ''Registrar Of Co-Operative Societies'', ''Minor
-    Irrigation Department'', ''Grey Hounds'', ''State Audit Department'', ''Employment
-    And Training Department'']'
+  value_description: 'Top distinct values: , School Education Department, Panchayat Raj Department, Public Transport Department, Municipal Administration Department, Director General & Inspector General
+    Of Police, Public Health And Family Welfare Department, Land Administration Department, Medical Education Department, Andhra Pradesh Special Police(Apsp)'
 - name: designation
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: ''Job title'', ''designation
-    for this occupation record.''. Job title/designation for this occupation record.'
+  description: 'Categorical column. Distinct values: ''Job title'', ''designation for this occupation record.''. Job title/designation for this occupation record.'
+  value_description: 'Top distinct values: Student, SHG member Rural, Farmer, Senior Citizen, Minor, SHG member Urban, Pensioner, Auto Driver, Weaver, Fishermen'
 - name: employment_status
   type: STRING
   nullable: true
-  description: 'Status of this occupation record, e.g. ''Active'', ''Seasonal'', ''Ended''.
-    [Value Examples: ''Active'', ''Seasonal'', ''Ended'']'
-  value_description: '[''Working'', ''1'', ''0'', ''Leave'', ''Suspension'']'
+  description: 'Status of this occupation record, e.g. ''Active'', ''Seasonal'', ''Ended''. [Value Examples: ''Active'', ''Seasonal'', ''Ended'']'
+  value_description: 'Top distinct values: , Working, 1, 0, Leave, Suspension'
 - name: source
   type: STRING
   nullable: true
   description: System/department that reported this occupation record.
-  value_description: '[''UFS'', ''DEPT-EDU'', ''SERP'', ''Open'', ''DBT Schemes'',
-    ''MEPMA'', ''HRMS'', ''APCOS'']'
+  value_description: 'Top distinct values: UFS, DEPT-EDU, SERP, Open, DBT Schemes, MEPMA, HRMS, APCOS'
 - name: occupation_year
   type: STRING
   nullable: true
   description: Year (or year range) this occupation record pertains to.
+  value_description: 'Top distinct values: , 2026, 2025, 2019, 2023, 2020, 2010, 2002, 2012, 2009'
 - name: is_current
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if this is the person's currently active occupation
-    among possibly several historical/concurrent records.
-  value_description: '[''True'']'
+  description: Boolean flag. True if this is the person's currently active occupation among possibly several historical/concurrent records.
+  value_description: 'Top distinct values: True'
 - name: updated_at
   type: TIMESTAMP
   nullable: true

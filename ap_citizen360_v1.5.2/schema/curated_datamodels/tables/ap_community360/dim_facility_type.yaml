@@ -1,12 +1,9 @@
 database: ap_community360
 table: dim_facility_type
 department: ap_community360
-description: The controlled vocabulary of facility types (School, Hospital, Anganwadi,
-  Community Center, Park, Govt Office, ...). subtype_table points at the type-specific
-  attribute table for that type (e.g. 'dim_facility_school'), so a consumer can join
-  dim_facility -> dim_facility_type -> the right subtype table without hardcoding
-  the mapping app-side. This is what lets new facility types be added by inserting
-  a row here, not by changing code.
+description: The controlled vocabulary of facility types (School, Hospital, Anganwadi, Community Center, Park, Govt Office, ...). subtype_table points at the type-specific attribute table for that type
+  (e.g. 'dim_facility_school'), so a consumer can join dim_facility -> dim_facility_type -> the right subtype table without hardcoding the mapping app-side. This is what lets new facility types be added
+  by inserting a row here, not by changing code.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_community360/dim_facility_type
 partitioned_by: null
@@ -20,127 +17,91 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: ap_community360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility_type`(\n  `facility_type_id`\
-  \ INT COMMENT 'Primary Key: facility type. Referenced by dim_facility.facility_type_id\
-  \ and every fact_facility_* table.',\n  `type_code` STRING COMMENT 'Short stable\
-  \ code, e.g. \\'HOSPITAL\\', \\'SCHOOL\\' \u2014 safe to use in URLs/filters; won\\\
-  't change even if type_name\\'s display wording does. [Value Examples: \\'HOSPITAL\\\
-  ', \\'SCHOOL\\', \\'t change even if type_name\\']',\n  `type_name` STRING COMMENT\
-  \ 'Human-readable display name, e.g. \\'Hospital\\'. What the UI shows; what users\
-  \ filter by. [Value Examples: \\'Hospital\\']',\n  `type_category` STRING COMMENT\
-  \ 'Broad grouping the type belongs to, e.g. \\'Health\\', \\'Education\\', \\'Civic\\\
-  ' \u2014 used for the facility-mix breakdown. [Value Examples: \\'Health\\', \\\
-  'Education\\', \\'Civic\\']',\n  `sector` STRING COMMENT 'Public/Private/Trust sector\
-  \ this type is normally operated under (a default, not a per-facility override \u2014\
-  \ see dim_facility.ownership_type for the actual per-row value).',\n  `parent_type_id`\
-  \ INT COMMENT 'Self-referencing FK to facility_type_id, for hierarchical types (e.g.\
-  \ a specialty clinic as a sub-type of Hospital). NULL for top-level types.',\n \
-  \ `subtype_table` STRING COMMENT 'Name of the ap_community360 table holding this\
-  \ type\\'s extra attributes (e.g. \\'dim_facility_school\\'). NULL when a type has\
-  \ no subtype attributes yet (e.g. Govt Office). [Value Examples: \\'dim_facility_school\\\
-  ']',\n  `governing_department` STRING COMMENT 'Cross-schema FK (by name): References\
-  \ ap_citizen360.dim_department.department_id. which government department owns/regulates\
-  \ this facility type.',\n  `service_norm_radius_km` DECIMAL(6,2) COMMENT 'The planning-norm\
-  \ catchment radius for this facility type (e.g. a Hospital should be within 8km)\
-  \ \u2014 the yardstick fact_facility_access.within_norm_distance is measured against.',\n\
-  \  `description` STRING COMMENT 'Free-text description of the facility type for\
-  \ documentation/tooltips.',\n  `is_active` BOOLEAN COMMENT 'Boolean flag. True if\
-  \ this type is still in active use for new facility records (retiring a type doesn\\\
-  't delete history).',\n  `source_system` STRING COMMENT 'Upstream system this row\
-  \ was loaded from, e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples:\
-  \ \\'udise_plus\\', \\'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load\
-  \ batch identifier \u2014 groups every row written by the same ingestion run, for\
-  \ reprocessing/rollback.',\n  `load_ts` TIMESTAMP COMMENT 'When this row was first\
-  \ written to the canonical table.',\n  `updated_ts` TIMESTAMP COMMENT 'Categorical\
-  \ column. Distinct values: \\'When this row was last updated (upsert\\', \\'merge\
-  \ timestamp).\\'. When this row was last updated (upsert/merge timestamp).',\n \
-  \ `record_status` STRING COMMENT 'Row lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\\
-  ' \u2014 soft-delete marker; rows are never hard-deleted. [Value Examples: \\'ACTIVE\\\
-  ', \\'RETIRED\\']')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility_type'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility_type`(\n  `facility_type_id` INT COMMENT 'Primary Key: facility type. Referenced by dim_facility.facility_type_id and every fact_facility_*\
+  \ table.',\n  `type_code` STRING COMMENT 'Short stable code, e.g. \\'HOSPITAL\\', \\'SCHOOL\\' \u2014 safe to use in URLs/filters; won\\'t change even if type_name\\'s display wording does. [Value Examples:\
+  \ \\'HOSPITAL\\', \\'SCHOOL\\', \\'t change even if type_name\\']',\n  `type_name` STRING COMMENT 'Human-readable display name, e.g. \\'Hospital\\'. What the UI shows; what users filter by. [Value Examples:\
+  \ \\'Hospital\\']',\n  `type_category` STRING COMMENT 'Broad grouping the type belongs to, e.g. \\'Health\\', \\'Education\\', \\'Civic\\' \u2014 used for the facility-mix breakdown. [Value Examples:\
+  \ \\'Health\\', \\'Education\\', \\'Civic\\']',\n  `sector` STRING COMMENT 'Public/Private/Trust sector this type is normally operated under (a default, not a per-facility override \u2014 see dim_facility.ownership_type\
+  \ for the actual per-row value).',\n  `parent_type_id` INT COMMENT 'Self-referencing FK to facility_type_id, for hierarchical types (e.g. a specialty clinic as a sub-type of Hospital). NULL for top-level\
+  \ types.',\n  `subtype_table` STRING COMMENT 'Name of the ap_community360 table holding this type\\'s extra attributes (e.g. \\'dim_facility_school\\'). NULL when a type has no subtype attributes yet\
+  \ (e.g. Govt Office). [Value Examples: \\'dim_facility_school\\']',\n  `governing_department` STRING COMMENT 'Cross-schema FK (by name): References ap_citizen360.dim_department.department_id. which government\
+  \ department owns/regulates this facility type.',\n  `service_norm_radius_km` DECIMAL(6,2) COMMENT 'The planning-norm catchment radius for this facility type (e.g. a Hospital should be within 8km) \u2014\
+  \ the yardstick fact_facility_access.within_norm_distance is measured against.',\n  `description` STRING COMMENT 'Free-text description of the facility type for documentation/tooltips.',\n  `is_active`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if this type is still in active use for new facility records (retiring a type doesn\\'t delete history).',\n  `source_system` STRING COMMENT 'Upstream system this\
+  \ row was loaded from, e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\', \\'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load batch identifier \u2014 groups every\
+  \ row written by the same ingestion run, for reprocessing/rollback.',\n  `load_ts` TIMESTAMP COMMENT 'When this row was first written to the canonical table.',\n  `updated_ts` TIMESTAMP COMMENT 'Categorical\
+  \ column. Distinct values: \\'When this row was last updated (upsert\\', \\'merge timestamp).\\'. When this row was last updated (upsert/merge timestamp).',\n  `record_status` STRING COMMENT 'Row lifecycle\
+  \ flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\' \u2014 soft-delete marker; rows are never hard-deleted. [Value Examples: \\'ACTIVE\\', \\'RETIRED\\']')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility_type'"
 columns:
 - name: facility_type_id
   type: INT
   nullable: true
-  description: 'Primary Key: facility type. Referenced by dim_facility.facility_type_id
-    and every fact_facility_* table.'
+  description: 'Primary Key: facility type. Referenced by dim_facility.facility_type_id and every fact_facility_* table.'
 - name: type_code
   type: STRING
   nullable: true
-  description: "Short stable code, e.g. 'HOSPITAL', 'SCHOOL' \u2014 safe to use in\
-    \ URLs/filters; won't change even if type_name's display wording does. [Value\
-    \ Examples: 'HOSPITAL', 'SCHOOL', 't change even if type_name']"
-  value_description: '[''ANGANWADI'', ''PARK'', ''HOSPITAL'', ''GOVT_OFFICE'', ''SCHOOL'',
-    ''WORSHIP'', ''SHOP'', ''FAIR_PRICE_SHOP'', ''COMMUNITY_CENTER'']'
+  description: "Short stable code, e.g. 'HOSPITAL', 'SCHOOL' \u2014 safe to use in URLs/filters; won't change even if type_name's display wording does. [Value Examples: 'HOSPITAL', 'SCHOOL', 't change even\
+    \ if type_name']"
+  value_description: '[''ANGANWADI'', ''PARK'', ''HOSPITAL'', ''GOVT_OFFICE'', ''SCHOOL'', ''WORSHIP'', ''SHOP'', ''FAIR_PRICE_SHOP'', ''COMMUNITY_CENTER'']'
 - name: type_name
   type: STRING
   nullable: true
-  description: 'Human-readable display name, e.g. ''Hospital''. What the UI shows;
-    what users filter by. [Value Examples: ''Hospital'']'
-  value_description: '[''Government Office'', ''Community Center'', ''Public Park'',
-    ''Fair Price Shop'', ''Hospital'', ''School'', ''Anganwadi Centre'', ''Commercial
-    Shop'', ''Place of Worship'']'
+  description: 'Human-readable display name, e.g. ''Hospital''. What the UI shows; what users filter by. [Value Examples: ''Hospital'']'
+  value_description: 'Top distinct values: Commercial Shop, Public Park, Grama / Ward Secretariat, Fair Price Shop, Hospital, Community Center, Place of Worship, Anganwadi Centre, School, Government Office'
 - name: type_category
   type: STRING
   nullable: true
-  description: "Broad grouping the type belongs to, e.g. 'Health', 'Education', 'Civic'\
-    \ \u2014 used for the facility-mix breakdown. [Value Examples: 'Health', 'Education',\
-    \ 'Civic']"
-  value_description: '[''WELFARE'', ''SOCIAL'', ''EDUCATION'', ''ADMIN'', ''RECREATION'',
-    ''RELIGIOUS'', ''COMMERCE'', ''HEALTH'']'
+  description: "Broad grouping the type belongs to, e.g. 'Health', 'Education', 'Civic' \u2014 used for the facility-mix breakdown. [Value Examples: 'Health', 'Education', 'Civic']"
+  value_description: 'Top distinct values: WELFARE, ADMIN, RECREATION, EDUCATION, RELIGIOUS, GOVERNANCE, SOCIAL, COMMERCE, HEALTH'
 - name: sector
   type: STRING
   nullable: true
-  description: "Public/Private/Trust sector this type is normally operated under (a\
-    \ default, not a per-facility override \u2014 see dim_facility.ownership_type\
-    \ for the actual per-row value)."
+  description: "Public/Private/Trust sector this type is normally operated under (a default, not a per-facility override \u2014 see dim_facility.ownership_type for the actual per-row value)."
+  value_description: 'Top distinct values: PUBLIC, PUBLIC_SERVICE, MIXED, PRIVATE'
 - name: parent_type_id
   type: INT
   nullable: true
-  description: Self-referencing FK to facility_type_id, for hierarchical types (e.g.
-    a specialty clinic as a sub-type of Hospital). NULL for top-level types.
+  description: Self-referencing FK to facility_type_id, for hierarchical types (e.g. a specialty clinic as a sub-type of Hospital). NULL for top-level types.
 - name: subtype_table
   type: STRING
   nullable: true
-  description: 'Name of the ap_community360 table holding this type''s extra attributes
-    (e.g. ''dim_facility_school''). NULL when a type has no subtype attributes yet
-    (e.g. Govt Office). [Value Examples: ''dim_facility_school'']'
-  value_description: '[''dim_facility_hospital'', ''dim_facility_park'', ''dim_facility_school'',
-    ''dim_facility_community_center'', ''dim_facility_shop'', ''dim_facility_worship'',
-    ''dim_facility_govt_office'', ''dim_facility_fair_price_shop'', ''dim_facility_anganwadi'']'
+  description: 'Name of the ap_community360 table holding this type''s extra attributes (e.g. ''dim_facility_school''). NULL when a type has no subtype attributes yet (e.g. Govt Office). [Value Examples:
+    ''dim_facility_school'']'
+  value_description: 'Top distinct values: dim_facility_worship, dim_facility_school, dim_facility_fair_price_shop, dim_facility_hospital, dim_facility_govt_office, dim_facility_community_center, dim_facility_shop,
+    dim_facility_park, dim_facility_anganwadi'
 - name: governing_department
   type: STRING
   nullable: true
-  description: 'Cross-schema FK (by name): References ap_citizen360.dim_department.department_id.
-    which government department owns/regulates this facility type.'
+  description: 'Cross-schema FK (by name): References ap_citizen360.dim_department.department_id. which government department owns/regulates this facility type.'
+  value_description: 'Top distinct values: Health Medical and Family Welfare Department, Civil Supplies Department, Endowments Department, Municipal Administration and Urban Development, Commercial Establishments,
+    GSWS, School Education Department, Panchayat Raj / Urban Local Body, Government Departments, Women Development and Child Welfare Department'
 - name: service_norm_radius_km
   type: DECIMAL(6,2)
   nullable: true
-  description: "The planning-norm catchment radius for this facility type (e.g. a\
-    \ Hospital should be within 8km) \u2014 the yardstick fact_facility_access.within_norm_distance\
-    \ is measured against."
+  description: "The planning-norm catchment radius for this facility type (e.g. a Hospital should be within 8km) \u2014 the yardstick fact_facility_access.within_norm_distance is measured against."
+  value_description: 'Top distinct values: 5.00, 2.00, 1.00, 3.00, 10.00'
 - name: description
   type: STRING
   nullable: true
   description: Free-text description of the facility type for documentation/tooltips.
+  value_description: 'Top distinct values: Primary, Upper Primary, Secondary and Higher Secondary Schools, Citizen Service and Administrative Offices, Retail and Commercial Establishments, Public Recreation
+    and Green Spaces, Public and Private Healthcare Facilities, Temples, Mosques, Churches and Other Religious Institutions, Public Distribution System Ration Shops, Citizen service delivery centers, Community
+    Halls and Public Gathering Facilities, Early Childhood Care and Nutrition Centres'
 - name: is_active
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if this type is still in active use for new facility
-    records (retiring a type doesn't delete history).
-  value_description: '[''True'']'
+  description: Boolean flag. True if this type is still in active use for new facility records (retiring a type doesn't delete history).
+  value_description: 'Top distinct values: True'
 - name: source_system
   type: STRING
   nullable: true
-  description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'',
-    ''seed''. [Value Examples: ''udise_plus'', ''hmis'', ''seed'']'
-  value_description: '[''COMMUNITY360_REFERENCE'']'
+  description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'', ''hmis'', ''seed'']'
+  value_description: 'Top distinct values: COMMUNITY360_REFERENCE'
 - name: batch_id
   type: STRING
   nullable: true
-  description: "Load batch identifier \u2014 groups every row written by the same\
-    \ ingestion run, for reprocessing/rollback."
+  description: "Load batch identifier \u2014 groups every row written by the same ingestion run, for reprocessing/rollback."
 - name: load_ts
   type: TIMESTAMP
   nullable: true
@@ -148,15 +109,12 @@ columns:
 - name: updated_ts
   type: TIMESTAMP
   nullable: true
-  description: 'Categorical column. Distinct values: ''When this row was last updated
-    (upsert'', ''merge timestamp).''. When this row was last updated (upsert/merge
-    timestamp).'
+  description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''. When this row was last updated (upsert/merge timestamp).'
 - name: record_status
   type: STRING
   nullable: true
-  description: "Row lifecycle flag, e.g. 'ACTIVE' | 'RETIRED' \u2014 soft-delete marker;\
-    \ rows are never hard-deleted. [Value Examples: 'ACTIVE', 'RETIRED']"
-  value_description: '[''ACTIVE'']'
+  description: "Row lifecycle flag, e.g. 'ACTIVE' | 'RETIRED' \u2014 soft-delete marker; rows are never hard-deleted. [Value Examples: 'ACTIVE', 'RETIRED']"
+  value_description: 'Top distinct values: ACTIVE'
 primary_key:
 - facility_type_id
 relationships:

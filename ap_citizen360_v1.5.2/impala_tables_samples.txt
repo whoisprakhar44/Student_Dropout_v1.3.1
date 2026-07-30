@@ -7,6 +7,175 @@ Schemas Folder: /home/prakhars/ap_citizen360_v1.5.2/schema/curated_datamodels/ta
 
 Found 43 tables defined in the tables folder.
 
+================================================================================
+📋 EXISTING TABLES IN DATABASE: ap_citizen360
+--------------------------------------------------------------------------------
+  - annadata_sukhibhava_citizen360
+  - ap_citizen_temp_null_name
+  - apseva_citizen360
+  - apseva_services_data
+  - auto_driver_seva_citizen360
+  - bal_sanjeevani_citizen360
+  - balsanjeevani_dtls
+  - crop_citizen360
+  - crs_noaadhaar_dob
+  - crs_noadhaar_dtls
+  - crs_widow_pensions_test
+  - crsap_citizen360
+  - dim_agriculture_profile
+  - dim_agriculture_profile_bkp
+  - dim_caste_certificate
+  - dim_citizen_identifier
+  - dim_citizen_identifier_old
+  - dim_consent
+  - dim_consent_old
+  - dim_crop_sale
+  - dim_department
+  - dim_department_client
+  - dim_department_client_old
+  - dim_district
+  - dim_district_old
+  - dim_driving_licence
+  - dim_driving_licence_9_jul_bkp
+  - dim_education_profile_old
+  - dim_epfo_contribution
+  - dim_epfo_old
+  - dim_family_member
+  - dim_family_member_old
+  - dim_father_mother_relation
+  - dim_father_mother_relation_crs
+  - dim_father_mother_relation_crs_death
+  - dim_father_mother_relation_student
+  - dim_health_profile
+  - dim_health_profile_old
+  - dim_health_profile_source
+  - dim_household
+  - dim_household_old
+  - dim_identifier_bkp
+  - dim_income_certificate
+  - dim_land
+  - dim_land_bkp
+  - dim_land_old_old
+  - dim_mandal
+  - dim_mandal_old
+  - dim_occupation
+  - dim_open_dataset
+  - dim_person
+  - dim_person_bkp
+  - dim_person_old
+  - dim_person_source
+  - dim_property
+  - dim_property_old
+  - dim_property_tax
+  - dim_property_tax_old
+  - dim_scheme
+  - dim_scheme_main_mapping
+  - dim_school
+  - dim_secretariat
+  - dim_shared_data_field
+  - dim_shared_data_source
+  - dim_social_welfare
+  - dim_social_welfare_old
+  - dim_state
+  - dim_student
+  - dim_student_admission_profile
+  - dim_student_bkp
+  - dim_student_subject_marks_summary
+  - dim_tax_profile
+  - dim_utility_connection
+  - dim_utility_connection_old
+  - dim_vehicle
+  - dim_vehicle_compliance
+  - dim_vehicle_old
+  - dim_vehicle_source
+  - dim_village
+  - dim_village_copy_old
+  - dim_village_old
+  - driving_license
+  - driving_license_9_jul_bkp
+  - epds_citizen360
+  - fact_anomaly_event
+  - fact_anomaly_event_old
+  - fact_anomaly_loan
+  - fact_anomaly_pregnancy
+  - fact_anomaly_pregnancy_old
+  - fact_benefit_transaction
+  - fact_dataset_batch_job
+  - fact_dataset_export_job
+  - fact_entitlement
+  - fact_event_acknowledgement
+  - fact_event_details
+  - fact_event_details_8_july_bkp
+  - fact_event_details_tier1
+  - fact_event_details_tier1_07_julbkp
+  - fact_event_details_tier1_4_jul_bkp
+  - fact_event_details_tier1_bkp_07jul26
+  - fact_event_index
+  - fact_event_request_registry
+  - fact_event_status_update
+  - fact_lifecycle_event
+  - fact_lifecycle_event_old
+  - fact_population_age_band_old
+  - fact_population_hierarchy
+  - fact_population_hierarchy_bkp
+  - fact_population_hierarchy_old
+  - fact_scheme_disbursement
+  - fact_scheme_disbursement_new
+  - fact_student_attendance
+  - fact_student_attendance_bkp
+  - fact_utility_trend_old
+  - fact_village_kpi_old
+  - family_relation
+  - finalror_data_17072026
+  - gsws_citizen360
+  - gws_hh_wise_sec_village
+  - housing_department_citizen360
+  - hrms_citizen360
+  - hrms_pensioner
+  - mv_field_saturation_aadhaar_ids
+  - mv_field_saturation_report_cache
+  - occupation_master
+  - pension_widow_data
+  - relationship_view
+  - sadarem_citizen360
+  - schemes_data
+  - schemes_data_bkp
+  - schemes_data_new
+  - serp_citizen360
+  - shaaditohfascheme_citizen360
+  - ssc_hallticket_ids
+  - student_profile_consolidated
+  - swarna_panchayat_citizen360
+  - tbl_energy_consumption
+  - tbl_energy_unique
+  - tbl_hh_caste_certificate
+  - test_iceberg_load
+  - tmp_field_saturation_aadhaar_4154f58b5b64
+  - tmp_field_saturation_aadhaar_6a80c2a4d05d
+  - ufs_citizen360
+  - vw_energy_consumption
+  - vw_farmer_annadata_sukhibhava
+  - vw_swarna_panchayat_citizen360
+  - vw_widow_pension_citizen360
+  - webland_data_11072026
+  - webland_data_17072026
+  - webland_data_unique
+
+📋 EXISTING TABLES IN DATABASE: ap_community360
+--------------------------------------------------------------------------------
+  - dim_facility
+  - dim_facility_anganwadi
+  - dim_facility_community_center
+  - dim_facility_hospital
+  - dim_facility_identifier
+  - dim_facility_park
+  - dim_facility_school
+  - dim_facility_type
+  - dim_geography
+  - fact_facility_access
+  - fact_facility_service
+================================================================================
+
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_agriculture_profile
 --------------------------------------------------------------------------------
@@ -16,13 +185,13 @@ Table: ap_citizen360.dim_agriculture_profile
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_citizen_identifier
 --------------------------------------------------------------------------------
-IDENTIFIER_ID | PERSON_ID    | IDENTIFIER_TYPE | IDENTIFIER_VALUE | IS_PRIMARY | ISSUING_AUTHORITY | ISSUED_DATE | EXPIRY_DATE | IS_ACTIVE | VERIFIED_FLAG | SOURCE         
---------------+--------------+-----------------+------------------+------------+-------------------+-------------+-------------+-----------+---------------+----------------
-233035301     | 504498562740 | Mobile Number   | 8106422312       | False      | NULL              | NULL        | NULL        | True      | False         | GSWS           
-233035302     | 504498562740 | Mobile Number   | 8106422311       | False      | NULL              | NULL        | NULL        | True      | False         | Electricity    
-233035303     | 504498585107 | Mobile Number   | 9666523196       | False      | NULL              | NULL        | NULL        | True      | False         | APSeva Services
-233035304     | 504498585389 | Mobile Number   | 7702927985       | False      | NULL              | NULL        | NULL        | True      | False         | UFS            
-233035305     | 504498585389 | Mobile Number   | 7702927985       | False      | NULL              | NULL        | NULL        | True      | False         | GSWS           
+IDENTIFIER_ID | PERSON_ID    | IDENTIFIER_TYPE | IDENTIFIER_VALUE | IS_PRIMARY | ISSUING_AUTHORITY | ISSUED_DATE | EXPIRY_DATE | IS_ACTIVE | VERIFIED_FLAG | SOURCE
+--------------+--------------+-----------------+------------------+------------+-------------------+-------------+-------------+-----------+---------------+-------
+53542324      | 002353052000 | Aadhaar         | 200000235305     | True       | UIDAI             | NULL        | NULL        | True      | False         | EPDS  
+53542325      | 019489302000 | Aadhaar         | 200001948930     | True       | UIDAI             | NULL        | NULL        | True      | False         | EPDS  
+53542326      | 128913322000 | Aadhaar         | 200012891332     | True       | UIDAI             | NULL        | NULL        | True      | False         | EPDS  
+53542327      | 180503592000 | Aadhaar         | 200018050359     | True       | UIDAI             | NULL        | NULL        | True      | False         | EPDS  
+53542328      | 215105802000 | Aadhaar         | 200021510580     | True       | UIDAI             | NULL        | NULL        | True      | False         | EPDS  
 
 Successfully fetched 5 records.
 
@@ -37,24 +206,24 @@ Table: ap_citizen360.dim_crop_sale
 --------------------------------------------------------------------------------
 PERSON_ID    | FINANCIAL_YEAR | AMT_PADDY | AMT_NONPADDY | AMT_TOTAL | UPDATED_AT                
 -------------+----------------+-----------+--------------+-----------+---------------------------
-355444352070 | 2025-26        | 189520.00 | 0.00         | 189520.00 | 2026-07-01 14:53:48.147671
-931292942298 | 2025-26        | 263432.00 | 0.00         | 263432.00 | 2026-07-01 14:53:48.147671
-740192103200 | 2025-26        | 107078.00 | 0.00         | 107078.00 | 2026-07-01 14:53:48.147671
-091991813315 | 2025-26        | 257746.00 | 0.00         | 257746.00 | 2026-07-01 14:53:48.147671
-522890873498 | 2025-26        | 34113.00  | 0.00         | 34113.00  | 2026-07-01 14:53:48.147671
+873668056149 | 2025-26        | 240690.00 | 0.00         | 240690.00 | 2026-07-01 14:53:48.147671
+874374556149 | 2025-26        | 98550.00  | 0.00         | 98550.00  | 2026-07-01 14:53:48.147671
+875255626149 | 2025-26        | 41694.00  | 0.00         | 41694.00  | 2026-07-01 14:53:48.147671
+875449386149 | 2025-26        | 252060.00 | 0.00         | 252060.00 | 2026-07-01 14:53:48.147671
+894185276149 | 2025-26        | 59698.00  | 0.00         | 59698.00  | 2026-07-01 14:53:48.147671
 
 Successfully fetched 5 records.
 
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_department
 --------------------------------------------------------------------------------
-DEPARTMENT_ID | DEPARTMENT_NAME          
---------------+--------------------------
-DEPT-ENE      | Department of Energy     
-DEPT-APMB     | AP Maritime Board        
-DEPT-IND      | Department of Industries 
-DEPT-FCS      | Food & Civil Supplies    
-DEPT-AGRI     | Agriculture & Cooperation
+DEPARTMENT_ID | DEPARTMENT_NAME                 
+--------------+---------------------------------
+DEPT-ENE      | Department of Energy            
+DEPT-APMB     | AP Maritime Board               
+DEPT-FCS      | Food & Civil Supplies           
+DEPT-AGRI     | Agriculture & Cooperation       
+DEPT-HEALTH   | Health, Medical & Family Welfare
 
 Successfully fetched 5 records.
 
@@ -63,10 +232,10 @@ Table: ap_citizen360.dim_department_client
 --------------------------------------------------------------------------------
 DEPARTMENT_ID | CLIENT_SECRET_HASH                       | IS_ACTIVE | CREATED_AT                 | UPDATED_AT                
 --------------+------------------------------------------+-----------+----------------------------+---------------------------
-DEPT-ENE      | c58042bc3003713918b8b7db4520e1cb475a3... | True      | 2026-07-06 12:21:26.786951 | 2026-07-06 12:21:26.786951
-DEPT-RTGS     | 4f5d6fc00fd049d850fcdd0e3e5ab354b7caa... | True      | 2026-07-21 21:32:52.636277 | 2026-07-21 21:32:52.636277
-DEPT-APMB     | 8d23ec6316eed90d87fc32d67fd9c879a0ae0... | True      | 2026-07-06 12:21:26.786951 | 2026-07-06 12:21:26.786951
 DEPT-IND      | 9fa88afd2990b35577df378173be9e26cdf8a... | True      | 2026-07-28 19:55:13.825279 | 2026-07-28 19:55:13.825279
+DEPT-RTGS     | 4f5d6fc00fd049d850fcdd0e3e5ab354b7caa... | True      | 2026-07-21 21:32:52.636277 | 2026-07-21 21:32:52.636277
+DEPT-ENE      | c58042bc3003713918b8b7db4520e1cb475a3... | True      | 2026-07-06 12:21:26.786951 | 2026-07-06 12:21:26.786951
+DEPT-APMB     | 8d23ec6316eed90d87fc32d67fd9c879a0ae0... | True      | 2026-07-06 12:21:26.786951 | 2026-07-06 12:21:26.786951
 DEPT-WCD      | 6b7ad8813ab98e38ddaf7760bf96571d98b02... | True      | 2026-06-23 13:34:53.322605 | 2026-06-23 13:34:53.322605
 
 Successfully fetched 5 records.
@@ -74,13 +243,13 @@ Successfully fetched 5 records.
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_district
 --------------------------------------------------------------------------------
-DISTRICT_ID | DISTRICT_NAME               | STATE_ID | POPULATION | HOUSEHOLDS | LITERACY_RATE | SEX_RATIO | URBANIZATION_PCT | RATION_CARDS_TOTAL | RATION_AAY | RATION_PHH | RATION_NPHH | RATION_OTHERS | VEHICLES | LAND_ACRES | AGRI_LAND_ACRES | PROPERTIES | GAS_CONNECTIONS | ELECTRICITY_CONSUMERS | AVG_MONTHLY_KWH | PROPERTY_TAX_COVERAGE | EFFECTIVE_FROM | EFFECTIVE_TO | IS_CURRENT
-------------+-----------------------------+----------+------------+------------+---------------+-----------+------------------+--------------------+------------+------------+-------------+---------------+----------+------------+-----------------+------------+-----------------+-----------------------+-----------------+-----------------------+----------------+--------------+-----------
-502         | ANANTHAPURAMU               | 28       | 2536017    | 765319     | NULL          | 1012      | 26.0             | 695101             | 46151      | 540613     | 0           | 0             | 39       | 5269212    | 5269212         | 0          | 1991064         | 475877                | 5509680         | 0                     | NULL           | NULL         | True      
-504         | YSR KADAPA                  | 28       | 2437016    | 748732     | NULL          | 1022      | 36.0             | 672396             | 36882      | 536005     | 0           | 0             | 45       | 2208303    | 2208303         | 0          | 1952628         | 503957                | 5329889         | 0                     | NULL           | NULL         | True      
-750         | BAPATLA                     | 28       | 1295870    | 459378     | NULL          | 994       | 14.0             | 396698             | 15494      | 329704     | 0           | 0             | 37       | 1079865    | 1079865         | 0          | 1034340         | 323742                | 33617719        | 0                     | NULL           | NULL         | True      
-523         | WEST GODAVARI               | 28       | 1936835    | 658186     | NULL          | 963       | 25.0             | 576793             | 26766      | 475475     | 0           | 0             | 42       | 466677     | 466677          | 0          | 1617307         | 430549                | 177652593       | 0                     | NULL           | NULL         | True      
-515         | SRI POTTI SRIRAMULU NELLORE | 28       | 2488389    | 845763     | NULL          | 997       | 33.0             | 722114             | 36450      | 594276     | 0           | 0             | 51       | 1811509    | 1811509         | 0          | 1875299         | 554110                | 10479406        | 0                     | NULL           | NULL         | True      
+DISTRICT_ID | DISTRICT_NAME         | STATE_ID | POPULATION | HOUSEHOLDS | LITERACY_RATE | SEX_RATIO | URBANIZATION_PCT | RATION_CARDS_TOTAL | RATION_AAY | RATION_PHH | RATION_NPHH | RATION_OTHERS | VEHICLES | LAND_ACRES | AGRI_LAND_ACRES | PROPERTIES | GAS_CONNECTIONS | ELECTRICITY_CONSUMERS | AVG_MONTHLY_KWH | PROPERTY_TAX_COVERAGE | EFFECTIVE_FROM | EFFECTIVE_TO | IS_CURRENT
+------------+-----------------------+----------+------------+------------+---------------+-----------+------------------+--------------------+------------+------------+-------------+---------------+----------+------------+-----------------+------------+-----------------+-----------------------+-----------------+-----------------------+----------------+--------------+-----------
+745         | ALLURI SITHARAMA RAJU | 28       | 706531     | 197134     | NULL          | 959       | 0.0              | 189935             | 34427      | 119842     | 0           | 0             | 13       | 563323     | 563323          | 0          | 203444          | 129580                | 5869725         | 0                     | NULL           | NULL         | True      
+746         | KAKINADA              | 28       | 2254604    | 757477     | NULL          | 999       | 27.0             | 671378             | 19745      | 567959     | 0           | 0             | 51       | 812611     | 812611          | 0          | 1794219         | 471755                | 102241990       | 0                     | NULL           | NULL         | True      
+744         | ANAKAPALLI            | 28       | 1756797    | 588366     | NULL          | 991       | 11.0             | 548655             | 22516      | 450079     | 0           | 0             | 34       | 1619925    | 1619925         | 0          | 1374279         | 423454                | 44871230        | 0                     | NULL           | NULL         | True      
+521         | VIZIANAGARAM          | 28       | 1982613    | 653237     | NULL          | 1001      | 19.0             | 598825             | 32119      | 477445     | 0           | 0             | 32       | 1017726    | 1017726         | 0          | 1581688         | 480864                | 48752924        | 0                     | NULL           | NULL         | True      
+517         | PRAKASAM              | 28       | 1825385    | 610250     | NULL          | 1017      | 23.0             | 532269             | 18408      | 441063     | 0           | 0             | 52       | 2790294    | 2790294         | 0          | 1438962         | 424117                | 55877574        | 0                     | NULL           | NULL         | True      
 
 Successfully fetched 5 records.
 
@@ -89,24 +258,24 @@ Table: ap_citizen360.dim_epfo_contribution
 --------------------------------------------------------------------------------
 PERSON_ID    | EMPLOYEE_CONTRIBUTION | EMPLOYER_CONTRIBUTION | EPS_CONTRIBUTION | LATEST_CONTRIBUTION_DATE | SECRETARIAT_CODE | ESTABLISHMENT_ID | UPDATED_AT                
 -------------+-----------------------+-----------------------+------------------+--------------------------+------------------+------------------+---------------------------
-000001499986 | 150                   | 46                    | 104              | 2020-01-01               | 21023015         | APHYD0042235000  | 2026-07-07 13:10:57.170301
-000002455496 | 300                   | 161                   | 139              | 2025-04-01               | 21016007         | DLCPM0012635000  | 2026-07-07 13:10:57.170301
-000003144575 | 0                     | 0                     | 0                | NULL                     | 10590377         | TNAMB1026233000  | 2026-07-07 13:10:57.170301
-000003823402 | 317                   | 97                    | 220              | 2018-09-01               | 21086008         | GRVSP1312174000  | 2026-07-07 13:10:57.170301
-000005245136 | 1800                  | 550                   | 1250             | 2025-09-01               | 11190518         | APHYD0011773000  | 2026-07-07 13:10:57.170301
+000000593458 | 2155                  | 905                   | 1250             | 2025-09-01               | 10290586         | GRVSP0070053000  | 2026-07-07 13:10:57.170301
+000001152241 | 1440                  | 440                   | 1000             | 2025-09-01               | 21086317         | APKKP0059128000  | 2026-07-07 13:10:57.170301
+000002017359 | 0                     | 0                     | 3788             | 2025-08-01               | 10690185         | APHYD0000295000  | 2026-07-07 13:10:57.170301
+000002665863 | 588                   | 180                   | 408              | 2019-05-01               | 11090747         | GRCDP1057633000  | 2026-07-07 13:10:57.170301
+000003868562 | 1800                  | 550                   | 1788             | 2025-09-01               | 10590599         | GRRJY0000008000  | 2026-07-07 13:10:57.170301
 
 Successfully fetched 5 records.
 
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_family_member
 --------------------------------------------------------------------------------
-FAMILY_MEMBER_ID | PERSON_ID    | HOUSEHOLD_ID                    | MEMBER_NAME         | RELATION | AGE    | GENDER | UPDATED_AT
------------------+--------------+---------------------------------+---------------------+----------+--------+--------+-----------
-944547065964     | 836685779470 | HH92104399181720200228122641813 | Mukiri Venkatesh    | Husband  | 47     | Male   | NULL      
-883561238961     | 038781112409 | HH80941133609220200911115749060 | P Humera            | Daughter | 15     | Female | NULL      
-497132653240     | 477480909554 | HH42410615271720200220072600810 | Gandi Erra Apparao  | NULL     | 73     | Male   | NULL      
-037810507037     | 448423214042 | HH54749390409020200413084549919 | Pendem Devaprasanna | Son      | 26     | Male   | NULL      
-309590787572     | 118354622432 | HH45909887160520200227125758339 | Pulicherla nagaraju | NULL     | 22     | Male   | NULL      
+FAMILY_MEMBER_ID | PERSON_ID    | HOUSEHOLD_ID                    | MEMBER_NAME           | RELATION | AGE    | GENDER | UPDATED_AT
+-----------------+--------------+---------------------------------+-----------------------+----------+--------+--------+-----------
+900081658576     | 760183258784 | HH50386705583320200218085233464 | Pragada Surya Meghana | Daughter | 23     | Female | NULL      
+420759806013     | 035352686455 | HH44598394749220200314083718500 | B SASIKALA            | NULL     | 22     | Female | NULL      
+659770236341     | 477572664098 | HH60470656910220211106052540438 | Kommanaboina Nandu    | NULL     | NULL   | Female | NULL      
+168239558968     | 155826495929 | HH79857444618720200215043027157 | GANI LAXMI            | Wife     | 35     | Female | NULL      
+223553144246     | 161942499714 | HH64261054806820200506105124956 | Kapu Krishnareddi     | NULL     | 21     | Male   | NULL      
 
 Successfully fetched 5 records.
 
@@ -115,11 +284,11 @@ Table: ap_citizen360.dim_health_profile
 --------------------------------------------------------------------------------
 PERSON_ID    | ABDM_ID           | ABHA_ADDRESS | AAROGYASRI_CARD_NO | AAROGYASRI_STATUS | PMJAY_BENEFICIARY_ID | PMJAY_FAMILY_ID | BLOOD_GROUP | HEIGHT_CM | WEIGHT_KG | BMI    | HAS_DIABETES | HAS_HYPERTENSION | HAS_TUBERCULOSIS | HAS_HIV | HAS_CANCER | REGISTERED_PHC | ASSIGNED_ASHA_WORKER | IS_PREGNANT | LMP_DATE | EDD_DATE | ANC_REGISTRATIONS | INSTITUTIONAL_DELIVERY | COVID_VACCINATED | COVID_DOSES | ESI_COVERED | CGHS_COVERED | RSBY_COVERED | HAS_MENTAL_HEALTH_CONDITION | MENTAL_HEALTH_TYPE | LAST_ENCOUNTER_DATE | DEPARTMENT_ID | UPDATED_AT
 -------------+-------------------+--------------+--------------------+-------------------+----------------------+-----------------+-------------+-----------+-----------+--------+--------------+------------------+------------------+---------+------------+----------------+----------------------+-------------+----------+----------+-------------------+------------------------+------------------+-------------+-------------+--------------+--------------+-----------------------------+--------------------+---------------------+---------------+-----------
-135133618406 | 32-8317-6685-5563 | NULL         | NULL               | NULL              | NULL                 | NULL            | NULL        | NULL      | NULL      | NULL   | NULL         | NULL             | NULL             | NULL    | NULL       | NULL           | NULL                 | NULL        | NULL     | NULL     | NULL              | NULL                   | NULL             | NULL        | False       | False        | False        | False                       | NULL               | NULL                | DEPT-HEALTH   | NULL      
-472163803097 | 37-0806-8810-5617 | NULL         | NULL               | NULL              | NULL                 | NULL            | NULL        | NULL      | NULL      | NULL   | NULL         | NULL             | NULL             | NULL    | NULL       | NULL           | NULL                 | NULL        | NULL     | NULL     | NULL              | NULL                   | NULL             | NULL        | False       | False        | False        | False                       | NULL               | NULL                | DEPT-HEALTH   | NULL      
-821453333131 | null              | NULL         | NULL               | NULL              | NULL                 | NULL            | NULL        | NULL      | NULL      | NULL   | NULL         | NULL             | NULL             | NULL    | NULL       | NULL           | NULL                 | NULL        | NULL     | NULL     | NULL              | NULL                   | NULL             | NULL        | False       | False        | False        | False                       | NULL               | NULL                | DEPT-HEALTH   | NULL      
-173476427389 | 91-7365-8430-3084 | NULL         | NULL               | NULL              | NULL                 | NULL            | NULL        | NULL      | NULL      | NULL   | NULL         | NULL             | NULL             | NULL    | NULL       | NULL           | NULL                 | NULL        | NULL     | NULL     | NULL              | NULL                   | NULL             | NULL        | False       | False        | False        | False                       | NULL               | NULL                | DEPT-HEALTH   | NULL      
-568503073855 | 32-7263-2748-7007 | NULL         | 10134336925        | null              | NULL                 | NULL            | B-          | 150       | 70.0      | 31.1   | NULL         | NULL             | NULL             | NULL    | NULL       | NULL           | NULL                 | NULL        | NULL     | NULL     | NULL              | NULL                   | NULL             | NULL        | False       | False        | False        | False                       | NULL               | NULL                | DEPT-HEALTH   | NULL      
+151797406971 | 40-8864-8484-2160 | NULL         | 10072895260        | null              | NULL                 | NULL            | NULL        | NULL      | NULL      | NULL   | NULL         | True             | NULL             | NULL    | NULL       | NULL           | NULL                 | NULL        | NULL     | NULL     | NULL              | NULL                   | NULL             | NULL        | False       | False        | False        | False                       | NULL               | NULL                | DEPT-HEALTH   | NULL      
+431985616505 | 75-6710-5683-6115 | NULL         | NULL               | NULL              | NULL                 | NULL            | NULL        | NULL      | NULL      | NULL   | NULL         | NULL             | NULL             | NULL    | NULL       | NULL           | NULL                 | NULL        | NULL     | NULL     | NULL              | NULL                   | NULL             | NULL        | False       | False        | False        | False                       | NULL               | NULL                | DEPT-HEALTH   | NULL      
+124284075246 | 63-2107-8475-6115 | NULL         | NULL               | NULL              | NULL                 | NULL            | NULL        | NULL      | NULL      | NULL   | NULL         | True             | NULL             | NULL    | NULL       | NULL           | NULL                 | NULL        | NULL     | NULL     | NULL              | NULL                   | NULL             | NULL        | False       | False        | False        | False                       | NULL               | NULL                | DEPT-HEALTH   | NULL      
+016046902023 | 23-5221-1541-7681 | NULL         | NULL               | NULL              | NULL                 | NULL            | NULL        | NULL      | NULL      | NULL   | NULL         | NULL             | NULL             | NULL    | NULL       | NULL           | NULL                 | NULL        | NULL     | NULL     | NULL              | NULL                   | NULL             | NULL        | False       | False        | False        | False                       | NULL               | NULL                | DEPT-HEALTH   | NULL      
+252161236488 | 91-2047-5538-6727 | NULL         | 10134263675        | null              | NULL                 | NULL            | AB+         | 150       | 55.0      | 24.4   | NULL         | NULL             | NULL             | NULL    | NULL       | NULL           | NULL                 | NULL        | NULL     | NULL     | NULL              | NULL                   | NULL             | NULL        | False       | False        | False        | False                       | NULL               | NULL                | DEPT-HEALTH   | NULL      
 
 Successfully fetched 5 records.
 
@@ -139,52 +308,52 @@ Successfully fetched 5 records.
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_land
 --------------------------------------------------------------------------------
-LAND_ID | PERSON_ID    | LAND_TYPE | LAND_CLASSIFICATION | ACRES  | SURVEY_NO | SUB_SURVEY_NO | HISSA_NO | KHATA_NO | LOCATION        | DISTRICT_ID | MANDAL_ID | VILLAGE_NAME    | REVENUE_CIRCLE  | SRO_OFFICE | REGISTRATION_NO | PATTADAR_PASSBOOK_NO | REGISTRATION_DATE | MUTATION_DATE | MARKET_VALUE | GUIDELINE_VALUE | STAMP_DUTY_PAID | SOIL_TYPE | IRRIGATION_TYPE | ENCUMBRANCE_STATUS | MORTGAGE_BANK | MORTGAGE_AMOUNT | IS_ASSIGNED_LAND | EXTENT_WET_LAND | EXTENT_DRY_LAND | UPDATED_AT | AADHAAR_MAPPED
---------+--------------+-----------+---------------------+--------+-----------+---------------+----------+----------+-----------------+-------------+-----------+-----------------+-----------------+------------+-----------------+----------------------+-------------------+---------------+--------------+-----------------+-----------------+-----------+-----------------+--------------------+---------------+-----------------+------------------+-----------------+-----------------+------------+---------------
-1       | 000000000000 | జిరాయితి  | పుంజ                | 3.66   | 26        | 26-3          | NULL     | 8888     | GOKAVARAM       | 505         | 4897      | GOKAVARAM       | GOKAVARAM       | NULL       | 412764494       | NULL                 | NULL              | NULL          | NULL         | NULL            | NULL            | NULL      | NULL            | NULL               | NULL          | NULL            | False            | 3.66            | 0.0             | NULL       | Y             
-2       | 000000000000 | జిరాయితి  | పుంజ                | 3.52   | 622       | 622-2         | NULL     | 8888     | GOKAVARAM       | 505         | 4897      | GOKAVARAM       | GOKAVARAM       | NULL       | 411886495       | NULL                 | NULL              | NULL          | NULL         | NULL            | NULL            | NULL      | NULL            | NULL               | NULL          | NULL            | False            | 3.52            | 0.0             | NULL       | Y             
-3       | 000000000000 | జిరాయితి  | పుంజ                | 18.14  | 17        | 17-2          | NULL     | 8888     | GOKAVARAM       | 505         | 4897      | GOKAVARAM       | GOKAVARAM       | NULL       | 413108212       | NULL                 | NULL              | NULL          | NULL         | NULL            | NULL            | NULL      | NULL            | NULL               | NULL          | NULL            | False            | 18.14           | 0.0             | NULL       | Y             
-4       | 000000000000 | పట్టా     | మాగాణి              | 0.58   | 97        | 97-1A-4       | NULL     | 300002   | MANDAPADU   (R) | 510         | 5021      | MANDAPADU   (R) | MANDAPADU   (R) | NULL       | 612043209       | NULL                 | NULL              | NULL          | NULL         | NULL            | NULL            | NULL      | NULL            | NULL               | NULL          | NULL            | False            | 0.58            | 0.0             | NULL       | Y             
-5       | 000000000000 | జిరాయితి  | నంజ                 | 0.1    | 536       | 536-3         | NULL     | 8888     | GOKAVARAM       | 505         | 4897      | GOKAVARAM       | GOKAVARAM       | NULL       | 411936571       | NULL                 | NULL              | NULL          | NULL         | NULL            | NULL            | NULL      | NULL            | NULL               | NULL          | NULL            | False            | 0.1             | 0.0             | NULL       | Y             
+LAND_ID  | PERSON_ID    | LAND_TYPE | LAND_CLASSIFICATION | ACRES  | SURVEY_NO | SUB_SURVEY_NO | HISSA_NO | KHATA_NO | LOCATION    | DISTRICT_ID | MANDAL_ID | VILLAGE_NAME | REVENUE_CIRCLE | SRO_OFFICE | REGISTRATION_NO | PATTADAR_PASSBOOK_NO | REGISTRATION_DATE | MUTATION_DATE | MARKET_VALUE | GUIDELINE_VALUE | STAMP_DUTY_PAID | SOIL_TYPE | IRRIGATION_TYPE | ENCUMBRANCE_STATUS | MORTGAGE_BANK | MORTGAGE_AMOUNT | IS_ASSIGNED_LAND | EXTENT_WET_LAND | EXTENT_DRY_LAND | UPDATED_AT | AADHAAR_MAPPED
+---------+--------------+-----------+---------------------+--------+-----------+---------------+----------+----------+-------------+-------------+-----------+--------------+----------------+------------+-----------------+----------------------+-------------------+---------------+--------------+-----------------+-----------------+-----------+-----------------+--------------------+---------------+-----------------+------------------+-----------------+-----------------+------------+---------------
+16852379 | 476898839350 | పట్టా     | మెరక                | 2.38   | 152       | 152-3A        | NULL     | 403      | ERRAMADU    | 749         | 4997      | ERRAMADU     | ERRAMADU       | NULL       | 204307510       | NULL                 | NULL              | NULL          | NULL         | NULL            | NULL            | NULL      | NULL            | NULL               | NULL          | NULL            | False            | 2.38            | 0.0             | NULL       | Y             
+16852380 | 476898839350 | పట్టా     | మెరక                | 2.38   | 152       | 152-3A        | NULL     | 403      | NULL        | NULL        | NULL      | NULL         | NULL           | NULL       | NULL            | NULL                 | NULL              | NULL          | NULL         | NULL            | NULL            | NULL      | NULL            | NULL               | NULL          | NULL            | False            | 2.38            | 0.0             | NULL       | Y             
+16852381 | 476899044348 | పట్టా     | మాగాణి              | 1.56   | 285       | 285-3         | NULL     | 252      | MUNNANGI    | 506         | 5077      | MUNNANGI     | MUNNANGI       | NULL       | 75413559        | NULL                 | NULL              | NULL          | NULL         | NULL            | NULL            | NULL      | NULL            | NULL               | NULL          | NULL            | False            | 1.56            | 0.0             | NULL       | Y             
+16852382 | 476899209557 | ప్ర.భూమి  | ప్ర.భూమి            | 1.0    | 32        | 32/2J         | NULL     | 34       | MOLAGAVALLI | 511         | 5274      | MOLAGAVALLI  | MOLAGAVALLI    | NULL       | 13309692        | NULL                 | NULL              | NULL          | NULL         | NULL            | NULL            | NULL      | NULL            | NULL               | NULL          | NULL            | False            | 1.0             | 0.0             | NULL       | Y             
+16852383 | 476899209557 | ప్ర.భూమి  | ప్ర.భూమి            | 1.0    | 32        | 32/2I         | NULL     | 34       | MOLAGAVALLI | 511         | 5274      | MOLAGAVALLI  | MOLAGAVALLI    | NULL       | 13309671        | NULL                 | NULL              | NULL          | NULL         | NULL            | NULL            | NULL      | NULL            | NULL               | NULL          | NULL            | False            | 1.0             | 0.0             | NULL       | Y             
 
 Successfully fetched 5 records.
 
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_mandal
 --------------------------------------------------------------------------------
-MANDAL_ID | MANDAL_NAME | DISTRICT_ID
-----------+-------------+------------
-5327      | YELLANUR    | 502        
-5359      | NALLACHERVU | 754        
-5394      | SODAM       | 753        
-4784      | PALAKONDA   | 743        
-5056      | TADIKONDA   | 506        
+MANDAL_ID | MANDAL_NAME  | DISTRICT_ID
+----------+--------------+------------
+1076      | KOVVUR       | 505        
+5109      | KARAMCHEDU   | 750        
+1184      | GURAZALA     | 751        
+4994      | VEERULLAPADU | 749        
+4937      | RAZOLE       | 747        
 
 Successfully fetched 5 records.
 
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_occupation
 --------------------------------------------------------------------------------
-OCCUPATION_RECORD_ID | PERSON_ID    | OCCUPATION_TYPE | OCCUPATION_SECTOR | EMPLOYER_NAME | DESIGNATION | EMPLOYMENT_STATUS | SOURCE   | OCCUPATION_YEAR | IS_CURRENT | UPDATED_AT                
----------------------+--------------+-----------------+-------------------+---------------+-------------+-------------------+----------+-----------------+------------+---------------------------
-24749053             | 000001287353 | Farmer          | NULL              | NULL          | NULL        | NULL              | UFS      | NULL            | True       | 2026-07-11 21:01:38.284671
-5778857              | 000002385041 | Student         | NULL              | NULL          | Student     | NULL              | DEPT-EDU | NULL            | True       | 2026-06-30 16:07:25.131773
-24749179             | 000002385041 | Student         | NULL              | NULL          | NULL        | NULL              | UFS      | NULL            | True       | 2026-07-11 21:01:38.284671
-24749444             | 000004934835 | Student         | NULL              | NULL          | NULL        | NULL              | UFS      | NULL            | True       | 2026-07-11 21:01:38.284671
-24749534             | 000005736357 | Unemployed      | NULL              | NULL          | NULL        | NULL              | UFS      | NULL            | True       | 2026-07-11 21:01:38.284671
+OCCUPATION_RECORD_ID | PERSON_ID    | OCCUPATION_TYPE  | OCCUPATION_SECTOR | EMPLOYER_NAME | DESIGNATION      | EMPLOYMENT_STATUS | SOURCE      | OCCUPATION_YEAR | IS_CURRENT | UPDATED_AT                
+---------------------+--------------+------------------+-------------------+---------------+------------------+-------------------+-------------+-----------------+------------+---------------------------
+51422904             | 000000998953 | Minor            | Public            |               | Minor            |                   | Open        |                 | True       | 2026-07-11 21:09:53.084093
+1041810              | 000001628645 | Farmer           | Private           | NULL          | Farmer           | NULL              | DBT Schemes | 2026            | True       | 2026-06-30 16:03:55.639842
+15460927             | 000001628645 | SHG member Rural | NULL              | NULL          | SHG member Rural | NULL              | SERP        | NULL            | True       | 2026-06-30 16:23:18.230663
+51422933             | 000002622780 | Senior Citizen   | Public            |               | Senior Citizen   |                   | Open        |                 | True       | 2026-07-11 21:09:53.084093
+5778862              | 000002745281 | Student          | NULL              | NULL          | Student          | NULL              | DEPT-EDU    | NULL            | True       | 2026-06-30 16:07:25.131773
 
 Successfully fetched 5 records.
 
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_person
 --------------------------------------------------------------------------------
-PERSON_ID    | PERSON_NAME           | AGE    | DATE_OF_BIRTH | GENDER | SOCIAL_CATEGORY | PHONE      | INCOME_BAND | DWELLING_TYPE   | ADDRESS                                  | DISTRICT_ID | MANDAL_ID | VILLAGE_NAME                  | HOUSEHOLD_ID                    | CREATED_AT                 | UPDATED_AT | RELIGION | CASTE_NAME | CASTE_DERIVED_FLAG | CASTE_BASE_CERTIFICATE_NO | DOOR_NO  | SECRETARIAT_CODE | CONSTITUENCY_CODE | RURAL_URBAN_FLAG | CLUSTER_ID  | DOMICILE_STATUS | MARITAL_STATUS | GOVT_EMPLOYMENT_TYPE | IS_DECEASED | FATHER_NAME         | FATHER_PERSON_ID | MOTHER_NAME      | MOTHER_PERSON_ID | HUSBAND_NAME      | HUSBAND_PERSON_ID | RATION_CARD_NO | DISABILITY_TYPE | DISABILITY_PERCENTAGE | DISABILITY_STATUS
--------------+-----------------------+--------+---------------+--------+-----------------+------------+-------------+-----------------+------------------------------------------+-------------+-----------+-------------------------------+---------------------------------+----------------------------+------------+----------+------------+--------------------+---------------------------+----------+------------------+-------------------+------------------+-------------+-----------------+----------------+----------------------+-------------+---------------------+------------------+------------------+------------------+-------------------+-------------------+----------------+-----------------+-----------------------+------------------
-976517984248 | Sampasala Satyavati   | 45     | 1981-01-01    | Female | BC              | 7036972116 | >?5L        | Foilhouse       | HouseNo: 1-71|Street Name: |Location:... | 749         | 4998      | MADHAVARAM                    | HH87341291398220200220063730893 | 2026-07-17 07:58:42.302685 | NULL       | Hindu    | Yadava     | False              | CGC230703445639           | 1-71     | 10690667         | 69                | R                | 10690667014 | NULL            | Married        | None                 | False       | NULL                | NULL             | NULL             | NULL             | Sampasala Somaiah | 502244202901      | 2804076102     | NULL            | NULL                  | NULL             
-415576317015 | Burra Jhansi          | 32     | 1994-01-01    | Female | SC              | 8978600406 | 0–1L        | Puccahouse-Daba | HouseNo: 5-89/1|Street Name: SC COLON... | 749         | 4994      | PEDDAPURAM                    | HH76052143748120200603073010192 | 2026-07-17 07:58:42.302685 | NULL       | Hindu    | Mala       | False              | CGC231110047963           | 10690736 | 10690736         | 83                | R                | 10690736015 | NULL            | Married        | None                 | False       | NULL                | NULL             | NULL             | NULL             | Burra Kanakaiah   | 844836259821      | 2808288724     | NULL            | NULL                  | NULL             
-976518254829 | Mohammed Salima Begum | 46     | 1980-03-05    | Female | NULL            | NULL       | NULL        | Puccahouse-Daba | HouseNo: 1-4/1-8|Street Name: KAMAKOT... | 749         | 1073      | 4o-Lorry Stand Area           | HH31419551386520210829121102641 | 2026-07-17 07:58:42.302685 | NULL       | Islam    | NULL       | False              | NULL                      | 1-4-277  | 21073124         | 79                | U                | 21073124007 | NULL            | Married        | None                 | False       | NULL                | NULL             | NULL             | NULL             | Mohammad Babu     | 256328553660      | NULL           | NULL            | NULL                  | NULL             
-415629604096 | AKASH                 | 11     | 2015-07-30    | Male   | NULL            | 9550101746 | 0–1L        | Puccahouse-Daba | HouseNo: 53-1-363/B|Street Name: Mall... | 749         | 1073      | 05-Christhurajupuram          | HH84536262248020210105031907020 | 2026-07-17 07:58:42.302685 | NULL       | Hindu    | NULL       | False              | NULL                      | 53-1-363 | 21073019         | 81                | U                | 21073019013 | NULL            | Single         | None                 | False       | Bontha Karunakar    | 074062545991     | Bontha Anusha    | 002802028420     |                   | NULL              | 2806843308     | NULL            | NULL                  | NULL             
-976547149806 | Pallepogu Sandhya     | 23     | 2003-12-26    | Female | SC              | 9292759550 | NULL        | Shells          | HouseNo: 3-40|Street Name: chowtapall... | 749         | 1073      | 15-Raiith Bharqav Street Area | HH72086526521820210903100651671 | 2026-07-17 07:58:42.302685 | NULL       | Hindu    | Madiga     | False              | CGC099260888              | 61-11-10 | 21073070         | 81                | U                | 21073070012 | NULL            | NULL           | None                 | False       | Pallepogu Ravikumar | 318468229153     | Pallepogu Kumari | 733129644619     | NULL              | NULL              | 2807868104     | NULL            | NULL                  | NULL             
+PERSON_ID    | PERSON_NAME                     | AGE    | DATE_OF_BIRTH | GENDER | SOCIAL_CATEGORY | PHONE      | INCOME_BAND | DWELLING_TYPE   | ADDRESS                                  | DISTRICT_ID | MANDAL_ID | VILLAGE_NAME       | HOUSEHOLD_ID                    | CREATED_AT                 | UPDATED_AT | RELIGION | CASTE_NAME | CASTE_DERIVED_FLAG | CASTE_BASE_CERTIFICATE_NO | DOOR_NO    | SECRETARIAT_CODE | CONSTITUENCY_CODE | RURAL_URBAN_FLAG | CLUSTER_ID  | DOMICILE_STATUS | MARITAL_STATUS | GOVT_EMPLOYMENT_TYPE | IS_DECEASED | FATHER_NAME | FATHER_PERSON_ID | MOTHER_NAME            | MOTHER_PERSON_ID | HUSBAND_NAME                     | HUSBAND_PERSON_ID | RATION_CARD_NO | DISABILITY_TYPE | DISABILITY_PERCENTAGE | DISABILITY_STATUS
+-------------+---------------------------------+--------+---------------+--------+-----------------+------------+-------------+-----------------+------------------------------------------+-------------+-----------+--------------------+---------------------------------+----------------------------+------------+----------+------------+--------------------+---------------------------+------------+------------------+-------------------+------------------+-------------+-----------------+----------------+----------------------+-------------+-------------+------------------+------------------------+------------------+----------------------------------+-------------------+----------------+-----------------+-----------------------+------------------
+229314416519 | USIRIKAYALA SIVA SAI            | 28     | 1998-06-24    | Male   | BC              | 9014781054 | NULL        | Pakkahouse      | HouseNo: 52/57-A|Street Name: K RAMAP... | 753         | 1121      | RAMAPURAM          | HH20063564094220200612084217063 | 2026-07-17 07:58:42.302685 | NULL       | Hindu    | Ediga      | False              | SCGC1002010213145         | 52/57-A    | 21121013         | 128               | U                | 21121013015 | NULL            | NULL           | None                 | False       | NULL        | NULL             | USIRIKAYALA SHARADAMMA | 812246766835     | NULL                             | NULL              | 2802599361     | NULL            | NULL                  | NULL             
+519934219848 | Ramireddygari Jagan Mohan Reddy | 84     | 1942-01-01    | Male   | NULL            | 9493046781 | NULL        | null            | NULL                                     | 753         | 1009      | VENKATESWARASTREET | HH33115208272820200404043505201 | 2026-07-17 07:58:42.302685 | NULL       | NULL     | NULL       | False              | NULL                      | 14-44-C    | 21009010         | 164               | U                | 21009010003 | NULL            | NULL           | None                 | False       | NULL        | NULL             | NULL                   | NULL             | NULL                             | NULL              | NULL           | NULL            | NULL                  | NULL             
+749680632586 | P Vikram Reddy                  | 28     | 1998-01-01    | Male   | OC              | 9616648640 | 0–1L        | Puccahouse-Daba | HouseNo: --|Street Name: Marrimakulap... | 753         | 5386      | GUDAREVUPALLI      | HH23347577764520200215080837360 | 2026-07-17 07:58:42.302685 | NULL       | Hindu    | Kapu       | False              | SCGC2001010571175         | 5-31       | 11090144         | 163               | R                | 11090144009 | NULL            | Married        | None                 | False       |             | NULL             |                        | NULL             |                                  | NULL              | 2821285169     | NULL            | NULL                  | NULL             
+696244969220 | G Gopalakrishnamma              | 77     | 1949-07-01    | Female | NULL            | 7013516298 | NULL        | NULL            | HouseNo: 00000|Street Name: amaranara... | 753         | 5391      | KOTAVURU           | HH33607706742620200218062207283 | 2026-07-17 07:58:42.302685 | NULL       | NULL     | NULL       | False              | NULL                      | 2-41       | 11090984         | 162               | R                | 11090984001 | NULL            | NULL           | Pensioner            | False       |             | NULL             |                        | NULL             | PRODDUTOORI CHENNAKESWARA PRASAD | 426990477411      | NULL           | NULL            | NULL                  | NULL             
+750087946539 | Ponthala Siva Kumar             | 38     | 1988-07-30    | Male   | OC              | 8884141967 | NULL        | Puccahouse-Daba | NULL                                     | 753         | 1009      | KRISHNANAGAR       | HH23564432671620200311095931944 | 2026-07-17 07:58:42.302685 | NULL       | Hindu    | Balija     | False              | SCGC2102011257036         | 4/20-c-1-A | 21009036         | 164               | U                | 21009036002 | NULL            | Married        | None                 | False       | NULL        | NULL             | NULL                   | NULL             | NULL                             | NULL              | NULL           | NULL            | NULL                  | NULL             
 
 Successfully fetched 5 records.
 
@@ -210,13 +379,13 @@ Table: ap_citizen360.dim_property_tax
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_scheme
 --------------------------------------------------------------------------------
-SCHEME_ID | SCHEME_NAME                            | DEPARTMENT_ID | BENEFIT_TYPE        
-----------+----------------------------------------+---------------+---------------------
-SCH-058   | Bala Sanjeevani                        | DEPT-WCD      | In-Kind             
-SCH-064   | Post-Matric Scholarship to SCs [AP232] | DEPT-EDU      | Fee Reimbursement   
-SCH-045   | Auto Driver Sevalo                     | DEPT-RTA      | Direct Cash Transfer
-SCH-053   | NTR Bharosa Pension (CKDU Private)     | DEPT-SW       | Direct Cash Transfer
-SCH-062   | NTR Bharosa Pension                    | DEPT-SW       | Direct Cash Transfer
+SCHEME_ID | SCHEME_NAME                              | DEPARTMENT_ID | BENEFIT_TYPE        
+----------+------------------------------------------+---------------+---------------------
+SCH-050   | NTR Bharosa Pension (Pensions to arti... | DEPT-SW       | Direct Cash Transfer
+SCH-047   | NTR Bharosa Pension (DMHO)               | DEPT-SW       | Direct Cash Transfer
+SCH-058   | Bala Sanjeevani                          | DEPT-WCD      | In-Kind             
+SCH-049   | NTR Bharosa Pension (Amaravathi Landl... | DEPT-SW       | Direct Cash Transfer
+SCH-056   | NTR Bharosa Pension (Sainik welfare p... | DEPT-SW       | Direct Cash Transfer
 
 Successfully fetched 5 records.
 
@@ -238,8 +407,15 @@ Successfully fetched 1 records.
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_student
 --------------------------------------------------------------------------------
-  (No rows found in this table.)
-  Columns: student_record_id, person_id, education_level, highest_qualification, institution_id, institution_code, school_name, education_board, class_currently_enrolled, academic_year, is_current_level, is_dropout, dropout_reason, medium_of_instruction, aadhaar_seeded, has_apaar_id, apaar_id, student_id, aposs_id, epass_id, epass_amount, thalliki_vandanam, ntr_vidya_deevena, pre_matric_scholarship, post_matric_scholarship, digital_literacy_level, updated_at, student_pen
+STUDENT_RECORD_ID | PERSON_ID    | EDUCATION_LEVEL | HIGHEST_QUALIFICATION | INSTITUTION_ID | INSTITUTION_CODE | SCHOOL_NAME                              | EDUCATION_BOARD | CLASS_CURRENTLY_ENROLLED | ACADEMIC_YEAR | IS_CURRENT_LEVEL | IS_DROPOUT | DROPOUT_REASON        | MEDIUM_OF_INSTRUCTION | AADHAAR_SEEDED | HAS_APAAR_ID | APAAR_ID | STUDENT_ID | APOSS_ID | EPASS_ID | EPASS_AMOUNT | THALLIKI_VANDANAM | NTR_VIDYA_DEEVENA | PRE_MATRIC_SCHOLARSHIP | POST_MATRIC_SCHOLARSHIP | DIGITAL_LITERACY_LEVEL | UPDATED_AT | STUDENT_PEN
+------------------+--------------+-----------------+-----------------------+----------------+------------------+------------------------------------------+-----------------+--------------------------+---------------+------------------+------------+-----------------------+-----------------------+----------------+--------------+----------+------------+----------+----------+--------------+-------------------+-------------------+------------------------+-------------------------+------------------------+------------+------------
+3                 | 395287862860 | NA              | 13                    | 28137100500    | 28137100500      | MP & EV ENGLISH MEDIUM  SCHOOL CBSE S... | NULL            | 13                       | 2026-27       | True             | True       | Class 12 - Passed Out | English               | True           | False        | NULL     | 1501000752 | NULL     | NULL     | NULL         | False             | False             | False                  | False                   | NULL                   | NULL       | 20209861339
+5                 | 395287862860 | Intermediate    | 13                    | 28110400732    | 28110400732      | GMR VL DAV RAJAM                         | NULL            | 12                       | 2025-26       | False            | False      | NULL                  | English               | True           | False        | NULL     | 1501000752 | NULL     | NULL     | NULL         | False             | False             | False                  | False                   | NULL                   | NULL       | 20209861339
+2                 | 395287862860 | Intermediate    | 13                    | 28110400732    | 28110400732      | GMR VL DAV RAJAM                         | NULL            | 11                       | 2024-25       | False            | True       | NULL                  | English               | True           | False        | NULL     | 1501000752 | NULL     | NULL     | NULL         | False             | False             | False                  | False                   | NULL                   | NULL       | 20209861339
+1                 | 395287862860 | Secondary       | 13                    | 28110400732    | 28110400732      | GMR VL DAV RAJAM                         | NULL            | 10                       | 2023-24       | False            | False      | NULL                  | English               | True           | False        | NULL     | 1501000752 | NULL     | NULL     | NULL         | False             | False             | False                  | False                   | NULL                   | NULL       | 20209861339
+4                 | 395287862860 | Secondary       | 13                    | 28110400732    | 28110400732      | GMR VL DAV RAJAM                         | NULL            | 9                        | 2022-23       | False            | False      | NULL                  | English               | True           | False        | NULL     | 1501000752 | NULL     | NULL     | NULL         | False             | False             | False                  | False                   | NULL                   | NULL       | 20209861339
+
+Successfully fetched 5 records.
 
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_tax_profile
@@ -257,26 +433,26 @@ Successfully fetched 5 records.
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_utility_connection
 --------------------------------------------------------------------------------
-PERSON_ID    | GAS_CONNECTION_STATUS | ELECTRICITY_STATUS | AVG_MONTHLY_KWH | WATER_CONNECTION_STATUS | ELECTRICITY_SC_NO | DISCOM_NAME | ELECTRICITY_STATUS_UPDATED_ON | UPDATED_AT                 | LPG_CONSUMER_ID  
--------------+-----------------------+--------------------+-----------------+-------------------------+-------------------+-------------+-------------------------------+----------------------------+------------------
-341057142075 | Active                | NULL               | NULL            | NULL                    | NULL              | NULL        | NULL                          | 2026-07-29 00:02:09.059386 | 10000000067661413
-417310462075 | Active                | NULL               | NULL            | NULL                    | NULL              | NULL        | NULL                          | 2026-07-29 00:02:09.059386 | 37200000040272360
-622667082081 | Active                | NULL               | NULL            | NULL                    | NULL              | NULL        | NULL                          | 2026-07-29 00:02:09.059386 | 10000000120748900
-002139362000 | Active                | NULL               | NULL            | NULL                    | NULL              | NULL        | NULL                          | 2026-07-29 00:02:09.059386 | 10000000044656535
-009413072000 | Active                | NULL               | NULL            | NULL                    | NULL              | NULL        | NULL                          | 2026-07-29 00:02:09.059386 | 21220538400000265
+PERSON_ID    | GAS_CONNECTION_STATUS | ELECTRICITY_STATUS | AVG_MONTHLY_KWH | WATER_CONNECTION_STATUS | ELECTRICITY_SC_NO                   | DISCOM_NAME | ELECTRICITY_STATUS_UPDATED_ON | UPDATED_AT | LPG_CONSUMER_ID
+-------------+-----------------------+--------------------+-----------------+-------------------------+-------------------------------------+-------------+-------------------------------+------------+----------------
+173204863470 | Active_gsws           | Active             | 24              | Active                  | 4006-26201                          | EPDCL       | 2026-07-01                    | NULL       | NULL           
+718527703971 | Active_gsws           | Active             | 47              | Active                  | 2006-39782                          | EPDCL       | 2026-07-01                    | NULL       | NULL           
+290306213472 | Active_gsws           | Active             | 90              | Active                  | 4020-27474                          | EPDCL       | 2026-07-01                    | NULL       | NULL           
+706146223876 | Active_gsws           | Active             | 65              | Active                  | 2e748175-a09620c0-5872d0d5-efd3b4a0 | EPDCL       | 2026-07-01                    | NULL       | NULL           
+151342859731 | Active_gsws           | Active             | 53              | Active                  | 5008-67226                          | EPDCL       | 2026-07-01                    | NULL       | NULL           
 
 Successfully fetched 5 records.
 
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_vehicle
 --------------------------------------------------------------------------------
-VEHICLE_ID | PERSON_ID  | VEHICLE_TYPE | VEHICLE_CLASS   | REG_NO     | MAKE   | MODEL                      | YEAR_OF_MANUFACTURE | FUEL_TYPE | CHASSIS_NO        | ENGINE_NO      | COLOR                | SEATING_CAPACITY | UNLADEN_WEIGHT_KG | LADEN_WEIGHT_KG | REGISTRATION_DATE | RTO_OFFICE        | OWNER_NAME       | OWNER_MOBILE_NUMBER | DATA_SOURCE | UPDATED_AT
------------+------------+--------------+-----------------+------------+--------+----------------------------+---------------------+-----------+-------------------+----------------+----------------------+------------------+-------------------+-----------------+-------------------+-------------------+------------------+---------------------+-------------+-----------
-3837640    | AP39GM5651 | NULL         | TWO WHEELER(NT) | AP39GM5651 | 12     | PLATINA 110                | 2020                | PETROL    | MD2B77AX9LWG10504 | PFXWLG40850    | EBONY BLK RED DKL    | 2                | 122               | 272             | 2020-11-02        | Proddutur RTA     | S  Momin         | 9652121718          | Vahan       | NULL      
-3837641    | AP39GM5652 | NULL         | TWO WHEELER(NT) | AP39GM5652 | 89     | TVS APACHE RTR 160         | 2020                | PETROL    | MD634AE8XL2K07759 | AE8KL2807467   | BLUE                 | 2                | 140               | 270             | 2020-11-02        | Nandyal RTA       | S MOULALI        | 9390685847          | Vahan       | NULL      
-3837642    | AP39GM5660 | NULL         | TWO WHEELER(NT) | AP39GM5660 | 32     | GLAMOUR-DRUM-SELF-CAST     | 2020                | PETROL    | MBLJAW151LGJ11859 | JA07ACLGJ11842 | Black Heavy Grey     | 2                | 122               | 252             | 2020-11-02        | RTA MACHILIPATNAM | SK  Nagur Emasha | 7730923989          | Vahan       | NULL      
-3837643    | AP39GM5662 | NULL         | TWO WHEELER(NT) | AP39GM5662 | 32     | HF DELUXE (SELF-DRUM-CAST) | 2020                | PETROL    | MBLHAW140L6K00401 | HA11ESL6K00323 | PANTHER BLACK        | 2                | 112               | 242             | 2020-11-02        | Nellore RTA       | SK Nayeem        | 9912563316          | Vahan       | NULL      
-3837644    | AP39GM5663 | NULL         | TWO WHEELER(NT) | AP39GM5663 | 9999   | ACTIVA 125 - DRUM          | 2020                | PETROL    | ME4JF49LKLW031405 | JF49EW3031050  | REBEL RED METALLIC 2 | 2                | 113               | 279             | 2020-11-02        | Vijayawada RTA    | Shaik Nazma      | 9849388212          | Vahan       | NULL      
+VEHICLE_ID | PERSON_ID  | VEHICLE_TYPE | VEHICLE_CLASS       | REG_NO     | MAKE   | MODEL                        | YEAR_OF_MANUFACTURE | FUEL_TYPE | CHASSIS_NO          | ENGINE_NO    | COLOR            | SEATING_CAPACITY | UNLADEN_WEIGHT_KG | LADEN_WEIGHT_KG | REGISTRATION_DATE | RTO_OFFICE  | OWNER_NAME               | OWNER_MOBILE_NUMBER | DATA_SOURCE | UPDATED_AT
+-----------+------------+--------------+---------------------+------------+--------+------------------------------+---------------------+-----------+---------------------+--------------+------------------+------------------+-------------------+-----------------+-------------------+-------------+--------------------------+---------------------+-------------+-----------
+8000610    | AP21AK8889 | Motor Car    | LIGHT MOTOR VEHICLE | AP21AK8889 | 66     | MARUTI SWIFT DZIRE VDI BS IV | 2011                | DIESEL    | MA3FSEB1S00372876DB | D13A1615781  | MET CLEAR BEIGE  | 5                | 1105              | 1540            | 2011-10-03        | Kurnool RTA | T NARASIMHA REDDY        | 8518225899          | Vahan       | NULL      
+8000611    | AP21AK8893 | NULL         | TWO WHEELER(NT)     | AP21AK8893 | 12     | DISCOVER 150 BSIII           | 2011                | PETROL    | MD2DSJZZZTWL63565   | JZMBTL73129  | BLACK DECAL BLUE | 2                | 121               | 251             | 2011-10-14        | Kurnool RTA | ASHOK REDDY KAPA         | 9908368578          | Vahan       | NULL      
+8000612    | AP21AK8895 | NULL         | TWO WHEELER(NT)     | AP21AK8895 | 89     | TVS XL SUPER 70  BSIII       | 2011                | PETROL    | MD621AD11B1H63166   | 0D1HB1486877 | MOSS GREEN       | 2                | 65                | 195             | 2011-10-14        | Kurnool RTA | CHINNA VEERESH KODIGANTI | 9849793907          | Vahan       | NULL      
+8000613    | AP21AK8901 | NULL         | TWO WHEELER(NT)     | AP21AK8901 | 12     | DISCOVER DTS - SI BSIII      | 2011                | PETROL    | MD2DSPAZZUWE52883   | JBMBUE45771  | B/GOLD MCM       | 2                | 115               | 245             | 2011-10-14        | Kurnool RTA | MANOHAR KOMMURU          | 0                   | Vahan       | NULL      
+8000614    | AP21AK8915 | NULL         | TWO WHEELER(NT)     | AP21AK8915 | 12     | DISCOVER DTS-Si              | 2009                | PETROL    | MD2DSPAZZSPF58658   | JBUBSF45199  | BLACK DECAL BLUE | 2                | 115               | 245             | 2011-10-14        | Kurnool RTA | MADANNA B                | 7794980651          | Vahan       | NULL      
 
 Successfully fetched 5 records.
 
@@ -285,50 +461,43 @@ Table: ap_citizen360.dim_vehicle_compliance
 --------------------------------------------------------------------------------
 PERSON_ID | REG_NO  | INSURANCE_VALID_TO | INSURANCE_COMPANY | POLICY_NO | FITNESS_VALID_TO | REGISTRATION_VALID_TO | PUC_VALID_TO | PERMIT_TYPE | PERMIT_VALID_TO | TAX_PAID_UPTO | GREEN_TAX_DUE | FINANCER_NAME | HYPOTHECATION_STATUS | LOAN_OUTSTANDING | HSRP_ISSUED | CHALLAN_PENDING | UPDATED_AT
 ----------+---------+--------------------+-------------------+-----------+------------------+-----------------------+--------------+-------------+-----------------+---------------+---------------+---------------+----------------------+------------------+-------------+-----------------+-----------
-024034    | 024034  | NULL               | NULL              | NULL      | 2005-07-22       | 2005-07-22            | NULL         | NULL        | NULL            | NULL          | NULL          | NULL          | NULL                 | NULL             | NULL        | NULL            | NULL      
-024097    | 024097  | NULL               | NULL              | NULL      | 2002-07-28       | 2002-07-28            | NULL         | NULL        | NULL            | NULL          | NULL          | NULL          | NULL                 | NULL             | NULL        | NULL            | NULL      
-02A1435   | 02A1435 | NULL               | NULL              | NULL      | 2004-10-12       | 2004-10-12            | NULL         | NULL        | NULL            | NULL          | NULL          | NULL          | NULL                 | NULL             | NULL        | NULL            | NULL      
-02B6818   | 02B6818 | NULL               | NULL              | NULL      | 2009-12-12       | 2009-12-12            | NULL         | NULL        | NULL            | NULL          | NULL          | NULL          | NULL                 | NULL             | NULL        | NULL            | NULL      
-02B7885   | 02B7885 | NULL               | NULL              | NULL      | 2010-08-18       | 2010-08-18            | NULL         | NULL        | NULL            | NULL          | NULL          | NULL          | NULL                 | NULL             | NULL        | NULL            | NULL      
+021434    | 021434  | NULL               | NULL              | NULL      | 2007-10-11       | 2007-10-11            | NULL         | NULL        | NULL            | NULL          | NULL          | NULL          | NULL                 | NULL             | NULL        | NULL            | NULL      
+022263    | 022263  | NULL               | NULL              | NULL      | 2005-01-24       | 2005-01-24            | NULL         | NULL        | NULL            | NULL          | NULL          | NULL          | NULL                 | NULL             | NULL        | NULL            | NULL      
+027251    | 027251  | NULL               | NULL              | NULL      | 2006-07-01       | 2006-07-01            | NULL         | NULL        | NULL            | NULL          | NULL          | NULL          | NULL                 | NULL             | NULL        | NULL            | NULL      
+028809    | 028809  | NULL               | NULL              | NULL      | 2006-12-16       | 2006-12-16            | NULL         | NULL        | NULL            | NULL          | NULL          | NULL          | NULL                 | NULL             | NULL        | NULL            | NULL      
+02A8870   | 02A8870 | NULL               | NULL              | NULL      | 2007-01-19       | 2007-01-19            | NULL         | NULL        | NULL            | NULL          | NULL          | NULL          | NULL                 | NULL             | NULL        | NULL            | NULL      
 
 Successfully fetched 5 records.
 
 --------------------------------------------------------------------------------
 Table: ap_citizen360.dim_village
 --------------------------------------------------------------------------------
-VILLAGE_ID | VILLAGE_NAME        | MANDAL_ID
------------+---------------------+----------
-10490186   | PEDAPUDI2           | 4915     
-10290619   | VOOSAKONDA          | 4809     
-21087016   | SAGISUBBARAJUSTREET | 1087     
-10190759   | POGIRI2             | 4796     
-10290388   | THERLAM2            | 4821     
+VILLAGE_ID | VILLAGE_NAME     | MANDAL_ID
+-----------+------------------+----------
+21161006   | RAMALAYAM VEEDHI | 1161     
+11190639   | REGADIPALLI      | 5199     
+21010003   | RAHAMATHNAGAR    | 1010     
+10390017   | PUDIMADAKA-1     | 4878     
+21001017   | GANDHIBAZAR      | 1001     
 
 Successfully fetched 5 records.
 
 --------------------------------------------------------------------------------
 Table: ap_citizen360.fact_benefit_transaction
 --------------------------------------------------------------------------------
-TRANSACTION_ID | ENTITLEMENT_ID      | PERSON_ID    | SCHEME_ID | AMOUNT | TRANSACTION_DATE | DISTRICT_ID
----------------+---------------------+--------------+-----------+--------+------------------+------------
-190497255      | SCH-061075175113727 | 075175113727 | SCH-061   | 0.00   | 2021-11-06       | 754        
-190497256      | SCH-061075175113727 | 075175113727 | SCH-061   | 0.00   | 2021-12-07       | 754        
-190497257      | SCH-061075175113727 | 075175113727 | SCH-061   | 0.00   | 2021-12-09       | 754        
-190497258      | SCH-061075175113727 | 075175113727 | SCH-061   | 0.00   | 2022-01-05       | 754        
-190497259      | SCH-061075175113727 | 075175113727 | SCH-061   | 0.00   | 2022-01-05       | 754        
-
-Successfully fetched 5 records.
+  (No rows found in this table.)
+  Columns: transaction_id, entitlement_id, person_id, scheme_id, amount, transaction_date, district_id
 
 --------------------------------------------------------------------------------
 Table: ap_citizen360.fact_entitlement
 --------------------------------------------------------------------------------
 ENTITLEMENT_ID      | PERSON_ID    | HOUSEHOLD_ID                    | SCHEME_ID | ENROLLMENT_STATUS | ANNUAL_BENEFIT | LAST_DISBURSED_DATE | ENROLLED_DATE | DISTRICT_ID
 --------------------+--------------+---------------------------------+-----------+-------------------+----------------+---------------------+---------------+------------
-SCH-008794762276556 | 794762276556 | HH63160681369120200219072646791 | SCH-008   | Active            | 2500000.00     | NULL                | NULL          | 750        
-SCH-008942282252152 | 942282252152 | HH85668138375020200615123330516 | SCH-008   | Active            | 2500000.00     | NULL                | NULL          | 510        
-SCH-008109005985165 | 109005985165 | HH57052173360920200216103521325 | SCH-008   | Active            | 2500000.00     | NULL                | NULL          | 747        
-SCH-008793389468253 | 793389468253 | HH49900882861120200511125043101 | SCH-008   | Active            | 2500000.00     | NULL                | NULL          | 520        
-SCH-008083788069503 | 083788069503 | HH43960336443020200323124242315 | SCH-008   | Active            | 2500000.00     | NULL                | NULL          | 511        
+SCH-021470961036145 | 470961036145 | HH51241943639020201015014444471 | SCH-021   | Active            | 100000.00      | 2023-08-11          | NULL          | 751        
+SCH-021279881244664 | 279881244664 | HH79765240401820200215014116732 | SCH-021   | Active            | 100000.00      | 2023-11-24          | NULL          | 746        
+SCH-021459391455422 | 459391455422 | HH63704463472520200224010526456 | SCH-021   | Active            | 50000.00       | 2024-03-16          | NULL          | 753        
+SCH-021021924092835 | 021924092835 | HH69704936937920200212090743865 | SCH-021   | Active            | 50000.00       | 2023-05-08          | NULL          | 505        
+SCH-021808355789082 | 808355789082 | HH99646688316520200212084456976 | SCH-021   | Active            | 50000.00       | 2023-11-28          | NULL          | 521        
 
 Successfully fetched 5 records.
 
@@ -349,11 +518,11 @@ Table: ap_citizen360.fact_population_hierarchy
 --------------------------------------------------------------------------------
 GEO_LEVEL | GEO_ID | GENDER | SOCIAL_CATEGORY | POPULATION_COUNT | HOUSEHOLD_COUNT | RATION_CARD_COUNT
 ----------+--------+--------+-----------------+------------------+-----------------+------------------
-mandal    | 4988   | Male   | BC              | 14188            | 14188           | 12763            
-mandal    | 4994   | Others | OC              | 11               | 11              | 8                
-mandal    | 1161   | Male   | OC              | 2495             | 2495            | 2147             
-mandal    | 5377   | Others | BC              | 27               | 27              | 16               
-mandal    | 5218   | Female | BC              | 5189             | 5189            | 4723             
+mandal    | 1147   | Others | ST              | 6                | 6               | 5                
+mandal    | 5097   | Male   | OC              | 7368             | 7368            | 6826             
+mandal    | 1134   | Female | ST              | 279              | 279             | 217              
+mandal    | 1013   | Others | BC              | 496              | 496             | 389              
+mandal    | 1071   | Male   | BC              | 8957             | 8957            | 7751             
 
 Successfully fetched 5 records.
 
@@ -362,24 +531,24 @@ Table: ap_citizen360.fact_scheme_disbursement
 --------------------------------------------------------------------------------
 DISBURSEMENT_ID | SCHEME_ID | DEPARTMENT_ID | GEO_LEVEL | GEO_ID | FISCAL_YEAR | TOTAL_CRORES | BENEFICIARIES | AMOUNT_OC | AMOUNT_BC | AMOUNT_SC | AMOUNT_ST | AMOUNT_OTHERS
 ----------------+-----------+---------------+-----------+--------+-------------+--------------+---------------+-----------+-----------+-----------+-----------+--------------
-390             | SCH-061   | DEPT-ENE      | district  | 743    | 2016-2017   | 0.00         | 109           | 0.00      | 0.00      | 0.00      | 0.00      | 0.00         
-1945            | SCH-008   | DEPT-HEALTH   | district  | 753    | 2016-2017   | 22.21        | 8638          | 4.88      | 8.88      | 2.17      | 0.56      | 0.00         
-616             | SCH-061   | DEPT-ENE      | district  | 748    | 2016-2017   | 0.00         | 178529        | 0.00      | 0.00      | 0.00      | 0.00      | 0.00         
-611             | SCH-061   | DEPT-ENE      | district  | 506    | 2016-2017   | 0.00         | 689471        | 0.00      | 0.00      | 0.00      | 0.00      | 0.00         
-1918            | SCH-008   | DEPT-HEALTH   | district  | 523    | 2016-2017   | 32.29        | 12464         | 8.62      | 11.61     | 4.28      | 0.15      | 0.00         
+67490           | SCH-061   | DEPT-ENE      | mandal    | NULL   | 2005-2006   | 0.00         | 1             | 0.00      | 0.00      | 0.00      | 0.00      | 0.00         
+43137           | SCH-061   | DEPT-ENE      | mandal    | 5089   | 2005-2006   | 0.00         | 4             | 0.00      | 0.00      | 0.00      | 0.00      | 0.00         
+5671            | SCH-061   | DEPT-ENE      | mandal    | 5002   | 2005-2006   | 0.00         | 2             | 0.00      | 0.00      | 0.00      | 0.00      | 0.00         
+41219           | SCH-061   | DEPT-ENE      | mandal    | 5045   | 2005-2006   | 0.00         | 3             | 0.00      | 0.00      | 0.00      | 0.00      | 0.00         
+72346           | SCH-061   | DEPT-ENE      | mandal    | 5106   | 2005-2006   | 0.00         | 1             | 0.00      | 0.00      | 0.00      | 0.00      | 0.00         
 
 Successfully fetched 5 records.
 
 --------------------------------------------------------------------------------
 Table: ap_community360.dim_facility
 --------------------------------------------------------------------------------
-CANONICAL_FACILITY_ID | FACILITY_TYPE_ID | FACILITY_CATEGORY | FACILITY_NAME        | FACILITY_SHORT_NAME  | OWNERSHIP_TYPE | MANAGING_AUTHORITY | OPERATIONAL_STATUS | ESTABLISHED_DATE | GEOGRAPHY_ID | ADDRESS_LINE                             | LOCALITY  | PINCODE | LATITUDE  | LONGITUDE | GEOHASH | H3_INDEX | BOUNDARY_WKT | CONTACT_PHONE | CONTACT_EMAIL                 | WEBSITE | VERIFICATION_STATUS | GOLDEN_SOURCE            | VALID_FROM                 | VALID_TO | IS_CURRENT | SOURCE_SYSTEM | BATCH_ID | LOAD_TS                    | UPDATED_TS                 | RECORD_STATUS
-----------------------+------------------+-------------------+----------------------+----------------------+----------------+--------------------+--------------------+------------------+--------------+------------------------------------------+-----------+---------+-----------+-----------+---------+----------+--------------+---------------+-------------------------------+---------+---------------------+--------------------------+----------------------------+----------+------------+---------------+----------+----------------------------+----------------------------+--------------
-NULL                  | 7                | EDUCATION         | DSCTraining Teachers | DSCTraining Teachers | NULL           | NULL               | OPERATIONAL        | NULL             | NULL         | NULL                                     | -         | NULL    | NULL      | NULL      | NULL    | NULL     | NULL         | NULL          | NULL                          | NULL    | UNVERIFIED          | ap_citizen360.dim_school | 2026-07-16 15:32:43.640314 | NULL     | True       | AP_CITIZEN360 | NULL     | 2026-07-16 15:32:43.640314 | 2026-07-16 15:32:43.640314 | ACTIVE       
-FAC-SCH-28110100101   | 7                | EDUCATION         | MPPS KADAKELLA       | MPPS KADAKELLA       | NULL           | NULL               | OPERATIONAL        | NULL             | NULL         | Kadakella veeraghattam srikakulam 532460 | KADAKELLA | NULL    | 18.706633 | 83.563244 | NULL    | NULL     | NULL         | NULL          | NULL                          | NULL    | UNVERIFIED          | ap_citizen360.dim_school | 2026-07-16 15:32:43.640314 | NULL     | True       | AP_CITIZEN360 | NULL     | 2026-07-16 15:32:43.640314 | 2026-07-16 15:32:43.640314 | ACTIVE       
-FAC-SCH-28110100201   | 7                | EDUCATION         | CBMAPS KAMBARA       | CBMAPS KAMBARA       | NULL           | NULL               | OPERATIONAL        | 1931-01-01       | NULL         | "KAMBARA, NEAR CHURCH, VEERAGHATTAM M... | KAMBARA   | 239460  | 18.72054  | 83.576333 | NULL    | NULL     | NULL         | NULL          | NULL                          | NULL    | UNVERIFIED          | ap_citizen360.dim_school | 2026-07-16 15:32:43.640314 | NULL     | True       | AP_CITIZEN360 | NULL     | 2026-07-16 15:32:43.640314 | 2026-07-16 15:32:43.640314 | ACTIVE       
-FAC-SCH-28110100203   | 7                | EDUCATION         | MPPS KAMBARA         | MPPS KAMBARA         | NULL           | NULL               | OPERATIONAL        | 1919-01-01       | NULL         | "MPPS, KAMBARA  VEERAGHATTAM  SRIKAKU... | KAMBARA   | 532460  | 18.716079 | 83.586115 | NULL    | NULL     | NULL         | NULL          | mukundarao.macharla@gmail.com | NULL    | UNVERIFIED          | ap_citizen360.dim_school | 2026-07-16 15:32:43.640314 | NULL     | True       | AP_CITIZEN360 | NULL     | 2026-07-16 15:32:43.640314 | 2026-07-16 15:32:43.640314 | ACTIVE       
-FAC-SCH-28110100204   | 7                | EDUCATION         | ZPHS KAMBARA VALASA  | ZPHS KAMBARA VALASA  | NULL           | NULL               | OPERATIONAL        | 2002-01-01       | NULL         | KAMBARAVALASA VILLAGE VEERAGHATTAM MA... | KAMBARA   | 532460  | 18.703617 | 83.582155 | NULL    | NULL     | NULL         | NULL          | NULL                          | NULL    | UNVERIFIED          | ap_citizen360.dim_school | 2026-07-16 15:32:43.640314 | NULL     | True       | AP_CITIZEN360 | NULL     | 2026-07-16 15:32:43.640314 | 2026-07-16 15:32:43.640314 | ACTIVE       
+CANONICAL_FACILITY_ID | FACILITY_TYPE_ID | FACILITY_CATEGORY | FACILITY_NAME | FACILITY_SHORT_NAME | OWNERSHIP_TYPE | MANAGING_AUTHORITY                       | OPERATIONAL_STATUS | ESTABLISHED_DATE | GEOGRAPHY_ID | ADDRESS_LINE | LOCALITY | PINCODE | LATITUDE | LONGITUDE | GEOHASH | H3_INDEX | BOUNDARY_WKT | CONTACT_PHONE | CONTACT_EMAIL | WEBSITE | VERIFICATION_STATUS | GOLDEN_SOURCE                            | VALID_FROM                 | VALID_TO | IS_CURRENT | SOURCE_SYSTEM | BATCH_ID | LOAD_TS                    | UPDATED_TS                 | RECORD_STATUS
+----------------------+------------------+-------------------+---------------+---------------------+----------------+------------------------------------------+--------------------+------------------+--------------+--------------+----------+---------+----------+-----------+---------+----------+--------------+---------------+---------------+---------+---------------------+------------------------------------------+----------------------------+----------+------------+---------------+----------+----------------------------+----------------------------+--------------
+FAC-AWC-0101001       | 1                | WELFARE           | AKKIVALASA    | AKKIVALASA          | GOVERNMENT     | Women Development and Child Welfare D... | OPERATIONAL        | NULL             | 14560        | NULL         | NULL     | NULL    | NULL     | NULL      | NULL    | NULL     | NULL         | NULL          | NULL          | NULL    | VERIFIED            | wcdsc_wdcw_schema_new.sp_anganwadi_ma... | 2026-07-23 13:03:05.623734 | NULL     | True       | WDCW          | NULL     | 2026-07-23 13:03:05.623734 | 2026-07-23 13:03:05.623734 | ACTIVE       
+FAC-AWC-0101002       | 1                | WELFARE           | AKKAULAPETA   | AKKAULAPETA         | GOVERNMENT     | Women Development and Child Welfare D... | OPERATIONAL        | NULL             | 1277         | NULL         | NULL     | NULL    | NULL     | NULL      | NULL    | NULL     | NULL         | NULL          | NULL          | NULL    | VERIFIED            | wcdsc_wdcw_schema_new.sp_anganwadi_ma... | 2026-07-23 13:03:05.623734 | NULL     | True       | WDCW          | NULL     | 2026-07-23 13:03:05.623734 | 2026-07-23 13:03:05.623734 | ACTIVE       
+FAC-AWC-0101003       | 1                | WELFARE           | ALMAJIPETA    | ALMAJIPETA          | GOVERNMENT     | Women Development and Child Welfare D... | OPERATIONAL        | NULL             | 1290         | NULL         | NULL     | NULL    | NULL     | NULL      | NULL    | NULL     | NULL         | NULL          | NULL          | NULL    | VERIFIED            | wcdsc_wdcw_schema_new.sp_anganwadi_ma... | 2026-07-23 13:03:05.623734 | NULL     | True       | WDCW          | NULL     | 2026-07-23 13:03:05.623734 | 2026-07-23 13:03:05.623734 | ACTIVE       
+FAC-AWC-0101004       | 1                | WELFARE           | A L NAGARAM   | A L NAGARAM         | GOVERNMENT     | Women Development and Child Welfare D... | OPERATIONAL        | NULL             | 1296         | NULL         | NULL     | NULL    | NULL     | NULL      | NULL    | NULL     | NULL         | NULL          | NULL          | NULL    | VERIFIED            | wcdsc_wdcw_schema_new.sp_anganwadi_ma... | 2026-07-23 13:03:05.623734 | NULL     | True       | WDCW          | NULL     | 2026-07-23 13:03:05.623734 | 2026-07-23 13:03:05.623734 | ACTIVE       
+FAC-AWC-0101005       | 1                | WELFARE           | ANADAPURAM    | ANADAPURAM          | GOVERNMENT     | Women Development and Child Welfare D... | OPERATIONAL        | NULL             | 1276         | NULL         | NULL     | NULL    | NULL     | NULL      | NULL    | NULL     | NULL         | NULL          | NULL          | NULL    | VERIFIED            | wcdsc_wdcw_schema_new.sp_anganwadi_ma... | 2026-07-23 13:03:05.623734 | NULL     | True       | WDCW          | NULL     | 2026-07-23 13:03:05.623734 | 2026-07-23 13:03:05.623734 | ACTIVE       
 
 Successfully fetched 5 records.
 
@@ -475,8 +644,15 @@ Table: ap_community360.fact_facility_access
 --------------------------------------------------------------------------------
 Table: ap_community360.fact_facility_service
 --------------------------------------------------------------------------------
-  (No rows found in this table.)
-  Columns: facility_service_id, canonical_facility_id, facility_type_id, geography_id, period_date, period_grain, footfall, beneficiaries_served, throughput_units, occupancy_pct, revenue_amount, utilization_index, source_system, batch_id, load_ts
+FACILITY_SERVICE_ID | CANONICAL_FACILITY_ID | FACILITY_TYPE_ID | GEOGRAPHY_ID | PERIOD_DATE | PERIOD_GRAIN | FOOTFALL | BENEFICIARIES_SERVED | THROUGHPUT_UNITS | OCCUPANCY_PCT | REVENUE_AMOUNT | UTILIZATION_INDEX | SOURCE_SYSTEM | BATCH_ID | LOAD_TS                   
+--------------------+-----------------------+------------------+--------------+-------------+--------------+----------+----------------------+------------------+---------------+----------------+-------------------+---------------+----------+---------------------------
+1147628             | FAC-SEC-10490238      | 10               | 3285         | 2026-03-04  | DAY          | 5        | 1                    | 5                | NULL          | 0.00           | NULL              | GWS           | NULL     | 2026-07-30 17:05:23.560361
+1147629             | FAC-SEC-10590539      | 10               | 4840         | 2026-03-06  | DAY          | 1        | 1                    | 1                | NULL          | 0.00           | NULL              | GWS           | NULL     | 2026-07-30 17:05:23.560361
+1147630             | FAC-SEC-10490238      | 10               | 3285         | 2026-03-11  | DAY          | 2        | 1                    | 2                | NULL          | 0.00           | NULL              | GWS           | NULL     | 2026-07-30 17:05:23.560361
+6888                | FAC-SEC-10190086      | 10               | 886          | 2021-10-01  | DAY          | 2        | 1                    | 2                | NULL          | 0.00           | NULL              | GWS           | NULL     | 2026-07-30 17:05:23.560361
+6889                | FAC-SEC-10190111      | 10               | 911          | 2021-10-01  | DAY          | 1        | 1                    | 1                | NULL          | 0.00           | NULL              | GWS           | NULL     | 2026-07-30 17:05:23.560361
+
+Successfully fetched 5 records.
 
 ================================================================================
 Done.

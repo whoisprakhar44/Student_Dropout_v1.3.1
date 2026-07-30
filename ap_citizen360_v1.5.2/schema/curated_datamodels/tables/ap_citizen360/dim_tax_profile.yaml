@@ -1,8 +1,7 @@
 database: ap_citizen360
 table: dim_tax_profile
 department: ap_citizen360
-description: "One row per person summarizing income-tax and GST liability \u2014 distinct\
-  \ from dim_property_tax, which covers municipal property tax rather than income/GST."
+description: "One row per person summarizing income-tax and GST liability \u2014 distinct from dim_property_tax, which covers municipal property tax rather than income/GST."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_tax_profile
 partitioned_by: null
@@ -16,15 +15,10 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_tax_profile`(\n  `person_id`\
-  \ STRING COMMENT 'Primary Key: Foreign key to dim_person.person_id.',\n  `income_tax_paid`\
-  \ BOOLEAN COMMENT 'Boolean flag. True if the person has a record of having paid\
-  \ income tax in the relevant assessment period.',\n  `gst_paid_annual` DECIMAL(15,2)\
-  \ COMMENT 'Annual GST paid by the person (e.g. as a registered business owner),\
-  \ in INR. Unit: INR.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this tax profile\
-  \ was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_tax_profile'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_tax_profile`(\n  `person_id` STRING COMMENT 'Primary Key: Foreign key to dim_person.person_id.',\n  `income_tax_paid` BOOLEAN COMMENT 'Boolean flag.\
+  \ True if the person has a record of having paid income tax in the relevant assessment period.',\n  `gst_paid_annual` DECIMAL(15,2) COMMENT 'Annual GST paid by the person (e.g. as a registered business\
+  \ owner), in INR. Unit: INR.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this tax profile was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_tax_profile'"
 columns:
 - name: person_id
   type: STRING
@@ -33,21 +27,12 @@ columns:
 - name: income_tax_paid
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if the person has a record of having paid income
-    tax in the relevant assessment period.
+  description: Boolean flag. True if the person has a record of having paid income tax in the relevant assessment period.
 - name: gst_paid_annual
   type: DECIMAL(15,2)
   nullable: true
-  description: 'Annual GST paid by the person (e.g. as a registered business owner),
-    in INR. Unit: INR.'
-  value_description: '[''0.00'', ''12493878.02'', ''10043474.00'', ''20752156.55'',
-    ''1313840.00'', ''246170.00'', ''5449490.00'', ''331524.49'', ''65585604.68'',
-    ''339600.00'', ''78195.00'', ''6000.00'', ''2015152.00'', ''100000.00'', ''20000.00'',
-    ''351450.00'', ''15331429.85'', ''33746516.72'', ''309470.00'', ''40000.00'',
-    ''12636000.00'', ''1254700.00'', ''135444.80'', ''8949805.00'', ''6647457.00'',
-    ''205700.00'', ''50000.00'', ''197321.43'', ''517717.19'', ''10941300.00'', ''211864.41'',
-    ''95238.00'', ''11638022.22'', ''2762173.90'', ''607531.50'', ''5000.00'', ''120000.00'',
-    ''6548091.79'', ''10000.00'', ''165677.96'']'
+  description: 'Annual GST paid by the person (e.g. as a registered business owner), in INR. Unit: INR.'
+  value_description: 'Top distinct values: 0.00, 12493878.02, 10043474.00, 20752156.55, 1313840.00, 246170.00, 5449490.00, 331524.49, 65585604.68, 78195.00'
 - name: updated_at
   type: TIMESTAMP
   nullable: true

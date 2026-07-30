@@ -1,11 +1,9 @@
 database: ap_community360
 table: dim_facility_school
 department: ap_community360
-description: School-specific attributes, aligned to the UDISE+ (Unified District Information
-  System for Education Plus) national schema, so this table can be reconciled against
-  the UDISE+ feed directly. One row per facility where dim_facility.facility_type_id
-  resolves to the SCHOOL type; joined back to dim_facility on canonical_facility_id.
-  Backs the school-medium/management critical filters in the Community 360 UI.
+description: School-specific attributes, aligned to the UDISE+ (Unified District Information System for Education Plus) national schema, so this table can be reconciled against the UDISE+ feed directly.
+  One row per facility where dim_facility.facility_type_id resolves to the SCHOOL type; joined back to dim_facility on canonical_facility_id. Backs the school-medium/management critical filters in the Community
+  360 UI.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_community360/dim_facility_school
 partitioned_by: null
@@ -19,248 +17,183 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: ap_community360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility_school`(\n  `canonical_facility_id`\
-  \ STRING COMMENT 'Primary Key: FK to dim_facility.canonical_facility_id \u2014 one\
-  \ row per school facility.',\n  `udise_plus_code` STRING COMMENT 'National UDISE+\
-  \ school code \u2014 the authoritative cross-system key for this school.',\n  `school_management`\
-  \ STRING COMMENT 'Who manages the school, e.g. \\'Government\\' | \\'Aided\\' |\
-  \ \\'Private Unaided\\' \u2014 one of the critical filter fields. [Value Examples:\
-  \ \\'Government\\', \\'Aided\\', \\'Private Unaided\\']',\n  `school_category` STRING\
-  \ COMMENT 'Categorical column. Distinct values: \\'School category by level, e.g.\
-  \ \\'Primary\\', \\'High School\\'.\\'. School category by level, e.g. \\'Primary\\\
-  ' | \\'High School\\'. [Value Examples: \\'Primary\\', \\'High School\\']',\n  `lowest_class`\
-  \ INT COMMENT 'Categorical column. Distinct values: \\'Lowest class\\', \\'grade\
-  \ taught at this school.\\'. Lowest class/grade taught at this school.',\n  `highest_class`\
-  \ INT COMMENT 'Categorical column. Distinct values: \\'Highest class\\', \\'grade\
-  \ taught at this school.\\'. Highest class/grade taught at this school.',\n  `board_affiliation`\
-  \ STRING COMMENT 'Examining board the school is affiliated to, e.g. \\'State Board\\\
-  ' | \\'CBSE\\'. [Value Examples: \\'State Board\\', \\'CBSE\\']',\n  `medium_of_instruction`\
-  \ STRING COMMENT 'Primary teaching language, e.g. \\'Telugu\\' | \\'English\\' |\
-  \ \\'Urdu\\' | \\'Bilingual\\' \u2014 the other critical filter field. [Value Examples:\
-  \ \\'Telugu\\', \\'English\\', \\'Urdu\\', \\'Bilingual\\']',\n  `gender_type` STRING\
-  \ COMMENT 'Categorical column. Distinct values: \\'Student intake policy: \\'Co-Ed\\\
-  ', \\'Boys\\', \\'Girls\\'.\\'. Student intake policy: \\'Co-Ed\\' | \\'Boys\\'\
-  \ | \\'Girls\\'.',\n  `total_students` INT COMMENT 'Total enrolled students.',\n\
-  \  `total_boys` INT COMMENT 'Enrolled boys count.',\n  `total_girls` INT COMMENT\
-  \ 'Enrolled girls count.',\n  `total_teachers` INT COMMENT 'Teachers currently in\
-  \ position.',\n  `sanctioned_teachers` INT COMMENT 'Sanctioned teacher posts (may\
-  \ exceed total_teachers where there\\'s a staffing gap).',\n  `student_teacher_ratio`\
-  \ DECIMAL(6,2) COMMENT 'Categorical column. Distinct values: \\'Students per teacher\\\
-  ', \\'a standard school-quality indicator.\\'. Students per teacher \u2014 a standard\
-  \ school-quality indicator.',\n  `total_classrooms` INT COMMENT 'Total classrooms\
-  \ in the building.',\n  `classrooms_good_condition` INT COMMENT 'Classrooms rated\
-  \ in good structural condition.',\n  `building_status` STRING COMMENT 'Categorical\
-  \ column. Distinct values: \\'Overall building condition, e.g. \\'Good\\', \\'Needs\
-  \ Repair\\'.\\'. Overall building condition, e.g. \\'Good\\' | \\'Needs Repair\\\
-  '. [Value Examples: \\'Good\\', \\'Needs Repair\\']',\n  `has_electricity` BOOLEAN\
-  \ COMMENT 'Boolean flag. True if the school has an electricity connection.',\n \
-  \ `has_drinking_water` BOOLEAN COMMENT 'Boolean flag. True if safe drinking water\
-  \ is available.',\n  `has_boys_toilet` BOOLEAN COMMENT 'Boolean flag. True if a\
-  \ boys\\' toilet facility exists.',\n  `has_girls_toilet` BOOLEAN COMMENT 'Boolean\
-  \ flag. True if a girls\\' toilet facility exists.',\n  `has_cwsn_toilet` BOOLEAN\
-  \ COMMENT 'Boolean flag. True if a toilet accessible to children with special needs\
-  \ exists.',\n  `has_ramp` BOOLEAN COMMENT 'Boolean flag. True if a wheelchair ramp\
-  \ exists.',\n  `has_library` BOOLEAN COMMENT 'Boolean flag. True if the school has\
-  \ a library.',\n  `has_computer_lab` BOOLEAN COMMENT 'Boolean flag. True if the\
-  \ school has a computer lab.',\n  `has_smart_classroom` BOOLEAN COMMENT 'Boolean\
-  \ flag. True if at least one smart/digital classroom exists.',\n  `has_playground`\
-  \ BOOLEAN COMMENT 'Boolean flag. True if a playground exists.',\n  `has_boundary_wall`\
-  \ BOOLEAN COMMENT 'Boolean flag. True if the campus has a boundary wall.',\n  `has_midday_meal`\
-  \ BOOLEAN COMMENT 'Boolean flag. True if the school serves the midday meal scheme.',\n\
-  \  `internet_available` BOOLEAN COMMENT 'Boolean flag. True if internet connectivity\
-  \ is available at the school.',\n  `academic_session` STRING COMMENT 'Academic year\
-  \ these figures were captured for, e.g. \\'2025-26\\'. [Value Examples: \\'2025-26\\\
-  ']',\n  `source_system` STRING COMMENT 'Upstream system this row was loaded from,\
-  \ e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\\
-  ', \\'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load batch identifier\
-  \ \u2014 groups every row written by the same ingestion run, for reprocessing/rollback.',\n\
-  \  `load_ts` TIMESTAMP COMMENT 'When this row was first written to the canonical\
-  \ table.',\n  `updated_ts` TIMESTAMP COMMENT 'Categorical column. Distinct values:\
-  \ \\'When this row was last updated (upsert\\', \\'merge timestamp).\\'. When this\
-  \ row was last updated (upsert/merge timestamp).',\n  `record_status` STRING COMMENT\
-  \ 'Row lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\' \u2014 soft-delete marker;\
-  \ rows are never hard-deleted. [Value Examples: \\'ACTIVE\\', \\'RETIRED\\']')\n\
-  ROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n \
-  \ 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility_school'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_community360`.`dim_facility_school`(\n  `canonical_facility_id` STRING COMMENT 'Primary Key: FK to dim_facility.canonical_facility_id \u2014 one row per school facility.',\n\
+  \  `udise_plus_code` STRING COMMENT 'National UDISE+ school code \u2014 the authoritative cross-system key for this school.',\n  `school_management` STRING COMMENT 'Who manages the school, e.g. \\'Government\\\
+  ' | \\'Aided\\' | \\'Private Unaided\\' \u2014 one of the critical filter fields. [Value Examples: \\'Government\\', \\'Aided\\', \\'Private Unaided\\']',\n  `school_category` STRING COMMENT 'Categorical\
+  \ column. Distinct values: \\'School category by level, e.g. \\'Primary\\', \\'High School\\'.\\'. School category by level, e.g. \\'Primary\\' | \\'High School\\'. [Value Examples: \\'Primary\\', \\\
+  'High School\\']',\n  `lowest_class` INT COMMENT 'Categorical column. Distinct values: \\'Lowest class\\', \\'grade taught at this school.\\'. Lowest class/grade taught at this school.',\n  `highest_class`\
+  \ INT COMMENT 'Categorical column. Distinct values: \\'Highest class\\', \\'grade taught at this school.\\'. Highest class/grade taught at this school.',\n  `board_affiliation` STRING COMMENT 'Examining\
+  \ board the school is affiliated to, e.g. \\'State Board\\' | \\'CBSE\\'. [Value Examples: \\'State Board\\', \\'CBSE\\']',\n  `medium_of_instruction` STRING COMMENT 'Primary teaching language, e.g. \\\
+  'Telugu\\' | \\'English\\' | \\'Urdu\\' | \\'Bilingual\\' \u2014 the other critical filter field. [Value Examples: \\'Telugu\\', \\'English\\', \\'Urdu\\', \\'Bilingual\\']',\n  `gender_type` STRING COMMENT\
+  \ 'Categorical column. Distinct values: \\'Student intake policy: \\'Co-Ed\\', \\'Boys\\', \\'Girls\\'.\\'. Student intake policy: \\'Co-Ed\\' | \\'Boys\\' | \\'Girls\\'.',\n  `total_students` INT COMMENT\
+  \ 'Total enrolled students.',\n  `total_boys` INT COMMENT 'Enrolled boys count.',\n  `total_girls` INT COMMENT 'Enrolled girls count.',\n  `total_teachers` INT COMMENT 'Teachers currently in position.',\n\
+  \  `sanctioned_teachers` INT COMMENT 'Sanctioned teacher posts (may exceed total_teachers where there\\'s a staffing gap).',\n  `student_teacher_ratio` DECIMAL(6,2) COMMENT 'Categorical column. Distinct\
+  \ values: \\'Students per teacher\\', \\'a standard school-quality indicator.\\'. Students per teacher \u2014 a standard school-quality indicator.',\n  `total_classrooms` INT COMMENT 'Total classrooms\
+  \ in the building.',\n  `classrooms_good_condition` INT COMMENT 'Classrooms rated in good structural condition.',\n  `building_status` STRING COMMENT 'Categorical column. Distinct values: \\'Overall building\
+  \ condition, e.g. \\'Good\\', \\'Needs Repair\\'.\\'. Overall building condition, e.g. \\'Good\\' | \\'Needs Repair\\'. [Value Examples: \\'Good\\', \\'Needs Repair\\']',\n  `has_electricity` BOOLEAN\
+  \ COMMENT 'Boolean flag. True if the school has an electricity connection.',\n  `has_drinking_water` BOOLEAN COMMENT 'Boolean flag. True if safe drinking water is available.',\n  `has_boys_toilet` BOOLEAN\
+  \ COMMENT 'Boolean flag. True if a boys\\' toilet facility exists.',\n  `has_girls_toilet` BOOLEAN COMMENT 'Boolean flag. True if a girls\\' toilet facility exists.',\n  `has_cwsn_toilet` BOOLEAN COMMENT\
+  \ 'Boolean flag. True if a toilet accessible to children with special needs exists.',\n  `has_ramp` BOOLEAN COMMENT 'Boolean flag. True if a wheelchair ramp exists.',\n  `has_library` BOOLEAN COMMENT\
+  \ 'Boolean flag. True if the school has a library.',\n  `has_computer_lab` BOOLEAN COMMENT 'Boolean flag. True if the school has a computer lab.',\n  `has_smart_classroom` BOOLEAN COMMENT 'Boolean flag.\
+  \ True if at least one smart/digital classroom exists.',\n  `has_playground` BOOLEAN COMMENT 'Boolean flag. True if a playground exists.',\n  `has_boundary_wall` BOOLEAN COMMENT 'Boolean flag. True if\
+  \ the campus has a boundary wall.',\n  `has_midday_meal` BOOLEAN COMMENT 'Boolean flag. True if the school serves the midday meal scheme.',\n  `internet_available` BOOLEAN COMMENT 'Boolean flag. True\
+  \ if internet connectivity is available at the school.',\n  `academic_session` STRING COMMENT 'Academic year these figures were captured for, e.g. \\'2025-26\\'. [Value Examples: \\'2025-26\\']',\n  `source_system`\
+  \ STRING COMMENT 'Upstream system this row was loaded from, e.g. \\'udise_plus\\', \\'hmis\\', \\'seed\\'. [Value Examples: \\'udise_plus\\', \\'hmis\\', \\'seed\\']',\n  `batch_id` STRING COMMENT 'Load\
+  \ batch identifier \u2014 groups every row written by the same ingestion run, for reprocessing/rollback.',\n  `load_ts` TIMESTAMP COMMENT 'When this row was first written to the canonical table.',\n \
+  \ `updated_ts` TIMESTAMP COMMENT 'Categorical column. Distinct values: \\'When this row was last updated (upsert\\', \\'merge timestamp).\\'. When this row was last updated (upsert/merge timestamp).',\n\
+  \  `record_status` STRING COMMENT 'Row lifecycle flag, e.g. \\'ACTIVE\\' | \\'RETIRED\\' \u2014 soft-delete marker; rows are never hard-deleted. [Value Examples: \\'ACTIVE\\', \\'RETIRED\\']')\nROW FORMAT\
+  \ SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_community360/dim_facility_school'"
 columns:
 - name: canonical_facility_id
   type: STRING
   nullable: true
-  description: "Primary Key: FK to dim_facility.canonical_facility_id \u2014 one row\
-    \ per school facility."
+  description: "Primary Key: FK to dim_facility.canonical_facility_id \u2014 one row per school facility."
 - name: udise_plus_code
   type: STRING
   nullable: true
-  description: "National UDISE+ school code \u2014 the authoritative cross-system\
-    \ key for this school."
-  value_description: '[''28146204203'', ''28190900401'', ''28173700203'', ''28122400905'',
-    ''28132991065'', ''28190901602'', ''28183601103'', ''28133801604'', ''28174590246'',
-    ''28132800509'', ''28153701003'', ''28146202501'', ''28175790137'', ''28171400404'',
-    ''28197101691'', ''28111102303'', ''28190300703'', ''28203700804'', ''28163301502'',
-    ''28122402703'', ''28173200107'', ''28143300702'', ''28203701104'', ''28190801145'',
-    ''28141500201'', ''28143300219'', ''28211500401'', ''28202001201'', ''28172500505'',
-    ''28222500402'', ''28112504103'', ''28141001805'', ''28213401316'', ''28164301017'',
-    ''28225000708'', ''28121501603'', ''28231191889'', ''28161890323'', ''28164290180'',
-    ''28193703507'']'
+  description: "National UDISE+ school code \u2014 the authoritative cross-system key for this school."
+  value_description: '[''28146204203'', ''28190900401'', ''28173700203'', ''28122400905'', ''28132991065'', ''28190901602'', ''28183601103'', ''28133801604'', ''28174590246'', ''28132800509'', ''28153701003'',
+    ''28146202501'', ''28175790137'', ''28171400404'', ''28197101691'', ''28111102303'', ''28190300703'', ''28203700804'', ''28163301502'', ''28122402703'', ''28173200107'', ''28143300702'', ''28203701104'',
+    ''28190801145'', ''28141500201'', ''28143300219'', ''28211500401'', ''28202001201'', ''28172500505'', ''28222500402'', ''28112504103'', ''28141001805'', ''28213401316'', ''28164301017'', ''28225000708'',
+    ''28121501603'', ''28231191889'', ''28161890323'', ''28164290180'', ''28193703507'']'
 - name: school_management
   type: STRING
   nullable: true
-  description: "Who manages the school, e.g. 'Government' | 'Aided' | 'Private Unaided'\
-    \ \u2014 one of the critical filter fields. [Value Examples: 'Government', 'Aided',\
-    \ 'Private Unaided']"
+  description: "Who manages the school, e.g. 'Government' | 'Aided' | 'Private Unaided' \u2014 one of the critical filter fields. [Value Examples: 'Government', 'Aided', 'Private Unaided']"
+  value_description: 'Top distinct values: MPP_ZPP SCHOOLS, PVT.UNAIDED, MUNCIPAL, PVT.AIDED, GOVT TW DEPT.PRIMARY SCHOOLS, STATE GOVT., TW DEPT. ASHRAM SCHOOLS, MADARSA UNRECOGNIZED, PVT.UNAIDED (CBSE
+    SYLLABUS), KGBVS(SSA)'
 - name: school_category
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: ''School category by level, e.g.
-    ''Primary'', ''High School''.''. School category by level, e.g. ''Primary'' |
-    ''High School''. [Value Examples: ''Primary'', ''High School'']'
-  value_description: '[''PRIMARY'', ''UPPER PR. AND SECONDARY'', ''PRIMARY WITH UPPER
-    PRIMARY'', ''PR. UP PR. AND SECONDARY ONLY'', ''HIGHER SECONDARY ONLY'', ''UP.
-    PR. SECONDARY AND HIGHER SEC'', ''PR. WITH UP.PR. SEC. AND H.SEC.'', ''UPPER PRIMARY
-    ONLY'', ''SECONDARY ONLY'', ''primary with upper primary'', ''SECONDARY WITH HIGHER
-    SECONDARY'']'
+  description: 'Categorical column. Distinct values: ''School category by level, e.g. ''Primary'', ''High School''.''. School category by level, e.g. ''Primary'' | ''High School''. [Value Examples: ''Primary'',
+    ''High School'']'
+  value_description: 'Top distinct values: PRIMARY, UPPER PR. AND SECONDARY, PRIMARY WITH UPPER PRIMARY, PR. UP PR. AND SECONDARY ONLY, HIGHER SECONDARY ONLY, UP. PR. SECONDARY AND HIGHER SEC, PR. WITH
+    UP.PR. SEC. AND H.SEC., UPPER PRIMARY ONLY, SECONDARY ONLY, primary with upper primary'
 - name: lowest_class
   type: INT
   nullable: true
-  description: 'Categorical column. Distinct values: ''Lowest class'', ''grade taught
-    at this school.''. Lowest class/grade taught at this school.'
-  value_description: '[''1'', ''6'', ''11'', ''5'', ''3'', ''8'', ''9'', ''4'', ''7'',
-    ''2'']'
+  description: 'Categorical column. Distinct values: ''Lowest class'', ''grade taught at this school.''. Lowest class/grade taught at this school.'
+  value_description: 'Top distinct values: 1, 6, 11, 5, 3, 8, 9, 4, 7, 2'
 - name: highest_class
   type: INT
   nullable: true
-  description: 'Categorical column. Distinct values: ''Highest class'', ''grade taught
-    at this school.''. Highest class/grade taught at this school.'
-  value_description: '[''5'', ''10'', ''7'', ''12'', ''2'', ''8'', ''4'', ''9'', ''6'',
-    ''3'', ''1'', ''11'']'
+  description: 'Categorical column. Distinct values: ''Highest class'', ''grade taught at this school.''. Highest class/grade taught at this school.'
+  value_description: 'Top distinct values: 5, 10, 7, 12, 2, 8, 4, 9, 6, 3'
 - name: board_affiliation
   type: STRING
   nullable: true
-  description: 'Examining board the school is affiliated to, e.g. ''State Board''
-    | ''CBSE''. [Value Examples: ''State Board'', ''CBSE'']'
-  value_description: '[''STATE'']'
+  description: 'Examining board the school is affiliated to, e.g. ''State Board'' | ''CBSE''. [Value Examples: ''State Board'', ''CBSE'']'
+  value_description: 'Top distinct values: STATE'
 - name: medium_of_instruction
   type: STRING
   nullable: true
-  description: "Primary teaching language, e.g. 'Telugu' | 'English' | 'Urdu' | 'Bilingual'\
-    \ \u2014 the other critical filter field. [Value Examples: 'Telugu', 'English',\
-    \ 'Urdu', 'Bilingual']"
-  value_description: '[''Telugu'', ''English'', ''Urdu'', ''Oriya'', ''Tamil'', ''Kannada'',
-    ''Hindi'']'
+  description: "Primary teaching language, e.g. 'Telugu' | 'English' | 'Urdu' | 'Bilingual' \u2014 the other critical filter field. [Value Examples: 'Telugu', 'English', 'Urdu', 'Bilingual']"
+  value_description: 'Top distinct values: Telugu, English, Urdu, Oriya, Tamil, Kannada, Hindi'
 - name: gender_type
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: ''Student intake policy: ''Co-Ed'',
-    ''Boys'', ''Girls''.''. Student intake policy: ''Co-Ed'' | ''Boys'' | ''Girls''.'
-  value_description: '[''CO_ED'', ''GIRLS'', ''BOYS'']'
+  description: 'Categorical column. Distinct values: ''Student intake policy: ''Co-Ed'', ''Boys'', ''Girls''.''. Student intake policy: ''Co-Ed'' | ''Boys'' | ''Girls''.'
+  value_description: 'Top distinct values: CO_ED, GIRLS, BOYS'
 - name: total_students
   type: INT
   nullable: true
   description: Total enrolled students.
+  value_description: 'Top distinct values: 0, 24, 25, 26, 23, 22, 28, 27, 21, 29'
 - name: total_boys
   type: INT
   nullable: true
   description: Enrolled boys count.
+  value_description: 'Top distinct values: 0, 1, 18, 16, 15, 12, 21, 17, 19, 13'
 - name: total_girls
   type: INT
   nullable: true
   description: Enrolled girls count.
+  value_description: 'Top distinct values: 0, 1, 17, 14, 15, 20, 18, 22, 10, 19'
 - name: total_teachers
   type: INT
   nullable: true
   description: Teachers currently in position.
+  value_description: 'Top distinct values: 2, 1, 3, 4, 5, 6, 9, 8, 7, 0'
 - name: sanctioned_teachers
   type: INT
   nullable: true
-  description: Sanctioned teacher posts (may exceed total_teachers where there's a
-    staffing gap).
+  description: Sanctioned teacher posts (may exceed total_teachers where there's a staffing gap).
 - name: student_teacher_ratio
   type: DECIMAL(6,2)
   nullable: true
-  description: "Categorical column. Distinct values: 'Students per teacher', 'a standard\
-    \ school-quality indicator.'. Students per teacher \u2014 a standard school-quality\
-    \ indicator."
+  description: "Categorical column. Distinct values: 'Students per teacher', 'a standard school-quality indicator.'. Students per teacher \u2014 a standard school-quality indicator."
+  value_description: 'Top distinct values: 0.00, 13.00, 15.00, 14.00, 16.00, 12.00, 17.00, 20.00, 18.00, 21.00'
 - name: total_classrooms
   type: INT
   nullable: true
   description: Total classrooms in the building.
-  value_description: '[''2'', ''1'', ''5'', ''3'', ''4'', ''10'', ''7'', ''8'', ''6'',
-    ''12'', ''9'', ''13'', ''14'', ''15'', ''16'', ''11'', ''20'', ''18'', ''17'',
-    ''22'', ''24'', ''0'', ''25'', ''19'', ''21'', ''23'', ''30'', ''26'', ''28'',
-    ''27'', ''32'', ''40'', ''36'', ''35'', ''33'', ''31'', ''34'', ''29'', ''38'',
-    ''37'']'
+  value_description: 'Top distinct values: 2, 1, 5, 3, 4, 10, 7, 8, 6, 12'
 - name: classrooms_good_condition
   type: INT
   nullable: true
   description: Classrooms rated in good structural condition.
-  value_description: '[''2'', ''1'', ''0'', ''5'', ''3'', ''4'', ''10'', ''8'', ''6'',
-    ''7'', ''12'', ''9'', ''14'', ''15'', ''13'', ''16'', ''11'', ''20'', ''18'',
-    ''17'', ''22'', ''24'', ''25'', ''19'', ''21'', ''23'', ''30'', ''26'', ''27'',
-    ''28'', ''32'', ''40'', ''35'', ''33'', ''36'', ''34'', ''31'', ''38'', ''29'',
-    ''42'']'
+  value_description: 'Top distinct values: 2, 1, 0, 5, 3, 4, 10, 8, 6, 7'
 - name: building_status
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: ''Overall building condition,
-    e.g. ''Good'', ''Needs Repair''.''. Overall building condition, e.g. ''Good''
-    | ''Needs Repair''. [Value Examples: ''Good'', ''Needs Repair'']'
-  value_description: '[''PUCCA'', ''SEMI_PUCCA'', ''KUTCHA'', ''NO_BUILDING'']'
+  description: 'Categorical column. Distinct values: ''Overall building condition, e.g. ''Good'', ''Needs Repair''.''. Overall building condition, e.g. ''Good'' | ''Needs Repair''. [Value Examples: ''Good'',
+    ''Needs Repair'']'
+  value_description: 'Top distinct values: PUCCA, SEMI_PUCCA, KUTCHA, NO_BUILDING'
 - name: has_electricity
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if the school has an electricity connection.
-  value_description: '[''True'', ''False'']'
+  value_description: 'Top distinct values: True, False'
 - name: has_drinking_water
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if safe drinking water is available.
-  value_description: '[''True'', ''False'']'
+  value_description: 'Top distinct values: True, False'
 - name: has_boys_toilet
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if a boys' toilet facility exists.
-  value_description: '[''True'', ''False'']'
+  value_description: 'Top distinct values: True, False'
 - name: has_girls_toilet
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if a girls' toilet facility exists.
-  value_description: '[''True'', ''False'']'
+  value_description: 'Top distinct values: True, False'
 - name: has_cwsn_toilet
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if a toilet accessible to children with special
-    needs exists.
-  value_description: '[''False'', ''True'']'
+  description: Boolean flag. True if a toilet accessible to children with special needs exists.
+  value_description: 'Top distinct values: False, True'
 - name: has_ramp
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if a wheelchair ramp exists.
-  value_description: '[''True'', ''False'']'
+  value_description: 'Top distinct values: True, False'
 - name: has_library
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if the school has a library.
-  value_description: '[''True'', ''False'']'
+  value_description: 'Top distinct values: True, False'
 - name: has_computer_lab
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if the school has a computer lab.
-  value_description: '[''True'', ''False'']'
+  value_description: 'Top distinct values: True, False'
 - name: has_smart_classroom
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if at least one smart/digital classroom exists.
-  value_description: '[''False'', ''True'']'
+  value_description: 'Top distinct values: False, True'
 - name: has_playground
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if a playground exists.
-  value_description: '[''True'', ''False'']'
+  value_description: 'Top distinct values: True, False'
 - name: has_boundary_wall
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if the campus has a boundary wall.
-  value_description: '[''True'', ''False'']'
+  value_description: 'Top distinct values: True, False'
 - name: has_midday_meal
   type: BOOLEAN
   nullable: true
@@ -269,23 +202,20 @@ columns:
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if internet connectivity is available at the school.
-  value_description: '[''True'', ''False'']'
+  value_description: 'Top distinct values: True, False'
 - name: academic_session
   type: STRING
   nullable: true
-  description: 'Academic year these figures were captured for, e.g. ''2025-26''. [Value
-    Examples: ''2025-26'']'
+  description: 'Academic year these figures were captured for, e.g. ''2025-26''. [Value Examples: ''2025-26'']'
 - name: source_system
   type: STRING
   nullable: true
-  description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'',
-    ''seed''. [Value Examples: ''udise_plus'', ''hmis'', ''seed'']'
-  value_description: '[''UDISE_PLUS'']'
+  description: 'Upstream system this row was loaded from, e.g. ''udise_plus'', ''hmis'', ''seed''. [Value Examples: ''udise_plus'', ''hmis'', ''seed'']'
+  value_description: 'Top distinct values: UDISE_PLUS'
 - name: batch_id
   type: STRING
   nullable: true
-  description: "Load batch identifier \u2014 groups every row written by the same\
-    \ ingestion run, for reprocessing/rollback."
+  description: "Load batch identifier \u2014 groups every row written by the same ingestion run, for reprocessing/rollback."
 - name: load_ts
   type: TIMESTAMP
   nullable: true
@@ -293,15 +223,12 @@ columns:
 - name: updated_ts
   type: TIMESTAMP
   nullable: true
-  description: 'Categorical column. Distinct values: ''When this row was last updated
-    (upsert'', ''merge timestamp).''. When this row was last updated (upsert/merge
-    timestamp).'
+  description: 'Categorical column. Distinct values: ''When this row was last updated (upsert'', ''merge timestamp).''. When this row was last updated (upsert/merge timestamp).'
 - name: record_status
   type: STRING
   nullable: true
-  description: "Row lifecycle flag, e.g. 'ACTIVE' | 'RETIRED' \u2014 soft-delete marker;\
-    \ rows are never hard-deleted. [Value Examples: 'ACTIVE', 'RETIRED']"
-  value_description: '[''ACTIVE'']'
+  description: "Row lifecycle flag, e.g. 'ACTIVE' | 'RETIRED' \u2014 soft-delete marker; rows are never hard-deleted. [Value Examples: 'ACTIVE', 'RETIRED']"
+  value_description: 'Top distinct values: ACTIVE'
 primary_key:
 - canonical_facility_id
 relationships:

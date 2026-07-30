@@ -1,9 +1,8 @@
 database: ap_citizen360
 table: dim_land
 department: ap_citizen360
-description: "One row per land parcel owned \u2014 agricultural, residential, or commercial.\
-  \ Carries revenue-record detail (survey numbers, registration, mutation) as well\
-  \ as agronomic detail (soil, irrigation) for parcels used for farming."
+description: "One row per land parcel owned \u2014 agricultural, residential, or commercial. Carries revenue-record detail (survey numbers, registration, mutation) as well as agronomic detail (soil, irrigation)\
+  \ for parcels used for farming."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_land
 partitioned_by: null
@@ -17,51 +16,24 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_land`(\n  `land_id` STRING COMMENT\
-  \ 'Primary Key: land-parcel identifier.',\n  `person_id` STRING COMMENT 'Foreign\
-  \ Key: References dim_person.person_id. the owner.',\n  `land_type` STRING COMMENT\
-  \ 'Categorical column. Distinct values: \\'Agricultural\\', \\'Residential\\', \\\
-  'Commercial classification of the parcel.\\'. Agricultural / Residential / Commercial\
-  \ classification of the parcel.',\n  `land_classification` STRING COMMENT 'Revenue\
-  \ classification of the land, e.g. \\'Wet\\', \\'Dry\\', \\'Garden\\'. [Value Examples:\
-  \ \\'Wet\\', \\'Dry\\', \\'Garden\\']',\n  `acres` DOUBLE COMMENT 'Total extent\
-  \ of the parcel, in acres. Unit: acres.',\n  `survey_no` STRING COMMENT 'Revenue\
-  \ survey number of the parcel.',\n  `sub_survey_no` STRING COMMENT 'Sub-division\
-  \ of the survey number, where the parcel is a subdivided plot.',\n  `hissa_no` STRING\
-  \ COMMENT 'Hissa (further subdivision) number, where applicable.',\n  `khata_no`\
-  \ STRING COMMENT 'Khata (revenue account) number the parcel is recorded under.',\n\
-  \  `location` STRING COMMENT 'Free-text location description of the parcel.',\n\
-  \  `district_id` STRING COMMENT 'Foreign Key: References dim_district.district_id.',\n\
-  \  `mandal_id` STRING COMMENT 'Foreign Key: References dim_mandal.mandal_id.',\n\
-  \  `village_name` STRING COMMENT 'Village the parcel is located in.',\n  `revenue_circle`\
-  \ STRING COMMENT 'Revenue administrative circle covering the parcel.',\n  `sro_office`\
-  \ STRING COMMENT 'Sub-Registrar Office where the parcel\\'s deed is registered.',\n\
-  \  `registration_no` STRING COMMENT 'Deed registration number.',\n  `pattadar_passbook_no`\
-  \ STRING COMMENT 'Pattadar passbook (title document) number for the parcel.',\n\
-  \  `registration_date` DATE COMMENT 'Date the current deed was registered.',\n \
-  \ `mutation_date` DATE COMMENT 'Date land-records mutation (ownership transfer reflected\
-  \ in revenue records) was completed.',\n  `market_value` DECIMAL(12,2) COMMENT 'Estimated\
-  \ market value of the parcel, in INR. Unit: INR.',\n  `guideline_value` DECIMAL(12,2)\
-  \ COMMENT 'Government guideline (registration) value of the parcel, in INR. Unit:\
-  \ INR.',\n  `stamp_duty_paid` DECIMAL(10,2) COMMENT 'Stamp duty paid on the most\
-  \ recent registration, in INR. Unit: INR.',\n  `soil_type` STRING COMMENT 'Soil\
-  \ type of the parcel, e.g. \\'Black\\', \\'Red\\', \\'Alluvial\\' \u2014 relevant\
-  \ for agricultural parcels. [Value Examples: \\'Black\\', \\'Red\\', \\'Alluvial\\\
-  ']',\n  `irrigation_type` STRING COMMENT 'Irrigation source/type for the parcel,\
-  \ e.g. \\'Canal\\', \\'Borewell\\', \\'Rain-fed\\'. [Value Examples: \\'Canal\\\
-  ', \\'Borewell\\', \\'Rain-fed\\']',\n  `encumbrance_status` STRING COMMENT 'Whether\
-  \ the parcel is encumbered (e.g. under mortgage), per the Encumbrance Certificate.',\n\
-  \  `mortgage_bank` STRING COMMENT 'Bank holding a mortgage on the parcel, where\
-  \ encumbered.',\n  `mortgage_amount` DECIMAL(12,2) COMMENT 'Outstanding mortgage\
-  \ amount against the parcel, in INR. Unit: INR.',\n  `is_assigned_land` BOOLEAN\
-  \ COMMENT 'Boolean flag. True if this is government-assigned land (allotted under\
-  \ a land-assignment scheme) rather than freehold.',\n  `extent_wet_land` DOUBLE\
-  \ COMMENT 'Portion of the parcel\\'s extent classified as wet (irrigated) land,\
-  \ in acres. Unit: acres.',\n  `extent_dry_land` DOUBLE COMMENT 'Portion of the parcel\\\
-  's extent classified as dry (unirrigated) land, in acres. Unit: acres.',\n  `updated_at`\
-  \ TIMESTAMP COMMENT 'Timestamp this land record was last updated.')\nROW FORMAT\
-  \ SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
-  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_land'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_land`(\n  `land_id` STRING COMMENT 'Primary Key: land-parcel identifier.',\n  `person_id` STRING COMMENT 'Foreign Key: References dim_person.person_id.\
+  \ the owner.',\n  `land_type` STRING COMMENT 'Categorical column. Distinct values: \\'Agricultural\\', \\'Residential\\', \\'Commercial classification of the parcel.\\'. Agricultural / Residential / Commercial\
+  \ classification of the parcel.',\n  `land_classification` STRING COMMENT 'Revenue classification of the land, e.g. \\'Wet\\', \\'Dry\\', \\'Garden\\'. [Value Examples: \\'Wet\\', \\'Dry\\', \\'Garden\\\
+  ']',\n  `acres` DOUBLE COMMENT 'Total extent of the parcel, in acres. Unit: acres.',\n  `survey_no` STRING COMMENT 'Revenue survey number of the parcel.',\n  `sub_survey_no` STRING COMMENT 'Sub-division\
+  \ of the survey number, where the parcel is a subdivided plot.',\n  `hissa_no` STRING COMMENT 'Hissa (further subdivision) number, where applicable.',\n  `khata_no` STRING COMMENT 'Khata (revenue account)\
+  \ number the parcel is recorded under.',\n  `location` STRING COMMENT 'Free-text location description of the parcel.',\n  `district_id` STRING COMMENT 'Foreign Key: References dim_district.district_id.',\n\
+  \  `mandal_id` STRING COMMENT 'Foreign Key: References dim_mandal.mandal_id.',\n  `village_name` STRING COMMENT 'Village the parcel is located in.',\n  `revenue_circle` STRING COMMENT 'Revenue administrative\
+  \ circle covering the parcel.',\n  `sro_office` STRING COMMENT 'Sub-Registrar Office where the parcel\\'s deed is registered.',\n  `registration_no` STRING COMMENT 'Deed registration number.',\n  `pattadar_passbook_no`\
+  \ STRING COMMENT 'Pattadar passbook (title document) number for the parcel.',\n  `registration_date` DATE COMMENT 'Date the current deed was registered.',\n  `mutation_date` DATE COMMENT 'Date land-records\
+  \ mutation (ownership transfer reflected in revenue records) was completed.',\n  `market_value` DECIMAL(12,2) COMMENT 'Estimated market value of the parcel, in INR. Unit: INR.',\n  `guideline_value` DECIMAL(12,2)\
+  \ COMMENT 'Government guideline (registration) value of the parcel, in INR. Unit: INR.',\n  `stamp_duty_paid` DECIMAL(10,2) COMMENT 'Stamp duty paid on the most recent registration, in INR. Unit: INR.',\n\
+  \  `soil_type` STRING COMMENT 'Soil type of the parcel, e.g. \\'Black\\', \\'Red\\', \\'Alluvial\\' \u2014 relevant for agricultural parcels. [Value Examples: \\'Black\\', \\'Red\\', \\'Alluvial\\']',\n\
+  \  `irrigation_type` STRING COMMENT 'Irrigation source/type for the parcel, e.g. \\'Canal\\', \\'Borewell\\', \\'Rain-fed\\'. [Value Examples: \\'Canal\\', \\'Borewell\\', \\'Rain-fed\\']',\n  `encumbrance_status`\
+  \ STRING COMMENT 'Whether the parcel is encumbered (e.g. under mortgage), per the Encumbrance Certificate.',\n  `mortgage_bank` STRING COMMENT 'Bank holding a mortgage on the parcel, where encumbered.',\n\
+  \  `mortgage_amount` DECIMAL(12,2) COMMENT 'Outstanding mortgage amount against the parcel, in INR. Unit: INR.',\n  `is_assigned_land` BOOLEAN COMMENT 'Boolean flag. True if this is government-assigned\
+  \ land (allotted under a land-assignment scheme) rather than freehold.',\n  `extent_wet_land` DOUBLE COMMENT 'Portion of the parcel\\'s extent classified as wet (irrigated) land, in acres. Unit: acres.',\n\
+  \  `extent_dry_land` DOUBLE COMMENT 'Portion of the parcel\\'s extent classified as dry (unirrigated) land, in acres. Unit: acres.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this land record was last\
+  \ updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_land'"
 columns:
 - name: land_id
   type: STRING
@@ -74,59 +46,16 @@ columns:
 - name: land_type
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: ''Agricultural'', ''Residential'',
-    ''Commercial classification of the parcel.''. Agricultural / Residential / Commercial
-    classification of the parcel.'
-  value_description: "['\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E', '\u0C1C\u0C3F\u0C30\u0C3E\
-    \u0C2F\u0C3F\u0C24\u0C3F \u0C2A\u0C1F\u0C4D\u0C1F\u0C3E', '\u0C1C\u0C3F.\u0C2A\
-    \u0C1F\u0C4D\u0C1F\u0C3E', '\u0C1C\u0C3F\u0C30\u0C3E\u0C2F\u0C3F\u0C24\u0C3F',\
-    \ '\u0C1C\u0C3F\u0C30\u0C3E\u0C2F\u0C3F\u0C24\u0C40 \u0C2A\u0C1F\u0C4D\u0C1F\u0C3E\
-    ', 'Assigned Land Made Freehold in 2023', '\u0C2A\u0C4D\u0C30\u0C2D\u0C41\u0C24\
-    \u0C4D\u0C35 \u0C2D\u0C42\u0C2E\u0C3F', '\u0C2A\u0C4D\u0C30.\u0C2D\u0C42\u0C2E\
-    \u0C3F', '\u0C26.\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E', '\u0C2A\u0C4D\u0C30\u0C2D\u0C41\
-    \u0C24\u0C4D\u0C35\u0C2E\u0C41', '100', '\u0C21\u0C3F\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E\
-    ', 'unknown', '\u0C07\u0C28\u0C3E\u0C02 \u0C2D\u0C42\u0C2E\u0C3F', '\u0C07\u0C28\
-    \u0C3E\u0C02', '1', '\u0C05\u0C24\u0C41\u0C15\u0C41\u0C2C\u0C21\u0C3F\u0C2A\u0C1F\
-    \u0C4D\u0C1F\u0C3E', '\u0C21\u0C3F.\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E', 'Village Service\
-    \ Inam made FreeHold in 2023', '\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E(PATTA LAND)', '\u0C2E\
-    \u0C46\u0C1F\u0C4D\u0C1F', '\u0C2A\u0C4D\u0C30\u0C2D\u0C41\u0C24\u0C4D\u0C35\u0C2D\
-    \u0C42\u0C2E\u0C3F', '0', '\u0C2A\u0C4D\u0C30\u0C2D\u0C41\u0C24\u0C4D\u0C35 \u0C2D\
-    \u0C42\u0C2E\u0C3F (GOVT LAND)', '\u0C2A\u0C4D\u0C30\u0C2D\u0C42\u0C2E\u0C3F',\
-    \ 'Assigned in the Year 2012', '\u0C05\u0C24\u0C41\u0C15\u0C41\u0C2C\u0C21\u0C3F\
-    \ \u0C2A\u0C1F\u0C4D\u0C1F\u0C3E', 'Assigned in the Year 2005', 'Assigned in the\
-    \ Year 2018', '\u0C21\u0C3F \u0C2B\u0C3E\u0C30\u0C02 \u0C2A\u0C1F\u0C4D\u0C1F\u0C3E\
-    ', '\u0C2A\u0C4B\u0C30\u0C02\u0C2C\u0C4B\u0C15\u0C41', 'Sharatugala patta made\
-    \ freehold', '101', '\u0C05.\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E', 'Assigned in the\
-    \ Year 2013', 'Assigned in the Year 2007', '\u0C05\u0C38\u0C48\u0C28\u0C4D\u0C21\
-    \u0C4D \u0C2D\u0C42\u0C2E\u0C41\u0C32\u0C41(ASSIGNED LAND)', 'Assigned in the\
-    \ Year 2008', 'Assigned in the Year 2006', 'Assigned in the Year 2010']"
+  description: 'Categorical column. Distinct values: ''Agricultural'', ''Residential'', ''Commercial classification of the parcel.''. Agricultural / Residential / Commercial classification of the parcel.'
+  value_description: "Top distinct values: \u0C2A\u0C1F\u0C4D\u0C1F\u0C3E, \u0C1C\u0C3F\u0C30\u0C3E\u0C2F\u0C3F\u0C24\u0C3F \u0C2A\u0C1F\u0C4D\u0C1F\u0C3E, \u0C1C\u0C3F.\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E, \u0C1C\
+    \u0C3F\u0C30\u0C3E\u0C2F\u0C3F\u0C24\u0C3F, \u0C1C\u0C3F\u0C30\u0C3E\u0C2F\u0C3F\u0C24\u0C40 \u0C2A\u0C1F\u0C4D\u0C1F\u0C3E, Assigned Land Made Freehold in 2023, \u0C2A\u0C4D\u0C30\u0C2D\u0C41\u0C24\
+    \u0C4D\u0C35 \u0C2D\u0C42\u0C2E\u0C3F, \u0C2A\u0C4D\u0C30.\u0C2D\u0C42\u0C2E\u0C3F, \u0C26.\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E, \u0C2A\u0C4D\u0C30\u0C2D\u0C41\u0C24\u0C4D\u0C35\u0C2E\u0C41"
 - name: land_classification
   type: STRING
   nullable: true
-  description: 'Revenue classification of the land, e.g. ''Wet'', ''Dry'', ''Garden''.
-    [Value Examples: ''Wet'', ''Dry'', ''Garden'']'
-  value_description: "['\u0C2E\u0C46\u0C1F\u0C4D\u0C1F', '\u0C2A\u0C41\u0C02\u0C1C\
-    ', '\u0C28\u0C02\u0C1C', '\u0C2E\u0C3E\u0C17\u0C3E\u0C23\u0C3F', '\u0C2E\u0C46\
-    \u0C1F\u0C4D\u0C1F\u0C41', '\u0C2A\u0C32\u0C4D\u0C32\u0C02', '\u0C24\u0C30\u0C3F\
-    ', '\u0C2E\u0C46\u0C30\u0C15', '\u0C2A\u0C41\u0C02\u0C1C\u0C3F', '\u0C1C\u0C3F\
-    .\u0C2E\u0C46\u0C1F\u0C4D\u0C1F', '\u0C2E\u0C3E\u0C28\u0C35\u0C3E\u0C30\u0C3F\
-    ', '\u0C1C\u0C3F.\u0C2A\u0C32\u0C4D\u0C32\u0C02', '\u0C12\u0C15 \u0C2A\u0C02\u0C1F\
-    \u0C2E\u0C3E\u0C17\u0C3E\u0C23\u0C3F', 'unknown', '\u0C2E\u0C3E\u0C17\u0C3E\u0C23\
-    \u0C3F 1', '2 \u0C2A\u0C02\u0C1F\u0C32\u0C41', '\u0C2A\u0C4B\u0C30\u0C02\u0C2C\
-    \u0C4B\u0C15\u0C41', '\u0C05\u0C28\u0C3E\u0C26\u0C40\u0C28\u0C02', '\u0C2A\u0C4D\
-    \u0C30.\u0C2D\u0C42\u0C2E\u0C3F', '\u0C0E.\u0C21\u0C2C\u0C4D\u0C32\u0C4D\u0C2F\
-    \u0C41', '\u0C13 \u0C2A\u0C02\u0C1F \u0C2E\u0C3E\u0C17\u0C3E\u0C23\u0C3F', '\u0C2A\
-    \u0C3E.\u0C2A\u0C41\u0C02\u0C1C\u0C3F', '202', '\u0C2A\u0C4B\u0C30\u0C02\u0C2C\
-    \u0C4B\u0C15\u0C41 (PORAMBOKE)', '\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E', '\u0C28\u0C40\
-    \u0C1F\u0C3F\u0C2A\u0C3E\u0C30\u0C41\u0C26\u0C32\u0C2E\u0C46\u0C1F\u0C4D\u0C1F\
-    ', '\u0C15\u0C3E\u0C32\u0C41\u0C35', '\u0C2E\u0C3E\u0C17\u0C3E\u0C23\u0C3F 2',\
-    \ '\u0C28\u0C02\u0C1C,\u0C2A\u0C41\u0C02\u0C1C', '\u0C36\u0C3F\u0C38\u0C4D\u0C24\
-    \u0C41 \u0C15\u0C1F\u0C4D\u0C1F\u0C3F\u0C28 \u0C17\u0C2F\u0C3E\u0C33\u0C41 (ASSESSED-WASTE)',\
-    \ '203', '\u0C07.\u0C15\u0C3E.\u0C2A\u0C3E. \u0C2A\u0C41\u0C02\u0C1C\u0C3F', '201',\
-    \ '\u0C2E\u0C46 \u0C1F\u0C4D\u0C1F\u0C41', '279', '\u0C21\u0C3F.\u0C2A\u0C1F\u0C4D\
-    \u0C1F\u0C3E', '\u0C1A\u0C46\u0C30\u0C41\u0C35\u0C41', '\u0C28\u0C02\u0C1C\u0C3F\
-    ', '\u0C06.\u0C2A\u0C41\u0C02\u0C1C\u0C3F', '\u0C2E\u0C3E\u0C28\u0C3E\u0C35\u0C30\
-    \u0C3F']"
+  description: 'Revenue classification of the land, e.g. ''Wet'', ''Dry'', ''Garden''. [Value Examples: ''Wet'', ''Dry'', ''Garden'']'
+  value_description: "Top distinct values: \u0C2E\u0C46\u0C1F\u0C4D\u0C1F, \u0C2A\u0C41\u0C02\u0C1C, \u0C28\u0C02\u0C1C, \u0C2E\u0C3E\u0C17\u0C3E\u0C23\u0C3F, \u0C2E\u0C46\u0C1F\u0C4D\u0C1F\u0C41, \u0C2A\
+    \u0C32\u0C4D\u0C32\u0C02, \u0C24\u0C30\u0C3F, \u0C2E\u0C46\u0C30\u0C15, \u0C2A\u0C41\u0C02\u0C1C\u0C3F, \u0C1C\u0C3F.\u0C2E\u0C46\u0C1F\u0C4D\u0C1F"
 - name: acres
   type: DOUBLE
   nullable: true
@@ -138,8 +67,7 @@ columns:
 - name: sub_survey_no
   type: STRING
   nullable: true
-  description: Sub-division of the survey number, where the parcel is a subdivided
-    plot.
+  description: Sub-division of the survey number, where the parcel is a subdivided plot.
 - name: hissa_no
   type: STRING
   nullable: true
@@ -164,18 +92,12 @@ columns:
   type: STRING
   nullable: true
   description: Village the parcel is located in.
-  value_description: '[''KOTHAPALLE'', ''KODURU'', ''KOSUVARIPALLE'', ''VENKATAPURAM'',
-    ''UPPALAPADU'', ''GANGAVARAM'', ''GATTU'', ''GOLLAPALLE'', ''NARASAPURAM'', ''VALLURU'',
-    ''KOTHAKOTA'', ''ANNAVARAM'', ''KRISHNAPURAM'', ''MADHAVARAM'', ''KURABALAKOTA'',
-    ''GANAPAVARAM'', ''ALLUR'', ''MADDINMAYANIPALLE'', ''ELLAMANDA'', ''ATMAKUR'',
-    ''CHODAVARAM'', ''REDDIPALLE'', ''SIRIPURAM'', ''SETTIPALLE'', ''DHARMAVARAM'',
-    ''GOVINDAPURAM'', ''MACHAVARAM'', ''CHINTADA'', ''RAMAPURAM'', ''GUDIPADU'', ''CHERLOPALLE'',
-    ''MUDIVEDU'', ''LAKSHMIPURAM'', ''GOPAVARAM'', ''THIMMAPURAM'', ''GOPALAPURAM'',
-    ''LAXMIPURAM'', ''AGRAHARAM'', ''BHEEMAVARAM'', ''INAGALUR'']'
+  value_description: 'Top distinct values: KOTHAPALLE, KODURU, KOSUVARIPALLE, VENKATAPURAM, UPPALAPADU, GANGAVARAM, GATTU, GOLLAPALLE, NARASAPURAM, VALLURU'
 - name: revenue_circle
   type: STRING
   nullable: true
   description: Revenue administrative circle covering the parcel.
+  value_description: 'Top distinct values: KOTHAPALLE, KODURU, KOSUVARIPALLE, VENKATAPURAM, UPPALAPADU, GANGAVARAM, GATTU, GOLLAPALLE, NARASAPURAM, VALLURU'
 - name: sro_office
   type: STRING
   nullable: true
@@ -195,8 +117,7 @@ columns:
 - name: mutation_date
   type: DATE
   nullable: true
-  description: Date land-records mutation (ownership transfer reflected in revenue
-    records) was completed.
+  description: Date land-records mutation (ownership transfer reflected in revenue records) was completed.
 - name: market_value
   type: DECIMAL(12,2)
   nullable: true
@@ -204,8 +125,7 @@ columns:
 - name: guideline_value
   type: DECIMAL(12,2)
   nullable: true
-  description: 'Government guideline (registration) value of the parcel, in INR. Unit:
-    INR.'
+  description: 'Government guideline (registration) value of the parcel, in INR. Unit: INR.'
 - name: stamp_duty_paid
   type: DECIMAL(10,2)
   nullable: true
@@ -213,18 +133,15 @@ columns:
 - name: soil_type
   type: STRING
   nullable: true
-  description: "Soil type of the parcel, e.g. 'Black', 'Red', 'Alluvial' \u2014 relevant\
-    \ for agricultural parcels. [Value Examples: 'Black', 'Red', 'Alluvial']"
+  description: "Soil type of the parcel, e.g. 'Black', 'Red', 'Alluvial' \u2014 relevant for agricultural parcels. [Value Examples: 'Black', 'Red', 'Alluvial']"
 - name: irrigation_type
   type: STRING
   nullable: true
-  description: 'Irrigation source/type for the parcel, e.g. ''Canal'', ''Borewell'',
-    ''Rain-fed''. [Value Examples: ''Canal'', ''Borewell'', ''Rain-fed'']'
+  description: 'Irrigation source/type for the parcel, e.g. ''Canal'', ''Borewell'', ''Rain-fed''. [Value Examples: ''Canal'', ''Borewell'', ''Rain-fed'']'
 - name: encumbrance_status
   type: STRING
   nullable: true
-  description: Whether the parcel is encumbered (e.g. under mortgage), per the Encumbrance
-    Certificate.
+  description: Whether the parcel is encumbered (e.g. under mortgage), per the Encumbrance Certificate.
 - name: mortgage_bank
   type: STRING
   nullable: true
@@ -236,19 +153,18 @@ columns:
 - name: is_assigned_land
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if this is government-assigned land (allotted under
-    a land-assignment scheme) rather than freehold.
-  value_description: '[''False'']'
+  description: Boolean flag. True if this is government-assigned land (allotted under a land-assignment scheme) rather than freehold.
+  value_description: 'Top distinct values: False'
 - name: extent_wet_land
   type: DOUBLE
   nullable: true
-  description: 'Portion of the parcel''s extent classified as wet (irrigated) land,
-    in acres. Unit: acres.'
+  description: 'Portion of the parcel''s extent classified as wet (irrigated) land, in acres. Unit: acres.'
+  value_description: 'Top distinct values: 0.1, 0.05, 0.5, 1.0, 0.06, 0.2, 0.12, 0.08, 0.07, 0.15'
 - name: extent_dry_land
   type: DOUBLE
   nullable: true
-  description: 'Portion of the parcel''s extent classified as dry (unirrigated) land,
-    in acres. Unit: acres.'
+  description: 'Portion of the parcel''s extent classified as dry (unirrigated) land, in acres. Unit: acres.'
+  value_description: 'Top distinct values: 0.0'
 - name: updated_at
   type: TIMESTAMP
   nullable: true

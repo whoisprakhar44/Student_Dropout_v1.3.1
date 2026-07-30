@@ -1,9 +1,8 @@
 database: ap_citizen360
 table: dim_state
 department: ap_citizen360
-description: "One row per state per effective-dated period (slowly-changing dimension\
-  \ via effective_from/effective_to/is_current) \u2014 currently only Andhra Pradesh.\
-  \ Backs the State Profile view and top-of-hierarchy rollups."
+description: "One row per state per effective-dated period (slowly-changing dimension via effective_from/effective_to/is_current) \u2014 currently only Andhra Pradesh. Backs the State Profile view and top-of-hierarchy\
+  \ rollups."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_state
 partitioned_by: null
@@ -17,39 +16,20 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_state`(\n  `state_id` STRING\
-  \ COMMENT 'Primary Key: state code, e.g. \\'ap\\'.',\n  `state_name` STRING COMMENT\
-  \ 'Full state name, e.g. \\'Andhra Pradesh\\'. [Value Examples: \\'Andhra Pradesh\\\
-  ']',\n  `population` BIGINT COMMENT 'Categorical column. Distinct values: \\'Total\
-  \ state population (census\\', \\'projected).\\'. Total state population (census/projected).',\n\
-  \  `households` BIGINT COMMENT 'Total household count in the state.',\n  `literacy_rate`\
-  \ DOUBLE COMMENT 'State literacy rate, percentage (0-100). Unit: percentage (0-100).',\n\
-  \  `sex_ratio` INT COMMENT 'Females per 1000 males.',\n  `districts_count` INT COMMENT\
-  \ 'Number of districts in the state.',\n  `mandals_count` INT COMMENT 'Number of\
-  \ mandals across all districts.',\n  `villages_count` INT COMMENT 'Number of villages/habitations\
-  \ across all mandals.',\n  `median_age` DOUBLE COMMENT 'Median age of the population,\
-  \ in years.',\n  `urbanization_pct` DOUBLE COMMENT 'Percentage of population classified\
-  \ urban. Unit: percentage (0-100).',\n  `gross_state_income_cr` BIGINT COMMENT 'Categorical\
-  \ column. Distinct values: \\'Gross state income\\', \\'product, in INR crores.\\\
-  '. Gross state income/product, in INR crores.',\n  `electricity_consumers` BIGINT\
-  \ COMMENT 'Total registered electricity consumer connections.',\n  `avg_monthly_kwh`\
-  \ INT COMMENT 'Average monthly electricity consumption per consumer, in kWh. Unit:\
-  \ kWh.',\n  `property_tax_collected` BIGINT COMMENT 'Total property tax collected\
-  \ statewide, in INR. Unit: INR.',\n  `agri_land_acres` BIGINT COMMENT 'Total agricultural\
-  \ land extent, in acres. Unit: acres.',\n  `ration_cards_total` BIGINT COMMENT 'Total\
-  \ NFSA ration cards issued statewide.',\n  `ration_aay` BIGINT COMMENT 'Ration cards\
-  \ under the Antyodaya Anna Yojana (poorest-of-poor) category.',\n  `ration_phh`\
-  \ BIGINT COMMENT 'Ration cards under the Priority Household category.',\n  `ration_nphh`\
-  \ BIGINT COMMENT 'Ration cards under the Non-Priority Household category.',\n  `ration_others`\
-  \ BIGINT COMMENT 'Categorical column. Distinct values: \\'Ration cards under other\\\
-  ', \\'legacy categories not covered above.\\'. Ration cards under other/legacy categories\
-  \ not covered above.',\n  `effective_from` DATE COMMENT 'Start date this snapshot\
-  \ row is valid from (SCD2 versioning).',\n  `effective_to` DATE COMMENT 'End date\
-  \ this snapshot row is valid until; null/open-ended for the current row.',\n  `is_current`\
-  \ BOOLEAN COMMENT 'Boolean flag. True if this is the latest/active version of the\
-  \ state snapshot.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_state'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_state`(\n  `state_id` STRING COMMENT 'Primary Key: state code, e.g. \\'ap\\'.',\n  `state_name` STRING COMMENT 'Full state name, e.g. \\'Andhra Pradesh\\\
+  '. [Value Examples: \\'Andhra Pradesh\\']',\n  `population` BIGINT COMMENT 'Categorical column. Distinct values: \\'Total state population (census\\', \\'projected).\\'. Total state population (census/projected).',\n\
+  \  `households` BIGINT COMMENT 'Total household count in the state.',\n  `literacy_rate` DOUBLE COMMENT 'State literacy rate, percentage (0-100). Unit: percentage (0-100).',\n  `sex_ratio` INT COMMENT\
+  \ 'Females per 1000 males.',\n  `districts_count` INT COMMENT 'Number of districts in the state.',\n  `mandals_count` INT COMMENT 'Number of mandals across all districts.',\n  `villages_count` INT COMMENT\
+  \ 'Number of villages/habitations across all mandals.',\n  `median_age` DOUBLE COMMENT 'Median age of the population, in years.',\n  `urbanization_pct` DOUBLE COMMENT 'Percentage of population classified\
+  \ urban. Unit: percentage (0-100).',\n  `gross_state_income_cr` BIGINT COMMENT 'Categorical column. Distinct values: \\'Gross state income\\', \\'product, in INR crores.\\'. Gross state income/product,\
+  \ in INR crores.',\n  `electricity_consumers` BIGINT COMMENT 'Total registered electricity consumer connections.',\n  `avg_monthly_kwh` INT COMMENT 'Average monthly electricity consumption per consumer,\
+  \ in kWh. Unit: kWh.',\n  `property_tax_collected` BIGINT COMMENT 'Total property tax collected statewide, in INR. Unit: INR.',\n  `agri_land_acres` BIGINT COMMENT 'Total agricultural land extent, in\
+  \ acres. Unit: acres.',\n  `ration_cards_total` BIGINT COMMENT 'Total NFSA ration cards issued statewide.',\n  `ration_aay` BIGINT COMMENT 'Ration cards under the Antyodaya Anna Yojana (poorest-of-poor)\
+  \ category.',\n  `ration_phh` BIGINT COMMENT 'Ration cards under the Priority Household category.',\n  `ration_nphh` BIGINT COMMENT 'Ration cards under the Non-Priority Household category.',\n  `ration_others`\
+  \ BIGINT COMMENT 'Categorical column. Distinct values: \\'Ration cards under other\\', \\'legacy categories not covered above.\\'. Ration cards under other/legacy categories not covered above.',\n  `effective_from`\
+  \ DATE COMMENT 'Start date this snapshot row is valid from (SCD2 versioning).',\n  `effective_to` DATE COMMENT 'End date this snapshot row is valid until; null/open-ended for the current row.',\n  `is_current`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if this is the latest/active version of the state snapshot.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_state'"
 columns:
 - name: state_id
   type: STRING
@@ -58,14 +38,12 @@ columns:
 - name: state_name
   type: STRING
   nullable: true
-  description: 'Full state name, e.g. ''Andhra Pradesh''. [Value Examples: ''Andhra
-    Pradesh'']'
-  value_description: '[''Andhra Pradesh'']'
+  description: 'Full state name, e.g. ''Andhra Pradesh''. [Value Examples: ''Andhra Pradesh'']'
+  value_description: 'Top distinct values: Andhra Pradesh'
 - name: population
   type: BIGINT
   nullable: true
-  description: 'Categorical column. Distinct values: ''Total state population (census'',
-    ''projected).''. Total state population (census/projected).'
+  description: 'Categorical column. Distinct values: ''Total state population (census'', ''projected).''. Total state population (census/projected).'
 - name: households
   type: BIGINT
   nullable: true
@@ -74,10 +52,12 @@ columns:
   type: DOUBLE
   nullable: true
   description: 'State literacy rate, percentage (0-100). Unit: percentage (0-100).'
+  value_description: 'Top distinct values: 72.6'
 - name: sex_ratio
   type: INT
   nullable: true
   description: Females per 1000 males.
+  value_description: 'Top distinct values: 998'
 - name: districts_count
   type: INT
   nullable: true
@@ -94,28 +74,31 @@ columns:
   type: DOUBLE
   nullable: true
   description: Median age of the population, in years.
+  value_description: 'Top distinct values: 38.38'
 - name: urbanization_pct
   type: DOUBLE
   nullable: true
   description: 'Percentage of population classified urban. Unit: percentage (0-100).'
+  value_description: 'Top distinct values: 27.0'
 - name: gross_state_income_cr
   type: BIGINT
   nullable: true
-  description: 'Categorical column. Distinct values: ''Gross state income'', ''product,
-    in INR crores.''. Gross state income/product, in INR crores.'
+  description: 'Categorical column. Distinct values: ''Gross state income'', ''product, in INR crores.''. Gross state income/product, in INR crores.'
+  value_description: 'Top distinct values: 0'
 - name: electricity_consumers
   type: BIGINT
   nullable: true
   description: Total registered electricity consumer connections.
+  value_description: 'Top distinct values: 11448206'
 - name: avg_monthly_kwh
   type: INT
   nullable: true
-  description: 'Average monthly electricity consumption per consumer, in kWh. Unit:
-    kWh.'
+  description: 'Average monthly electricity consumption per consumer, in kWh. Unit: kWh.'
 - name: property_tax_collected
   type: BIGINT
   nullable: true
   description: 'Total property tax collected statewide, in INR. Unit: INR.'
+  value_description: 'Top distinct values: 0'
 - name: agri_land_acres
   type: BIGINT
   nullable: true
@@ -124,24 +107,27 @@ columns:
   type: BIGINT
   nullable: true
   description: Total NFSA ration cards issued statewide.
+  value_description: 'Top distinct values: 14931733'
 - name: ration_aay
   type: BIGINT
   nullable: true
   description: Ration cards under the Antyodaya Anna Yojana (poorest-of-poor) category.
+  value_description: 'Top distinct values: 773017'
 - name: ration_phh
   type: BIGINT
   nullable: true
   description: Ration cards under the Priority Household category.
+  value_description: 'Top distinct values: 12290845'
 - name: ration_nphh
   type: BIGINT
   nullable: true
   description: Ration cards under the Non-Priority Household category.
+  value_description: 'Top distinct values: 0'
 - name: ration_others
   type: BIGINT
   nullable: true
-  description: 'Categorical column. Distinct values: ''Ration cards under other'',
-    ''legacy categories not covered above.''. Ration cards under other/legacy categories
-    not covered above.'
+  description: 'Categorical column. Distinct values: ''Ration cards under other'', ''legacy categories not covered above.''. Ration cards under other/legacy categories not covered above.'
+  value_description: 'Top distinct values: 0'
 - name: effective_from
   type: DATE
   nullable: true
@@ -149,14 +135,12 @@ columns:
 - name: effective_to
   type: DATE
   nullable: true
-  description: End date this snapshot row is valid until; null/open-ended for the
-    current row.
+  description: End date this snapshot row is valid until; null/open-ended for the current row.
 - name: is_current
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if this is the latest/active version of the state
-    snapshot.
-  value_description: '[''True'']'
+  description: Boolean flag. True if this is the latest/active version of the state snapshot.
+  value_description: 'Top distinct values: True'
 primary_key:
 - state_id
 relationships: []
