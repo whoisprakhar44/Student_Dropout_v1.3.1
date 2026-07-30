@@ -1,8 +1,9 @@
 database: ap_citizen360
 table: dim_village
 department: ap_citizen360
-description: One row per village/habitation, nested under dim_mandal via mandal_id. Like dim_mandal, a thin lookup table —
-  village-level metrics are computed on the fly from records carrying village_name.
+description: "One row per village/habitation, nested under dim_mandal via mandal_id.\
+  \ Like dim_mandal, a thin lookup table \u2014 village-level metrics are computed\
+  \ on the fly from records carrying village_name."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_village
 partitioned_by: null
@@ -16,11 +17,13 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_village`(\n  `village_id` STRING COMMENT 'Primary Key: village code.',\n\
-  \  `village_name` STRING COMMENT 'Display name of the village — the value other tables (dim_person, dim_household, ...)\
-  \ actually join on, since they denormalize village_name directly rather than village_id.',\n  `mandal_id` STRING COMMENT\
-  \ 'Foreign Key: References dim_mandal.mandal_id.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_village'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_village`(\n  `village_id` STRING\
+  \ COMMENT 'Primary Key: village code.',\n  `village_name` STRING COMMENT 'Display\
+  \ name of the village \u2014 the value other tables (dim_person, dim_household,\
+  \ ...) actually join on, since they denormalize village_name directly rather than\
+  \ village_id.',\n  `mandal_id` STRING COMMENT 'Foreign Key: References dim_mandal.mandal_id.')\n\
+  ROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n \
+  \ 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_village'"
 columns:
 - name: village_id
   type: STRING
@@ -29,8 +32,18 @@ columns:
 - name: village_name
   type: STRING
   nullable: true
-  description: Display name of the village — the value other tables (dim_person, dim_household, ...) actually join on, since
-    they denormalize village_name directly rather than village_id.
+  description: "Display name of the village \u2014 the value other tables (dim_person,\
+    \ dim_household, ...) actually join on, since they denormalize village_name directly\
+    \ rather than village_id."
+  value_description: '[''VENKATAPURAM'', ''GANDHINAGAR'', ''KOTHAPALLI'', ''INDIRANAGAR'',
+    ''KOTHAPETA'', ''UPPALAPADU'', ''ANNAVARAM'', ''JAGANNADHAPURAM'', ''THIMMAPURAM'',
+    ''BALAJINAGAR'', ''KRISHNAPURAM'', ''GANGAVARAM'', ''RAJUPALEM'', ''LAKSHMIPURAM'',
+    ''NARAYANAPURAM'', ''CHODAVARAM'', ''DHARMAVARAM'', ''AMBEDKARNAGAR'', ''GUDIPADU'',
+    ''INDIRAMMACOLONY'', ''SIRIPURAM'', ''RAMAPURAM'', ''GANDHINAGAR-01'', ''MARUTHINAGAR'',
+    ''LAXMIPURAM'', ''VALLURU'', ''KONDAPURAM'', ''GOVINDAPURAM'', ''SRIRAMNAGAR'',
+    ''NARASAPURAM'', ''NGOCOLONY'', ''RAMNAGAR'', ''GANDHINAGAR-02'', ''BRAHMANAPALLI'',
+    ''KAPAVARAM'', ''ANANTHAVARAM'', ''HARIJANAWADA'', ''GOLLAPALLI'', ''VEMAVARAM'',
+    ''MACHAVARAM'']'
 - name: mandal_id
   type: STRING
   nullable: true

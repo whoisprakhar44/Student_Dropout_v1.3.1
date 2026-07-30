@@ -1,10 +1,11 @@
 database: ap_citizen360
 table: dim_family_member
 department: ap_citizen360
-description: One row per other household member as recorded against a primary person_id's
-  household — used to show a citizen's family composition without requiring every
-  relative to themselves be a fully resolved dim_person row (handles cases where a
-  household member's own person_id record doesn't exist or isn't linked yet).
+description: "One row per other household member as recorded against a primary person_id's\
+  \ household \u2014 used to show a citizen's family composition without requiring\
+  \ every relative to themselves be a fully resolved dim_person row (handles cases\
+  \ where a household member's own person_id record doesn't exist or isn't linked\
+  \ yet)."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_family_member
 partitioned_by: null
@@ -49,6 +50,15 @@ columns:
   type: STRING
   nullable: true
   description: Name of the family member.
+  value_description: '[''Shaik Mahaboob Basha'', ''Shaik Reshma'', ''Shaik Karimulla'',
+    ''Babu'', ''Lakshmi'', ''Shaik Subhani'', ''Shaik Baji'', ''Shaik Mastan Vali'',
+    ''Shaik Ayesha'', ''Shaik Moulali'', ''Shaik Haseena'', ''Shaik Karishma'', ''Shaik
+    Basha'', ''LAKSHMI'', ''Shaik Salma'', ''Shaik Sameera'', ''Shaik Shabana'', ''Shaik
+    Sameer'', ''Shaik Rafi'', ''Venkatesh'', ''Shaik Mastan'', ''Shaik Khadar Basha'',
+    ''Shaik Suhana'', ''Suresh'', ''Shaik Fathima'', ''Shaik Imran'', ''Nagaraju'',
+    ''Shaik Chand Basha'', ''Mounika'', ''Ramesh'', ''Jyothi'', ''Shaik Ismail'',
+    ''babu'', ''Ganesh'', ''Rajesh'', ''papa'', ''Shaik Asma'', ''Shaik Irfan'', ''Lavanya'',
+    ''Sravani'']'
 - name: relation
   type: STRING
   nullable: true
@@ -62,7 +72,7 @@ columns:
   type: STRING
   nullable: true
   description: Family member's gender.
-  value_description: '[''Male'', ''Female'', ''Others'', ''Transgender'']'
+  value_description: '[''Male'', ''Female'', ''Transgender'', ''Others'']'
 - name: updated_at
   type: TIMESTAMP
   nullable: true

@@ -1,8 +1,8 @@
 database: ap_citizen360
 table: dim_epfo_contribution
 department: ap_citizen360
-description: One row per person summarizing their Employees' Provident Fund Organisation contribution status — for formal-sector
-  employees contributing to EPF/EPS.
+description: "One row per person summarizing their Employees' Provident Fund Organisation\
+  \ contribution status \u2014 for formal-sector employees contributing to EPF/EPS."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_epfo_contribution
 partitioned_by: null
@@ -16,15 +16,19 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_epfo_contribution`(\n  `person_id` STRING COMMENT 'Primary Key: Foreign\
-  \ key to dim_person.person_id.',\n  `employee_contribution` DECIMAL(10,0) COMMENT 'Most recent employee-side EPF contribution\
-  \ amount, in INR. Unit: INR.',\n  `employer_contribution` DECIMAL(10,0) COMMENT 'Most recent employer-side EPF contribution\
-  \ amount, in INR. Unit: INR.',\n  `eps_contribution` DECIMAL(10,0) COMMENT 'Most recent Employees\\' Pension Scheme contribution\
-  \ amount, in INR. Unit: INR.',\n  `latest_contribution_date` DATE COMMENT 'Date of the most recent contribution.',\n  `secretariat_code`\
-  \ STRING COMMENT 'Gram/Ward Sachivalayam code associated with the person\\'s registered address.',\n  `establishment_id`\
-  \ STRING COMMENT 'EPFO establishment (employer) code the contributions were made through.',\n  `updated_at` TIMESTAMP COMMENT\
-  \ 'Timestamp this EPFO record was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED\
-  \ BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_epfo_contribution'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_epfo_contribution`(\n  `person_id`\
+  \ STRING COMMENT 'Primary Key: Foreign key to dim_person.person_id.',\n  `employee_contribution`\
+  \ DECIMAL(10,0) COMMENT 'Most recent employee-side EPF contribution amount, in INR.\
+  \ Unit: INR.',\n  `employer_contribution` DECIMAL(10,0) COMMENT 'Most recent employer-side\
+  \ EPF contribution amount, in INR. Unit: INR.',\n  `eps_contribution` DECIMAL(10,0)\
+  \ COMMENT 'Most recent Employees\\' Pension Scheme contribution amount, in INR.\
+  \ Unit: INR.',\n  `latest_contribution_date` DATE COMMENT 'Date of the most recent\
+  \ contribution.',\n  `secretariat_code` STRING COMMENT 'Gram/Ward Sachivalayam code\
+  \ associated with the person\\'s registered address.',\n  `establishment_id` STRING\
+  \ COMMENT 'EPFO establishment (employer) code the contributions were made through.',\n\
+  \  `updated_at` TIMESTAMP COMMENT 'Timestamp this EPFO record was last updated.')\n\
+  ROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n \
+  \ 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_epfo_contribution'"
 columns:
 - name: person_id
   type: STRING
@@ -41,7 +45,8 @@ columns:
 - name: eps_contribution
   type: DECIMAL(10,0)
   nullable: true
-  description: 'Most recent Employees'' Pension Scheme contribution amount, in INR. Unit: INR.'
+  description: 'Most recent Employees'' Pension Scheme contribution amount, in INR.
+    Unit: INR.'
 - name: latest_contribution_date
   type: DATE
   nullable: true
@@ -49,7 +54,15 @@ columns:
 - name: secretariat_code
   type: STRING
   nullable: true
-  description: Gram/Ward Sachivalayam code associated with the person's registered address.
+  description: Gram/Ward Sachivalayam code associated with the person's registered
+    address.
+  value_description: '[''21086388'', ''10690540'', ''10990020'', ''10690557'', ''21086409'',
+    ''21086407'', ''10690536'', ''21086406'', ''10690722'', ''10690585'', ''21086384'',
+    ''10690558'', ''11090234'', ''10690487'', ''21086397'', ''21086410'', ''10690586'',
+    ''10390022'', ''10990017'', ''11290668'', ''10690720'', ''11090894'', ''10490292'',
+    ''21012003'', ''10390017'', ''10390225'', ''10390018'', ''10690550'', ''11090807'',
+    ''10690560'', ''21086391'', ''21086360'', ''10690564'', ''10590599'', ''10990031'',
+    ''10990019'', ''10690539'', ''21086455'', ''11090208'', ''11090814'']'
 - name: establishment_id
   type: STRING
   nullable: true
@@ -64,7 +77,7 @@ relationships:
 - dim_epfo_contribution.person_id is a foreign key to dim_person.person_id.
 business_terms:
 - ap_citizen360
-- employment_—_epfo
+- "employment_\u2014_epfo"
 - dimension
 - Hive
 - Iceberg

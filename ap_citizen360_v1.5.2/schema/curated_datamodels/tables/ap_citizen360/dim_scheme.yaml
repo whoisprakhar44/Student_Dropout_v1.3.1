@@ -1,9 +1,9 @@
 database: ap_citizen360
 table: dim_scheme
 department: ap_citizen360
-description: Canonical welfare/benefit scheme catalog — referenced by fact_entitlement,
-  fact_benefit_transaction, fact_scheme_disbursement, and the linked_scheme_ids arrays
-  on several dim_* tables.
+description: "Canonical welfare/benefit scheme catalog \u2014 referenced by fact_entitlement,\
+  \ fact_benefit_transaction, fact_scheme_disbursement, and the linked_scheme_ids\
+  \ arrays on several dim_* tables."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_scheme
 partitioned_by: null
@@ -37,6 +37,24 @@ columns:
   nullable: true
   description: 'Display name of the scheme, e.g. ''Anna NTR'', ''PM-Kisan''. [Value
     Examples: ''Anna NTR'', ''PM-Kisan'']'
+  value_description: "['Anna NTR (PDS Free Rice)', 'Fishermen Pension', 'Pradhan Mantri\
+    \ Awas Yojana \u2013 Urban', 'NTR Bharosa Pension (CKDU GOVT)', 'YSR Free Solar\
+    \ Rooftop Scheme', 'NTR Bharosa Pension (Abhayahastam)', 'PM-YASASVI - Post-Matric\
+    \ Scholarship for OBC, EBC & DNT [AP146]', 'Jagjeevan Jyothi', 'NTR Bharosa Pension\
+    \ (Traditional Cobblers)', 'MEPMA Urban SHG Loan', 'Dr. B.R. Ambedkar Overseas\
+    \ Vidya Nidhi', 'NTR Bharosa Pension (Old Age)', 'Kutir Jyoti (Free Electricity\
+    \ Connection)', 'Bala Sanjeevani', 'NTR Bharosa Pension (DMHO)', 'Integrated Child\
+    \ Development Services (ICDS)', 'Amma Vodi (School Dropout Prevention)', 'MGNREGS\
+    \ (Mahatma Gandhi NREGS)', 'Janani Suraksha Yojana (JSY)', 'YSR Rythu Bharosa\
+    \ \u2013 PM KISAN Topup', 'Post-Matric Scholarship to Others', 'Post-Matric Scholarship\
+    \ to SCs [AP232]', 'Mid-Day Meal Scheme', 'Pradhan Mantri Matru Vandana Yojana',\
+    \ 'Deepam-2 (3 Free LPG Cylinders)', 'Pradhan Mantri Awas Yojana \u2013 Gramin',\
+    \ 'Chandranna Bima (Accidental Insurance)', 'Auto Driver Sevalo', 'AB-PMJAY (Ayushman\
+    \ Bharat)', 'Rajiv Gandhi Vidyarthi Abhaya Hastham', 'Sumangali (Marriage Assistance)',\
+    \ 'Annapurna Food Security Scheme', 'NTR Bharosa Pension (Pensions to artists)',\
+    \ 'Post-Matriculation Scholarships (MTF)', 'PM Fasal Bima Yojana (PMFBY)', 'Rythu\
+    \ Bandhu Pathakam', 'NTR Bharosa Pension (Widow)', 'NTR Bharosa Pension (Disabled)',\
+    \ 'Minority Overseas Scholarship', 'NTR Vidya Deevena (Fee Reimbursement)']"
 - name: department_id
   type: STRING
   nullable: true

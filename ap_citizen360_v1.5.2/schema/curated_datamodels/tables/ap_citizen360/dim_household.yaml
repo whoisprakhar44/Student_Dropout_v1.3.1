@@ -1,9 +1,9 @@
 database: ap_citizen360
 table: dim_household
 department: ap_citizen360
-description: One row per household — the family/ration-card unit that dim_person.household_id
-  and dim_family_member.household_id join against. Carries household-level (not individual-level)
-  attributes like ration card and income category.
+description: "One row per household \u2014 the family/ration-card unit that dim_person.household_id\
+  \ and dim_family_member.household_id join against. Carries household-level (not\
+  \ individual-level) attributes like ration card and income category."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_household
 partitioned_by: null
@@ -26,23 +26,23 @@ raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_household`(\n  `household_i
   \ STRING COMMENT 'Household-level social category (typically the head\\'s), used\
   \ for some household-targeted welfare schemes.',\n  `ration_card_no` STRING COMMENT\
   \ 'NFSA ration card number issued to this household.',\n  `ration_card_type` STRING\
-  \ COMMENT 'Categorical column. Distinct values: \\'AAY\\', \\'PHH\\', \\'NPHH —\
-  \ ration card priority category.\\'. AAY / PHH / NPHH — ration card priority category.',\n\
-  \  `income_band` STRING COMMENT 'Household income bracket (ranged, e.g. \\'Below\
-  \ ₹1.5L\\').',\n  `village_name` STRING COMMENT 'Categorical column. Distinct values:\
-  \ \\'Village\\', \\'habitation the household resides in.\\'. Village/habitation\
-  \ the household resides in.',\n  `mandal_id` STRING COMMENT 'Foreign Key: References\
-  \ dim_mandal.mandal_id.',\n  `district_id` STRING COMMENT 'Foreign Key: References\
-  \ dim_district.district_id.',\n  `latitude` DOUBLE COMMENT 'Geocoded latitude of\
-  \ the household\\'s residence, where available.',\n  `longitude` DOUBLE COMMENT\
-  \ 'Geocoded longitude of the household\\'s residence, where available.',\n  `pincode`\
-  \ STRING COMMENT 'Postal PIN code of the household\\'s residence.',\n  `address`\
-  \ STRING COMMENT 'Free-text household address.',\n  `dwelling_type` STRING COMMENT\
-  \ 'Categorical column. Distinct values: \\'Household-level housing tenure\\', \\\
-  'quality, e.g. \\'Own House – Pucca\\'.\\'. Household-level housing tenure/quality,\
-  \ e.g. \\'Own House – Pucca\\'. [Value Examples: \\'Own House – Pucca\\']',\n  `phone`\
-  \ STRING COMMENT 'Primary contact number for the household.',\n  `household_income_category`\
-  \ STRING COMMENT 'BPL / APL classification — distinct from the ranged income_band,\
+  \ COMMENT 'Categorical column. Distinct values: \\'AAY\\', \\'PHH\\', \\'NPHH \u2014\
+  \ ration card priority category.\\'. AAY / PHH / NPHH \u2014 ration card priority\
+  \ category.',\n  `income_band` STRING COMMENT 'Household income bracket (ranged,\
+  \ e.g. \\'Below \u20B91.5L\\').',\n  `village_name` STRING COMMENT 'Categorical\
+  \ column. Distinct values: \\'Village\\', \\'habitation the household resides in.\\\
+  '. Village/habitation the household resides in.',\n  `mandal_id` STRING COMMENT\
+  \ 'Foreign Key: References dim_mandal.mandal_id.',\n  `district_id` STRING COMMENT\
+  \ 'Foreign Key: References dim_district.district_id.',\n  `latitude` DOUBLE COMMENT\
+  \ 'Geocoded latitude of the household\\'s residence, where available.',\n  `longitude`\
+  \ DOUBLE COMMENT 'Geocoded longitude of the household\\'s residence, where available.',\n\
+  \  `pincode` STRING COMMENT 'Postal PIN code of the household\\'s residence.',\n\
+  \  `address` STRING COMMENT 'Free-text household address.',\n  `dwelling_type` STRING\
+  \ COMMENT 'Categorical column. Distinct values: \\'Household-level housing tenure\\\
+  ', \\'quality, e.g. \\'Own House \u2013 Pucca\\'.\\'. Household-level housing tenure/quality,\
+  \ e.g. \\'Own House \u2013 Pucca\\'. [Value Examples: \\'Own House \u2013 Pucca\\\
+  ']',\n  `phone` STRING COMMENT 'Primary contact number for the household.',\n  `household_income_category`\
+  \ STRING COMMENT 'BPL / APL classification \u2014 distinct from the ranged income_band,\
   \ used by schemes that key specifically on Below/Above Poverty Line status rather\
   \ than an income range.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp the household\
   \ record was last updated by any source.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
@@ -61,11 +61,21 @@ columns:
   type: STRING
   nullable: true
   description: Name of the head of household (denormalized for display without a join).
+  value_description: '[''Shaik Haseena'', ''Shaik Noorjahan'', ''Shaik Fathima'',
+    ''Shaik Mahaboob Basha'', ''Shaik Reshma'', ''Lakshmi'', ''Shaik Parveen'', ''Shaik
+    Baji'', ''Shaik Karimulla'', ''Shaik Mastan Vali'', ''Shaik Mastan Bi'', ''Shaik
+    Subhani'', ''Shaik Shabana'', ''Lakshmamma'', ''Shaik Munni'', ''Gangamma'', ''Shaik
+    Moulali'', ''Shaik Gousiya'', ''Boya Lakshmi'', ''Shaik Hussain Bee'', ''Shaik
+    Mastan'', ''Jayamma'', ''Shaik Karimun'', ''Shaik Mahaboob Bee'', ''Shaik Mastan
+    Bee'', ''Shaik Salma'', ''Shaik Basha'', ''Shaik Shakeela'', ''Lakshmidevi'',
+    ''Nagamma'', ''LAKSHMI'', ''Shaik Asha'', ''Shaik Naseema'', ''Shaik Ayesha'',
+    ''Shaik Jareena'', ''Shaik Dilshad'', ''Shaik Rajiya'', ''Shaik Shamshad'', ''Narayanamma'',
+    ''Shaik Khadar Basha'']'
 - name: head_gender
   type: STRING
   nullable: true
   description: Gender of the head of household.
-  value_description: '[''Female'', ''Male'', ''Others'', ''Transgender'']'
+  value_description: '[''Female'', ''Male'', ''Transgender'', ''Others'']'
 - name: members_count
   type: INT
   nullable: true
@@ -75,7 +85,7 @@ columns:
   nullable: true
   description: Household-level social category (typically the head's), used for some
     household-targeted welfare schemes.
-  value_description: '[''BC'', ''OC'', ''SC'', ''ST'', ''Others'']'
+  value_description: '[''BC'', ''OC'', ''SC'', ''ST'']'
 - name: ration_card_no
   type: STRING
   nullable: true
@@ -83,20 +93,29 @@ columns:
 - name: ration_card_type
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: ''AAY'', ''PHH'', ''NPHH — ration
-    card priority category.''. AAY / PHH / NPHH — ration card priority category.'
+  description: "Categorical column. Distinct values: 'AAY', 'PHH', 'NPHH \u2014 ration\
+    \ card priority category.'. AAY / PHH / NPHH \u2014 ration card priority category."
   value_description: '[''BPL'', ''AAY'']'
 - name: income_band
   type: STRING
   nullable: true
-  description: Household income bracket (ranged, e.g. 'Below ₹1.5L').
-  value_description: '[''?0–?1L'', ''0–1L'', ''?1L–?3L'', ''1L–3L'', ''>?5L'', ''?3L–?5L'',
-    ''3L–5L'', ''>5L'']'
+  description: "Household income bracket (ranged, e.g. 'Below \u20B91.5L')."
+  value_description: "['>?5L', '0\u20131L', '?1L\u2013?3L', '?3L\u2013?5L', '1L\u2013\
+    3L', '?0\u2013?1L', '3L\u20135L', '>5L']"
 - name: village_name
   type: STRING
   nullable: true
   description: 'Categorical column. Distinct values: ''Village'', ''habitation the
     household resides in.''. Village/habitation the household resides in.'
+  value_description: '[''GANDHINAGAR'', ''INDIRANAGAR'', ''KOTHAPALLI'', ''VENKATAPURAM'',
+    ''KOTHAPETA'', ''UPPALAPADU'', ''BALAJINAGAR'', ''THIMMAPURAM'', ''ANNAVARAM'',
+    ''NARAYANAPURAM'', ''INDIRAMMACOLONY'', ''KRISHNAPURAM'', ''LAKSHMIPURAM'', ''DHARMAVARAM'',
+    ''RAJUPALEM'', ''JAGANNADHAPURAM'', ''GANGAVARAM'', ''MARUTHINAGAR'', ''AMBEDKARNAGAR'',
+    ''NARASAPURAM'', ''SANTHINAGAR'', ''MACHAVARAM'', ''RAMAPURAM'', ''VALLURU'',
+    ''NGOCOLONY'', ''GUDIPADU'', ''GOVINDAPURAM'', ''SRIRAMNAGAR'', ''KAPAVARAM'',
+    ''GANDHINAGAR-01'', ''RAMACHANDRAPURAM'', ''SIRIPURAM'', ''LAXMIPURAM'', ''VEMAVARAM'',
+    ''ANANTHAVARAM'', ''CHODAVARAM'', ''GANDHINAGAR-02'', ''BRAHMANAPALLI'', ''HARIJANAWADA'',
+    ''KONDAPURAM'']'
 - name: mandal_id
   type: STRING
   nullable: true
@@ -124,9 +143,9 @@ columns:
 - name: dwelling_type
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: ''Household-level housing tenure'',
-    ''quality, e.g. ''Own House – Pucca''.''. Household-level housing tenure/quality,
-    e.g. ''Own House – Pucca''. [Value Examples: ''Own House – Pucca'']'
+  description: "Categorical column. Distinct values: 'Household-level housing tenure',\
+    \ 'quality, e.g. 'Own House \u2013 Pucca'.'. Household-level housing tenure/quality,\
+    \ e.g. 'Own House \u2013 Pucca'. [Value Examples: 'Own House \u2013 Pucca']"
   value_description: '[''Puccahouse-Daba'', ''RCChouse'', ''Pakkahouse'', ''Foilhouse'',
     ''Kacchahouse'', ''Shells'', ''Flat'', ''Duplexhouse'']'
 - name: phone
@@ -136,9 +155,9 @@ columns:
 - name: household_income_category
   type: STRING
   nullable: true
-  description: BPL / APL classification — distinct from the ranged income_band, used
-    by schemes that key specifically on Below/Above Poverty Line status rather than
-    an income range.
+  description: "BPL / APL classification \u2014 distinct from the ranged income_band,\
+    \ used by schemes that key specifically on Below/Above Poverty Line status rather\
+    \ than an income range."
 - name: updated_at
   type: TIMESTAMP
   nullable: true

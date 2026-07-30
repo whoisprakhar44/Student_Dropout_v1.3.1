@@ -42,7 +42,7 @@ columns:
   nullable: true
   description: 'Status of the domestic LPG connection, e.g. ''Active'', ''Inactive''.
     [Value Examples: ''Active'', ''Inactive'']'
-  value_description: '[''Active'', ''Inactive'']'
+  value_description: '[''Active_gsws'', ''Active'', ''Inactive'']'
 - name: electricity_status
   type: STRING
   nullable: true
@@ -68,6 +68,7 @@ columns:
   nullable: true
   description: Name of the electricity distribution company (DISCOM) serving this
     connection.
+  value_description: '[''SPDCL'', ''EPDCL'', ''CPDCL'']'
 - name: electricity_status_updated_on
   type: DATE
   nullable: true
@@ -93,3 +94,7 @@ common_operations:
 - profile records in dim_utility_connection
 - join dim_utility_connection to dim_person via person_id
 - filter dim_utility_connection by district_id or mandal_id
+- name: lpg_consumer_id
+  type: STRING
+  nullable: true
+  description: Added from metadata.

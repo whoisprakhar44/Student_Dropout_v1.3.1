@@ -1,9 +1,9 @@
 database: ap_citizen360
 table: dim_land
 department: ap_citizen360
-description: One row per land parcel owned — agricultural, residential, or commercial.
-  Carries revenue-record detail (survey numbers, registration, mutation) as well as
-  agronomic detail (soil, irrigation) for parcels used for farming.
+description: "One row per land parcel owned \u2014 agricultural, residential, or commercial.\
+  \ Carries revenue-record detail (survey numbers, registration, mutation) as well\
+  \ as agronomic detail (soil, irrigation) for parcels used for farming."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_land
 partitioned_by: null
@@ -45,11 +45,11 @@ raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_land`(\n  `land_id` STRING 
   \ COMMENT 'Government guideline (registration) value of the parcel, in INR. Unit:\
   \ INR.',\n  `stamp_duty_paid` DECIMAL(10,2) COMMENT 'Stamp duty paid on the most\
   \ recent registration, in INR. Unit: INR.',\n  `soil_type` STRING COMMENT 'Soil\
-  \ type of the parcel, e.g. \\'Black\\', \\'Red\\', \\'Alluvial\\' — relevant for\
-  \ agricultural parcels. [Value Examples: \\'Black\\', \\'Red\\', \\'Alluvial\\']',\n\
-  \  `irrigation_type` STRING COMMENT 'Irrigation source/type for the parcel, e.g.\
-  \ \\'Canal\\', \\'Borewell\\', \\'Rain-fed\\'. [Value Examples: \\'Canal\\', \\\
-  'Borewell\\', \\'Rain-fed\\']',\n  `encumbrance_status` STRING COMMENT 'Whether\
+  \ type of the parcel, e.g. \\'Black\\', \\'Red\\', \\'Alluvial\\' \u2014 relevant\
+  \ for agricultural parcels. [Value Examples: \\'Black\\', \\'Red\\', \\'Alluvial\\\
+  ']',\n  `irrigation_type` STRING COMMENT 'Irrigation source/type for the parcel,\
+  \ e.g. \\'Canal\\', \\'Borewell\\', \\'Rain-fed\\'. [Value Examples: \\'Canal\\\
+  ', \\'Borewell\\', \\'Rain-fed\\']',\n  `encumbrance_status` STRING COMMENT 'Whether\
   \ the parcel is encumbered (e.g. under mortgage), per the Encumbrance Certificate.',\n\
   \  `mortgage_bank` STRING COMMENT 'Bank holding a mortgage on the parcel, where\
   \ encumbered.',\n  `mortgage_amount` DECIMAL(12,2) COMMENT 'Outstanding mortgage\
@@ -77,17 +77,56 @@ columns:
   description: 'Categorical column. Distinct values: ''Agricultural'', ''Residential'',
     ''Commercial classification of the parcel.''. Agricultural / Residential / Commercial
     classification of the parcel.'
-  value_description: '[''పట్టా'', ''జి.పట్టా'', ''జిరాయితి పట్టా'', ''జిరాయితి'',
-    ''జిరాయితీ పట్టా'', ''Assigned Land Made Freehold in 2023'', ''ప్రభుత్వ భూమి'',
-    ''ప్ర.భూమి'', ''ద.పట్టా'', ''ప్రభుత్వము'', ''Village Service Inam made FreeHold
-    in 2023'', ''డిపట్టా'', ''unknown'', ''ఇనాం'', ''డి.పట్టా'', ''పట్టా(PATTA LAND)'',
-    ''అతుకుబడిపట్టా'', ''మెట్ట'', ''Assigned in the Year 2012'', ''Assigned in the
-    Year 2018'', ...]'
+  value_description: "['\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E', '\u0C1C\u0C3F\u0C30\u0C3E\
+    \u0C2F\u0C3F\u0C24\u0C3F \u0C2A\u0C1F\u0C4D\u0C1F\u0C3E', '\u0C1C\u0C3F.\u0C2A\
+    \u0C1F\u0C4D\u0C1F\u0C3E', '\u0C1C\u0C3F\u0C30\u0C3E\u0C2F\u0C3F\u0C24\u0C3F',\
+    \ '\u0C1C\u0C3F\u0C30\u0C3E\u0C2F\u0C3F\u0C24\u0C40 \u0C2A\u0C1F\u0C4D\u0C1F\u0C3E\
+    ', 'Assigned Land Made Freehold in 2023', '\u0C2A\u0C4D\u0C30\u0C2D\u0C41\u0C24\
+    \u0C4D\u0C35 \u0C2D\u0C42\u0C2E\u0C3F', '\u0C2A\u0C4D\u0C30.\u0C2D\u0C42\u0C2E\
+    \u0C3F', '\u0C26.\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E', '\u0C2A\u0C4D\u0C30\u0C2D\u0C41\
+    \u0C24\u0C4D\u0C35\u0C2E\u0C41', '100', '\u0C21\u0C3F\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E\
+    ', 'unknown', '\u0C07\u0C28\u0C3E\u0C02 \u0C2D\u0C42\u0C2E\u0C3F', '\u0C07\u0C28\
+    \u0C3E\u0C02', '1', '\u0C05\u0C24\u0C41\u0C15\u0C41\u0C2C\u0C21\u0C3F\u0C2A\u0C1F\
+    \u0C4D\u0C1F\u0C3E', '\u0C21\u0C3F.\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E', 'Village Service\
+    \ Inam made FreeHold in 2023', '\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E(PATTA LAND)', '\u0C2E\
+    \u0C46\u0C1F\u0C4D\u0C1F', '\u0C2A\u0C4D\u0C30\u0C2D\u0C41\u0C24\u0C4D\u0C35\u0C2D\
+    \u0C42\u0C2E\u0C3F', '0', '\u0C2A\u0C4D\u0C30\u0C2D\u0C41\u0C24\u0C4D\u0C35 \u0C2D\
+    \u0C42\u0C2E\u0C3F (GOVT LAND)', '\u0C2A\u0C4D\u0C30\u0C2D\u0C42\u0C2E\u0C3F',\
+    \ 'Assigned in the Year 2012', '\u0C05\u0C24\u0C41\u0C15\u0C41\u0C2C\u0C21\u0C3F\
+    \ \u0C2A\u0C1F\u0C4D\u0C1F\u0C3E', 'Assigned in the Year 2005', 'Assigned in the\
+    \ Year 2018', '\u0C21\u0C3F \u0C2B\u0C3E\u0C30\u0C02 \u0C2A\u0C1F\u0C4D\u0C1F\u0C3E\
+    ', '\u0C2A\u0C4B\u0C30\u0C02\u0C2C\u0C4B\u0C15\u0C41', 'Sharatugala patta made\
+    \ freehold', '101', '\u0C05.\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E', 'Assigned in the\
+    \ Year 2013', 'Assigned in the Year 2007', '\u0C05\u0C38\u0C48\u0C28\u0C4D\u0C21\
+    \u0C4D \u0C2D\u0C42\u0C2E\u0C41\u0C32\u0C41(ASSIGNED LAND)', 'Assigned in the\
+    \ Year 2008', 'Assigned in the Year 2006', 'Assigned in the Year 2010']"
 - name: land_classification
   type: STRING
   nullable: true
   description: 'Revenue classification of the land, e.g. ''Wet'', ''Dry'', ''Garden''.
     [Value Examples: ''Wet'', ''Dry'', ''Garden'']'
+  value_description: "['\u0C2E\u0C46\u0C1F\u0C4D\u0C1F', '\u0C2A\u0C41\u0C02\u0C1C\
+    ', '\u0C28\u0C02\u0C1C', '\u0C2E\u0C3E\u0C17\u0C3E\u0C23\u0C3F', '\u0C2E\u0C46\
+    \u0C1F\u0C4D\u0C1F\u0C41', '\u0C2A\u0C32\u0C4D\u0C32\u0C02', '\u0C24\u0C30\u0C3F\
+    ', '\u0C2E\u0C46\u0C30\u0C15', '\u0C2A\u0C41\u0C02\u0C1C\u0C3F', '\u0C1C\u0C3F\
+    .\u0C2E\u0C46\u0C1F\u0C4D\u0C1F', '\u0C2E\u0C3E\u0C28\u0C35\u0C3E\u0C30\u0C3F\
+    ', '\u0C1C\u0C3F.\u0C2A\u0C32\u0C4D\u0C32\u0C02', '\u0C12\u0C15 \u0C2A\u0C02\u0C1F\
+    \u0C2E\u0C3E\u0C17\u0C3E\u0C23\u0C3F', 'unknown', '\u0C2E\u0C3E\u0C17\u0C3E\u0C23\
+    \u0C3F 1', '2 \u0C2A\u0C02\u0C1F\u0C32\u0C41', '\u0C2A\u0C4B\u0C30\u0C02\u0C2C\
+    \u0C4B\u0C15\u0C41', '\u0C05\u0C28\u0C3E\u0C26\u0C40\u0C28\u0C02', '\u0C2A\u0C4D\
+    \u0C30.\u0C2D\u0C42\u0C2E\u0C3F', '\u0C0E.\u0C21\u0C2C\u0C4D\u0C32\u0C4D\u0C2F\
+    \u0C41', '\u0C13 \u0C2A\u0C02\u0C1F \u0C2E\u0C3E\u0C17\u0C3E\u0C23\u0C3F', '\u0C2A\
+    \u0C3E.\u0C2A\u0C41\u0C02\u0C1C\u0C3F', '202', '\u0C2A\u0C4B\u0C30\u0C02\u0C2C\
+    \u0C4B\u0C15\u0C41 (PORAMBOKE)', '\u0C2A\u0C1F\u0C4D\u0C1F\u0C3E', '\u0C28\u0C40\
+    \u0C1F\u0C3F\u0C2A\u0C3E\u0C30\u0C41\u0C26\u0C32\u0C2E\u0C46\u0C1F\u0C4D\u0C1F\
+    ', '\u0C15\u0C3E\u0C32\u0C41\u0C35', '\u0C2E\u0C3E\u0C17\u0C3E\u0C23\u0C3F 2',\
+    \ '\u0C28\u0C02\u0C1C,\u0C2A\u0C41\u0C02\u0C1C', '\u0C36\u0C3F\u0C38\u0C4D\u0C24\
+    \u0C41 \u0C15\u0C1F\u0C4D\u0C1F\u0C3F\u0C28 \u0C17\u0C2F\u0C3E\u0C33\u0C41 (ASSESSED-WASTE)',\
+    \ '203', '\u0C07.\u0C15\u0C3E.\u0C2A\u0C3E. \u0C2A\u0C41\u0C02\u0C1C\u0C3F', '201',\
+    \ '\u0C2E\u0C46 \u0C1F\u0C4D\u0C1F\u0C41', '279', '\u0C21\u0C3F.\u0C2A\u0C1F\u0C4D\
+    \u0C1F\u0C3E', '\u0C1A\u0C46\u0C30\u0C41\u0C35\u0C41', '\u0C28\u0C02\u0C1C\u0C3F\
+    ', '\u0C06.\u0C2A\u0C41\u0C02\u0C1C\u0C3F', '\u0C2E\u0C3E\u0C28\u0C3E\u0C35\u0C30\
+    \u0C3F']"
 - name: acres
   type: DOUBLE
   nullable: true
@@ -125,6 +164,14 @@ columns:
   type: STRING
   nullable: true
   description: Village the parcel is located in.
+  value_description: '[''KOTHAPALLE'', ''KODURU'', ''KOSUVARIPALLE'', ''VENKATAPURAM'',
+    ''UPPALAPADU'', ''GANGAVARAM'', ''GATTU'', ''GOLLAPALLE'', ''NARASAPURAM'', ''VALLURU'',
+    ''KOTHAKOTA'', ''ANNAVARAM'', ''KRISHNAPURAM'', ''MADHAVARAM'', ''KURABALAKOTA'',
+    ''GANAPAVARAM'', ''ALLUR'', ''MADDINMAYANIPALLE'', ''ELLAMANDA'', ''ATMAKUR'',
+    ''CHODAVARAM'', ''REDDIPALLE'', ''SIRIPURAM'', ''SETTIPALLE'', ''DHARMAVARAM'',
+    ''GOVINDAPURAM'', ''MACHAVARAM'', ''CHINTADA'', ''RAMAPURAM'', ''GUDIPADU'', ''CHERLOPALLE'',
+    ''MUDIVEDU'', ''LAKSHMIPURAM'', ''GOPAVARAM'', ''THIMMAPURAM'', ''GOPALAPURAM'',
+    ''LAXMIPURAM'', ''AGRAHARAM'', ''BHEEMAVARAM'', ''INAGALUR'']'
 - name: revenue_circle
   type: STRING
   nullable: true
@@ -166,8 +213,8 @@ columns:
 - name: soil_type
   type: STRING
   nullable: true
-  description: 'Soil type of the parcel, e.g. ''Black'', ''Red'', ''Alluvial'' — relevant
-    for agricultural parcels. [Value Examples: ''Black'', ''Red'', ''Alluvial'']'
+  description: "Soil type of the parcel, e.g. 'Black', 'Red', 'Alluvial' \u2014 relevant\
+    \ for agricultural parcels. [Value Examples: 'Black', 'Red', 'Alluvial']"
 - name: irrigation_type
   type: STRING
   nullable: true
@@ -214,7 +261,7 @@ relationships:
 - dim_land.mandal_id is a foreign key to dim_mandal.mandal_id.
 business_terms:
 - ap_citizen360
-- assets_—_land_and_property
+- "assets_\u2014_land_and_property"
 - dimension
 - Hive
 - Iceberg
@@ -223,3 +270,7 @@ common_operations:
 - profile records in dim_land
 - join dim_land to dim_person via person_id
 - filter dim_land by district_id or mandal_id
+- name: aadhaar_mapped
+  type: STRING
+  nullable: true
+  description: Added from metadata.

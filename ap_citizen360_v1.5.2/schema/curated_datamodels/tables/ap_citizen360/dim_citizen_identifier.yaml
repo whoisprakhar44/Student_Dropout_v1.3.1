@@ -1,9 +1,9 @@
 database: ap_citizen360
 table: dim_citizen_identifier
 department: ap_citizen360
-description: One row per government-issued identifier held by a person (Aadhaar, Voter
-  ID, Driving License, Bank Account, ...) — a person can hold multiple identifiers
-  of different types, and dim_person itself stores none of them directly.
+description: "One row per government-issued identifier held by a person (Aadhaar,\
+  \ Voter ID, Driving License, Bank Account, ...) \u2014 a person can hold multiple\
+  \ identifiers of different types, and dim_person itself stores none of them directly."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_citizen_identifier
 partitioned_by: null
@@ -23,9 +23,9 @@ raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_citizen_identifier`(\n  `id
   \ 'Type of identifier, e.g. \\'Aadhaar\\', \\'VoterID\\', \\'DrivingLicense\\',\
   \ \\'BankAccount\\'. [Value Examples: \\'Aadhaar\\', \\'VoterID\\', \\'DrivingLicense\\\
   ', \\'BankAccount\\']',\n  `identifier_value` STRING COMMENT 'The identifier\\'s\
-  \ value/number itself (PII — masked in most API responses).',\n  `is_primary` BOOLEAN\
-  \ COMMENT 'Boolean flag. True if this is the person\\'s primary identifier of this\
-  \ type, when more than one of the same type is on file.',\n  `issuing_authority`\
+  \ value/number itself (PII \u2014 masked in most API responses).',\n  `is_primary`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if this is the person\\'s primary identifier\
+  \ of this type, when more than one of the same type is on file.',\n  `issuing_authority`\
   \ STRING COMMENT 'Authority that issued the identifier, e.g. \\'UIDAI\\', \\'Election\
   \ Commission of AP\\'. [Value Examples: \\'UIDAI\\', \\'Election Commission of AP\\\
   ']',\n  `issued_date` DATE COMMENT 'Date the identifier was issued.',\n  `expiry_date`\
@@ -53,11 +53,12 @@ columns:
     ''BankAccount''. [Value Examples: ''Aadhaar'', ''VoterID'', ''DrivingLicense'',
     ''BankAccount'']'
   value_description: '[''Mobile Number'', ''Aadhaar'', ''Household Id'', ''Ration
-    card'', ''Driving licence'']'
+    card'', ''Student Id'', ''SSC Hallticket'', ''Driving licence'', ''Employee Id'']'
 - name: identifier_value
   type: STRING
   nullable: true
-  description: The identifier's value/number itself (PII — masked in most API responses).
+  description: "The identifier's value/number itself (PII \u2014 masked in most API\
+    \ responses)."
 - name: is_primary
   type: BOOLEAN
   nullable: true
@@ -89,7 +90,7 @@ columns:
   description: Boolean flag. True if the identifier has been verified against its
     issuing authority's system (e.g. aadhaar e-kyc verified), distinct from merely
     being on file.
-  value_description: '[''False'', ''True'']'
+  value_description: '[''True'', ''False'']'
 - name: updated_at
   type: TIMESTAMP
   nullable: true
@@ -109,3 +110,7 @@ common_operations:
 - profile records in dim_citizen_identifier
 - join dim_citizen_identifier to dim_person via person_id
 - filter dim_citizen_identifier by district_id or mandal_id
+- name: source
+  type: STRING
+  nullable: true
+  description: Added from metadata.

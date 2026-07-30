@@ -1,10 +1,10 @@
 database: ap_citizen360
 table: dim_occupation
 department: ap_citizen360
-description: Full occupation HISTORY — one row per person per occupation, since a
-  citizen can hold more than one concurrently (e.g. farmer + seasonal MGNREGA labourer).
-  dim_person.occupation_type remains a denormalized 'current' snapshot for fast filtering;
-  this table is the source of truth for the complete history.
+description: "Full occupation HISTORY \u2014 one row per person per occupation, since\
+  \ a citizen can hold more than one concurrently (e.g. farmer + seasonal MGNREGA\
+  \ labourer). dim_person.occupation_type remains a denormalized 'current' snapshot\
+  \ for fast filtering; this table is the source of truth for the complete history."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_occupation
 partitioned_by: null
@@ -56,8 +56,13 @@ columns:
   value_description: '[''Student'', ''Unemployed'', ''SHG member Rural'', ''Farmer'',
     ''Agriculture & Allied Activities'', ''Senior Citizen'', ''Homemaker'', ''Minor'',
     ''Pensioner / Retired'', ''SHG member Urban'', ''Regular- Employee'', ''Pensioner'',
-    ''Driver'', ''Government Employee'', ''Auto Driver'', ''Professional'', ''Business
-    / Retail'', ''Skilled Worker'', ''Weaver'', ''Service Worker'', ...]'
+    ''Driver'', ''Auto Driver'', ''Professional'', ''Business / Retail'', ''Skilled
+    Worker'', ''Weaver'', ''Contract- Employee'', ''Service Worker'', ''Tailor'',
+    ''Fisherman'', ''Healthcare'', ''Education'', ''Electrician'', ''Central Government
+    Employee'', ''Fishermen'', ''Carpenter'', ''Dappu Artist'', ''Manufacturing Worker'',
+    ''Traditional Cobblers'', ''Teacher'', ''Artisan / Craft Worker'', ''Goldsmith'',
+    ''Pujari'', ''Transport & Logistics'', ''Pastor'', ''Plumber'', ''Armed Forces'',
+    ''Paramilitary'']'
 - name: occupation_sector
   type: STRING
   nullable: true
@@ -68,6 +73,25 @@ columns:
   type: STRING
   nullable: true
   description: Employer name for this occupation record, where applicable.
+  value_description: '[''School Education Department'', ''Panchayat Raj Department'',
+    ''Public Transport Department'', ''Municipal Administration Department'', ''Director
+    General & Inspector General Of Police'', ''Public Health And Family Welfare Department'',
+    ''Land Administration Department'', ''Medical Education Department'', ''Andhra
+    Pradesh Special Police(Apsp)'', ''Registrar General Of High Court'', ''Tribal
+    Welfare Department'', ''Animal Husbandry Department'', ''Agriculture Department'',
+    ''Excise Department'', ''Intermediate Education Department'', ''Commercial Taxes
+    Department'', ''Special Protection Force'', ''Commissioner Of Police  Vijayawada'',
+    ''Technical Education'', ''Principal Chief Conservator Of Forests'', ''Collegiate
+    Education'', ''Social Welfare Department'', ''Commissioner Of Police  Visakhapatnam'',
+    ''Administration  State Roads & Road Safety Works (Rsw)  Enc (R&B)'', ''Directorate
+    of Secondary Health'', ''Director General Of State Disaster Response And Fire
+    Services'', ''Panchayat Raj  Engineering Department'', ''Women Development & Child
+    Welfare Department'', ''Intelligence Department'', ''Water Resources (Administration)'',
+    ''Treasuries And Accounts Department'', ''Rural Water Supply Department'', ''Prisons
+    & Correctional Services'', ''Registration And Stamps Department'', ''Backward
+    Classes Welfare Department'', ''Registrar Of Co-Operative Societies'', ''Minor
+    Irrigation Department'', ''Grey Hounds'', ''State Audit Department'', ''Employment
+    And Training Department'']'
 - name: designation
   type: STRING
   nullable: true
@@ -84,7 +108,7 @@ columns:
   nullable: true
   description: System/department that reported this occupation record.
   value_description: '[''UFS'', ''DEPT-EDU'', ''SERP'', ''Open'', ''DBT Schemes'',
-    ''MEPMA'', ''HRMS'']'
+    ''MEPMA'', ''HRMS'', ''APCOS'']'
 - name: occupation_year
   type: STRING
   nullable: true

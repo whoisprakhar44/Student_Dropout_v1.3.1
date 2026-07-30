@@ -1,10 +1,10 @@
 database: ap_citizen360
 table: fact_entitlement
 department: ap_citizen360
-description: One row per person-scheme enrollment — whether a citizen is entitled
-  to a given scheme's benefit, and its current status. Partitioned by district_id.
-  The annual_benefit/last_disbursed_date columns summarize the entitlement; itemized
-  payments live in fact_benefit_transaction.
+description: "One row per person-scheme enrollment \u2014 whether a citizen is entitled\
+  \ to a given scheme's benefit, and its current status. Partitioned by district_id.\
+  \ The annual_benefit/last_disbursed_date columns summarize the entitlement; itemized\
+  \ payments live in fact_benefit_transaction."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_entitlement
 partitioned_by: district_id
@@ -83,7 +83,7 @@ relationships:
 - fact_entitlement.district_id is a foreign key to dim_district.district_id.
 business_terms:
 - ap_citizen360
-- data_transfer_api_—_entitlements,_transactions,_disbursements
+- "data_transfer_api_\u2014_entitlements,_transactions,_disbursements"
 - fact
 - Hive
 - Iceberg

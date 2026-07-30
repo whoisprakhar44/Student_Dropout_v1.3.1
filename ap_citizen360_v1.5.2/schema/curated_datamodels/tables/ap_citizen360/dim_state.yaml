@@ -1,9 +1,9 @@
 database: ap_citizen360
 table: dim_state
 department: ap_citizen360
-description: One row per state per effective-dated period (slowly-changing dimension
-  via effective_from/effective_to/is_current) — currently only Andhra Pradesh. Backs
-  the State Profile view and top-of-hierarchy rollups.
+description: "One row per state per effective-dated period (slowly-changing dimension\
+  \ via effective_from/effective_to/is_current) \u2014 currently only Andhra Pradesh.\
+  \ Backs the State Profile view and top-of-hierarchy rollups."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_state
 partitioned_by: null
@@ -60,6 +60,7 @@ columns:
   nullable: true
   description: 'Full state name, e.g. ''Andhra Pradesh''. [Value Examples: ''Andhra
     Pradesh'']'
+  value_description: '[''Andhra Pradesh'']'
 - name: population
   type: BIGINT
   nullable: true

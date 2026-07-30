@@ -1,10 +1,10 @@
 database: ap_citizen360
 table: fact_scheme_disbursement
 department: ap_citizen360
-description: Pre-aggregated scheme disbursement totals per geography per fiscal year,
-  broken down by social category — backs the Budget Integrity / disbursement dashboards
-  without having to aggregate fact_benefit_transaction at query time. Partitioned
-  by geo_level and fiscal_year.
+description: "Pre-aggregated scheme disbursement totals per geography per fiscal year,\
+  \ broken down by social category \u2014 backs the Budget Integrity / disbursement\
+  \ dashboards without having to aggregate fact_benefit_transaction at query time.\
+  \ Partitioned by geo_level and fiscal_year."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_scheme_disbursement
 partitioned_by: geo_level, fiscal_year
@@ -59,7 +59,7 @@ columns:
   nullable: true
   description: 'Geography level this aggregate is rolled up to, e.g. ''state'', ''district'',
     ''mandal''. [Value Examples: ''state'', ''district'', ''mandal'']'
-  value_description: '[''district'']'
+  value_description: '[''village'', ''mandal'', ''district'']'
 - name: geo_id
   type: STRING
   nullable: true
@@ -109,7 +109,7 @@ relationships:
 - fact_scheme_disbursement.department_id is a foreign key to dim_department.department_id.
 business_terms:
 - ap_citizen360
-- data_transfer_api_—_entitlements,_transactions,_disbursements
+- "data_transfer_api_\u2014_entitlements,_transactions,_disbursements"
 - fact
 - Hive
 - Iceberg

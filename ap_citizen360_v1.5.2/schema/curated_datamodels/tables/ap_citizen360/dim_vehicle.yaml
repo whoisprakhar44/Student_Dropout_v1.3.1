@@ -1,9 +1,9 @@
 database: ap_citizen360
 table: dim_vehicle
 department: ap_citizen360
-description: One row per vehicle owned — identity/registration details. Compliance/regulatory
-  status (insurance, fitness, permits, challans) is split out into dim_vehicle_compliance
-  to keep slow-changing compliance data separate from largely-static identity data.
+description: "One row per vehicle owned \u2014 identity/registration details. Compliance/regulatory\
+  \ status (insurance, fitness, permits, challans) is split out into dim_vehicle_compliance\
+  \ to keep slow-changing compliance data separate from largely-static identity data."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_vehicle
 partitioned_by: null
@@ -64,13 +64,23 @@ columns:
     ''Construction Equipment Vehicle'', ''Mobile Canteen'', ''Ambulance'', ''Adapted
     Vehicle'', ''Harvester'', ''Private Service Vehicle'', ''Motor Cycle/Scooter-Used
     For Hire'', ''Excavator (Commercial)'', ''Omni Bus'', ''Road Roller'', ''Vehicle
-    Fitted With Rig'', ...]'
+    Fitted With Rig'', ''Fork Lift'', ''e-Rickshaw(P)'', ''Crane Mounted Vehicle'',
+    ''e-Rickshaw with Cart (G)'', ''Three Wheeler (Personal)'', ''Mobile Clinic'',
+    ''Dumper'', ''Cash Van'', ''Fire Tenders'', ''Recovery Vehicle'', ''Power Tiller
+    (Commercial)'', ''Hearses'', ''Vehicle Fitted With Compressor'', ''Motor Cycle/Scooter-SideCar(T)'',
+    ''Animal Ambulance'', ''Library Van'', ''Trailer For Personal Use'', ''Fire Fighting
+    Vehicle'', ''Excavator (NT)'', ''Tree Trimming Vehicle'']'
 - name: vehicle_class
   type: STRING
   nullable: true
   description: 'RTO vehicle class, e.g. ''Light Motor Vehicle'', ''Motor Cycle'',
     ''Non Transport''. [Value Examples: ''Light Motor Vehicle'', ''Motor Cycle'',
     ''Non Transport'']'
+  value_description: '[''TWO WHEELER(NT)'', ''LIGHT MOTOR VEHICLE'', ''THREE WHEELER(NT)'',
+    ''THREE WHEELER(T)'', ''LIGHT'', ''LIGHT PASSENGER VEHICLE'', ''HEAVY PASSENGER
+    VEHICLE'', ''MEDIUM MOTOR VEHICLE'', ''MEDIUM PASSENGER VEHICLE'', ''HEAVY MOTOR
+    VEHICLE'', ''TWO WHEELER(T)'', ''TWO WHEELER (Invalid Carriage)'', ''FOUR WHEELER
+    (Invalid Carriage)'']'
 - name: reg_no
   type: STRING
   nullable: true
@@ -82,7 +92,9 @@ columns:
     Vehicle manufacturer/make.'
   value_description: '[''32'', ''12'', ''89'', ''9999'', ''36'', ''3982'', ''66'',
     ''39'', ''71'', ''86'', ''84'', ''60'', ''37'', ''19'', ''7'', ''99'', ''85'',
-    ''3875'', ''2474'', ''97'', ...]'
+    ''3875'', ''2474'', ''97'', ''87'', ''2768'', ''35'', ''33'', ''64'', ''11059'',
+    ''20'', ''11090'', ''42'', ''92'', ''45'', ''26'', ''58'', ''783'', ''4199'',
+    ''28'', ''74'', ''642'', ''25'', ''69'']'
 - name: model
   type: STRING
   nullable: true
@@ -93,7 +105,14 @@ columns:
     ''HERO HONDA SPLENDOR +'', ''ACTIVA 3G W ELECTRIC A START&K'', ''ACCESS 125'',
     ''GLAMOUR (HE) (DRUM-SELF-CAST)'', ''CB SHINE'', ''ACTIVA ELECTIRC AS  AND KS  AN'',
     ''TVS XL SUPER'', ''XL100 HEAVY DUTY I-TOUCH START'', ''HF DELUXE (I3S-SELF-DRUM-CAST)'',
-    ''HF DELUXE SELF CAST WHEELS- BS'', ''ACTIVA 4G'', ''HERO HONDA SPLENDOR'', ...]'
+    ''HF DELUXE SELF CAST WHEELS- BS'', ''ACTIVA 4G'', ''HERO HONDA SPLENDOR'', ''TWO
+    WHEELER TRAILOR TIPPING -'', ''SPLENDOR +(I3S-SELF-DRUM-CAST)'', ''ACTIVA 6G DLX'',
+    ''PASSION PRO I3S-SELF-DRUM-CAST'', ''HF DELUXE (SELF-DRUM-CAST)'', ''UZ125NEWM'',
+    ''CB SHINE F DRUM BRAKE&KS&ES CA'', ''SPLENDOR+ (DRUM-SPOKE)BSIII'', ''BAJAJ RE
+    DIESEL'', ''SPLENDER PRO (DRUM SELF CAST W'', ''PLATINA 100 ES'', ''CB UNICORN'',
+    ''CB UNICORN ELEC AS&KS ALLOY WH'', ''APE AUTO D3S PASSENGER BSIII'', ''TVS XL
+    100 HD I-TOUCH START'', ''GLAMOUR(HE) (DRUM-SELF-CAST)'', ''TVS XL 100 (BS IV)'',
+    ''SCV110P8ID'', ''ACTIVA 6G STD'', ''TVS XL SUPER 70  BSIII'']'
 - name: year_of_manufacture
   type: INT
   nullable: true
@@ -122,7 +141,11 @@ columns:
   value_description: '[''BLACK'', ''RED'', ''GREEN'', ''INA'', ''SBK'', ''BLUE'',
     ''MOSS GREEN'', ''WHITE'', ''GRAY'', ''GOLDEN YELLOW'', ''GREY'', ''G YELLOW'',
     ''PEARL IGNEOUS BLACK'', ''YELLOW'', ''PBK'', ''EBONY BLK RED DKL'', ''TBK'',
-    ''RBK'', ''VBK'', ''BHG'', ...]'
+    ''RBK'', ''VBK'', ''BHG'', ''SILVER'', ''G.YELLOW'', ''GENY GREY METALLIC'', ''EBONY
+    BLK BLUE DKL'', ''GBK'', ''DECENT BLUE METALLIC'', ''FBK'', ''PURPLE'', ''Red
+    Black'', ''MATT BLACK'', ''PEARL AMAZING WHITE'', ''EBONY BLACK WITH SIL'', ''M
+    GREEN'', ''PEARL SIREN BLUE-A'', ''SPORTS RED BLACK'', ''BLK'', ''PEARL PRECIOUS
+    WHITE'', ''PEARL MIRAGE WHITE'', ''PEARL ARCTIC WHITE'', ''CRD'']'
 - name: seating_capacity
   type: INT
   nullable: true
@@ -143,12 +166,28 @@ columns:
     ''RTA Kakinada'', ''Nellore RTA'', ''Tirupati RTA'', ''Srikakulam RTA'', ''Anantapur
     RTA'', ''Cuddapah RTA'', ''Kurnool RTA'', ''Vizianagaram RTA'', ''Anakapalli RTA'',
     ''Prakasam RTA'', ''Chittoor RTA'', ''RTA Eluru'', ''Nandyal RTA'', ''Narasaraopet
-    RTA'', ''Bhimavaram RTA'', ''Proddutur RTA'', ''Rajahmundry RTA'', ...]'
+    RTA'', ''Bhimavaram RTA'', ''Proddutur RTA'', ''Rajahmundry RTA'', ''Hindupur
+    RTA'', ''Gudiwada RTA'', ''Amalapuram RTA'', ''Adoni RTO'', ''RTA MACHILIPATNAM'',
+    ''Nuzvid UO'', ''Gajuwaka RTA'', ''RTO MADANAPALLE'', ''JANGAREDDYGUDEM RTA'',
+    ''Chirala UO'', ''Gudur RTA'', ''Guntakal UO'', ''Markapur UO'', ''TENALI RTA'',
+    ''Nandigama RTA'', ''Darsi UO'', ''Tanuku UO'', ''Piduguralla UO'', ''Vuyyuru
+    UO'', ''Palakole UO'']'
 - name: owner_name
   type: STRING
   nullable: true
   description: Registered owner's name (denormalized for display without a join to
     dim_person).
+  value_description: '[''WHEELSMART AUTOFIN & CONSULTANCY SE'', ''K SRINIVASA RAO'',
+    ''K SATYANARAYANA'', ''P SRINIVASA RAO'', ''M SRINIVASA RAO'', ''K VENKATESWARA
+    RAO'', ''P SATYANARAYANA'', ''G SRINIVASA RAO'', ''S MAHABOOB BASHA'', ''B SRINIVASA
+    RAO'', ''K VENKATESWARLU'', ''APSRTC'', ''M SATYANARAYANA'', ''K NAGESWARA RAO'',
+    ''M VENKATESWARA RAO'', ''P VENKATESWARA RAO'', ''G SATYANARAYANA'', ''P VENKATESWARLU'',
+    ''V SRINIVASA RAO'', ''K RAMESH'', ''M VENKATESWARLU'', ''S SRINIVASA RAO'', ''B
+    SATYANARAYANA'', ''K NAGARAJU'', ''CH SRINIVASA RAO'', ''A SRINIVASA RAO'', ''K
+    SRINIVASULU'', ''K SURESH'', ''G VENKATESWARA RAO'', ''P NAGESWARA RAO'', ''K
+    VENKATA RAMANA'', ''N SRINIVASA RAO'', ''T SRINIVASA RAO'', ''M NAGESWARA RAO'',
+    ''D SRINIVASA RAO'', ''B VENKATESWARA RAO'', ''S SATYANARAYANA'', ''V SATYANARAYANA'',
+    ''G VENKATESWARLU'', ''K SRINIVASARAO'']'
 - name: owner_mobile_number
   type: STRING
   nullable: true
@@ -170,7 +209,7 @@ relationships:
 - dim_vehicle.owner_name joins to dim_person (via owner_name).
 business_terms:
 - ap_citizen360
-- assets_—_vehicles
+- "assets_\u2014_vehicles"
 - dimension
 - Hive
 - Iceberg
@@ -179,3 +218,7 @@ common_operations:
 - profile records in dim_vehicle
 - join dim_vehicle to dim_person via person_id
 - filter dim_vehicle by district_id or mandal_id
+- name: laden_weight_kg
+  type: STRING
+  nullable: true
+  description: Added from metadata.

@@ -1,9 +1,10 @@
 database: ap_citizen360
 table: dim_mandal
 department: ap_citizen360
-description: One row per mandal (sub-district administrative unit), nested under dim_district via district_id. A thin lookup
-  table — aggregate metrics for a mandal are computed on the fly from the fact/dim tables that carry mandal_id, not stored
-  here.
+description: "One row per mandal (sub-district administrative unit), nested under\
+  \ dim_district via district_id. A thin lookup table \u2014 aggregate metrics for\
+  \ a mandal are computed on the fly from the fact/dim tables that carry mandal_id,\
+  \ not stored here."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_mandal
 partitioned_by: null
@@ -17,10 +18,12 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_mandal`(\n  `mandal_id` STRING COMMENT 'Primary Key: mandal code.',\n\
-  \  `mandal_name` STRING COMMENT 'Display name of the mandal.',\n  `district_id` STRING COMMENT 'Foreign Key: References\
-  \ dim_district.district_id.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
-  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_mandal'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_mandal`(\n  `mandal_id` STRING\
+  \ COMMENT 'Primary Key: mandal code.',\n  `mandal_name` STRING COMMENT 'Display\
+  \ name of the mandal.',\n  `district_id` STRING COMMENT 'Foreign Key: References\
+  \ dim_district.district_id.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_mandal'"
 columns:
 - name: mandal_id
   type: STRING
@@ -30,6 +33,14 @@ columns:
   type: STRING
   nullable: true
   description: Display name of the mandal.
+  value_description: '[''RAMACHANDRAPURAM'', ''ATMAKUR'', ''SEETHANAGARAM'', ''NELLIMARLA'',
+    ''RAJAMPET'', ''ONGOLE'', ''MACHERLA'', ''GOOTY'', ''HINDUPUR'', ''UNGUTURU'',
+    ''JAGGAYYAPETA'', ''MACHILIPATNAM'', ''ADDANKI'', ''CHIRALA'', ''NAGARI'', ''MUMMIDIVARAM'',
+    ''IBRAHIMPATNAM'', ''DARSI'', ''BAPATLA'', ''MARKAPUR'', ''KAMALAPURAM'', ''VUYYURU'',
+    ''YELESWARAM'', ''RAYACHOTY'', ''RAJAM'', ''VENKATAGIRI'', ''TADEPALLIGUDEM'',
+    ''DEVARAPALLI'', ''DACHEPALLI'', ''PALAKOL'', ''TUNI'', ''GIDDALUR'', ''PRODDATUR'',
+    ''KURNOOL'', ''KONDAPURAM'', ''ELURU'', ''SRIKALAHASTI'', ''KADIRI'', ''TENALI'',
+    ''PALAKONDA'']'
 - name: district_id
   type: STRING
   nullable: true

@@ -59,6 +59,12 @@ columns:
   type: STRING
   nullable: true
   description: Display name of the district.
+  value_description: '[''PRAKASAM'', ''EAST GODAVARI'', ''ANAKAPALLI'', ''ALLURI SITHARAMA
+    RAJU'', ''ANNAMAYYA'', ''VIZIANAGARAM'', ''POLAVARAM'', ''VISAKHAPATNAM'', ''SRIKAKULAM'',
+    ''SRI POTTI SRIRAMULU NELLORE'', ''NTR'', ''WEST GODAVARI'', ''PARVATHIPURAM MANYAM'',
+    ''KAKINADA'', ''SRI SATHYA SAI'', ''YSR KADAPA'', ''MARKAPURAM'', ''NANDYAL'',
+    ''DR.B.R.AMBEDKAR KONASEEMA'', ''BAPATLA'', ''ANANTHAPURAMU'', ''GUNTUR'', ''ELURU'',
+    ''TIRUPATI'', ''PALNADU'', ''CHITTOOR'', ''KRISHNA'', ''KURNOOL'']'
 - name: state_id
   type: STRING
   nullable: true
