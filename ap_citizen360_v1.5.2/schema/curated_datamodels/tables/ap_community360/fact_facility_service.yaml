@@ -104,7 +104,9 @@ columns:
 primary_key:
 - facility_service_id
 relationships:
-- fact_facility_service.facility_type_id joins to dim_facility (via facility_type_id).
+- fact_facility_service.canonical_facility_id is a foreign key to dim_facility.canonical_facility_id.
+- fact_facility_service.facility_type_id is a foreign key to dim_facility_type.facility_type_id.
+- fact_facility_service.geography_id is a foreign key to dim_geography.geography_id.
 business_terms:
 - ap_community360
 - facts_—_service_and_access

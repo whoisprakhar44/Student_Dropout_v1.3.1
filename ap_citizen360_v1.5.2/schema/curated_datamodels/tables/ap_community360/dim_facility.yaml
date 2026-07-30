@@ -265,7 +265,9 @@ columns:
   value_description: '[''ACTIVE'']'
 primary_key:
 - canonical_facility_id
-relationships: []
+relationships:
+- dim_facility.facility_type_id is a foreign key to dim_facility_type.facility_type_id.
+- dim_facility.geography_id is a foreign key to dim_geography.geography_id.
 business_terms:
 - ap_community360
 - facility_supertype

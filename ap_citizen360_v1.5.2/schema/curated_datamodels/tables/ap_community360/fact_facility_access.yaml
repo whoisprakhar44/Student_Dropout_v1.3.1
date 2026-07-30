@@ -98,7 +98,9 @@ columns:
   description: When this row was first written to the canonical table.
 primary_key:
 - facility_access_id
-relationships: []
+relationships:
+- fact_facility_access.geography_id is a foreign key to dim_geography.geography_id.
+- fact_facility_access.facility_type_id is a foreign key to dim_facility_type.facility_type_id.
 business_terms:
 - ap_community360
 - facts_—_service_and_access

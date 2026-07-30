@@ -93,11 +93,12 @@ def extract_embedding_text(schema: dict) -> str:
     if columns:
         col_parts = []
         for col in columns:
-            name     = col.get("name", "")
-            dtype    = col.get("type", "")
-            col_desc = col.get("description", "")
-            key      = col.get("key", "")
-            sample   = col.get("sample_values", [])
+            name          = col.get("name", "")
+            dtype         = col.get("type", "")
+            col_desc      = col.get("description", "")
+            key           = col.get("key", "")
+            sample        = col.get("sample_values", [])
+            val_desc      = col.get("value_description", "")
 
             col_str = f"{name} ({dtype}"
             if key:
@@ -106,6 +107,8 @@ def extract_embedding_text(schema: dict) -> str:
                 col_str += f": {col_desc}"
             if sample:
                 col_str += f", e.g. {', '.join(str(s) for s in sample)}"
+            if val_desc:
+                col_str += f". Known values: {val_desc}"
             col_str += ")"
             col_parts.append(col_str)
         parts.append("Columns: " + "; ".join(col_parts) + ".")

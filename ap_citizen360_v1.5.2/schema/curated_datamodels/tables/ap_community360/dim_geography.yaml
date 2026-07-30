@@ -252,7 +252,10 @@ columns:
   value_description: '[''ACTIVE'']'
 primary_key:
 - geography_id
-relationships: []
+relationships:
+- dim_geography.district_name joins to ap_citizen360.dim_district.district_name (Cross-database link by name).
+- dim_geography.mandal_name joins to ap_citizen360.dim_mandal.mandal_name (Cross-database link by name).
+- dim_geography.lgd_village_code joins to ap_citizen360.dim_village.village_code (Cross-database link by LGD code).
 business_terms:
 - ap_community360
 - geography
