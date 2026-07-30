@@ -6,14 +6,10 @@
     <title>Conversational Query Engine Architecture</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             background-color: #0f172a;
             color: #f8fafc;
             min-height: 100vh;
@@ -29,34 +25,34 @@
             border-bottom: 1px solid #334155;
         }
 
-        header h1 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #38bdf8;
-        }
-
-        header p {
-            font-size: 0.85rem;
-            color: #94a3b8;
-            margin-top: 0.25rem;
-        }
+        header h1 { font-size: 1.4rem; font-weight: 700; color: #38bdf8; }
+        header p  { font-size: 0.85rem; color: #94a3b8; margin-top: 0.25rem; }
 
         .preview-panel {
             flex: 1;
             width: 100%;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 2.5rem;
+            align-items: flex-start;
+            padding: 2rem;
             overflow: auto;
         }
 
-        #mermaid-view {
+        #mermaid-wrap {
             background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-            max-width: 100%;
+            padding: 2.5rem 3rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 1400px;
+            overflow-x: auto;
+        }
+
+        /* The SVG Mermaid injects must not be clipped */
+        #mermaid-wrap svg {
+            display: block;
+            overflow: visible !important;
+            max-width: none !important;
         }
     </style>
 </head>
@@ -67,58 +63,119 @@
     </header>
 
     <div class="preview-panel">
-        <div id="mermaid-view" class="mermaid">
-%%{init: {'theme': 'default'}}%%
-graph TD
-    classDef user fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0f172a
-    classDef api fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#0f172a
-    classDef core fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#0f172a
-    classDef tool fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#0f172a
-    classDef mcp fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#0f172a,shape:cylinder
-
-    User[User Question]:::user --> API[FastAPI /ask endpoint]:::api
-    API --> START((START))
-
-    subgraph LangGraph [LangGraph Agent]
-        START --> Intent[intent_node<br>Classify Query]:::core
-        Intent --> Route{route_node}
-
-        %% Unstructured Data Flow
-        Route -- "document_query" --> DocSearch[doc_search_node]:::core
-        DocSearch --> ToolNode1[tool_node]:::tool
-        ToolNode1 --> Synth[synthesize_node<br>Summarize Policy]:::core
-        Synth --> END((END))
-
-        %% Structured & Hybrid Data Flow
-        Route -- "data_query" --> Init[initialize_node]:::core
-        Route -- "hybrid" --> Init
-
-        Init --> ToolNode2[tool_node<br>All Tools Access]:::tool
-        ToolNode2 <--> LLM[llm_node<br>Generate SQL & Synthesis]:::core
-        ToolNode2 --> Verify[verify_node<br>Check Execution]:::core
-
-        Verify -- "Error" --> LLM
-        Verify -- "Correct" --> END
-    end
-
-    subgraph MCP Servers
-        ToolNode1 -.-> MCPDoc[mcp_rag.py<br>search_documents]:::mcp
-
-        %% ToolNode2 (used by data & hybrid) accesses EVERYTHING
-        ToolNode2 -.-> MCPSchema[mcp_rag.py<br>retrive_schema_rag]:::mcp
-        ToolNode2 -.-> MCPSQL[mcp_sql_execution.py<br>execute_sql]:::mcp
-        ToolNode2 -. "hybrid access" .-> MCPDoc
-    end
-
-    subgraph Milvus [Milvus Lite Database]
-        MCPDoc -.-> DocStore[(document_store)]
-        MCPSchema -.-> SchemaStore[(schema_store)]
-    end
+        <div id="mermaid-wrap">
+            <!-- Mermaid SVG will be injected here by JS -->
         </div>
     </div>
 
     <script>
-        mermaid.initialize({ startOnLoad: true });
+        mermaid.initialize({
+            startOnLoad: false,
+            securityLevel: 'loose',
+            theme: 'default',
+            themeVariables: {
+                fontSize: '14px',
+                fontFamily: 'Inter, sans-serif'
+            },
+            flowchart: {
+                htmlLabels: true,
+                useMaxWidth: false,
+                nodeSpacing: 60,
+                rankSpacing: 80,
+                diagramPadding: 100,
+                curve: 'basis'
+            }
+        });
+
+        const diagram = `
+graph LR
+    classDef user   fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0f172a
+    classDef api    fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#0f172a
+    classDef core   fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#0f172a
+    classDef tool   fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#0f172a
+    classDef mcp    fill:#ffedd5,stroke:#ea580c,stroke-width:2px,color:#0f172a
+    classDef llm    fill:#fce7f3,stroke:#db2777,stroke-width:2.5px,color:#0f172a
+    classDef db     fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#0f172a
+    classDef endcls fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#0f172a
+
+    LLM["LLM (OpenAI / Ollama)"]:::llm
+
+    User["User Question"]:::user --> API["FastAPI /ask endpoint"]:::api
+
+    subgraph LangGraph ["LangGraph Agent"]
+        direction TB
+        API --> Intent["intent_node - Classify Query"]:::core
+        Intent --> Route["route_node"]:::core
+
+        Route -- "document_query" --> DocSearch["doc_search_node"]:::core
+        DocSearch --> ToolNode1["tool_node"]:::tool
+        ToolNode1 --> Synth["synthesize_node - Summarize Policy"]:::core
+        Synth --> END1(["END"]):::endcls
+
+        Route -- "data_query" --> Init["initialize_node"]:::core
+        Route -- "hybrid"     --> Init
+
+        Init --> ToolNode2["tool_node - All Tools"]:::tool
+        ToolNode2 --> Verify["verify_node - Check Execution"]:::core
+
+        Verify -- "Correct"          --> END2(["END"]):::endcls
+        Verify -- "Error retry < 3"  --> ToolNode2
+        Verify -- "Retries >= 3"     --> END3(["END - Max Retries"]):::endcls
+    end
+
+    Intent    -. "LLM call" .-> LLM
+    Synth     -. "LLM call" .-> LLM
+    Init      -. "LLM call" .-> LLM
+    ToolNode2 -. "LLM call" .-> LLM
+    Verify    -. "LLM call" .-> LLM
+
+    subgraph MCP ["MCP Servers"]
+        direction TB
+        ToolNode1 -.-> MCPDoc["mcp_rag.py - search_documents"]:::mcp
+        ToolNode2 -.-> MCPSchema["mcp_rag.py - retrieve_schema_rag"]:::mcp
+        ToolNode2 -.-> MCPSQL["mcp_sql_execution.py - execute_sql"]:::mcp
+        ToolNode2 -. "hybrid" .-> MCPDoc
+    end
+
+    subgraph Milvus ["Milvus Lite Database"]
+        direction TB
+        MCPDoc    -.-> DocStore[("document_store")]:::db
+        MCPSchema -.-> SchemaStore[("schema_store")]:::db
+    end
+`;
+
+        async function renderDiagram() {
+            const { svg } = await mermaid.render('the-diagram', diagram);
+            const wrap = document.getElementById('mermaid-wrap');
+            wrap.innerHTML = svg;
+
+            // Wait for layout to settle, then fix the viewBox
+            setTimeout(() => {
+                const svgEl = wrap.querySelector('svg');
+                if (!svgEl) return;
+
+                // Strip Mermaid's inline max-width so it can grow freely
+                svgEl.style.maxWidth  = 'none';
+                svgEl.style.overflow  = 'visible';
+
+                const PAD = 60;
+                const bb  = svgEl.getBBox();
+
+                const vx = bb.x      - PAD;
+                const vy = bb.y      - PAD;
+                const vw = bb.width  + PAD * 2;
+                const vh = bb.height + PAD * 2;
+
+                svgEl.setAttribute('viewBox', `${vx} ${vy} ${vw} ${vh}`);
+                svgEl.setAttribute('width',  vw);
+                svgEl.setAttribute('height', vh);
+                svgEl.style.width    = '100%';
+                svgEl.style.height   = 'auto';
+                svgEl.style.maxWidth = '100%';
+            }, 200);
+        }
+
+        renderDiagram();
     </script>
 </body>
 </html>
