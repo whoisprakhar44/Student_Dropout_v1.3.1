@@ -1,6 +1,6 @@
 {
-  "active_wal_number": 4,
-  "current_seq": 477,
+  "active_wal_number": 2,
+  "current_seq": 44,
   "index_specs": {
     "embedding": {
       "build_params": {},
@@ -16,24 +16,17 @@
       "data_files": [],
       "delta_files": []
     },
-    "document_store": {
-      "data_files": [],
-      "delta_files": []
-    },
     "few_shot_store": {
-      "data_files": [
-        "data/data_000089_000477.parquet"
-      ],
+      "data_files": [],
       "delta_files": []
     },
     "schema_store": {
       "data_files": [
-        "data/data_000001_000045.parquet",
-        "data/data_000046_000088.parquet"
+        "data/data_000001_000044.parquet"
       ],
       "delta_files": []
     }
   },
   "schema_version": 1,
-  "version": 7
+  "version": 4
 }

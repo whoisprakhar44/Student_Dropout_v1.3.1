@@ -54,7 +54,17 @@ def load_table_chunks(yaml_files: list) -> list[dict]:
             name = col.get("name", "")
             ctype = col.get("type", "")
             desc = col.get("description", "")
-            col_lines.append(f"- {name} ({ctype}): {desc}")
+            val_desc = col.get("value_description", "")
+            sample = col.get("sample_values", [])
+            col_str = f"- {name} ({ctype}): {desc}"
+            if sample:
+                col_str += f" (e.g. {', '.join(str(s) for s in sample)})"
+            if val_desc:
+                val_str = str(val_desc)
+                if len(val_str) > 200:
+                    val_str = val_str[:197] + "..."
+                col_str += f" [Known values: {val_str}]"
+            col_lines.append(col_str)
 
         relationships = doc.get("relationships") or []
         rel_text = "\n".join(f"- {r}" for r in relationships) if relationships else ""

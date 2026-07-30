@@ -108,7 +108,10 @@ def extract_embedding_text(schema: dict) -> str:
             if sample:
                 col_str += f", e.g. {', '.join(str(s) for s in sample)}"
             if val_desc:
-                col_str += f". Known values: {val_desc}"
+                val_str = str(val_desc)
+                if len(val_str) > 200:
+                    val_str = val_str[:197] + "..."
+                col_str += f". Known values: {val_str}"
             col_str += ")"
             col_parts.append(col_str)
         parts.append("Columns: " + "; ".join(col_parts) + ".")
@@ -116,12 +119,12 @@ def extract_embedding_text(schema: dict) -> str:
     # Business terms
     biz_terms = schema.get("business_terms", [])
     if biz_terms:
-        parts.append("Business concepts: " + ", ".join(biz_terms) + ".")
+        parts.append("Business concepts: " + ", ".join(str(b) for b in biz_terms) + ".")
 
     # Common operations
     ops = schema.get("common_operations", [])
     if ops:
-        parts.append("Common operations: " + ", ".join(ops) + ".")
+        parts.append("Common operations: " + ", ".join(str(o) for o in ops) + ".")
 
     # Sample values (top-level)
     sample_values = schema.get("sample_values", {})
@@ -137,7 +140,10 @@ def extract_embedding_text(schema: dict) -> str:
     if relationships:
         parts.append("Relationships: " + ", ".join(str(r) for r in relationships) + ".")
 
-    return " ".join(parts)
+    full_text = " ".join(parts)
+    if len(full_text) > 2500:
+        full_text = full_text[:2497] + "..."
+    return full_text
 
 
 def load_yaml_schemas(yaml_dir: str) -> list[dict]:
@@ -230,7 +236,11 @@ class EmbeddingGenerator:
                         self._ollama_url,
                         json={"model": self.model, "prompt": text},
                     )
-                    batch_embeddings.append(response.json()["embedding"])
+                    res_json = response.json()
+                    emb = res_json.get("embedding") or (res_json.get("embeddings", [[]])[0] if res_json.get("embeddings") else None)
+                    if not emb:
+                        raise RuntimeError(f"Ollama embedding request failed ({response.status_code}): {res_json}")
+                    batch_embeddings.append(emb)
 
             elif self.provider == "sentence_transformers":
                 batch_embeddings = self._client.encode(

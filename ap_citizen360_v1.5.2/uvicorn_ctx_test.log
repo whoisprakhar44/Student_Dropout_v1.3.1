@@ -102,3 +102,249 @@ INFO:     127.0.0.1:60668 - "GET /demo/live HTTP/1.1" 404 Not Found
 INFO:     127.0.0.1:60668 - "GET /demo/live HTTP/1.1" 404 Not Found
 INFO:     127.0.0.1:60668 - "GET /demo/live HTTP/1.1" 404 Not Found
 INFO:     127.0.0.1:60668 - "GET /demo/live HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53507 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53511 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53514 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53517 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53537 - "GET /history?username=test_user HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53540 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53542 - "POST /ask HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 129, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 337, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/ap_citizen360_v1.5/app.py", line 425, in ask
+sqlite3.OperationalError: unable to open database file
+INFO:     127.0.0.1:53544 - "POST /ask HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 129, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 337, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/ap_citizen360_v1.5/app.py", line 425, in ask
+sqlite3.OperationalError: unable to open database file
+INFO:     127.0.0.1:53556 - "POST /ask HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 129, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 337, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/ap_citizen360_v1.5/app.py", line 425, in ask
+sqlite3.OperationalError: unable to open database file
+INFO:     127.0.0.1:53562 - "POST /ask HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/uvicorn/protocols/http/h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        self.scope, self.receive, self.send
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/uvicorn/middleware/proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/applications.py", line 1162, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/cors.py", line 88, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 1220, in handle
+    await super().handle(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 143, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 129, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 683, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/.venv/lib/python3.13/site-packages/fastapi/routing.py", line 337, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/prakhar/Downloads/Student_Dropout_v1.3.1/ap_citizen360_v1.5/app.py", line 425, in ask
+sqlite3.OperationalError: unable to open database file
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [12628]
