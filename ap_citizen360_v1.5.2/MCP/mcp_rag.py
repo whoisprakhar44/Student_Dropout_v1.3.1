@@ -191,7 +191,10 @@ class VectorDB:
                     }
                     for hit in fewshot_res[0]
                 ]
-            except Exception:
+            except Exception as e:
+                import traceback
+                logger.error(f"Error searching few_shot_store: {e}")
+                logger.error(traceback.format_exc())
                 fewshot_hits = []
 
             # Few-shot examples first (highest semantic signal),
@@ -240,7 +243,7 @@ def dedupe(rows: List[Dict]):
 
 
 def threshold(rows: List[Dict], min_score: float = 0.35):
-    return [r for r in rows if r["score"] >= min_score]
+    return [r for r in rows if r["score"] >= min_score or r.get("chunk_type") == "few_shot_example"]
 
 
 def exclude_facts(rows: List[Dict]) -> List[Dict]:

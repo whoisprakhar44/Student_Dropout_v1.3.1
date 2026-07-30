@@ -1,9 +1,9 @@
-INFO:     Started server process [65396]
+INFO:     Started server process [65818]
 INFO:     Waiting for application startup.
-2026-07-30 18:15:02,394 [INFO] schema-retrieval: Startup successful
-2026-07-30 18:15:02,785 [INFO] SQLAlchemy engine created → SQLite /Users/prakhar/Downloads/Student_Dropout_v1.3.1/ap_citizen360_v1.5.2/database/schema.db
-2026-07-30 18:15:02,800 [INFO] mcp.server.lowlevel.server: Processing request of type ListToolsRequest
-2026-07-30 18:15:02,801 [INFO] Processing request of type ListToolsRequest
+2026-07-30 18:27:17,078 [INFO] schema-retrieval: Startup successful
+2026-07-30 18:27:17,433 [INFO] SQLAlchemy engine created → SQLite /Users/prakhar/Downloads/Student_Dropout_v1.3.1/ap_citizen360_v1.5.2/database/schema.db
+2026-07-30 18:27:17,448 [INFO] mcp.server.lowlevel.server: Processing request of type ListToolsRequest
+2026-07-30 18:27:17,449 [INFO] Processing request of type ListToolsRequest
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
 ChatOllama model: qwen3.5:2b-mlx  |  thinking=off
@@ -16,6 +16,24 @@ Doc tool loaded : search_documents
 LLM tools loaded: ['retrive_schema_rag', 'execute_sql', 'search_documents']
 Agent graph compiled successfully.
 LangGraph agent built successfully during startup.
-INFO:     127.0.0.1:56640 - "GET /health HTTP/1.1" 200 OK
-I0730 18:16:22.471557 4021516 chttp2_transport.cc:1393] ipv4:127.0.0.1:56637: Got goaway [11] err=UNAVAILABLE:GOAWAY received; Error code: 11; Debug Text: too_many_pings {http2_error:11}
-E0730 18:16:22.473419 4021516 chttp2_transport.cc:1425] ipv4:127.0.0.1:56637: Received a GOAWAY with error code ENHANCE_YOUR_CALM and debug data equal to "too_many_pings". Current keepalive time (before throttling): 10000ms
+INFO:     127.0.0.1:59116 - "POST /ask HTTP/1.1" 200 OK
+2026-07-30 18:27:36,734 [INFO] mcp.server.lowlevel.server: Processing request of type CallToolRequest
+2026-07-30 18:27:36,735 [INFO] schema-retrieval: Query: [intent: school_hotspot] which schools in eluru have the highest number of dropouts in 2025 [district: Eluru, year: 2025] [departments: ap_community360]
+2026-07-30 18:27:36,847 [INFO] schema-retrieval: RAG retrieved 5 chunks for query '[intent: school_hotspot] which schools in eluru have the highest number of dropouts in 2025 [district: Eluru, year: 2025] [departments: ap_community360]':
+2026-07-30 18:27:36,847 [INFO] schema-retrieval:   [1] Table: school_dropout.school_hotspot | Similarity Score: 0.2140
+2026-07-30 18:27:36,847 [INFO] schema-retrieval:   [2] Table: ap_community360.dim_facility_school | Similarity Score: 0.3536
+2026-07-30 18:27:36,847 [INFO] schema-retrieval:   [3] Table: ap_citizen360.dim_student | Similarity Score: 0.3582
+2026-07-30 18:27:36,847 [INFO] schema-retrieval:   [4] Table: ap_citizen360.dim_district | Similarity Score: 0.3671
+2026-07-30 18:27:36,847 [INFO] schema-retrieval:   [5] Table: ap_citizen360.fact_population_hierarchy | Similarity Score: 0.3847
+2026-07-30 18:27:36,852 [INFO] schema-retrieval: Returned 5 chunks
+2026-07-30 18:28:07,513 [INFO] Processing request of type CallToolRequest
+2026-07-30 18:28:07,525 [INFO] [execute_sql] SELECT s.school_name, COUNT(s.student_record_id) AS dropout_count FROM dim_student s JOIN dim_facility_school f ON s.institution_id = f.canonical_facility_id WHERE s.academic_year = '2025' AND s.is_dropout = TRUE GROUP BY s.school_name ORDER BY dropout_count DESC
+2026-07-30 18:28:39,295 [INFO] Processing request of type CallToolRequest
+2026-07-30 18:28:39,297 [INFO] [execute_sql] SELECT s.school_name, COUNT(s.student_record_id) AS dropout_count FROM dim_student s JOIN dim_facility_school f ON s.institution_id = f.canonical_facility_id WHERE s.academic_year = '2025' AND s.is_dropout = TRUE GROUP BY s.school_name ORDER BY dropout_count DESC
+2026-07-30 18:28:49,256 [INFO] Processing request of type CallToolRequest
+2026-07-30 18:28:49,258 [INFO] [execute_sql] SELECT s.school_name, COUNT(s.student_record_id) AS dropout_count FROM dim_student s JOIN dim_facility_school f ON s.institution_id = f.canonical_facility_id WHERE s.academic_year = '2025' AND s.is_dropout = TRUE GROUP BY s.school_name ORDER BY dropout_count DESC
+I0730 18:28:57.115754 4032355 chttp2_transport.cc:1393] ipv4:127.0.0.1:59112: Got goaway [11] err=UNAVAILABLE:GOAWAY received; Error code: 11; Debug Text: too_many_pings {http2_error:11}
+E0730 18:28:57.118743 4032355 chttp2_transport.cc:1425] ipv4:127.0.0.1:59112: Received a GOAWAY with error code ENHANCE_YOUR_CALM and debug data equal to "too_many_pings". Current keepalive time (before throttling): 10000ms
+2026-07-30 18:29:00,020 [INFO] Processing request of type CallToolRequest
+2026-07-30 18:29:00,022 [INFO] [execute_sql] SELECT s.school_name, COUNT(s.student_record_id) AS dropout_count FROM dim_student s JOIN dim_facility_school f ON s.institution_id = f.canonical_facility_id WHERE s.academic_year = '2025' AND s.is_dropout = TRUE GROUP BY s.school_name ORDER BY dropout_count DESC
+verify_node: max verification loops (3) reached; accepting result as-is
