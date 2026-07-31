@@ -5,6 +5,8 @@ try:
 except ImportError:
     pass
 
+import re
+
 import sys
 import logging
 
@@ -141,12 +143,9 @@ class VectorDB:
             ]
         elif self.provider=="milvus":
             # Split top_k as a COMBINED budget so total chunks never exceed top_k.
-            # Old behaviour: schema=top_k + few_shots=top_k//2 → up to 1.5×top_k chunks
-            # which overflows the LLM context window at TOP_K≥6.
-            # New behaviour: few_shots + schema = top_k exactly.
-            #   few-shots  → 1/3 of budget  (SQL pattern signal)
-            #   schema DDL → 2/3 of budget  (exact column names — more important)
-            n_fewshot = max(1, top_k // 3)
+            # Fix 3: increased fewshot budget from 1/3 to 1/2 — fewshot SQL
+            # patterns are the strongest signal for correct query generation.
+            n_fewshot = max(2, top_k // 2)
             n_schema  = max(1, top_k - n_fewshot)
 
             # ── Search schema_store (actual DDL) ─────────────────────────────
@@ -164,7 +163,7 @@ class VectorDB:
                     "table_name":    hit["entity"]["table_name"],
                     "raw_ddl":       hit["entity"]["raw_ddl"],
                     "embedding_text":hit["entity"]["embedding_text"],
-                    "score":         1.0 - hit["distance"],
+                    "score":         hit["distance"],
                     "chunk_type":    "schema_ddl",
                 }
                 for hit in schema_res[0]
@@ -186,7 +185,7 @@ class VectorDB:
                         "table_name":    hit["entity"]["table_name"],
                         "raw_ddl":       hit["entity"]["raw_ddl"],
                         "embedding_text":hit["entity"]["embedding_text"],
-                        "score":         1.0 - hit["distance"],
+                        "score":         hit["distance"],
                         "chunk_type":    "few_shot_example",
                     }
                     for hit in fewshot_res[0]
@@ -196,6 +195,12 @@ class VectorDB:
                 logger.error(f"Error searching few_shot_store: {e}")
                 logger.error(traceback.format_exc())
                 fewshot_hits = []
+
+            # ── Fix 5: Keyword fallback — ensure schema chunks exist for
+            #    tables mentioned in fewshot SQL results ───────────────────
+            schema_hits = _ensure_fewshot_tables_in_schema(
+                self, fewshot_hits, schema_hits
+            )
 
             # Few-shot examples first (highest semantic signal),
             # then schema DDLs so the LLM sees exact column names after examples.
@@ -207,6 +212,11 @@ class VectorDB:
 # =========================
 # POST PROCESSING
 # =========================
+
+# Fix 4: Configurable schema threshold (lowered from 0.35 to 0.20).
+# The old 0.35 threshold silently dropped schema chunks when the embedding
+# model produced low scores, leaving the LLM with zero DDL context.
+_SCHEMA_MIN_SCORE = float(os.getenv("SCHEMA_MIN_SCORE", "0.20"))
 
 # Fact tables excluded from RAG results.
 # These are Data Transfer API infrastructure tables and P4/population aggregates
@@ -242,7 +252,7 @@ def dedupe(rows: List[Dict]):
     return out
 
 
-def threshold(rows: List[Dict], min_score: float = 0.35):
+def threshold(rows: List[Dict], min_score: float = _SCHEMA_MIN_SCORE):
     return [r for r in rows if r["score"] >= min_score or r.get("chunk_type") == "few_shot_example"]
 
 
@@ -259,6 +269,66 @@ def exclude_facts(rows: List[Dict]) -> List[Dict]:
         else:
             out.append(r)
     return out
+
+
+def _ensure_fewshot_tables_in_schema(
+    vdb: 'VectorDB',
+    fewshot_hits: List[Dict],
+    schema_hits: List[Dict],
+) -> List[Dict]:
+    """Fix 5: Keyword fallback — if fewshot SQL mentions tables that are not
+    in the schema results, pull them from Milvus by scalar filter so the LLM
+    has both the SQL pattern AND the DDL for those tables."""
+    if not fewshot_hits or vdb.provider != "milvus":
+        return schema_hits
+
+    # Extract table names from fewshot SQL (raw_ddl contains the gold SQL)
+    mentioned_tables: set[str] = set()
+    for fs in fewshot_hits:
+        sql = fs.get("raw_ddl", "")
+        for match in re.findall(
+            r'(?:ap_citizen360|ap_community360)\.(\w+)', sql
+        ):
+            mentioned_tables.add(match)
+
+    # Check which ones are already in schema results
+    existing_tables = {h["table_name"] for h in schema_hits}
+    missing_tables = mentioned_tables - existing_tables
+
+    if not missing_tables:
+        return schema_hits
+
+    # Query Milvus for the missing tables by scalar filter
+    try:
+        filter_expr = "table_name in [{}]".format(
+            ", ".join(f'"{t}"' for t in missing_tables)
+        )
+        extra = vdb.client.query(
+            collection_name=vdb.collection,
+            filter=filter_expr,
+            output_fields=["database_name", "table_name", "raw_ddl", "embedding_text"],
+            partition_names=["schema_store"],
+            limit=len(missing_tables),
+        )
+        for row in extra:
+            schema_hits.append({
+                "database_name": row["database_name"],
+                "table_name":    row["table_name"],
+                "raw_ddl":       row["raw_ddl"],
+                "embedding_text":row["embedding_text"],
+                "score":         0.50,  # synthetic score for keyword-matched chunks
+                "chunk_type":    "schema_ddl",
+            })
+        if extra:
+            logger.info(
+                "_ensure_fewshot_tables_in_schema: backfilled %d table(s): %s",
+                len(extra),
+                [r["table_name"] for r in extra],
+            )
+    except Exception as e:
+        logger.warning("_ensure_fewshot_tables_in_schema: fallback failed: %s", e)
+
+    return schema_hits
 
 
 # =========================
@@ -364,13 +434,8 @@ def retrive_schema_rag(query: str, top_k: int = 15):
     if fewshot_items:
         sections.append("=== REFERENCE SQL EXAMPLES (use these as a pattern, but verify column names against the DDLs below) ===")
         for r in fewshot_items:
-            question = r.get("embedding_text", "")
-            sql = r.get("raw_ddl", "")
-            if question and sql:
-                sections.append(f"[Example | score={r['score']:.3f}]\nQuestion: {question}\nSQL:\n{sql}")
-            else:
-                content = sql or question
-                sections.append(f"[Example | score={r['score']:.3f}]\n{content}")
+            payload = r.get("raw_ddl", "") or r.get("embedding_text", "")
+            sections.append(f"[Example | score={r['score']:.3f}]\n{payload}")
 
     if schema_items:
         sections.append("=== SCHEMA DDLs (authoritative table and column names — use ONLY these names in your SQL) ===")
@@ -385,6 +450,54 @@ def retrive_schema_rag(query: str, top_k: int = 15):
 # =========================
 # RUN
 # =========================
+@mcp.tool()
+def get_column_values(table: str, column: str) -> str:
+    """
+    Look up known distinct values for a specific table column (e.g. district names, 
+    academic years, school management types). 
+    Use this INSTEAD of running SELECT DISTINCT queries.
+    """
+    import yaml
+    from pathlib import Path
+    
+    # Locate the YAML file for this table
+    yaml_dir = Path(__file__).parent.parent / "schema" / "curated_datamodels" / "tables"
+    # The table might be passed as ap_citizen360.dim_student or just dim_student
+    table_name = table.split(".")[-1]
+    yaml_files = list(yaml_dir.rglob(f"{table_name}.yaml"))
+    
+    if not yaml_files:
+        return f"Could not find schema definition for table '{table}'."
+        
+    try:
+        with open(yaml_files[0], "r", encoding="utf-8") as f:
+            doc = yaml.safe_load(f)
+            
+        if not doc or "columns" not in doc:
+            return f"No columns found in schema for table '{table}'."
+            
+        for col in doc["columns"]:
+            if col.get("name", "").lower() == column.lower():
+                val_desc = col.get("value_description", "")
+                samples = col.get("sample_values", [])
+                
+                res = []
+                if val_desc:
+                    res.append(f"Known values: {val_desc}")
+                if samples:
+                    res.append(f"Samples: {', '.join(str(s) for s in samples)}")
+                    
+                if res:
+                    return f"Values for {table}.{column}:\n" + "\n".join(res)
+                else:
+                    return f"No predefined distinct values found for {table}.{column}. You may need to run SELECT DISTINCT."
+                    
+        return f"Column '{column}' not found in table '{table}'."
+    except Exception as e:
+        logger.error(f"Error reading schema for {table}: {e}")
+        return f"Error reading values for {table}.{column}."
+
+
 @mcp.tool()
 def search_documents(query: str, top_k: int = 5) -> str:
     """

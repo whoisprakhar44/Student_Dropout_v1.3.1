@@ -613,13 +613,11 @@ def load_fewshot_records(jsonl_path: str) -> list[dict]:
     """
     Reads the JSONL few-shot file.
     Each line must contain at minimum: id, question, sql.
-    Optional metadata fields (use_case, intent, topic, etc.) are preserved
-    in database_name / table_name for downstream filtering.
 
     Field mapping  →  Milvus field
     ─────────────────────────────────────────────────────
-    question       →  embedding_text   (what gets embedded)
-    sql            →  raw_ddl          (gold answer stored alongside)
+    question       →  embedding_text   (ONLY the question is embedded into vector space)
+    full metadata  →  raw_ddl          (payload passed as-is to the LLM prompt)
     use_case       →  database_name    (reused for domain tagging)
     intent         →  table_name       (reused for intent tagging)
     id (original)  →  source_file      (provenance — keeps the JSONL row id)
@@ -631,10 +629,31 @@ def load_fewshot_records(jsonl_path: str) -> list[dict]:
             if not line:
                 continue
             row = json.loads(line)
+
+            # 1. ONLY the question gets embedded into vector space for clean 1-to-1 question matching
+            embedding_text = row["question"]
+
+            # 2. All other fields are formatted as-is into the payload given to the LLM
+            payload_lines = [f"Question: {row['question']}"]
+            if row.get("sql"):
+                payload_lines.append(f"SQL:\n{row['sql']}")
+            if row.get("tables"):
+                payload_lines.append(f"Tables: {', '.join(row['tables'])}")
+            if row.get("output_columns"):
+                payload_lines.append(f"Output Columns: {', '.join(row['output_columns'])}")
+            if row.get("risk_signal"):
+                payload_lines.append(f"Risk Signal: {row['risk_signal']}")
+            if row.get("grain"):
+                payload_lines.append(f"Grain: {row['grain']}")
+            if row.get("quality_notes"):
+                payload_lines.append(f"Quality Notes: {row['quality_notes']}")
+
+            raw_ddl = "\n".join(payload_lines)
+
             records.append({
                 "source_id":      row.get("id", ""),
-                "embedding_text": row["question"],      # NL question → embedded
-                "raw_ddl":        row["sql"],            # gold SQL stored as-is
+                "embedding_text": embedding_text,
+                "raw_ddl":        raw_ddl,
                 "database_name":  row.get("use_case", ""),
                 "table_name":     row.get("intent", ""),
                 "source_file":    jsonl_path,
@@ -653,8 +672,10 @@ def build_fewshot_records(
     """
     records = []
     for row, emb in zip(raw_records, embeddings):
+        # Use deterministic UUID derived from source_id to prevent duplicates on re-runs
+        doc_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, row["source_id"])) if row.get("source_id") else str(uuid.uuid4())
         record = {
-            "id":             str(uuid.uuid4()),   # new UUID per insertion
+            "id":             doc_id,
             "database_name":  row["database_name"],
             "table_name":     row["table_name"],
             "embedding_text": row["embedding_text"],
@@ -696,6 +717,16 @@ def run_fewshot_pipeline(config_path: str, jsonl_path: str):
     # Step 3 — Init vector DB (creates collection + partitions if needed)
     logger.info(f"Connecting to vector DB: {cfg['vector_db']['provider']}")
     vdb = VectorDBClient(cfg["vector_db"])
+
+    # Clear old few-shot partition to purge legacy stale records
+    if vdb.provider == "milvus":
+        try:
+            if vdb._client.has_partition(collection_name=vdb._collection_name, partition_name=PARTITION_FEW_SHOT):
+                vdb._client.drop_partition(collection_name=vdb._collection_name, partition_name=PARTITION_FEW_SHOT)
+                logger.info(f"Dropped legacy partition '{PARTITION_FEW_SHOT}'")
+            vdb._client.create_partition(collection_name=vdb._collection_name, partition_name=PARTITION_FEW_SHOT)
+        except Exception as e:
+            logger.warning(f"Partition reset warning: {e}")
 
     # Step 4 — Build and insert into few_shot_store partition
     records = build_fewshot_records(raw_records, embeddings)

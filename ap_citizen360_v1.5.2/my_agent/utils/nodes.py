@@ -52,6 +52,7 @@ Available tools:
 - retrive_schema_rag: retrieve curated table DDL, key joins, columns, and rules when you need schema context.
 - execute_sql: execute read-only Hive SQL SELECT queries against the database.
 - search_documents: search policy documents, circulars, and guidelines (PDF/DOCX/TXT) for rules, procedures, or explanations.
+- get_column_values: look up known distinct values for a specific table column (e.g. district names, academic years, school management types). Use this INSTEAD of running SELECT DISTINCT queries.
 
 STRICT RULES — follow every rule without exception:
 1. For ANY question about counts, totals, lists, averages, rates, trends, or data values — you MUST call execute_sql.
@@ -62,6 +63,7 @@ STRICT RULES — follow every rule without exception:
 6. After execute_sql returns rows, summarize the result in plain language.
 7. The database is Hive/Impala - use Hive/Spark-compatible SQL only. Always prefix table names with the database (e.g. `ap_citizen360.table_name`).
 8. NEVER guess, invent, or assume any table names, column names, or join relations. If you lack the DDL context or column definitions for a table, you MUST call retrive_schema_rag to retrieve it. Do not attempt to guess or invent columns/tables under any circumstances.
+9. When you need exact filter values (district names, academic years, etc.), call get_column_values instead of running SELECT DISTINCT. Never guess filter value spellings.
 """
 else:
     SYSTEM_PROMPT = """You are a data and document assistant for the ap_citizen360 data model.
@@ -70,6 +72,7 @@ Available tools:
 - retrive_schema_rag: retrieve curated table DDL, key joins, columns, and rules when you need schema context.
 - execute_sql: execute read-only SQLite SELECT queries against the sample database.
 - search_documents: search policy documents, circulars, and guidelines (PDF/DOCX/TXT) for rules, procedures, or explanations.
+- get_column_values: look up known distinct values for a specific table column (e.g. district names, academic years, school management types). Use this INSTEAD of running SELECT DISTINCT queries.
 
 STRICT RULES — follow every rule without exception:
 1. For ANY question about counts, totals, lists, averages, rates, trends, or data values — you MUST call execute_sql.
@@ -78,6 +81,7 @@ STRICT RULES — follow every rule without exception:
 4. NEVER answer without calling execute_sql for data questions.
 5. After execute_sql returns rows, summarize the result in plain language.
 6. The database is SQLite - use SQLite-compatible SQL only. All tables are in the main schema with no prefix (e.g. write `citizen_student` instead of `ap_citizen360.citizen_student`).
+7. When you need exact filter values (district names, academic years, etc.), call get_column_values instead of running SELECT DISTINCT. Never guess filter value spellings.
 """
 
 
@@ -803,30 +807,12 @@ def initialize_node(state: AgentState) -> dict:
     entities     = state.get("entities") or {}
     dept_scope   = state.get("department_scope") or []
 
-    # Build enriched RAG query
-    if intent and intent != "general_query":
-        enriched_parts = [f"[intent: {intent}]", raw_query]
-
-        # Add entity context so embedding is grounded in specific values
-        entity_hints = []
-        if entities.get("district_name"):
-            entity_hints.append(f"district: {entities['district_name']}")
-        if entities.get("academic_year"):
-            entity_hints.append(f"year: {entities['academic_year']}")
-        if entities.get("current_grade"):
-            entity_hints.append(f"grade: {entities['current_grade']}")
-        if entities.get("social_category"):
-            entity_hints.append(f"category: {entities['social_category']}")
-        if entity_hints:
-            enriched_parts.append(f"[{', '.join(entity_hints)}]")
-
-        # Add department scope so RAG biases toward the right table set
-        if dept_scope:
-            enriched_parts.append(f"[departments: {', '.join(dept_scope)}]")
-
-        rag_query = " ".join(enriched_parts)
-    else:
-        rag_query = raw_query
+    # Use the RAW user query for vector search — not enriched.
+    # Enrichment with [intent:...][district:...] metadata brackets corrupts
+    # the embedding vector because the embedding model treats bracket tokens
+    # as semantic content, pushing the vector away from fewshot embeddings
+    # that were indexed with clean NL text only.
+    rag_query = raw_query
 
     logger.info(
         "initialize_node: RAG query = %s  (intent=%s, entities=%s)",

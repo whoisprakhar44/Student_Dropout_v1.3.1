@@ -85,18 +85,24 @@ async def init_tools() -> None:
     if not sql_tools_list:
         raise RuntimeError("Execution MCP server returned no tools.")
 
+    col_val_tool = None
     for t in rag_tools_list:
         if t.name == "retrive_schema_rag":
             rag_tool = t
         elif t.name == "search_documents":
             doc_tool = t
+        elif t.name == "get_column_values":
+            col_val_tool = t
 
     if not rag_tool or not doc_tool:
         raise RuntimeError("RAG server did not return both tools.")
 
-    # SQL path tools: schema RAG + SQL execution
+    # SQL path tools: schema RAG + column values + SQL execution
     execution_tools.clear()
-    execution_tools.extend([rag_tool] + sql_tools_list)
+    tools_to_add = [rag_tool]
+    if col_val_tool:
+        tools_to_add.append(col_val_tool)
+    execution_tools.extend(tools_to_add + sql_tools_list)
 
     # Document path tools: only search_documents
     doc_search_tools.clear()
