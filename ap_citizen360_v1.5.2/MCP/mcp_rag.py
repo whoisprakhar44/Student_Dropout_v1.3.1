@@ -287,7 +287,7 @@ def _ensure_fewshot_tables_in_schema(
     for fs in fewshot_hits:
         sql = fs.get("raw_ddl", "")
         for match in re.findall(
-            r'(?:ap_citizen360|ap_community360)\.(\w+)', sql
+            r'(?:ap_citizen360)\.(\w+)', sql
         ):
             mentioned_tables.add(match)
 

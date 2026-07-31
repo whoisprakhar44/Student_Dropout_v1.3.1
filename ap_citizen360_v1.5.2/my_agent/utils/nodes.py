@@ -362,6 +362,33 @@ def llm_node(state: AgentState) -> dict:
         1 for tc in (getattr(response, "tool_calls", None) or [])
         if tc.get("name") == "retrive_schema_rag"
     )
+
+    # ── HARD ENFORCEMENT: strip RAG tool calls when budget is exhausted ──────
+    # Small models (e.g. 0.8B) often ignore the system-message nudge and keep
+    # emitting retrive_schema_rag tool calls.  If the RAG cap has been reached,
+    # we surgically remove those calls from the response so tool_node never
+    # executes them.  This breaks the infinite RAG→llm→RAG loop.
+    if current_rag_calls + rag_increment > _MAX_RAG_CALLS and getattr(response, "tool_calls", None):
+        filtered_calls = [
+            tc for tc in response.tool_calls
+            if tc.get("name") != "retrive_schema_rag"
+        ]
+        if len(filtered_calls) != len(response.tool_calls):
+            stripped = len(response.tool_calls) - len(filtered_calls)
+            logger.warning(
+                "llm_node: HARD CAP — stripped %d retrive_schema_rag call(s) from LLM response "
+                "(rag_calls=%d, cap=%d)", stripped, current_rag_calls + rag_increment, _MAX_RAG_CALLS,
+            )
+            response.tool_calls = filtered_calls
+            # If no tool calls remain, the LLM essentially produced a text-only
+            # response.  If it also has no content, synthesise a fallback.
+            if not response.tool_calls and not response.content:
+                response.content = (
+                    "I have the schema context. Let me write the SQL query now."
+                )
+            # Recalculate increment after stripping
+            rag_increment = 0
+
     logger.info("llm_node: completed in %.2fs (rag_calls this turn: %d)", time.perf_counter() - t0, rag_increment)
     return {
         "messages": [response],
@@ -657,18 +684,16 @@ def verify_node(state: AgentState) -> dict:
 
 INTENT_DEPARTMENT_MAP: dict[str, list[str]] = {
     "student_risk_list":             ["ap_citizen360"],
-    "school_hotspot":                ["ap_community360"],
+    "school_hotspot":                ["ap_citizen360"],
     "equity_risk_slice":             ["ap_citizen360"],
     "scheme_delivery_gap":           ["ap_citizen360"],
     "eligibility_blocker":           ["ap_citizen360"],
     "gsws_case_load":                ["ap_citizen360"],
-    "nutrition_service_gap":         ["ap_community360"],
-    "facility_root_cause":           ["ap_community360"],
     "household_poverty_risk":        ["ap_citizen360"],
     "citizen_socioeconomic_profile": ["ap_citizen360"],
-    "teacher_attendance":            ["ap_citizen360", "ap_community360"],
+    "teacher_attendance":            ["ap_citizen360"],
     "academic_performance":          ["ap_citizen360"],
-    "general_query":                 ["ap_citizen360", "ap_community360"],
+    "general_query":                 ["ap_citizen360"],
 }
 
 
@@ -679,8 +704,6 @@ INTENT_DESCRIPTIONS = """
 - scheme_delivery_gap: welfare/benefit delivery failures — sanctioned but not disbursed
 - eligibility_blocker: benefit eligibility flags not met (aadhaar, bank account, KYC, BPL)
 - gsws_case_load: GSWS secretariat / gram sachivalayam caseload or mapping analysis
-- nutrition_service_gap: mid-day meal / nutrition serving analysis
-- facility_root_cause: school infrastructure or facility issues (toilet, water, electricity, ICT)
 - household_poverty_risk: ration card / poverty household analysis linked to students
 - citizen_socioeconomic_profile: citizen asset, land, property, utility, socioeconomic profiling
 - teacher_attendance: teacher attendance records & teacher master profiling

@@ -88,15 +88,7 @@ def main():
             for t in citizen_tables:
                 log(f"  - {t}")
 
-            cursor.execute("SHOW TABLES IN ap_community360")
-            community_tables = sorted([row[0].lower() for row in cursor.fetchall()])
-            log()
-            log("📋 EXISTING TABLES IN DATABASE: ap_community360")
-            log("-" * 80)
-            for t in community_tables:
-                log(f"  - {t}")
-            log("=" * 80)
-            log()
+
             cursor.close()
             print("✓ Successfully listed remote tables in the output log.")
         except Exception as list_err:

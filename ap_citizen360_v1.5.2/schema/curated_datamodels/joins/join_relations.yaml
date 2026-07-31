@@ -372,17 +372,4 @@ joins:
   to_column: department_id
   cardinality: many_to_one
   usage: Join fact_scheme_disbursement to dim_department via department_id to resolve entity attributes.
-- name: dim_facility_type_to_dim_department
-  from_table: dim_facility_type
-  from_column: governing_department
-  to_table: dim_department
-  to_column: department_id
-  cardinality: many_to_one
-  usage: Cross-database join from dim_facility_type (ap_community360) to dim_department (ap_citizen360) by name/code.
-- name: fact_facility_service_to_dim_facility
-  from_table: fact_facility_service
-  from_column: facility_type_id
-  to_table: dim_facility
-  to_column: facility_type_id
-  cardinality: many_to_one
-  usage: Join fact_facility_service to dim_facility via facility_type_id using conformed attributes.
+

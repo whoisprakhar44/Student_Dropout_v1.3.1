@@ -5,7 +5,7 @@ import json
 import requests
 resp = requests.post("http://localhost:11434/api/embeddings", json={
     "model": "nomic-embed-text",
-    "prompt": "[intent: school_hotspot] which schools in eluru have the highest number of dropouts in 2025 [district: Eluru, year: 2025] [departments: ap_community360]"
+    "prompt": "[intent: school_hotspot] which schools in eluru have the highest number of dropouts in 2025 [district: Eluru, year: 2025]"
 })
 emb = resp.json()["embedding"]
 

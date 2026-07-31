@@ -4,7 +4,5 @@ databases:
 - database: ap_citizen360
   department: ap_citizen360
   source: citizen360_canonical_schema.json
-- database: ap_community360
-  department: ap_community360
-  source: ap_community360_canonical_schema.json
+
 tables_dir: tables

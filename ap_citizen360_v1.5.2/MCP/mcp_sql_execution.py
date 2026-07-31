@@ -186,7 +186,7 @@ def execute_sql(query: str) -> str:
     logger.info("[execute_sql] %s", query)
 
     # Strip schema prefixes for local SQLite mock execution
-    query = query.replace("ap_citizen360.", "").replace("ap_community360.", "")
+    query = query.replace("ap_citizen360.", "")
 
     # Validate query first
     is_valid, message = _validate_query(query)
