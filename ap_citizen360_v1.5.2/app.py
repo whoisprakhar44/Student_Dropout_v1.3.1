@@ -226,7 +226,7 @@ def get_session_messages(session_id: str) -> list[Any]:
     try:
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT role, content FROM messages WHERE session_id = ? ORDER BY created_at DESC LIMIT 10",
+            "SELECT role, content, sql FROM messages WHERE session_id = ? ORDER BY created_at DESC LIMIT 10",
             (session_id,)
         )
         rows = cursor.fetchall()
@@ -236,13 +236,19 @@ def get_session_messages(session_id: str) -> list[Any]:
             if row["role"] == "user":
                 messages.append(HumanMessage(content=row["content"]))
             elif row["role"] == "assistant":
-                messages.append(AIMessage(content=row["content"]))
+                # Include SQL in the assistant message so the LLM can reference
+                # it for follow-up questions (e.g. "now filter by female students")
+                content = row["content"] or ""
+                if row["sql"]:
+                    content = f"{content}\n\n[SQL used: `{row['sql']}`]"
+                messages.append(AIMessage(content=content))
         return messages
     except sqlite3.Error as e:
         print(f"Database error while reading session messages: {e}")
         return []
     finally:
         conn.close()
+
 
 
 def save_chat_turn(session_id: str, question: str, response_text: str, sql: str | None, result: list[dict[str, Any]] | None, username: str | None = None) -> str:
