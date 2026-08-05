@@ -128,8 +128,8 @@ def extract_embedding_text(schema: dict) -> str:
         parts.append("Relationships: " + ", ".join(str(r) for r in relationships) + ".")
 
     full_text = " ".join(parts)
-    if len(full_text) > 2500:
-        full_text = full_text[:2497] + "..."
+    if len(full_text) > 10000:
+        full_text = full_text[:9997] + "..."
     return full_text
 
 
