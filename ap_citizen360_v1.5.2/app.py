@@ -59,6 +59,7 @@ _EXCEL_HEADERS = [
     "Timestamp", "Username", "Session ID",
     "Question", "Generated SQL", "Status",
     "Answer / Response", "Error",
+    "Gen Time (s)", "Exec Time (s)", "Total Time (s)"
 ]
 
 
@@ -89,6 +90,9 @@ def _append_excel_log(
     status: str,
     answer: str,
     error: str,
+    gen_time: float = 0.0,
+    exec_time: float = 0.0,
+    total_time: float = 0.0,
 ) -> None:
     """Append one row to the Excel query log (thread-safe)."""
     import openpyxl
@@ -101,11 +105,18 @@ def _append_excel_log(
         status,
         answer[:2000] if answer else "",   # cap long answers
         error[:1000] if error else "",
+        round(gen_time, 2),
+        round(exec_time, 2),
+        round(total_time, 2),
     ]
     with _excel_lock:
         try:
             wb = openpyxl.load_workbook(EXCEL_LOG_PATH)
             ws = wb.active
+            # Ensure headers match if existing file has older schema
+            if ws.max_row >= 1 and ws.cell(row=1, column=ws.max_column).value != "Total Time (s)":
+                for col_idx, header in enumerate(_EXCEL_HEADERS, start=1):
+                    ws.cell(row=1, column=col_idx, value=header)
             ws.append(row)
             wb.save(EXCEL_LOG_PATH)
         except Exception as exc:
@@ -791,6 +802,9 @@ async def ask(payload: AskRequest):
                     status=excel_status,
                     answer=response_text,
                     error=excel_error,
+                    gen_time=gen_time,
+                    exec_time=exec_time,
+                    total_time=total_time,
                 )
 
                 response_obj.username = username
@@ -798,6 +812,7 @@ async def ask(payload: AskRequest):
                 yield json.dumps(response_obj.model_dump()).encode()
 
             except BaseException as exc:
+                exc_total_time = time.perf_counter() - t_start if 't_start' in locals() else 0.0
                 cancelled = (
                     (graph_task is not None and graph_task.cancelled())
                     or isinstance(exc, asyncio.CancelledError)
@@ -812,6 +827,7 @@ async def ask(payload: AskRequest):
                         status="cancelled",
                         answer="",
                         error="Request cancelled by user.",
+                        total_time=exc_total_time,
                     )
                     yield json.dumps({"sql": "", "result": [{"error": "Request cancelled.", "status": "cancelled"}]}).encode()
                 else:
@@ -824,6 +840,7 @@ async def ask(payload: AskRequest):
                         status="error",
                         answer="",
                         error=str(exc),
+                        total_time=exc_total_time,
                     )
                     yield json.dumps({"sql": "", "result": [{"error": str(exc), "status": "failed"}]}).encode()
 
