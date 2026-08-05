@@ -89,13 +89,22 @@ async def build_graph():
     Call once at application startup.
     """
     await init_tools()
-    tool_node = build_tool_node()
+    _base_tool_node = build_tool_node()
+    
+    import time
+    async def wrapped_tool_node(state: AgentState):
+        t0 = time.perf_counter()
+        result = await _base_tool_node.ainvoke(state)
+        exec_time = state.get("exec_time", 0.0) + (time.perf_counter() - t0)
+        if isinstance(result, dict):
+            result["exec_time"] = exec_time
+        return result
 
     builder = StateGraph(AgentState)
     builder.add_node("intent_node",      intent_node)       # NEW — classifies intent
     builder.add_node("initialize_node",  initialize_node)
     builder.add_node("llm_node",         llm_node)
-    builder.add_node("tool_node",        tool_node)
+    builder.add_node("tool_node",        wrapped_tool_node)
     builder.add_node("verify_node",      verify_node)
     builder.add_node("doc_search_node",  doc_search_node)
     builder.add_node("synthesize_node",  synthesize_node)

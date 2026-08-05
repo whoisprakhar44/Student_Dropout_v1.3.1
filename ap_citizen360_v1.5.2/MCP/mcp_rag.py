@@ -479,11 +479,14 @@ def get_column_values(table: str, column: str) -> str:
         for col in doc["columns"]:
             if col.get("name", "").lower() == column.lower():
                 val_desc = col.get("value_description", "")
+                distinct = col.get("distinct", [])
                 samples = col.get("sample_values", [])
                 
                 res = []
                 if val_desc:
                     res.append(f"Known values: {val_desc}")
+                if distinct:
+                    res.append(f"Distinct values: {', '.join(str(d) for d in distinct)}")
                 if samples:
                     res.append(f"Samples: {', '.join(str(s) for s in samples)}")
                     

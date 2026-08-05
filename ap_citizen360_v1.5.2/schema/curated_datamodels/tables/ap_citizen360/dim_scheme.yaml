@@ -1,7 +1,9 @@
 database: ap_citizen360
 table: dim_scheme
 department: ap_citizen360
-description: "Canonical welfare/benefit scheme catalog \u2014 referenced by fact_entitlement, fact_benefit_transaction, fact_scheme_disbursement, and the linked_scheme_ids arrays on several dim_* tables."
+description: "Canonical welfare/benefit scheme catalog \u2014 referenced by fact_entitlement,\
+  \ fact_benefit_transaction, fact_scheme_disbursement, and the linked_scheme_ids\
+  \ arrays on several dim_* tables."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_scheme
 partitioned_by: null
@@ -15,10 +17,16 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_scheme`(\n  `scheme_id` STRING COMMENT 'Primary Key: scheme code, e.g. \\'SCH-001\\'.',\n  `scheme_name` STRING COMMENT 'Display name of the scheme,\
-  \ e.g. \\'Anna NTR\\', \\'PM-Kisan\\'. [Value Examples: \\'Anna NTR\\', \\'PM-Kisan\\']',\n  `department_id` STRING COMMENT 'Foreign Key: References dim_department.department_id. the department administering\
-  \ this scheme.',\n  `benefit_type` STRING COMMENT 'Nature of the benefit, e.g. \\'Cash Transfer\\', \\'In-kind\\', \\'Subsidy\\', \\'Insurance\\'. [Value Examples: \\'Cash Transfer\\', \\'In-kind\\',\
-  \ \\'Subsidy\\', \\'Insurance\\']')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_scheme'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_scheme`(\n  `scheme_id` STRING\
+  \ COMMENT 'Primary Key: scheme code, e.g. \\'SCH-001\\'.',\n  `scheme_name` STRING\
+  \ COMMENT 'Display name of the scheme, e.g. \\'Anna NTR\\', \\'PM-Kisan\\'. [Value\
+  \ Examples: \\'Anna NTR\\', \\'PM-Kisan\\']',\n  `department_id` STRING COMMENT\
+  \ 'Foreign Key: References dim_department.department_id. the department administering\
+  \ this scheme.',\n  `benefit_type` STRING COMMENT 'Nature of the benefit, e.g. \\\
+  'Cash Transfer\\', \\'In-kind\\', \\'Subsidy\\', \\'Insurance\\'. [Value Examples:\
+  \ \\'Cash Transfer\\', \\'In-kind\\', \\'Subsidy\\', \\'Insurance\\']')\nROW FORMAT\
+  \ SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_scheme'"
 columns:
 - name: scheme_id
   type: STRING
@@ -27,18 +35,24 @@ columns:
 - name: scheme_name
   type: STRING
   nullable: true
-  description: 'Display name of the scheme, e.g. ''Anna NTR'', ''PM-Kisan''. [Value Examples: ''Anna NTR'', ''PM-Kisan'']'
-  value_description: 'Top distinct values: Pre-Matric Scholarship (SC/ST/BC/Min), PM-YASASVI - Post-Matric Scholarship for OBC, EBC & DNT [AP146], Bala Sanjeevani Plus, Kutir Jyoti (Free Electricity Connection),
-    NTR Bharosa Pension (Old Age), Post-Matriculation Scholarships (MTF), Rythu Bandhu Pathakam, NTR Bharosa Pension (Abhayahastam), NTR Bharosa Pension (Widow), AP ePass (Post-Matric Scholarship)'
+  description: 'Display name of the scheme, e.g. ''Anna NTR'', ''PM-Kisan''. [Value
+    Examples: ''Anna NTR'', ''PM-Kisan'']'
 - name: department_id
   type: STRING
   nullable: true
-  description: 'Foreign Key: References dim_department.department_id. the department administering this scheme.'
+  description: 'Foreign Key: References dim_department.department_id. the department
+    administering this scheme.'
 - name: benefit_type
   type: STRING
   nullable: true
-  description: 'Nature of the benefit, e.g. ''Cash Transfer'', ''In-kind'', ''Subsidy'', ''Insurance''. [Value Examples: ''Cash Transfer'', ''In-kind'', ''Subsidy'', ''Insurance'']'
-  value_description: 'Top distinct values: Direct Cash Transfer, In-Kind, Fee Reimbursement, Insurance Coverage, Credit / Loan'
+  description: 'Nature of the benefit, e.g. ''Cash Transfer'', ''In-kind'', ''Subsidy'',
+    ''Insurance''. [Value Examples: ''Cash Transfer'', ''In-kind'', ''Subsidy'', ''Insurance'']'
+  distinct:
+  - Direct Cash Transfer
+  - In-Kind
+  - Fee Reimbursement
+  - Insurance Coverage
+  - Credit / Loan
 primary_key:
 - scheme_id
 relationships:

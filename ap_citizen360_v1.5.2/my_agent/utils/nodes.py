@@ -63,7 +63,7 @@ STRICT RULES — follow every rule without exception:
 6. After execute_sql returns rows, summarize the result in plain language.
 7. The database is Hive/Impala - use Hive/Spark-compatible SQL only. Always prefix table names with the database (e.g. `ap_citizen360.table_name`).
 8. NEVER guess, invent, or assume any table names, column names, or join relations. If you lack the DDL context or column definitions for a table, you MUST call retrive_schema_rag to retrieve it. Do not attempt to guess or invent columns/tables under any circumstances.
-9. When you need exact filter values (district names, academic years, etc.), call get_column_values instead of running SELECT DISTINCT. Never guess filter value spellings.
+9. BEFORE using any filter value in a WHERE clause (like district name, status, or academic year), you MUST verify the exact spelling by calling get_column_values. Do NOT blindly trust the user's spelling and do NOT invent your own. Always use the closest matching valid value returned by the tool.
 """
 else:
     SYSTEM_PROMPT = """You are a data and document assistant for the ap_citizen360 data model.
@@ -81,7 +81,7 @@ STRICT RULES — follow every rule without exception:
 4. NEVER answer without calling execute_sql for data questions.
 5. After execute_sql returns rows, summarize the result in plain language.
 6. The database is SQLite - use SQLite-compatible SQL only. All tables are in the main schema with no prefix (e.g. write `citizen_student` instead of `ap_citizen360.citizen_student`).
-7. When you need exact filter values (district names, academic years, etc.), call get_column_values instead of running SELECT DISTINCT. Never guess filter value spellings.
+7. BEFORE using any filter value in a WHERE clause (like district name, status, or academic year), you MUST verify the exact spelling by calling get_column_values. Do NOT blindly trust the user's spelling and do NOT invent your own. Always use the closest matching valid value returned by the tool.
 """
 
 
@@ -209,6 +209,7 @@ def llm_node(state: AgentState) -> dict:
                 "llm_calls": current_calls,
                 "rag_calls": current_rag_calls,
                 "verified": True,
+                "gen_time": state.get("gen_time", 0.0) + (time.perf_counter() - t0),
             }
 
         # No successful result at all — collect the last SQL error for the hint.
@@ -230,6 +231,7 @@ def llm_node(state: AgentState) -> dict:
             "llm_calls": current_calls,
             "rag_calls": current_rag_calls,
             "verified": True,
+            "gen_time": state.get("gen_time", 0.0) + (time.perf_counter() - t0),
         }
 
     # If a successful SQL result already exists in history, summarise and stop —
@@ -246,6 +248,7 @@ def llm_node(state: AgentState) -> dict:
                 "messages": [AIMessage(content=summary)],
                 "llm_calls": current_calls,
                 "rag_calls": current_rag_calls,
+                "gen_time": state.get("gen_time", 0.0) + (time.perf_counter() - t0),
             }
 
     system_message = SystemMessage(content=SYSTEM_PROMPT)
@@ -394,6 +397,7 @@ def llm_node(state: AgentState) -> dict:
         "messages": [response],
         "llm_calls": state.get("llm_calls", 0) + llm_steps,
         "rag_calls": current_rag_calls + rag_increment,
+        "gen_time": state.get("gen_time", 0.0) + (time.perf_counter() - t0),
     }
 
 
@@ -928,4 +932,3 @@ def synthesize_node(state: AgentState) -> dict:
         "messages": [response],
         "llm_calls": state.get("llm_calls", 0) + 1,
     }
-

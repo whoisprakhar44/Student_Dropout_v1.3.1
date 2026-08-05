@@ -1,8 +1,9 @@
 database: ap_citizen360
 table: dim_vehicle
 department: ap_citizen360
-description: "One row per vehicle owned \u2014 identity/registration details. Compliance/regulatory status (insurance, fitness, permits, challans) is split out into dim_vehicle_compliance to keep slow-changing\
-  \ compliance data separate from largely-static identity data."
+description: "One row per vehicle owned \u2014 identity/registration details. Compliance/regulatory\
+  \ status (insurance, fitness, permits, challans) is split out into dim_vehicle_compliance\
+  \ to keep slow-changing compliance data separate from largely-static identity data."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_vehicle
 partitioned_by: null
@@ -16,17 +17,33 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_vehicle`(\n  `vehicle_id` STRING COMMENT 'Primary Key: vehicle identifier.',\n  `person_id` STRING COMMENT 'Foreign Key: References dim_person.person_id.\
-  \ the registered owner.',\n  `vehicle_type` STRING COMMENT 'Type of vehicle, e.g. \\'Car\\', \\'Motorcycle\\', \\'Tractor\\'. [Value Examples: \\'Car\\', \\'Motorcycle\\', \\'Tractor\\']',\n  `vehicle_class`\
-  \ STRING COMMENT 'RTO vehicle class, e.g. \\'Light Motor Vehicle\\', \\'Motor Cycle\\', \\'Non Transport\\'. [Value Examples: \\'Light Motor Vehicle\\', \\'Motor Cycle\\', \\'Non Transport\\']',\n  `reg_no`\
-  \ STRING COMMENT 'Vehicle registration number plate.',\n  `make` STRING COMMENT 'Categorical column. Distinct values: \\'Vehicle manufacturer\\', \\'make.\\'. Vehicle manufacturer/make.',\n  `model` STRING\
-  \ COMMENT 'Vehicle model name.',\n  `year_of_manufacture` INT COMMENT 'Year the vehicle was manufactured.',\n  `fuel_type` STRING COMMENT 'Fuel type, e.g. \\'Petrol\\', \\'Diesel\\'. [Value Examples:\
-  \ \\'Petrol\\', \\'Diesel\\']',\n  `chassis_no` STRING COMMENT 'Vehicle chassis (VIN) number.',\n  `engine_no` STRING COMMENT 'Vehicle engine number.',\n  `color` STRING COMMENT 'Vehicle color as registered.',\n\
-  \  `seating_capacity` INT COMMENT 'Number of seats.',\n  `unladen_weight_kg` INT COMMENT 'Unladen (kerb) weight of the vehicle, in kilograms.',\n  `registration_date` DATE COMMENT 'Date the vehicle was\
-  \ first registered.',\n  `rto_office` STRING COMMENT 'Regional Transport Office that registered the vehicle.',\n  `owner_name` STRING COMMENT 'Registered owner\\'s name (denormalized for display without\
-  \ a join to dim_person).',\n  `owner_mobile_number` STRING COMMENT 'Registered owner\\'s contact mobile number on file with the RTO.',\n  `data_source` STRING COMMENT 'Source system this vehicle record\
-  \ was sourced from, e.g. \\'VAHAN\\'. [Value Examples: \\'VAHAN\\']',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this vehicle record was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_vehicle'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_vehicle`(\n  `vehicle_id` STRING\
+  \ COMMENT 'Primary Key: vehicle identifier.',\n  `person_id` STRING COMMENT 'Foreign\
+  \ Key: References dim_person.person_id. the registered owner.',\n  `vehicle_type`\
+  \ STRING COMMENT 'Type of vehicle, e.g. \\'Car\\', \\'Motorcycle\\', \\'Tractor\\\
+  '. [Value Examples: \\'Car\\', \\'Motorcycle\\', \\'Tractor\\']',\n  `vehicle_class`\
+  \ STRING COMMENT 'RTO vehicle class, e.g. \\'Light Motor Vehicle\\', \\'Motor Cycle\\\
+  ', \\'Non Transport\\'. [Value Examples: \\'Light Motor Vehicle\\', \\'Motor Cycle\\\
+  ', \\'Non Transport\\']',\n  `reg_no` STRING COMMENT 'Vehicle registration number\
+  \ plate.',\n  `make` STRING COMMENT 'Categorical column. Distinct values: \\'Vehicle\
+  \ manufacturer\\', \\'make.\\'. Vehicle manufacturer/make.',\n  `model` STRING COMMENT\
+  \ 'Vehicle model name.',\n  `year_of_manufacture` INT COMMENT 'Year the vehicle\
+  \ was manufactured.',\n  `fuel_type` STRING COMMENT 'Fuel type, e.g. \\'Petrol\\\
+  ', \\'Diesel\\'. [Value Examples: \\'Petrol\\', \\'Diesel\\']',\n  `chassis_no`\
+  \ STRING COMMENT 'Vehicle chassis (VIN) number.',\n  `engine_no` STRING COMMENT\
+  \ 'Vehicle engine number.',\n  `color` STRING COMMENT 'Vehicle color as registered.',\n\
+  \  `seating_capacity` INT COMMENT 'Number of seats.',\n  `unladen_weight_kg` INT\
+  \ COMMENT 'Unladen (kerb) weight of the vehicle, in kilograms.',\n  `registration_date`\
+  \ DATE COMMENT 'Date the vehicle was first registered.',\n  `rto_office` STRING\
+  \ COMMENT 'Regional Transport Office that registered the vehicle.',\n  `owner_name`\
+  \ STRING COMMENT 'Registered owner\\'s name (denormalized for display without a\
+  \ join to dim_person).',\n  `owner_mobile_number` STRING COMMENT 'Registered owner\\\
+  's contact mobile number on file with the RTO.',\n  `data_source` STRING COMMENT\
+  \ 'Source system this vehicle record was sourced from, e.g. \\'VAHAN\\'. [Value\
+  \ Examples: \\'VAHAN\\']',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this vehicle\
+  \ record was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_vehicle'"
 columns:
 - name: vehicle_id
   type: STRING
@@ -39,15 +56,29 @@ columns:
 - name: vehicle_type
   type: STRING
   nullable: true
-  description: 'Type of vehicle, e.g. ''Car'', ''Motorcycle'', ''Tractor''. [Value Examples: ''Car'', ''Motorcycle'', ''Tractor'']'
-  value_description: 'Top distinct values: Motor Car, Three Wheeler (Passenger), Goods Carrier, Agricultural Tractor, Trailer (Commercial), Tractor (Commercial), Trailer (Agricultural), Three Wheeler (Goods),
-    Omni Bus (Private Use), Construction Equipment Vehicle'
+  description: 'Type of vehicle, e.g. ''Car'', ''Motorcycle'', ''Tractor''. [Value
+    Examples: ''Car'', ''Motorcycle'', ''Tractor'']'
 - name: vehicle_class
   type: STRING
   nullable: true
-  description: 'RTO vehicle class, e.g. ''Light Motor Vehicle'', ''Motor Cycle'', ''Non Transport''. [Value Examples: ''Light Motor Vehicle'', ''Motor Cycle'', ''Non Transport'']'
-  value_description: 'Top distinct values: TWO WHEELER(NT), LIGHT MOTOR VEHICLE, THREE WHEELER(NT), THREE WHEELER(T), LIGHT, LIGHT PASSENGER VEHICLE, HEAVY PASSENGER VEHICLE, MEDIUM MOTOR VEHICLE, MEDIUM
-    PASSENGER VEHICLE, HEAVY MOTOR VEHICLE'
+  description: 'RTO vehicle class, e.g. ''Light Motor Vehicle'', ''Motor Cycle'',
+    ''Non Transport''. [Value Examples: ''Light Motor Vehicle'', ''Motor Cycle'',
+    ''Non Transport'']'
+  distinct:
+  - TWO WHEELER(NT)
+  - LIGHT MOTOR VEHICLE
+  - THREE WHEELER(NT)
+  - THREE WHEELER(T)
+  - LIGHT
+  - 'NULL'
+  - LIGHT PASSENGER VEHICLE
+  - HEAVY PASSENGER VEHICLE
+  - MEDIUM MOTOR VEHICLE
+  - MEDIUM PASSENGER VEHICLE
+  - HEAVY MOTOR VEHICLE
+  - TWO WHEELER(T)
+  - TWO WHEELER (Invalid Carriage)
+  - FOUR WHEELER (Invalid Carriage)
 - name: reg_no
   type: STRING
   nullable: true
@@ -55,24 +86,38 @@ columns:
 - name: make
   type: STRING
   nullable: true
-  description: 'Categorical column. Distinct values: ''Vehicle manufacturer'', ''make.''. Vehicle manufacturer/make.'
-  value_description: 'Top distinct values: 32, 12, 89, 9999, 36, 3982, 66, 39, 71, 86'
+  description: 'Categorical column. Distinct values: ''Vehicle manufacturer'', ''make.''.
+    Vehicle manufacturer/make.'
 - name: model
   type: STRING
   nullable: true
   description: Vehicle model name.
-  value_description: 'Top distinct values: GLAMOUR DRUM/SELF CAST WHEEL B, TVS XL SUPER HEAVY DUTY BSIII, BAJAJ CHETAK, PULSAR 150 DTS-I, ACTIVA 5G, PASSION PRO (DRUM-SELF CAST WH, HERO HONDA PASSION PLUS,
-    PULSAR 150 DTS-I BSIII, HERO HONDA SPLENDOR +, ACTIVA 3G W ELECTRIC A START&K'
 - name: year_of_manufacture
   type: INT
   nullable: true
   description: Year the vehicle was manufactured.
-  value_description: 'Top distinct values: 2018, 2019, 2017, 2016, 2020, 2021, 2014, 2024, 2015, 2023'
 - name: fuel_type
   type: STRING
   nullable: true
-  description: 'Fuel type, e.g. ''Petrol'', ''Diesel''. [Value Examples: ''Petrol'', ''Diesel'']'
-  value_description: 'Top distinct values: PETROL, DIESEL, NOT APPLICABLE, ELECTRIC(BOV), PETROL(E20), PETROL/LPG, PETROL/CNG, PURE EV, PETROL/HYBRID, CNG ONLY'
+  description: 'Fuel type, e.g. ''Petrol'', ''Diesel''. [Value Examples: ''Petrol'',
+    ''Diesel'']'
+  distinct:
+  - PETROL
+  - DIESEL
+  - NOT APPLICABLE
+  - ELECTRIC(BOV)
+  - PETROL(E20)
+  - PETROL/LPG
+  - PETROL/CNG
+  - PURE EV
+  - PETROL/HYBRID
+  - CNG ONLY
+  - STRONG HYBRID EV
+  - DIESEL/HYBRID
+  - LPG ONLY
+  - 'NULL'
+  - SOLAR
+  - PLUG-IN HYBRID EV
 - name: chassis_no
   type: STRING
   nullable: true
@@ -85,17 +130,14 @@ columns:
   type: STRING
   nullable: true
   description: Vehicle color as registered.
-  value_description: 'Top distinct values: BLACK, RED, GREEN, INA, SBK, BLUE, MOSS GREEN, WHITE, GRAY, GOLDEN YELLOW'
 - name: seating_capacity
   type: INT
   nullable: true
   description: Number of seats.
-  value_description: 'Top distinct values: 2, 5, 4, 1, 0, 3, 7, 6, 8, 10'
 - name: unladen_weight_kg
   type: INT
   nullable: true
   description: Unladen (kerb) weight of the vehicle, in kilograms.
-  value_description: 'Top distinct values: 0, 109, 112, 108, 103, 139, 119, 116, 65, 113'
 - name: registration_date
   type: DATE
   nullable: true
@@ -104,13 +146,11 @@ columns:
   type: STRING
   nullable: true
   description: Regional Transport Office that registered the vehicle.
-  value_description: 'Top distinct values: Vishakapatnam RTA, Vijayawada RTA, Guntur RTA, RTA Kakinada, Nellore RTA, Tirupati RTA, Srikakulam RTA, Anantapur RTA, Cuddapah RTA, Kurnool RTA'
 - name: owner_name
   type: STRING
   nullable: true
-  description: Registered owner's name (denormalized for display without a join to dim_person).
-  value_description: 'Top distinct values: WHEELSMART AUTOFIN & CONSULTANCY SE, K SRINIVASA RAO, K SATYANARAYANA, P SRINIVASA RAO, M SRINIVASA RAO, K VENKATESWARA RAO, P SATYANARAYANA, G SRINIVASA RAO,
-    S MAHABOOB BASHA, B SRINIVASA RAO'
+  description: Registered owner's name (denormalized for display without a join to
+    dim_person).
 - name: owner_mobile_number
   type: STRING
   nullable: true
@@ -118,8 +158,10 @@ columns:
 - name: data_source
   type: STRING
   nullable: true
-  description: 'Source system this vehicle record was sourced from, e.g. ''VAHAN''. [Value Examples: ''VAHAN'']'
-  value_description: 'Top distinct values: Vahan'
+  description: 'Source system this vehicle record was sourced from, e.g. ''VAHAN''.
+    [Value Examples: ''VAHAN'']'
+  distinct:
+  - Vahan
 - name: updated_at
   type: TIMESTAMP
   nullable: true

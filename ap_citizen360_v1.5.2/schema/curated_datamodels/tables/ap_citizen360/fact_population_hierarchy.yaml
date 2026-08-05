@@ -1,8 +1,10 @@
 database: ap_citizen360
 table: fact_population_hierarchy
 department: ap_citizen360
-description: "Pre-aggregated population pyramid cells \u2014 population, household, and ration-card counts broken down by geography, gender, and social category. Backs the Population Hierarchy / demographic\
-  \ pyramid views without aggregating dim_person at query time."
+description: "Pre-aggregated population pyramid cells \u2014 population, household,\
+  \ and ration-card counts broken down by geography, gender, and social category.\
+  \ Backs the Population Hierarchy / demographic pyramid views without aggregating\
+  \ dim_person at query time."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_population_hierarchy
 partitioned_by: null
@@ -16,31 +18,50 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_population_hierarchy`(\n  `geo_level` STRING COMMENT 'Primary Key: state | district | mandal | village.',\n  `geo_id` STRING COMMENT 'Primary Key: ap\
-  \ | district_id | mandal_id | village_name \u2014 the identifier appropriate to geo_level.',\n  `gender` STRING COMMENT 'Primary Key: Male | Female | Others.',\n  `social_category` STRING COMMENT 'Primary\
-  \ Key: OC | BC | SC | ST | Others.',\n  `population_count` BIGINT COMMENT 'Census population for this geography/gender/category cell.',\n  `household_count` BIGINT COMMENT 'Number of households headed\
-  \ by this gender/category in this geography.',\n  `ration_card_count` BIGINT COMMENT 'NFSA ration card holders in this gender/category cell.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_population_hierarchy'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_population_hierarchy`(\n  `geo_level`\
+  \ STRING COMMENT 'Primary Key: state | district | mandal | village.',\n  `geo_id`\
+  \ STRING COMMENT 'Primary Key: ap | district_id | mandal_id | village_name \u2014\
+  \ the identifier appropriate to geo_level.',\n  `gender` STRING COMMENT 'Primary\
+  \ Key: Male | Female | Others.',\n  `social_category` STRING COMMENT 'Primary Key:\
+  \ OC | BC | SC | ST | Others.',\n  `population_count` BIGINT COMMENT 'Census population\
+  \ for this geography/gender/category cell.',\n  `household_count` BIGINT COMMENT\
+  \ 'Number of households headed by this gender/category in this geography.',\n  `ration_card_count`\
+  \ BIGINT COMMENT 'NFSA ration card holders in this gender/category cell.')\nROW\
+  \ FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_population_hierarchy'"
 columns:
 - name: geo_level
   type: STRING
   nullable: true
   description: 'Primary Key: state | district | mandal | village.'
-  value_description: 'Top distinct values: village, mandal, district, state'
+  distinct:
+  - village
+  - mandal
+  - district
+  - state
 - name: geo_id
   type: STRING
   nullable: true
-  description: "Primary Key: ap | district_id | mandal_id | village_name \u2014 the identifier appropriate to geo_level."
+  description: "Primary Key: ap | district_id | mandal_id | village_name \u2014 the\
+    \ identifier appropriate to geo_level."
 - name: gender
   type: STRING
   nullable: true
   description: 'Primary Key: Male | Female | Others.'
-  value_description: 'Top distinct values: Female, Male, Others'
+  distinct:
+  - Female
+  - Male
+  - Others
 - name: social_category
   type: STRING
   nullable: true
   description: 'Primary Key: OC | BC | SC | ST | Others.'
-  value_description: 'Top distinct values: Others, BC, SC, OC, ST'
+  distinct:
+  - Others
+  - BC
+  - SC
+  - OC
+  - ST
 - name: population_count
   type: BIGINT
   nullable: true

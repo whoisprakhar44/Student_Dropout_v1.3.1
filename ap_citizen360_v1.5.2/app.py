@@ -16,6 +16,7 @@ import threading
 import traceback
 import uuid
 from datetime import datetime
+import time
 
 from dotenv import load_dotenv
 
@@ -134,7 +135,7 @@ class AskResponse(BaseModel):
     sql: str
     result: list[dict[str, Any]]
     username: str = Field(..., description="The username associated with this chat.")
-
+    timings: dict[str, float] | None = None
 
 class SessionSummary(BaseModel):
     id: str
@@ -719,6 +720,7 @@ async def ask(payload: AskRequest):
                             }
                         )
 
+                t_start = time.perf_counter()
                 graph_task = asyncio.ensure_future(_run_graph())
                 active_tasks[req_id] = graph_task
 
@@ -736,7 +738,19 @@ async def ask(payload: AskRequest):
 
                 # Retrieve result (re-raises any exception from inside the task)
                 state = graph_task.result()
+                total_time = time.perf_counter() - t_start
+
                 response_obj = _extract_sql_and_result(state.get("messages", []), username)
+
+                # Attach timings
+                gen_time = state.get("gen_time", 0.0)
+                exec_time = state.get("exec_time", 0.0)
+                response_obj.timings = {
+                    "total_gen_time": round(gen_time, 2),
+                    "total_exec_time": round(exec_time, 2),
+                    "total_time": round(total_time, 2)
+                }
+                print(f"[TIMING] Total Gen Time: {gen_time:.2f}s | Total Exec Time: {exec_time:.2f}s | Total Time: {total_time:.2f}s")
 
                 # Extract response text (the final assistant verbal summary)
                 response_text = ""

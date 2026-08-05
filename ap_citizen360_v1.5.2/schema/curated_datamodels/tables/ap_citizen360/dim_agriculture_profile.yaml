@@ -1,10 +1,10 @@
 database: ap_citizen360
 table: dim_agriculture_profile
 department: ap_citizen360
-description: One row per person who is a registered farmer — landholding summary,
-  crop information, irrigation, credit, and agricultural welfare-scheme enrollment.
-  Complements dim_land (which records individual parcels) with a farmer-level rollup
-  and scheme/credit detail land records don't carry.
+description: "One row per person who is a registered farmer \u2014 landholding summary,\
+  \ crop information, irrigation, credit, and agricultural welfare-scheme enrollment.\
+  \ Complements dim_land (which records individual parcels) with a farmer-level rollup\
+  \ and scheme/credit detail land records don't carry."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_agriculture_profile
 partitioned_by: null
@@ -73,7 +73,6 @@ columns:
   description: 'Landholding-size classification, e.g. ''Small'', ''Semi-medium'',
     ''Medium'', ''Large''. [Value Examples: ''Small'', ''Semi-medium'', ''Medium'',
     ''Large'']'
-  value_description: '[''Medium'', ''Marginal'', ''Semi-medium'', ''Large'', ''Small'']'
 - name: total_land_acres
   type: DOUBLE
   nullable: true
@@ -91,18 +90,10 @@ columns:
   type: STRING
   nullable: true
   description: Primary crop grown.
-  value_description: '[''Paddy'', ''Red gram'', ''Cotton'', ''Mango'', ''Coconut'',
-    ''Maize'', ''Cashew nut'', ''Red Chillies'', ''Groundnut'', ''Oil Palm'', ''Tomato'',
-    ''casuarina'', ''Sweet Orange'', ''subabul'', ''Turmeric'', ''Banana'', ''Onion'',
-    ''Ragi'', ''Super napier grass'', ''Eucalyptus'', ...]'
 - name: secondary_crop
   type: STRING
   nullable: true
   description: Secondary crop grown, where applicable.
-  value_description: '[''Paddy'', ''Red gram'', ''Cotton'', ''Mango'', ''Coconut'',
-    ''Maize'', ''Cashew nut'', ''Red Chillies'', ''Groundnut'', ''Oil Palm'', ''Tomato'',
-    ''casuarina'', ''Sweet Orange'', ''subabul'', ''Turmeric'', ''Banana'', ''Onion'',
-    ''Ragi'', ''Super napier grass'', ''Eucalyptus'', ...]'
 - name: crop_season
   type: STRING
   nullable: true
@@ -127,8 +118,6 @@ columns:
   nullable: true
   description: 'Primary irrigation source, e.g. ''Borewell'', ''Canal'', ''Drip''.
     [Value Examples: ''Borewell'', ''Canal'', ''Drip'']'
-  value_description: '[''Conventional/ Flooding'', ''Rainfed'', ''Drip System'', ''Sprinkler
-    System'']'
 - name: pump_set_hp
   type: DOUBLE
   nullable: true
@@ -149,19 +138,16 @@ columns:
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if enrolled in the pm-kisan income-support scheme.
-  value_description: '[''True'', ''False'']'
 - name: rythu_bharosa_beneficiary
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if enrolled in the ap rythu bharosa farmer-support
     scheme.
-  value_description: '[''True'', ''False'']'
 - name: pmfby_enrolled
   type: BOOLEAN
   nullable: true
   description: Boolean flag. True if enrolled in the pradhan mantri fasal bima yojana
     crop insurance scheme.
-  value_description: '[''False'']'
 - name: market_linkage
   type: STRING
   nullable: true

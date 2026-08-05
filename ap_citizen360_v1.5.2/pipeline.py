@@ -98,7 +98,6 @@ def extract_embedding_text(schema: dict) -> str:
             col_desc      = col.get("description", "")
             key           = col.get("key", "")
             sample        = col.get("sample_values", [])
-            val_desc      = col.get("value_description", "")
 
             col_str = f"{name} ({dtype}"
             if key:
@@ -106,12 +105,7 @@ def extract_embedding_text(schema: dict) -> str:
             if col_desc:
                 col_str += f": {col_desc}"
             if sample:
-                col_str += f", e.g. {', '.join(str(s) for s in sample)}"
-            if val_desc:
-                val_str = str(val_desc)
-                if len(val_str) > 200:
-                    val_str = val_str[:197] + "..."
-                col_str += f". Known values: {val_str}"
+                col_str += f", e.g. {', '.join(str(s) for s in sample[:3])}"
             col_str += ")"
             col_parts.append(col_str)
         parts.append("Columns: " + "; ".join(col_parts) + ".")
@@ -126,14 +120,7 @@ def extract_embedding_text(schema: dict) -> str:
     if ops:
         parts.append("Common operations: " + ", ".join(str(o) for o in ops) + ".")
 
-    # Sample values (top-level)
-    sample_values = schema.get("sample_values", {})
-    if sample_values:
-        sv_parts = [
-            f"{col}: {', '.join(str(v) for v in vals)}"
-            for col, vals in sample_values.items()
-        ]
-        parts.append("Sample values — " + "; ".join(sv_parts) + ".")
+
 
     # Relationships
     relationships = schema.get("relationships", [])

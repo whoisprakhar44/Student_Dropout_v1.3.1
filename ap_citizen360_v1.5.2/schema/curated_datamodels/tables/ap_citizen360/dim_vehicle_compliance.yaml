@@ -1,8 +1,10 @@
 database: ap_citizen360
 table: dim_vehicle_compliance
 department: ap_citizen360
-description: "One row per vehicle's regulatory/compliance status \u2014 insurance, fitness, permits, taxes, loans, challans. Keyed by (person_id, reg_no) back to the owning dim_vehicle row, kept separate\
-  \ because this data changes far more often than vehicle identity."
+description: "One row per vehicle's regulatory/compliance status \u2014 insurance,\
+  \ fitness, permits, taxes, loans, challans. Keyed by (person_id, reg_no) back to\
+  \ the owning dim_vehicle row, kept separate because this data changes far more often\
+  \ than vehicle identity."
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_vehicle_compliance
 partitioned_by: null
@@ -16,22 +18,37 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_vehicle_compliance`(\n  `person_id` STRING COMMENT 'Primary Key: Foreign key to dim_person.person_id \u2014 the vehicle owner.',\n  `reg_no` STRING COMMENT\
-  \ 'Primary Key: Vehicle registration number \u2014 joins back to dim_vehicle.reg_no.',\n  `insurance_valid_to` DATE COMMENT 'Date the current insurance policy expires.',\n  `insurance_company` STRING\
-  \ COMMENT 'Name of the insurer.',\n  `policy_no` STRING COMMENT 'Insurance policy number.',\n  `fitness_valid_to` DATE COMMENT 'Date the vehicle\\'s fitness certificate expires.',\n  `registration_valid_to`\
-  \ DATE COMMENT 'Date the vehicle\\'s registration itself expires/needs renewal.',\n  `puc_valid_to` DATE COMMENT 'Date the Pollution Under Control certificate expires.',\n  `permit_type` STRING COMMENT\
-  \ 'Type of transport permit held, where applicable (e.g. commercial vehicles).',\n  `permit_valid_to` DATE COMMENT 'Date the transport permit expires.',\n  `tax_paid_upto` DATE COMMENT 'Date through which\
-  \ road tax has been paid.',\n  `green_tax_due` BOOLEAN COMMENT 'Boolean flag. True if a green tax (for older vehicles) is currently due.',\n  `financer_name` STRING COMMENT 'Name of the financing bank/NBFC,\
-  \ if the vehicle is under loan.',\n  `hypothecation_status` STRING COMMENT 'Hypothecation (loan lien) status with the financer, e.g. \\'Active\\', \\'Terminated\\'. [Value Examples: \\'Active\\', \\'Terminated\\\
-  ']',\n  `loan_outstanding` DECIMAL(12,2) COMMENT 'Outstanding loan amount against the vehicle, in INR. Unit: INR.',\n  `hsrp_issued` BOOLEAN COMMENT 'Boolean flag. True if a high security registration\
-  \ plate has been issued for this vehicle.',\n  `challan_pending` BOOLEAN COMMENT 'Boolean flag. True if there is at least one unpaid traffic challan against this vehicle.',\n  `updated_at` TIMESTAMP COMMENT\
-  \ 'Timestamp this compliance record was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_vehicle_compliance'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_vehicle_compliance`(\n  `person_id`\
+  \ STRING COMMENT 'Primary Key: Foreign key to dim_person.person_id \u2014 the vehicle\
+  \ owner.',\n  `reg_no` STRING COMMENT 'Primary Key: Vehicle registration number\
+  \ \u2014 joins back to dim_vehicle.reg_no.',\n  `insurance_valid_to` DATE COMMENT\
+  \ 'Date the current insurance policy expires.',\n  `insurance_company` STRING COMMENT\
+  \ 'Name of the insurer.',\n  `policy_no` STRING COMMENT 'Insurance policy number.',\n\
+  \  `fitness_valid_to` DATE COMMENT 'Date the vehicle\\'s fitness certificate expires.',\n\
+  \  `registration_valid_to` DATE COMMENT 'Date the vehicle\\'s registration itself\
+  \ expires/needs renewal.',\n  `puc_valid_to` DATE COMMENT 'Date the Pollution Under\
+  \ Control certificate expires.',\n  `permit_type` STRING COMMENT 'Type of transport\
+  \ permit held, where applicable (e.g. commercial vehicles).',\n  `permit_valid_to`\
+  \ DATE COMMENT 'Date the transport permit expires.',\n  `tax_paid_upto` DATE COMMENT\
+  \ 'Date through which road tax has been paid.',\n  `green_tax_due` BOOLEAN COMMENT\
+  \ 'Boolean flag. True if a green tax (for older vehicles) is currently due.',\n\
+  \  `financer_name` STRING COMMENT 'Name of the financing bank/NBFC, if the vehicle\
+  \ is under loan.',\n  `hypothecation_status` STRING COMMENT 'Hypothecation (loan\
+  \ lien) status with the financer, e.g. \\'Active\\', \\'Terminated\\'. [Value Examples:\
+  \ \\'Active\\', \\'Terminated\\']',\n  `loan_outstanding` DECIMAL(12,2) COMMENT\
+  \ 'Outstanding loan amount against the vehicle, in INR. Unit: INR.',\n  `hsrp_issued`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if a high security registration plate has\
+  \ been issued for this vehicle.',\n  `challan_pending` BOOLEAN COMMENT 'Boolean\
+  \ flag. True if there is at least one unpaid traffic challan against this vehicle.',\n\
+  \  `updated_at` TIMESTAMP COMMENT 'Timestamp this compliance record was last updated.')\n\
+  ROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n \
+  \ 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_vehicle_compliance'"
 columns:
 - name: person_id
   type: STRING
   nullable: true
-  description: "Primary Key: Foreign key to dim_person.person_id \u2014 the vehicle owner."
+  description: "Primary Key: Foreign key to dim_person.person_id \u2014 the vehicle\
+    \ owner."
 - name: reg_no
   type: STRING
   nullable: true
@@ -40,11 +57,12 @@ columns:
   type: DATE
   nullable: true
   description: Date the current insurance policy expires.
-  value_description: 'Top distinct values: 2018-03-30, 2024-10-06, 2024-10-07, 2028-10-22, 2024-10-09, 2025-10-24, 2029-10-11, 2023-10-17, 2025-10-22, 2019-08-30'
 - name: insurance_company
   type: STRING
   nullable: true
   description: Name of the insurer.
+  distinct:
+  - 'NULL'
 - name: policy_no
   type: STRING
   nullable: true
@@ -53,53 +71,72 @@ columns:
   type: DATE
   nullable: true
   description: Date the vehicle's fitness certificate expires.
-  value_description: 'Top distinct values: 2035-11-24, 2035-10-30, 2035-11-10, 2035-10-26, 2027-05-15, 2035-10-25, 2034-10-20, 2032-09-28, 2035-10-21, 2033-10-18'
 - name: registration_valid_to
   type: DATE
   nullable: true
   description: Date the vehicle's registration itself expires/needs renewal.
-  value_description: 'Top distinct values: 2035-11-24, 2035-10-30, 2035-11-10, 2035-10-26, 2027-05-15, 2035-10-25, 2034-10-20, 2032-09-28, 2035-10-21, 2033-10-18'
 - name: puc_valid_to
   type: DATE
   nullable: true
   description: Date the Pollution Under Control certificate expires.
-  value_description: 'Top distinct values: 2026-09-16, 2026-09-17, 2026-09-15, 2026-03-16, 2026-03-17, 2026-08-22, 2026-08-11, 2026-08-01, 2026-08-04, 2026-07-28'
 - name: permit_type
   type: STRING
   nullable: true
   description: Type of transport permit held, where applicable (e.g. commercial vehicles).
+  distinct:
+  - 'NULL'
 - name: permit_valid_to
   type: DATE
   nullable: true
   description: Date the transport permit expires.
+  distinct:
+  - 'NULL'
 - name: tax_paid_upto
   type: DATE
   nullable: true
   description: Date through which road tax has been paid.
+  distinct:
+  - 'NULL'
 - name: green_tax_due
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if a green tax (for older vehicles) is currently due.
+  description: Boolean flag. True if a green tax (for older vehicles) is currently
+    due.
+  distinct:
+  - 'NULL'
 - name: financer_name
   type: STRING
   nullable: true
   description: Name of the financing bank/NBFC, if the vehicle is under loan.
+  distinct:
+  - 'NULL'
 - name: hypothecation_status
   type: STRING
   nullable: true
-  description: 'Hypothecation (loan lien) status with the financer, e.g. ''Active'', ''Terminated''. [Value Examples: ''Active'', ''Terminated'']'
+  description: 'Hypothecation (loan lien) status with the financer, e.g. ''Active'',
+    ''Terminated''. [Value Examples: ''Active'', ''Terminated'']'
+  distinct:
+  - 'NULL'
 - name: loan_outstanding
   type: DECIMAL(12,2)
   nullable: true
   description: 'Outstanding loan amount against the vehicle, in INR. Unit: INR.'
+  distinct:
+  - 'NULL'
 - name: hsrp_issued
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if a high security registration plate has been issued for this vehicle.
+  description: Boolean flag. True if a high security registration plate has been issued
+    for this vehicle.
+  distinct:
+  - 'NULL'
 - name: challan_pending
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if there is at least one unpaid traffic challan against this vehicle.
+  description: Boolean flag. True if there is at least one unpaid traffic challan
+    against this vehicle.
+  distinct:
+  - 'NULL'
 - name: updated_at
   type: TIMESTAMP
   nullable: true
