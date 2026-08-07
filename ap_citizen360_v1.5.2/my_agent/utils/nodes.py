@@ -624,6 +624,26 @@ def verify_node(state: AgentState) -> dict:
             "verified": True,
         }
 
+    # Short-circuit: single-value result (e.g. COUNT, SUM, AVG) is unambiguous.
+    # Skip the LLM verification call entirely — saves ~2-3s per request.
+    try:
+        _payload = json.loads(_extract_tool_content(last_result_msg.content) or "{}")
+        _rows = _payload.get("rows") or []
+        _cols = _payload.get("columns") or []
+        if len(_rows) == 1 and len(_cols) == 1:
+            summary = _summarize_sql_result(state["user_query"], last_result_msg.content)
+            logger.info(
+                "verify_node: single-value result — skipping LLM verification (%.2fs saved)",
+                time.perf_counter() - t0,
+            )
+            return {
+                "messages": [AIMessage(content=summary or result_table)],
+                "verify_calls": verify_calls + 1,
+                "verified": True,
+            }
+    except Exception:
+        pass  # fall through to LLM verification if parse fails
+
     # Build and call the verifier
     verifier_prompt = _VERIFY_PROMPT.format(
         user_query=state["user_query"],
