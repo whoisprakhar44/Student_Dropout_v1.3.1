@@ -122,7 +122,9 @@ class VectorDB:
             if not uri.startswith(("http://", "https://")) and not os.path.isabs(uri):
                 # if relative path, make it relative to the config file location
                 config_path = os.environ.get("RETRIEVAL_CONFIG", "mcp_rag.yaml")
-                config_dir = os.path.dirname(os.path.abspath(config_path))
+                if not os.path.isabs(config_path):
+                    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), config_path)
+                config_dir = os.path.dirname(config_path)
                 uri = os.path.join(config_dir, uri)
             self.client = MilvusClient(uri=uri)
             self.collection = cfg["vector_db"]["milvus"]["collection"]
@@ -372,6 +374,9 @@ def retrive_schema_rag(query: str, top_k: int = 15):
 
     emb = embedder.embed(query)
     results = vector_db.search(emb, top_k)
+    logger.info(f"Raw results from Milvus: {len(results)}. MIN_SCORE is {_SCHEMA_MIN_SCORE}")
+    for r in results:
+        logger.info(f"Raw hit: {r.get('table_name')} type: {r.get('chunk_type')} score: {r.get('score')}")
     results = dedupe(results)
     results = threshold(results)
     results = exclude_facts(results)

@@ -751,12 +751,34 @@ async def ask(payload: AskRequest):
             graph_task: asyncio.Task | None = None
             try:
                 if not check_llm().get("model_available"):
+                    err_msg = (
+                        f"vLLM model '{chat_model_name()}' is not available. "
+                        f"Ensure vLLM is running with the correct model."
+                    )
+                    save_chat_turn(
+                        session_id=session_id,
+                        question=payload.question,
+                        response_text=err_msg,
+                        sql="",
+                        result=[{"error": err_msg, "status": "failed"}],
+                        username=username
+                    )
+                    _append_query_log(
+                        username=username,
+                        session_id=session_id,
+                        question=payload.question or "",
+                        sql="",
+                        status="failed",
+                        answer=err_msg,
+                        error=err_msg,
+                        pii_audit=pii_audit_str,
+                        gen_time=0.0,
+                        exec_time=0.0,
+                        total_time=0.0,
+                    )
                     yield json.dumps({
                         "sql": "",
-                        "result": [{"error": (
-                            f"vLLM model '{chat_model_name()}' is not available. "
-                            f"Ensure vLLM is running with the correct model."
-                        ), "status": "failed"}],
+                        "result": [{"error": err_msg, "status": "failed"}],
                     }).encode()
                     return
 
@@ -890,6 +912,14 @@ async def ask(payload: AskRequest):
                 )
                 if cancelled:
                     print(f"Request {req_id} was explicitly cancelled.")
+                    save_chat_turn(
+                        session_id=session_id,
+                        question=payload.question,
+                        response_text="Request cancelled by user.",
+                        sql="",
+                        result=[{"error": "Request cancelled.", "status": "cancelled"}],
+                        username=username
+                    )
                     _append_excel_log(
                         username=username,
                         session_id=session_id,
@@ -914,6 +944,14 @@ async def ask(payload: AskRequest):
                     yield json.dumps({"sql": "", "result": [{"error": "Request cancelled.", "status": "cancelled"}]}).encode()
                 else:
                     traceback.print_exc()
+                    save_chat_turn(
+                        session_id=session_id,
+                        question=payload.question,
+                        response_text=f"An error occurred: {exc}",
+                        sql="",
+                        result=[{"error": str(exc), "status": "failed"}],
+                        username=username
+                    )
                     _append_query_log(
                         username=username,
                         session_id=session_id,
@@ -1542,7 +1580,7 @@ async def get_ui():
             }
         }
 
-        function selectSession(sessionId) {
+        async function selectSession(sessionId) {
             currentSessionId = sessionId;
             document.querySelectorAll('.session-item').forEach(el => el.classList.remove('active'));
             const activeEl = document.getElementById(`session-${sessionId}`);
@@ -1553,14 +1591,40 @@ async def get_ui():
                 document.getElementById('chatTitle').innerText = session.title;
                 document.getElementById('chatSubtitle').innerText = `Session ID: ${session.id}`;
                 
-                // Render session messages
-                const container = document.getElementById('messagesContainer');
-                container.innerHTML = '';
-                
-                session.messages.forEach(msg => {
-                    renderMessage(msg.role, msg.content, msg.sql, msg.result);
-                });
-                scrollToBottom();
+                try {
+                    const response = await fetch('/ask', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'history_session',
+                            username: currentUsername,
+                            session_id: sessionId
+                        })
+                    });
+                    if (!response.ok) throw new Error("Failed to load session details");
+                    
+                    const sessionDetails = await response.json();
+                    
+                    const container = document.getElementById('messagesContainer');
+                    container.innerHTML = '';
+                    
+                    if (sessionDetails.messages && sessionDetails.messages.length > 0) {
+                        sessionDetails.messages.forEach(msg => {
+                            renderMessage(msg.role, msg.content, msg.sql, msg.result);
+                        });
+                    } else {
+                        container.innerHTML = `
+                            <div class="empty-chat">
+                                <div class="empty-icon">💬</div>
+                                <div>This is a new conversation thread. Type your question below to begin.</div>
+                            </div>
+                        `;
+                    }
+                    scrollToBottom();
+                } catch (err) {
+                    console.error("Error loading session:", err);
+                    alert("Error retrieving session messages.");
+                }
             }
         }
 
@@ -1821,9 +1885,11 @@ async def get_ui():
                     }
                 }
                 
-                // If it was cancelled, render the cancelled response directly
+                // Render the response directly
                 if (data.result && data.result.length > 0 && data.result[0].status === 'cancelled') {
                     renderMessage('assistant', "Request cancelled by user.", data.sql, data.result);
+                } else {
+                    renderMessage('assistant', explanation, data.sql, data.result);
                 }
                 
                 // Re-fetch history to update sidebar with the new turn details

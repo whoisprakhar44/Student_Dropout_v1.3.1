@@ -57,7 +57,7 @@ def analyze_and_redact(text: str) -> Tuple[str, dict]:
         return text, {}
 
     # Entities to scan for
-    entities = ["IN_AADHAAR", "IN_PAN", "IN_VOTER", "PERSON", "PHONE_NUMBER", "EMAIL_ADDRESS"]
+    entities = ["IN_AADHAAR", "IN_PAN", "IN_VOTER", "PHONE_NUMBER", "EMAIL_ADDRESS"]
     
     results = analyzer.analyze(text=text, entities=entities, language="en")
     

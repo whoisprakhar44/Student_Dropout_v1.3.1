@@ -49,7 +49,6 @@ if _HIVE_ENABLED:
 Available tools:
 - retrive_schema_rag: retrieve curated table DDL, key joins, columns, and rules when you need schema context.
 - execute_sql: execute read-only Hive SQL SELECT queries against the database.
-- search_documents: search policy documents, circulars, and guidelines (PDF/DOCX/TXT) for rules, procedures, or explanations.
 - get_column_values: look up known distinct values for a specific table column (e.g. district names, academic years, school management types). Use this INSTEAD of running SELECT DISTINCT queries.
 
 STRICT RULES — follow every rule without exception:
@@ -69,7 +68,6 @@ else:
 Available tools:
 - retrive_schema_rag: retrieve curated table DDL, key joins, columns, and rules when you need schema context.
 - execute_sql: execute read-only SQLite SELECT queries against the sample database.
-- search_documents: search policy documents, circulars, and guidelines (PDF/DOCX/TXT) for rules, procedures, or explanations.
 - get_column_values: look up known distinct values for a specific table column (e.g. district names, academic years, school management types). Use this INSTEAD of running SELECT DISTINCT queries.
 
 STRICT RULES — follow every rule without exception:
@@ -268,7 +266,7 @@ def llm_node(state: AgentState) -> dict:
                 "llm_node: RAG call cap (%d) reached. Forcing SQL generation with existing schema context.",
                 _MAX_RAG_CALLS,
             )
-            messages_for_llm.append(SystemMessage(
+            messages_for_llm.append(HumanMessage(
                 content=(
                     "You have already retrieved schema context multiple times. "
                     "Do NOT call retrive_schema_rag again. "
@@ -277,7 +275,7 @@ def llm_node(state: AgentState) -> dict:
                 )
             ))
         else:
-            messages_for_llm.append(SystemMessage(
+            messages_for_llm.append(HumanMessage(
                 content=(
                     "The schema context above contains two sections:\n"
                     "1. REFERENCE SQL EXAMPLES — use these as a structural pattern for your query.\n"
@@ -328,6 +326,18 @@ def llm_node(state: AgentState) -> dict:
                 )
             # Recalculate increment after stripping
             rag_increment = 0
+
+    # ── HARD ENFORCEMENT: Small Model Fallback ──────
+    # If the LLM failed to emit ANY tool call for a data query, manually inject one to force SQL execution.
+    if not getattr(response, "tool_calls", None) and _needs_data_tool(state["user_query"]):
+        logger.warning("llm_node: Model failed to emit tool_call for data query. Injecting execute_sql tool call.")
+        import uuid
+        response.tool_calls = [{
+            "name": "execute_sql",
+            "args": {"query": f"-- Model failed to emit tool. Force retry for: {state['user_query']}"},
+            "id": f"call_{uuid.uuid4().hex[:8]}"
+        }]
+        rag_increment = 0
 
     logger.info("llm_node: completed in %.2fs (rag_calls this turn: %d)", time.perf_counter() - t0, rag_increment)
     return {
@@ -692,8 +702,6 @@ Given a user question, you must:
 
 2. Classify the query_type:
    - "data_query": needs SQL (counts, lists, averages, specific data lookups)
-   - "document_query": needs document context (policies, rules, procedures, guidelines, explanations of WHY something exists, eligibility criteria text)
-   - "hybrid": needs BOTH data AND policy/document context
    - "greeting": simple greetings, hellos, introductions, or casual chat
    - "out_of_scope": gibberish, random single words, or off-topic questions unrelated to AP Citizen360 / education / welfare
 
@@ -723,7 +731,7 @@ def _parse_intent_response(raw: str) -> tuple[str, str, dict[str, str]]:
         if intent not in INTENT_DEPARTMENT_MAP:
             logger.warning("intent_node: unknown intent '%s', falling back to general_query", intent)
             intent = "general_query"
-        if query_type not in ("data_query", "document_query", "hybrid", "greeting", "out_of_scope"):
+        if query_type not in ("data_query", "greeting", "out_of_scope"):
             query_type = "data_query"
         entities = {k: str(v) for k, v in data.get("entities", {}).items() if v}
         return intent, query_type, entities

@@ -130,10 +130,11 @@ async def init_tools() -> None:
 
     # all_tools: everything the LLM can ever call
     all_tools.clear()
-    all_tools.extend(execution_tools + doc_search_tools)
+    all_tools.extend(execution_tools)
 
     print("RAG tool loaded :", rag_tool.name)
-    print("Doc tool loaded :", doc_tool.name)
+    if doc_tool:
+        print("Doc tool loaded :", doc_tool.name, "(Disabled from LLM)")
     print("LLM tools loaded:", [t.name for t in all_tools])
 
 

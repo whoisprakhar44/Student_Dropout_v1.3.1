@@ -7,14 +7,26 @@ DATABASE_URL = os.getenv(
     "postgresql://citizen360:citizen360@localhost:5432/citizen360"
 )
 
-# PostgreSQL connection pool configuration
-engine = create_engine(
-    DATABASE_URL,
-    pool_size=10,
-    max_overflow=20,
-    pool_pre_ping=True,
-    pool_recycle=1800,
-)
+# PostgreSQL connection pool configuration (with local SQLite fallback)
+try:
+    engine = create_engine(
+        DATABASE_URL,
+        pool_size=10,
+        max_overflow=20,
+        pool_pre_ping=True,
+        pool_recycle=1800,
+    )
+    # Test connection
+    with engine.connect() as conn:
+        pass
+except Exception as exc:
+    print(f"[database/postgres] PostgreSQL connection failed ({exc}). Falling back to local SQLite database/history.db")
+    sqlite_fallback_path = os.path.join(os.path.dirname(__file__), "history.db")
+    engine = create_engine(
+        f"sqlite:///{sqlite_fallback_path}",
+        connect_args={"check_same_thread": False}
+    )
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
