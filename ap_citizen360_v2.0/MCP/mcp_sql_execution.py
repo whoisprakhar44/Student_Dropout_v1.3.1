@@ -295,6 +295,14 @@ def execute_sql(query: str) -> str:
 # Entrypoint
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    mcp.run(
-        transport="stdio",
-    )
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--transport", type=str, default="stdio", choices=["stdio", "sse"])
+    parser.add_argument("--port", type=int, default=8001)
+    args = parser.parse_args()
+    
+    if args.transport == "sse":
+        print(f"Starting MCP SQL server on SSE port {args.port}")
+        mcp.run(transport="sse", port=args.port)
+    else:
+        mcp.run(transport="stdio")

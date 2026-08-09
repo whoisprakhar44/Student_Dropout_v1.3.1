@@ -29,7 +29,7 @@ def load_config():
 
 
 def resolve_milvus_uri(cfg: dict) -> str:
-    uri = cfg["vector_db"]["milvus"]["uri"]
+    uri = os.environ.get("MILVUS_URI") or cfg["vector_db"]["milvus"]["uri"]
     if uri.startswith(("http://", "https://")) or os.path.isabs(uri):
         return uri
     return os.path.normpath(os.path.join(MCP_DIR, uri))

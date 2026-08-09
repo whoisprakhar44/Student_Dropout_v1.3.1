@@ -1,6 +1,6 @@
 langgraph==1.2.9
 langchain-core==1.5.1
-langchain-ollama
+langchain-openai
 langchain-mcp-adapters==0.3.1
 mcp==1.29.0
 python-dotenv
@@ -21,6 +21,8 @@ faster-whisper
 pydantic-settings
 python-multipart
 openpyxl                  # Excel query log
+psycopg2-binary           # PostgreSQL driver (for production chat history)
+redis                     # Redis in-memory cache for RAG & SQL
 PyMuPDF                   # PDF text extraction (fitz)
 python-docx               # DOCX parsing
 rapidocr-onnxruntime      # OCR for images in documents

@@ -118,7 +118,9 @@ async def build_graph():
         ["initialize_node", "doc_search_node"],
     )
     
-    builder.add_edge("initialize_node", "tool_node")
+    # initialize_node → llm_node: LLM decides which tools to call
+    builder.add_edge("initialize_node", "llm_node")
+    # doc_search_node → tool_node: keeps forced search_documents call
     builder.add_edge("doc_search_node", "tool_node")
 
     # llm_node → tool_node (tool call) or END (plain answer)

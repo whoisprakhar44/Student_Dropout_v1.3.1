@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: citizen360
+      POSTGRES_PASSWORD: citizen360
+      POSTGRES_DB: citizen360
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.5
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - etcd:/etcd
+    command: etcd -advertise-client-urls=http://12.7.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+
+  minio:
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    volumes:
+      - minio:/minio_data
+    command: minio server /minio_data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  milvus:
+    image: milvusdb/milvus:v2.4.5
+    command: ["milvus", "run", "standalone"]
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    depends_on:
+      - etcd
+      - minio
+    ports:
+      - "19530:19530"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+  rag-server:
+    build: .
+    command: ["python", "MCP/mcp_rag.py", "--transport", "sse", "--port", "8000"]
+    environment:
+      - MILVUS_URI=http://milvus:19530
+      - REDIS_URL=redis://redis:6379/0
+      # Use host.docker.internal to reach Ollama on the host. 
+      # On Linux/RHEL, you may need to add: extra_hosts: - "host.docker.internal:host-gateway"
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - milvus
+      - redis
+
+  sql-server:
+    build: .
+    command: ["python", "MCP/mcp_sql_execution.py", "--transport", "sse", "--port", "8001"]
+    ports:
+      - "8001:8001"
+
+  api:
+    build: .
+    command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgresql://citizen360:citizen360@postgres:5432/citizen360
+      - REDIS_URL=redis://redis:6379/0
+      - RATE_LIMIT_PER_MINUTE=20
+      - MCP_TRANSPORT=sse
+      - RAG_HOST=rag-server
+      - RAG_PORT=8000
+      - TOOL_HOST=sql-server
+      - TOOL_PORT=8001
+      - VLLM_BASE_URL=http://host.docker.internal:8000/v1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - postgres
+      - redis
+      - rag-server
+      - sql-server
+
+volumes:
+  pgdata:
+  etcd:
+  minio:
+  redisdata:

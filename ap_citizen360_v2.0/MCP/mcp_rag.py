@@ -36,6 +36,16 @@ from typing import List, Dict, Any
 from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
 
+MCP_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(MCP_DIR)
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+try:
+    from database.redis_cache import get_cache, set_cache, make_cache_key
+except ImportError:
+    get_cache = set_cache = make_cache_key = None
+
 load_dotenv()
 
 
@@ -108,11 +118,11 @@ class VectorDB:
 
         elif self.provider == "milvus":
             from pymilvus import MilvusClient
-            uri = cfg["vector_db"]["milvus"]["uri"]
+            uri = os.environ.get("MILVUS_URI") or cfg["vector_db"]["milvus"]["uri"]
             if not uri.startswith(("http://", "https://")) and not os.path.isabs(uri):
-                config_dir = os.path.dirname(
-                    os.path.abspath(os.environ.get("RETRIEVAL_CONFIG", "mcp_rag.yaml"))
-                )
+                # if relative path, make it relative to the config file location
+                config_path = os.environ.get("RETRIEVAL_CONFIG", "mcp_rag.yaml")
+                config_dir = os.path.dirname(os.path.abspath(config_path))
                 uri = os.path.join(config_dir, uri)
             self.client = MilvusClient(uri=uri)
             self.collection = cfg["vector_db"]["milvus"]["collection"]
@@ -352,6 +362,14 @@ mcp = FastMCP("schema-retrieval")
 @mcp.tool()
 def retrive_schema_rag(query: str, top_k: int = 15):
     logger.info(f"Query: {query}")
+
+    if get_cache and make_cache_key:
+        cache_key = make_cache_key("rag:schema", f"{query}:{top_k}")
+        cached = get_cache(cache_key)
+        if cached:
+            logger.info(f"[Redis HIT] retrive_schema_rag for '{query}'")
+            return cached
+
     emb = embedder.embed(query)
     results = vector_db.search(emb, top_k)
     results = dedupe(results)
@@ -444,7 +462,10 @@ def retrive_schema_rag(query: str, top_k: int = 15):
             content = r.get("embedding_text") or r.get("raw_ddl", "")
             sections.append(f"[DDL: {r['database_name']}.{r['table_name']} | score={r['score']:.3f}]\n{content}")
 
-    return "\n\n".join(sections) if sections else str(results)
+    output = "\n\n".join(sections) if sections else str(results)
+    if set_cache and make_cache_key:
+        set_cache(cache_key, output, ttl_seconds=3600)
+    return output
 
 
 # =========================
@@ -517,6 +538,13 @@ def search_documents(query: str, top_k: int = 5) -> str:
     """
     logger.info("search_documents query: %s (top_k=%d)", query, top_k)
     
+    if get_cache and make_cache_key:
+        cache_key = make_cache_key("rag:doc", f"{query}:{top_k}")
+        cached = get_cache(cache_key)
+        if cached:
+            logger.info(f"[Redis HIT] search_documents for '{query}'")
+            return cached
+
     try:
         embedding = embedder.embed(query)
         results = vector_db.client.search(
@@ -554,10 +582,22 @@ def search_documents(query: str, top_k: int = 5) -> str:
         header = f"[Source: {hit['source_file']} | {hit['location']} | Score: {hit['score']:.3f}]"
         sections.append(f"{header}\n{hit['passage']}")
 
-    return "\n\n".join(sections)
+    output = "\n\n".join(sections)
+    if set_cache and make_cache_key:
+        set_cache(cache_key, output, ttl_seconds=3600)
+    return output
 
 
 if __name__ == "__main__":
-    mcp.run(
-        transport="stdio",
-    )
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--transport", type=str, default="stdio", choices=["stdio", "sse"])
+    parser.add_argument("--port", type=int, default=8000)
+    args = parser.parse_args()
+    
+    if args.transport == "sse":
+        print(f"Starting MCP RAG server on SSE port {args.port}")
+        # Note: Depending on FastMCP version, you may need uvicorn or just pass transport='sse'
+        mcp.run(transport="sse", port=args.port)
+    else:
+        mcp.run(transport="stdio")

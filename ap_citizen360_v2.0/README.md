@@ -10,11 +10,14 @@ both table schemas and few-shot NL→SQL exemplars.
 
 | Component | Technology |
 |---|---|
-| API server | FastAPI (`app.py`) |
+| API server | FastAPI (`app.py`) with concurrent `asyncio.Semaphore` limit |
 | Agent | LangGraph (`my_agent/`) |
-| Chat + embedding model | Ollama (`nomic-embed-text` + `qwen3.5`) |
-| Schema retrieval | MCP `retrive_schema_rag` → Milvus Lite |
-| SQL execution | MCP `execute_sql` → SQLite or Hive |
+| Chat model | **vLLM** (`qwen3.5:0.8b-mlx`) |
+| Embedding model | Ollama (`nomic-embed-text`) |
+| Database / History | **PostgreSQL** (SQLAlchemy connection pool) |
+| Cache & Rate Limiting | **Redis** (In-memory schema RAG caching + Sliding window limit) |
+| Schema retrieval | MCP `retrive_schema_rag` → Milvus (HTTP SSE transport) |
+| SQL execution | MCP `execute_sql` → SQLite or Hive (HTTP SSE transport) |
 | **Vector injection** | **`pipeline.py`** — schema + few-shot |
 
 ---
@@ -31,58 +34,45 @@ One collection (`schema_chunks`) with **three named partitions**:
 
 ---
 
-## Setup
+## Setup & Deployment (Docker Compose)
 
-> [!WARNING]
-> **Milvus Lite Lock Warning**: Milvus Lite places a persistent write-lock on `milvus_schemas.db/LOCK` while the FastAPI server (`uvicorn`) or any background MCP processes are active. You **must** stop the server and any background Python subprocesses before running database initialization or few-shot injection scripts.
+The entire backend is fully containerized. It orchestrates **PostgreSQL**, **Redis**, **Milvus Standalone**, and the **FastAPI** backend. 
+
+> [!IMPORTANT]
+> The MCP tool servers communicate with the main API over HTTP Server-Sent Events (SSE) via internal Docker networks. Ensure **vLLM** and **Ollama** are running on your host machine (they are reached via `host.docker.internal`).
+
+### 1. Start the Stack
+Start the background services and the API servers:
+```bash
+docker-compose up --build -d
+```
+The API will be available at `http://localhost:8080`.
+
+### 2. Initialize the Database & Vectors
+Once the stack is running, populate the SQLite mock DB and Milvus vector index from your local machine.
 
 ```bash
-# 1. Create and activate virtualenv
 uv venv
 source .venv/bin/activate
 uv pip install -r requirements.txt
 
-# 2. Build SQLite sample database (local dev only)
+# Build SQLite sample database (local mock data only)
 python create_schema.py
 
-# 3. Rebuild the schema and join relations index (into schema_store partition)
-# (Ensure the FastAPI/uvicorn server is stopped)
-python MCP/build_milvus_index.py
+# Rebuild the schema and join relations index (into Milvus Standalone)
+MILVUS_URI="http://localhost:19530" python MCP/build_milvus_index.py
 
-# 4. Inject few-shot NL→SQL pairs (into few_shot_store partition)
-# (Ensure the FastAPI/uvicorn server is stopped)
-python pipeline.py --config config.yaml --fewshots fewshots_combined.json
+# Inject few-shot NL→SQL pairs
+MILVUS_URI="http://localhost:19530" python pipeline.py --config config.yaml --fewshots fewshots_combined.json
 
-# 5. Ingest unstructured documents (PDF, DOCX, TXT into document_store partition)
-# (Ensure the FastAPI/uvicorn server is stopped)
-python3 MCP/ingest_documents.py
-
-# Optional: Preview document parsing & chunking without writing to Milvus
-python3 MCP/ingest_documents.py --dry_run
-
-# 6. Start the server
-python -m uvicorn app:app --host 0.0.0.0 --port 8000
+# Ingest unstructured documents (PDF, DOCX, TXT)
+MILVUS_URI="http://localhost:19530" python3 MCP/ingest_documents.py
 ```
 
----
-
-## Deploying to Server
-
-On a fresh server, after installing dependencies and pulling Ollama models, build the vector index before starting the API:
-
-> [!IMPORTANT]
-> Make sure no `uvicorn` or background python processes are running to avoid Milvus locking issues.
-
-```bash
-# First time setup / index rebuild:
-python MCP/build_milvus_index.py
-python pipeline.py --config config.yaml --fewshots fewshots_combined.json
-
-# Start the server
-python -m uvicorn app:app --host 0.0.0.0 --port 8000
-```
-
-> Re-run the pipeline commands any time you add new YAML schemas or few-shot examples.
+### Production Controls (`.env`)
+- **`VLLM_NUM_CTX=16384`**: Context window capacity natively handled by the vLLM server.
+- **`RATE_LIMIT_PER_MINUTE=20`**: Redis-backed API sliding window limit.
+- **`MAX_CONCURRENT_QUERIES=5`**: Global semaphore limiting simultaneous LLM graph executions.
 
 ---
 
@@ -116,14 +106,9 @@ In `.env`, set:
 HIVE_MCP_ENABLED=true
 ```
 
-Then start the server (inject vectors first if not already done):
+Then restart the Docker stack so the SQL execution server picks up the environment change:
 ```bash
-# First time only (ensure uvicorn is stopped first to avoid database locking)
-python MCP/build_milvus_index.py
-python pipeline.py --config config.yaml --fewshots fewshots_combined.json
-
-# Start
-python -m uvicorn app:app --host 0.0.0.0 --port 8000
+docker-compose restart sql-server
 ```
 
 ### What changes when you flip `HIVE_MCP_ENABLED=true`
@@ -154,14 +139,14 @@ PyHive cannot process `timestamptz` columns (`created_date`, `updated_date`). Th
 yaml_dir: ./schema/curated_datamodels/tables   # recursive YAML scan
 
 embedding:
-  provider: ollama          # openai | sentence_transformers | ollama
+  provider: ollama          # ollama
   model: nomic-embed-text   # dim=768; change dim in milvus block if you switch models
-  # ollama_url is now controlled globally by OLLAMA_BASE_URL in .env
+  # ollama_url is controlled globally by OLLAMA_BASE_URL in .env
 
 vector_db:
   provider: milvus
   milvus:
-    uri: ./milvus_schemas.db   # Milvus Lite (.db file) — swap to http://host:19530 for server
+    uri: http://localhost:19530   # Milvus Standalone server (via Docker)
     collection: schema_chunks
     dim: 768
     metric_type: COSINE

@@ -27,30 +27,50 @@ else:
 
 SQLITE_DB_PATH   = os.path.join(BASE_DIR, "database", "schema.db")
 
-RAG_SERVER_CONFIG = {
-    "rag": {
-        "command": sys.executable,
-        "args": [RAG_SERVER_PATH],
-        "transport": "stdio",
-        "env": {
-            **os.environ,
-            "RETRIEVAL_CONFIG": RAG_CONFIG_PATH,
-        },
-    }
-}
+MCP_TRANSPORT = os.getenv("MCP_TRANSPORT", "stdio").strip().lower()
+RAG_HOST = os.getenv("RAG_HOST", "localhost")
+RAG_PORT = int(os.getenv("RAG_PORT", "8000"))
+TOOL_HOST = os.getenv("TOOL_HOST", "localhost")
+TOOL_PORT = int(os.getenv("TOOL_PORT", "8001"))
 
-TOOL_SERVER_CONFIG = {
-    "tools": {
-        "command": sys.executable,
-        "args": [TOOL_SERVER_PATH],
-        "transport": "stdio",
-        "env": {
-            **os.environ,
-            "SQLITE_DATABASE_PATH": SQLITE_DB_PATH,
-            "RETRIEVAL_CONFIG": RAG_CONFIG_PATH,
-        },
+if MCP_TRANSPORT == "sse":
+    RAG_SERVER_CONFIG = {
+        "rag": {
+            "transport": "sse",
+            "url": f"http://{RAG_HOST}:{RAG_PORT}/sse",
+        }
     }
-}
+    TOOL_SERVER_CONFIG = {
+        "tools": {
+            "transport": "sse",
+            "url": f"http://{TOOL_HOST}:{TOOL_PORT}/sse",
+        }
+    }
+else:
+    RAG_SERVER_CONFIG = {
+        "rag": {
+            "command": sys.executable,
+            "args": [RAG_SERVER_PATH],
+            "transport": "stdio",
+            "env": {
+                **os.environ,
+                "RETRIEVAL_CONFIG": RAG_CONFIG_PATH,
+            },
+        }
+    }
+    
+    TOOL_SERVER_CONFIG = {
+        "tools": {
+            "command": sys.executable,
+            "args": [TOOL_SERVER_PATH],
+            "transport": "stdio",
+            "env": {
+                **os.environ,
+                "SQLITE_DATABASE_PATH": SQLITE_DB_PATH,
+                "RETRIEVAL_CONFIG": RAG_CONFIG_PATH,
+            },
+        }
+    }
 
 # ── module-level tool lists (populated by init_tools) ─────────────────────────
 rag_tool: object = None

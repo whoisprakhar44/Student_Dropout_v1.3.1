@@ -30,8 +30,16 @@ from pydantic import BaseModel, Field
 
 from create_schema import create_database
 from my_agent.agent import build_graph
-from my_agent.utils.ollama_check import chat_model_name, check_ollama
+from my_agent.utils.llm_check import chat_model_name, check_llm
 from my_agent.utils.tools import cleanup_tools
+from database.postgres import (
+    init_postgres_db,
+    SessionLocal,
+    SessionModel,
+    MessageModel,
+    QueryLogModel,
+)
+from database.redis_cache import check_rate_limit
 
 # Speech-to-text imports
 from speech_to_text.config import get_settings as get_speech_settings
@@ -49,7 +57,6 @@ else:
 
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "database", "schema.db")
-HISTORY_DB_PATH = os.path.join(os.path.dirname(__file__), "database", "chat_history.db")
 EXCEL_LOG_PATH = os.path.join(os.path.dirname(__file__), "database", "query_log.xlsx")
 
 # Thread lock for Excel file writes (openpyxl is not thread-safe)
@@ -123,6 +130,78 @@ def _append_excel_log(
             print(f"[excel_log] Failed to write row: {exc}")
 
 
+# ── Query Log (replaces Excel log — concurrent-safe via SQLite WAL) ──────────
+def _init_query_log() -> None:
+    """Create query_log table in the history database if it does not exist."""
+    conn = sqlite3.connect(HISTORY_DB_PATH)
+    try:
+        conn.execute("PRAGMA journal_mode=WAL;")
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS query_log (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT NOT NULL,
+                username TEXT,
+                session_id TEXT,
+                question TEXT,
+                generated_sql TEXT,
+                status TEXT,
+                answer TEXT,
+                error TEXT,
+                gen_time_s REAL DEFAULT 0.0,
+                exec_time_s REAL DEFAULT 0.0,
+                total_time_s REAL DEFAULT 0.0
+            );
+        """)
+        conn.commit()
+    except sqlite3.Error as e:
+        print(f"Error initializing query_log: {e}")
+    finally:
+        conn.close()
+
+
+def _append_query_log(
+    username: str,
+    session_id: str,
+    question: str,
+    sql: str,
+    status: str,
+    answer: str,
+    error: str,
+    gen_time: float = 0.0,
+    exec_time: float = 0.0,
+    total_time: float = 0.0,
+) -> None:
+    """Append one row to the query_log table (concurrent-safe with WAL mode)."""
+    try:
+        conn = sqlite3.connect(HISTORY_DB_PATH)
+        conn.execute("PRAGMA busy_timeout=5000;")
+        conn.execute(
+            """
+            INSERT INTO query_log (
+                timestamp, username, session_id, question, generated_sql,
+                status, answer, error, gen_time_s, exec_time_s, total_time_s
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                username,
+                session_id,
+                question,
+                sql,
+                status,
+                (answer[:2000] if answer else ""),
+                (error[:1000] if error else ""),
+                round(gen_time, 2),
+                round(exec_time, 2),
+                round(total_time, 2),
+            ),
+        )
+        conn.commit()
+        conn.close()
+    except Exception as exc:
+        print(f"[query_log] Failed to write row: {exc}")
+
+
 # Mapping of active request IDs to their running asyncio Tasks
 active_tasks: dict[str, asyncio.Task] = {}
 
@@ -192,129 +271,80 @@ def init_database() -> None:
         print(f"Curated database initialized at {DB_PATH}")
 
 
-def init_history_database() -> None:
-    """Initialize SQLite database for chat history and sessions."""
-    os.makedirs(os.path.dirname(HISTORY_DB_PATH), exist_ok=True)
-    conn = sqlite3.connect(HISTORY_DB_PATH)
-    try:
-        conn.execute("PRAGMA foreign_keys = ON;")
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS sessions (
-                id TEXT PRIMARY KEY,
-                title TEXT NOT NULL,
-                username TEXT,
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL
-            );
-        """)
-        conn.execute("""
-            CREATE TABLE IF NOT EXISTS messages (
-                id TEXT PRIMARY KEY,
-                session_id TEXT NOT NULL,
-                role TEXT NOT NULL,
-                content TEXT NOT NULL,
-                sql TEXT,
-                result TEXT,
-                created_at TEXT NOT NULL,
-                FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
-            );
-        """)
-        try:
-            conn.execute("ALTER TABLE sessions ADD COLUMN username TEXT;")
-        except sqlite3.OperationalError:
-            pass
-        conn.commit()
-        print(f"Chat history database initialized at {HISTORY_DB_PATH}")
-    except sqlite3.Error as e:
-        print(f"Error initializing chat history database: {e}")
-    finally:
-        conn.close()
-
-
 def get_session_messages(session_id: str) -> list[Any]:
     """Load messages from db and convert them to LangGraph message list."""
-    conn = sqlite3.connect(HISTORY_DB_PATH)
-    conn.row_factory = sqlite3.Row
-    try:
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT role, content, sql FROM messages WHERE session_id = ? ORDER BY created_at DESC LIMIT 10",
-            (session_id,)
-        )
-        rows = cursor.fetchall()
-        rows.reverse()
-        messages = []
-        for row in rows:
-            if row["role"] == "user":
-                messages.append(HumanMessage(content=row["content"]))
-            elif row["role"] == "assistant":
-                # Include SQL in the assistant message so the LLM can reference
-                # it for follow-up questions (e.g. "now filter by female students")
-                content = row["content"] or ""
-                if row["sql"]:
-                    content = f"{content}\n\n[SQL used: `{row['sql']}`]"
-                messages.append(AIMessage(content=content))
-        return messages
-    except sqlite3.Error as e:
-        print(f"Database error while reading session messages: {e}")
-        return []
-    finally:
-        conn.close()
-
+    with SessionLocal() as db:
+        try:
+            msg_rows = db.query(MessageModel).filter(
+                MessageModel.session_id == session_id
+            ).order_by(MessageModel.created_at.desc()).limit(10).all()
+            
+            msg_rows.reverse()
+            messages = []
+            for row in msg_rows:
+                if row.role == "user":
+                    messages.append(HumanMessage(content=row.content))
+                elif row.role == "assistant":
+                    content = row.content or ""
+                    if row.sql:
+                        content = f"{content}\n\n[SQL used: `{row.sql}`]"
+                    messages.append(AIMessage(content=content))
+            return messages
+        except Exception as e:
+            print(f"Database error while reading session messages: {e}")
+            return []
 
 
 def save_chat_turn(session_id: str, question: str, response_text: str, sql: str | None, result: list[dict[str, Any]] | None, username: str | None = None) -> str:
     """Save user and assistant messages, update session updated_at, return session_id."""
-    conn = sqlite3.connect(HISTORY_DB_PATH)
     now = datetime.now().isoformat()
-    try:
-        cursor = conn.cursor()
-        
-        # Check if session exists
-        cursor.execute("SELECT id FROM sessions WHERE id = ?", (session_id,))
-        session_exists = cursor.fetchone() is not None
-        
-        if not session_exists:
-            # Generate a title from the first question (first 60 chars)
-            title = question[:60] + ("..." if len(question) > 60 else "")
-            cursor.execute(
-                "INSERT INTO sessions (id, title, username, created_at, updated_at) VALUES (?, ?, ?, ?, ?)",
-                (session_id, title, username, now, now)
-            )
-        else:
-            # Update updated_at
-            cursor.execute(
-                "UPDATE sessions SET updated_at = ? WHERE id = ?",
-                (now, session_id)
-            )
-            if username:
-                cursor.execute(
-                    "UPDATE sessions SET username = ? WHERE id = ? AND username IS NULL",
-                    (username, session_id)
+    with SessionLocal() as db:
+        try:
+            session = db.query(SessionModel).filter(SessionModel.id == session_id).first()
+            if not session:
+                title = question[:60] + ("..." if len(question) > 60 else "")
+                session = SessionModel(
+                    id=session_id,
+                    title=title,
+                    username=username,
+                    created_at=now,
+                    updated_at=now
                 )
+                db.add(session)
+            else:
+                session.updated_at = now
+                if username and not session.username:
+                    session.username = username
+                    
+            # User message
+            user_msg = MessageModel(
+                id=str(uuid.uuid4()),
+                session_id=session_id,
+                role="user",
+                content=question,
+                created_at=now
+            )
+            db.add(user_msg)
             
-        # Save user message
-        user_msg_id = str(uuid.uuid4())
-        cursor.execute(
-            "INSERT INTO messages (id, session_id, role, content, created_at) VALUES (?, ?, ?, ?, ?)",
-            (user_msg_id, session_id, "user", question, now)
-        )
-        
-        # Save assistant message
-        assistant_msg_id = str(uuid.uuid4())
-        result_json = json.dumps(result) if result is not None else None
-        cursor.execute(
-            "INSERT INTO messages (id, session_id, role, content, sql, result, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (assistant_msg_id, session_id, "assistant", response_text, sql, result_json, now)
-        )
-        
-        conn.commit()
-        return session_id
-    except sqlite3.Error as e:
-        print(f"Database error while saving chat turn: {e}")
-        return session_id
-    finally:
-        conn.close()
+            # Assistant message
+            result_json = json.dumps(result) if result is not None else None
+            assistant_msg = MessageModel(
+                id=str(uuid.uuid4()),
+                session_id=session_id,
+                role="assistant",
+                content=response_text,
+                sql=sql,
+                result=result_json,
+                created_at=now
+            )
+            db.add(assistant_msg)
+            
+            db.commit()
+            return session_id
+        except Exception as e:
+            db.rollback()
+            print(f"Database error while saving chat turn: {e}")
+            return session_id
 
 
 def _http_error_from_exc(exc: Exception) -> HTTPException:
@@ -324,8 +354,8 @@ def _http_error_from_exc(exc: Exception) -> HTTPException:
         return HTTPException(
             status_code=503,
             detail=(
-                f"Ollama model '{model}' is not installed. "
-                f"Run: ollama pull {model} - then restart uvicorn. ({msg})"
+                f"vLLM model '{model}' is not available. "
+                f"Ensure vLLM is running with the correct model loaded. ({msg})"
             ),
         )
     return HTTPException(status_code=500, detail=msg)
@@ -440,16 +470,16 @@ def _extract_sql_and_result(messages: list[Any], username: str) -> AskResponse:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_database()
-    init_history_database()
+    init_postgres_db()
     _init_excel_log()
-    ollama_status = check_ollama()
-    app.state.ollama_status = ollama_status
+    llm_status = check_llm()
+    app.state.llm_status = llm_status
     app.state.graph = None
     app.state.graph_lock = asyncio.Lock()
-    if not ollama_status.get("model_available"):
-        print("WARNING: Ollama chat model not available:", ollama_status)
+    if not llm_status.get("model_available"):
+        print("WARNING: vLLM model not available:", llm_status)
     else:
-        print("Ollama ready:", ollama_status.get("model"))
+        print("vLLM ready:", llm_status.get("model"))
         try:
             app.state.graph = await build_graph()
             print("LangGraph agent built successfully during startup.")
@@ -461,10 +491,6 @@ async def lifespan(app: FastAPI):
     if speech_settings.enable_speech_to_text and speech_transcriber:
         print("Speech-to-text enabled. Loading faster-whisper model...")
         speech_settings.upload_dir.mkdir(parents=True, exist_ok=True)
-        # Note: Transcriber load_model is sync, using run_in_threadpool if it's heavy, or just call it directly.
-        # It's better to load it lazily on first request as per original implementation, but we can do it here.
-        # Actually transcriber uses lazy loading in its transcribe method, so we don't strictly need to load it here,
-        # but let's make sure the upload_dir is created.
 
     yield
     if app.state.graph is not None:
@@ -481,13 +507,20 @@ async def _get_graph():
     return app.state.graph
 
 
-# Global lock to serialize requests and prevent concurrency crashes in Milvus/MCP
-request_lock = asyncio.Lock()
+# Semaphore to limit concurrent graph runs (replaces serializing asyncio.Lock)
+MAX_CONCURRENT_QUERIES = int(os.getenv("MAX_CONCURRENT_QUERIES", "5"))
+request_semaphore = asyncio.Semaphore(MAX_CONCURRENT_QUERIES)
+
+# Timeout for a single graph invocation
+QUERY_TIMEOUT = int(os.getenv("QUERY_TIMEOUT_SECONDS", "120"))
+
+# Per-user rate limit (requests per minute)
+RATE_LIMIT_PER_MINUTE = int(os.getenv("RATE_LIMIT_PER_MINUTE", "20"))
 
 app = FastAPI(
-    title="Student Dropout Intent API",
-    version="1.4.0",
-    description="API backend for natural-language SQL with Intent Classification (v1.4).",
+    title="Citizen360 NL2SQL API",
+    version="2.0.0",
+    description="Production-grade multi-user NL2SQL API with vLLM, Milvus, and LangGraph.",
     lifespan=lifespan,
 )
 
@@ -501,7 +534,7 @@ app.add_middleware(
 
 @app.get("/health")
 async def health():
-    info = check_ollama()
+    info = check_llm()
     return {
         "status": "ok" if info.get("model_available") else "degraded",
         **info,
@@ -512,6 +545,15 @@ async def health():
 async def ask(payload: AskRequest):
     action = payload.action or "ask"
     username = payload.username
+
+    # Rate limiting for ask actions
+    if action == "ask":
+        is_allowed, remaining = check_rate_limit(username, limit=RATE_LIMIT_PER_MINUTE, window_seconds=60)
+        if not is_allowed:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Rate limit exceeded for user '{username}'. Maximum {RATE_LIMIT_PER_MINUTE} requests per minute allowed.",
+            )
 
     # 1. Action: Cancel
     if action == "cancel":
@@ -529,121 +571,114 @@ async def ask(payload: AskRequest):
 
     # 2. Action: History (list all sessions — returns titles and dates only)
     elif action == "history":
-        conn = sqlite3.connect(HISTORY_DB_PATH)
-        conn.row_factory = sqlite3.Row
-        try:
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT id, title, created_at, updated_at FROM sessions WHERE username = ? ORDER BY updated_at DESC",
-                (username,)
-            )
-            session_rows = cursor.fetchall()
-            sessions = [
-                SessionSummary(
-                    id=row["id"],
-                    title=row["title"],
-                    created_at=row["created_at"],
-                    updated_at=row["updated_at"],
-                )
-                for row in session_rows
-            ]
-            return sessions
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to fetch chat history: {e}")
-        finally:
-            conn.close()
+        with SessionLocal() as db:
+            try:
+                session_rows = db.query(SessionModel).filter(
+                    SessionModel.username == username
+                ).order_by(SessionModel.updated_at.desc()).all()
+                
+                sessions = [
+                    SessionSummary(
+                        id=row.id,
+                        title=row.title,
+                        created_at=row.created_at,
+                        updated_at=row.updated_at,
+                    )
+                    for row in session_rows
+                ]
+                return sessions
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Failed to fetch chat history: {e}")
 
     # 2b. Action: History Session (fetch full message context for a given session_id)
     elif action == "history_session":
         session_id = payload.session_id or payload.thread_id
         if not session_id:
             raise HTTPException(status_code=400, detail="session_id is required for history_session action")
-        conn = sqlite3.connect(HISTORY_DB_PATH)
-        conn.row_factory = sqlite3.Row
-        try:
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT id, title, username, created_at, updated_at FROM sessions WHERE id = ? AND username = ?",
-                (session_id, username)
-            )
-            s_row = cursor.fetchone()
-            if not s_row:
-                raise HTTPException(status_code=404, detail="Session not found")
+        
+        with SessionLocal() as db:
+            try:
+                s_row = db.query(SessionModel).filter(
+                    SessionModel.id == session_id,
+                    SessionModel.username == username
+                ).first()
+                if not s_row:
+                    raise HTTPException(status_code=404, detail="Session not found")
 
-            cursor.execute(
-                "SELECT id, role, content, sql, result, created_at FROM messages WHERE session_id = ? ORDER BY created_at ASC",
-                (session_id,)
-            )
-            msg_rows = cursor.fetchall()
-            messages = []
-            for r in msg_rows:
-                res_val = None
-                if r["result"]:
-                    try:
-                        res_val = json.loads(r["result"])
-                    except Exception:
-                        res_val = []
-                messages.append(
-                    MessageDetail(
-                        id=r["id"],
-                        role=r["role"],
-                        content=r["content"],
-                        sql=r["sql"],
-                        result=res_val,
-                        created_at=r["created_at"],
+                msg_rows = db.query(MessageModel).filter(
+                    MessageModel.session_id == session_id
+                ).order_by(MessageModel.created_at.asc()).all()
+                
+                messages = []
+                for r in msg_rows:
+                    res_val = None
+                    if r.result:
+                        try:
+                            res_val = json.loads(r.result)
+                        except Exception:
+                            res_val = []
+                    messages.append(
+                        MessageDetail(
+                            id=r.id,
+                            role=r.role,
+                            content=r.content,
+                            sql=r.sql,
+                            result=res_val,
+                            created_at=r.created_at,
+                        )
                     )
+                return SessionDetail(
+                    id=s_row.id,
+                    title=s_row.title,
+                    created_at=s_row.created_at,
+                    updated_at=s_row.updated_at,
+                    messages=messages,
                 )
-            return SessionDetail(
-                id=s_row["id"],
-                title=s_row["title"],
-                created_at=s_row["created_at"],
-                updated_at=s_row["updated_at"],
-                messages=messages,
-            )
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to fetch session context: {e}")
-        finally:
-            conn.close()
+            except HTTPException:
+                raise
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"Failed to fetch session context: {e}")
 
     # 3. Action: Delete Session
     elif action == "delete_session":
         session_id = payload.session_id or payload.thread_id
         if not session_id:
             raise HTTPException(status_code=400, detail="session_id is required for delete_session action")
-        conn = sqlite3.connect(HISTORY_DB_PATH)
-        try:
-            cursor = conn.cursor()
-            cursor.execute("SELECT username FROM sessions WHERE id = ?", (session_id,))
-            row = cursor.fetchone()
-            if not row or row[0] != username:
-                raise HTTPException(status_code=404, detail="Chat session not found")
-
-            cursor.execute("DELETE FROM messages WHERE session_id = ?", (session_id,))
-            cursor.execute("DELETE FROM sessions WHERE id = ?", (session_id,))
-            conn.commit()
-            return {"status": "success", "message": "Session deleted successfully"}
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to delete session: {e}")
-        finally:
-            conn.close()
+        
+        with SessionLocal() as db:
+            try:
+                s_row = db.query(SessionModel).filter(
+                    SessionModel.id == session_id,
+                    SessionModel.username == username
+                ).first()
+                if not s_row:
+                    raise HTTPException(status_code=404, detail="Chat session not found")
+                
+                db.query(MessageModel).filter(MessageModel.session_id == session_id).delete()
+                db.delete(s_row)
+                db.commit()
+                return {"status": "success", "message": "Session deleted successfully"}
+            except HTTPException:
+                raise
+            except Exception as e:
+                db.rollback()
+                raise HTTPException(status_code=500, detail=f"Failed to delete session: {e}")
 
     # 4. Action: Clear History
     elif action == "clear_history":
-        conn = sqlite3.connect(HISTORY_DB_PATH)
-        try:
-            cursor = conn.cursor()
-            cursor.execute("DELETE FROM messages WHERE session_id IN (SELECT id FROM sessions WHERE username = ?)", (username,))
-            cursor.execute("DELETE FROM sessions WHERE username = ?", (username,))
-            conn.commit()
-            return {"status": "success", "message": "All sessions deleted successfully"}
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Failed to clear sessions: {e}")
-        finally:
-            conn.close()
+        with SessionLocal() as db:
+            try:
+                session_ids = [
+                    s.id for s in db.query(SessionModel.id).filter(SessionModel.username == username).all()
+                ]
+                if session_ids:
+                    db.query(MessageModel).filter(MessageModel.session_id.in_(session_ids)).delete(synchronize_session=False)
+                    db.query(SessionModel).filter(SessionModel.username == username).delete(synchronize_session=False)
+                    db.commit()
+                return {"status": "success", "message": "All sessions deleted successfully"}
+            except Exception as e:
+                db.rollback()
+                raise HTTPException(status_code=500, detail=f"Failed to clear sessions: {e}")
 
     # 4b. Action: Chart (generate Vega-Lite SVG)
     elif action == "chart":
@@ -696,12 +731,12 @@ async def ask(payload: AskRequest):
         async def _stream():
             graph_task: asyncio.Task | None = None
             try:
-                if not check_ollama().get("model_available"):
+                if not check_llm().get("model_available"):
                     yield json.dumps({
                         "sql": "",
                         "result": [{"error": (
-                            f"Ollama model '{chat_model_name()}' is not available. "
-                            f"Run: ollama pull {chat_model_name()} — then restart uvicorn."
+                            f"vLLM model '{chat_model_name()}' is not available. "
+                            f"Ensure vLLM is running with the correct model."
                         ), "status": "failed"}],
                     }).encode()
                     return
@@ -714,21 +749,24 @@ async def ask(payload: AskRequest):
                 # received, so this prevents the 502 from triggering before the
                 # graph finishes.
                 async def _run_graph():
-                    async with request_lock:
-                        return await graph.ainvoke(
-                            {
-                                "user_query": payload.question,
-                                "messages": history_messages + [HumanMessage(content=payload.question)],
-                                "retrieved_context": [],
-                                "llm_calls": 0,
-                                "rag_calls": 0,
-                                "verify_calls": 0,
-                                "verified": False,
-                                # intent_node will populate these during the run
-                                "intent": None,
-                                "department_scope": None,
-                                "entities": None,
-                            }
+                    async with request_semaphore:
+                        return await asyncio.wait_for(
+                            graph.ainvoke(
+                                {
+                                    "user_query": payload.question,
+                                    "messages": history_messages + [HumanMessage(content=payload.question)],
+                                    "retrieved_context": [],
+                                    "llm_calls": 0,
+                                    "rag_calls": 0,
+                                    "verify_calls": 0,
+                                    "verified": False,
+                                    # intent_node will populate these during the run
+                                    "intent": None,
+                                    "department_scope": None,
+                                    "entities": None,
+                                }
+                            ),
+                            timeout=QUERY_TIMEOUT,
                         )
 
                 t_start = time.perf_counter()
@@ -832,7 +870,7 @@ async def ask(payload: AskRequest):
                     yield json.dumps({"sql": "", "result": [{"error": "Request cancelled.", "status": "cancelled"}]}).encode()
                 else:
                     traceback.print_exc()
-                    _append_excel_log(
+                    _append_query_log(
                         username=username,
                         session_id=session_id,
                         question=payload.question or "",

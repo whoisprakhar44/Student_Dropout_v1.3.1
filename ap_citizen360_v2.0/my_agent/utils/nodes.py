@@ -18,7 +18,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
-from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import ToolNode
 
 from my_agent.utils import tools as tool_registry
@@ -28,17 +28,15 @@ logger = logging.getLogger("agent.nodes")
 
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
-_CHAT_MODEL = os.getenv("OLLAMA_CHAT_MODEL", "qwen3.5:9b")
-_REASONING = os.getenv("OLLAMA_REASONING", "true").strip().lower() in ("true", "1", "yes")
-print(f"ChatOllama model: {_CHAT_MODEL}  |  thinking={'on' if _REASONING else 'off'}")
+_CHAT_MODEL = os.getenv("VLLM_MODEL", "qwen3.5:0.8b-mlx")
+print(f"vLLM model: {_CHAT_MODEL}")
 
-_base_model = ChatOllama(
+_base_model = ChatOpenAI(
     model=_CHAT_MODEL,
     temperature=0,
-    reasoning=_REASONING,
-    base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-    num_ctx=int(os.getenv("OLLAMA_NUM_CTX", "4096")),
-    num_predict=int(os.getenv("OLLAMA_NUM_PREDICT", "512")),
+    base_url=os.getenv("VLLM_BASE_URL", "http://localhost:8000/v1"),
+    api_key=os.getenv("VLLM_API_KEY", "not-needed"),
+    max_tokens=int(os.getenv("VLLM_MAX_TOKENS", "1024")),
 )
 _model_with_tools = None
 
@@ -295,70 +293,9 @@ def llm_node(state: AgentState) -> dict:
     response = model.invoke(messages_for_llm)
     llm_steps = 1
 
-    # Retry 1: model answered without calling any tool at all.
-    if (
-        _needs_data_tool(state["user_query"])
-        and not getattr(response, "tool_calls", None)
-        and not _tool_messages(history)
-    ):
-        retry_hint = HumanMessage(
-            content=(
-                "This is a database question. You MUST call retrive_schema_rag first "
-                "if you don't know the table, then call execute_sql. "
-                "Do NOT answer without running SQL."
-            )
-        )
-        response = _get_model().invoke(messages_for_llm + [retry_hint])
-        llm_steps += 1
-
-    # Retry 2: RAG was retrieved but there is still no SUCCESSFUL execute_sql.
-    # Covers two cases:
-    #   a) RAG called, SQL never attempted → nudge to run SQL now.
-    #   b) SQL attempted with wrong columns (error), then RAG fetched schema →
-    #      nudge to retry SQL using the retrieved column names.
-    rag_results = _tool_messages(history, "retrive_schema_rag")
-    successful_sql = [
-        m for m in _tool_messages(history, "execute_sql")
-        if _summarize_sql_result(state["user_query"], m.content) is not None
-    ]
-
-    # Collect the last SQL error message (if any) to include in the nudge.
-    last_sql_error: str | None = None
-    for m in reversed(_tool_messages(history, "execute_sql")):
-        try:
-            text_content = _extract_tool_content(m.content)
-            if text_content:
-                err_payload = json.loads(text_content)
-                if err_payload.get("status") == "error":
-                    last_sql_error = err_payload.get("error_msg") or err_payload.get("error_type")
-                    break
-        except (json.JSONDecodeError, TypeError, AttributeError):
-            break
-
-    if (
-        rag_results
-        and not successful_sql
-        and not getattr(response, "tool_calls", None)
-        and _needs_data_tool(state["user_query"])
-    ):
-        db_type = "Hive" if _HIVE_ENABLED else "SQLite"
-        error_hint = (
-            f" The previous SQL failed: {last_sql_error}."
-            " Use the exact column names from the schema you just retrieved."
-            if last_sql_error else ""
-        )
-        sql_nudge = HumanMessage(
-            content=(
-                f'The user asked: "{state["user_query"]}"\n\n'
-                "You have already retrieved the schema context above."
-                f"{error_hint} "
-                f"Now call execute_sql with a valid {db_type} SELECT query "
-                "using the exact column names shown in the schema. "
-                "Do NOT describe the schema — call execute_sql right now."
-            )
-        )
-        response = _get_model().invoke(messages_for_llm + [sql_nudge])
-        llm_steps += 1
+    # NOTE: Forced retry nudges removed in v2.0 — the LLM (served by vLLM)
+    # is capable enough to decide autonomously when to call tools.
+    # Safety caps (MAX_LLM_CALLS, MAX_RAG_CALLS) remain as guard rails.
 
     # Count how many RAG tool calls the LLM emitted in this node turn
     rag_increment = sum(
@@ -735,13 +672,12 @@ INTENT_DESCRIPTIONS = """
 - general_query: anything that does not fit the above intents
 """
 
-_intent_model = ChatOllama(
+_intent_model = ChatOpenAI(
     model=_CHAT_MODEL,
     temperature=0,
-    reasoning=False,
-    base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-    num_ctx=int(os.getenv("OLLAMA_NUM_CTX", "4096")),
-    num_predict=256,
+    base_url=os.getenv("VLLM_BASE_URL", "http://localhost:8000/v1"),
+    api_key=os.getenv("VLLM_API_KEY", "not-needed"),
+    max_tokens=256,
 )
 
 _INTENT_SYSTEM_PROMPT = f"""You are an intent classifier for a school dropout monitoring system.
@@ -833,53 +769,41 @@ def intent_node(state: AgentState) -> dict:
 
 def initialize_node(state: AgentState) -> dict:
     """
-    Graph entry point: force a retrieval RAG call on the user's raw query.
+    Graph entry point for data queries.
 
-    If intent_node has already classified the query (state has 'intent' and
-    'entities'), the RAG query is enriched with those signals so the vector
-    search returns more relevant table chunks and fewer false positives.
+    Instead of forcing a retrive_schema_rag call, inject intent/entity
+    context into a HumanMessage and let the LLM (via llm_node) decide
+    which tools to call (RAG, execute_sql, get_column_values, or answer).
 
-    Enrichment strategy:
-      - Prepend the classified intent so the embedding leans toward matching
-        fewshot examples with the same intent label.
-      - Append extracted entities (district, year, grade) as context hints.
-      - Append department scope so embeddings for tables like citizen_school
-        and school_student_attendance_fact rank higher than unrelated tables.
+    The graph edge routes this node's output to llm_node (not tool_node).
     """
-    import uuid
-    tool_call_id = f"call_{uuid.uuid4().hex}"
-
     raw_query    = state["user_query"]
     intent       = state.get("intent")
     entities     = state.get("entities") or {}
     dept_scope   = state.get("department_scope") or []
 
-    # Use the RAW user query for vector search — not enriched.
-    # Enrichment with [intent:...][district:...] metadata brackets corrupts
-    # the embedding vector because the embedding model treats bracket tokens
-    # as semantic content, pushing the vector away from fewshot embeddings
-    # that were indexed with clean NL text only.
-    rag_query = raw_query
+    # Build enriched context for the LLM
+    context_parts = []
+    if intent and intent != "general_query":
+        context_parts.append(f"Classified intent: {intent}")
+    if entities:
+        context_parts.append(f"Extracted entities: {entities}")
+    if dept_scope:
+        context_parts.append(f"Relevant departments: {dept_scope}")
+
+    enrichment = "\n".join(context_parts)
+
+    content = raw_query
+    if enrichment:
+        content = f"{raw_query}\n\n[Context from intent classification:\n{enrichment}]"
 
     logger.info(
-        "initialize_node: RAG query = %s  (intent=%s, entities=%s)",
-        rag_query, intent, entities,
-    )
-
-    forced_tool_call_msg = AIMessage(
-        content="",
-        tool_calls=[{
-            "id":   tool_call_id,
-            "name": "retrive_schema_rag",
-            "args": {
-                "query": rag_query,
-                "top_k": _RAG_TOP_K,
-            }
-        }]
+        "initialize_node: passing to LLM (intent=%s, entities=%s)",
+        intent, entities,
     )
 
     return {
-        "messages": [forced_tool_call_msg],
+        "messages": [HumanMessage(content=content)],
         "llm_calls": 0,
     }
 
