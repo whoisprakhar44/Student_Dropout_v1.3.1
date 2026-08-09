@@ -5,3 +5,4 @@ __pycache__/
 MCP/milvus_schemas.db/
 database/schema.db
 generation_logs
+graphify-out

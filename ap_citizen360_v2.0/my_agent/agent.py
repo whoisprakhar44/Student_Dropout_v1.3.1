@@ -23,7 +23,7 @@ from langgraph.graph import END, START, StateGraph
 
 from my_agent.utils.nodes import (
     build_tool_node, initialize_node, intent_node, llm_node, verify_node,
-    route_node, doc_search_node, synthesize_node
+    route_node, doc_search_node, synthesize_node, greeting_node, out_of_scope_node
 )
 from my_agent.utils.state import AgentState
 from my_agent.utils.tools import cleanup_tools, init_tools
@@ -96,6 +96,29 @@ async def build_graph():
         t0 = time.perf_counter()
         result = await _base_tool_node.ainvoke(state)
         exec_time = state.get("exec_time", 0.0) + (time.perf_counter() - t0)
+        
+        # --- [EGRESS GUARDRAIL] ---
+        if isinstance(result, dict) and "messages" in result:
+            try:
+                from guardrails.egress import mask_egress_rows
+                import json
+                username = state.get("username", "")
+                
+                for msg in result["messages"]:
+                    if getattr(msg, "name", None) == "execute_sql":
+                        content_str = msg.content
+                        if isinstance(content_str, list):
+                            content_str = content_str[0].get("text", "")
+                        
+                        payload = json.loads(content_str)
+                        if payload.get("status") == "success" and payload.get("rows"):
+                            masked_rows = mask_egress_rows(payload["rows"], username)
+                            payload["rows"] = masked_rows
+                            msg.content = json.dumps(payload)
+            except Exception as e:
+                print(f"[EGRESS] Error applying mask: {e}")
+        # --------------------------
+
         if isinstance(result, dict):
             result["exec_time"] = exec_time
         return result
@@ -108,6 +131,8 @@ async def build_graph():
     builder.add_node("verify_node",      verify_node)
     builder.add_node("doc_search_node",  doc_search_node)
     builder.add_node("synthesize_node",  synthesize_node)
+    builder.add_node("greeting_node",    greeting_node)
+    builder.add_node("out_of_scope_node", out_of_scope_node)
 
     # Intent classification → route_node
     builder.add_edge(START,           "intent_node")
@@ -115,8 +140,11 @@ async def build_graph():
     builder.add_conditional_edges(
         "intent_node",
         route_node,
-        ["initialize_node", "doc_search_node"],
+        ["initialize_node", "doc_search_node", "greeting_node", "out_of_scope_node"],
     )
+    
+    builder.add_edge("greeting_node", END)
+    builder.add_edge("out_of_scope_node", END)
     
     # initialize_node → llm_node: LLM decides which tools to call
     builder.add_edge("initialize_node", "llm_node")

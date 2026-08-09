@@ -1,0 +1,48 @@
+# Egress Guardrails Policy
+# Define role-based masking rules for sensitive columns
+
+# Default action for columns not explicitly listed here
+# If a column name resembles PII but is not listed, it will NOT be masked automatically 
+# (unless you add a regex-based fallback in egress.py)
+
+columns:
+  # Aadhaar masking: leave only last 4 digits
+  aadhaar_number:
+    type: string
+    mask_pattern: "XXXX-XXXX-{last4}"
+    allowed_roles:
+      - admin
+      - state_level_officer
+
+  # Personal phone numbers
+  phone_number:
+    type: string
+    mask_pattern: "XXXXXX{last4}"
+    allowed_roles:
+      - admin
+      - district_officer
+      - state_level_officer
+
+  # PAN masking
+  pan_number:
+    type: string
+    mask_pattern: "XXXXX{last4}X"
+    allowed_roles:
+      - admin
+
+  # Student specific PII
+  student_name:
+    type: string
+    mask_pattern: "REDACTED"
+    allowed_roles:
+      - admin
+      - school_principal
+      - district_officer
+      - state_level_officer
+
+  # General sensitive data fallback
+  sensitive_data:
+    type: string
+    mask_pattern: "REDACTED"
+    allowed_roles:
+      - admin

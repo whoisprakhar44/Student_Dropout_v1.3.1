@@ -5,6 +5,9 @@ from langchain_core.messages import AnyMessage
 
 
 class AgentState(TypedDict):
+    # Username for role-based egress masking
+    username: NotRequired[str | None]
+    
     # Original user query
     user_query: str
 

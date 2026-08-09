@@ -58,6 +58,7 @@ else:
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "database", "schema.db")
 EXCEL_LOG_PATH = os.path.join(os.path.dirname(__file__), "database", "query_log.xlsx")
+HISTORY_DB_PATH = os.path.join(os.path.dirname(__file__), "database", "history.db")
 
 # Thread lock for Excel file writes (openpyxl is not thread-safe)
 _excel_lock = threading.Lock()
@@ -147,11 +148,17 @@ def _init_query_log() -> None:
                 status TEXT,
                 answer TEXT,
                 error TEXT,
+                pii_audit_log TEXT,
                 gen_time_s REAL DEFAULT 0.0,
                 exec_time_s REAL DEFAULT 0.0,
                 total_time_s REAL DEFAULT 0.0
             );
         """)
+        # Try to add the column if it doesn't exist (for existing DBs)
+        try:
+            conn.execute("ALTER TABLE query_log ADD COLUMN pii_audit_log TEXT;")
+        except sqlite3.OperationalError:
+            pass
         conn.commit()
     except sqlite3.Error as e:
         print(f"Error initializing query_log: {e}")
@@ -167,6 +174,7 @@ def _append_query_log(
     status: str,
     answer: str,
     error: str,
+    pii_audit: str = "",
     gen_time: float = 0.0,
     exec_time: float = 0.0,
     total_time: float = 0.0,
@@ -179,8 +187,8 @@ def _append_query_log(
             """
             INSERT INTO query_log (
                 timestamp, username, session_id, question, generated_sql,
-                status, answer, error, gen_time_s, exec_time_s, total_time_s
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                status, answer, error, pii_audit_log, gen_time_s, exec_time_s, total_time_s
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -191,6 +199,7 @@ def _append_query_log(
                 status,
                 (answer[:2000] if answer else ""),
                 (error[:1000] if error else ""),
+                pii_audit,
                 round(gen_time, 2),
                 round(exec_time, 2),
                 round(total_time, 2),
@@ -724,6 +733,16 @@ async def ask(payload: AskRequest):
         if not payload.question:
             raise HTTPException(status_code=400, detail="question is required for ask action")
         
+        # --- [INGRESS GUARDRAIL] ---
+        from guardrails.ingress import analyze_and_redact
+        redacted_question, audit_log = analyze_and_redact(payload.question)
+        pii_audit_str = ""
+        if audit_log.get("pii_detected"):
+            print(f"[GUARDRAIL] PII detected & redacted. Audit: {audit_log}")
+            payload.question = redacted_question
+            pii_audit_str = json.dumps(audit_log)
+        # ---------------------------
+
         req_id = payload.request_id or f"req_{asyncio.get_running_loop().time()}"
         session_id = payload.session_id or payload.thread_id or str(uuid.uuid4())
         history_messages = get_session_messages(session_id)
@@ -754,6 +773,7 @@ async def ask(payload: AskRequest):
                             graph.ainvoke(
                                 {
                                     "user_query": payload.question,
+                                    "username": username,
                                     "messages": history_messages + [HumanMessage(content=payload.question)],
                                     "retrieved_context": [],
                                     "llm_calls": 0,
@@ -844,6 +864,19 @@ async def ask(payload: AskRequest):
                     exec_time=exec_time,
                     total_time=total_time,
                 )
+                _append_query_log(
+                    username=username,
+                    session_id=session_id,
+                    question=payload.question or "",
+                    sql=response_obj.sql or "",
+                    status=excel_status,
+                    answer=response_text,
+                    error=excel_error,
+                    pii_audit=pii_audit_str,
+                    gen_time=gen_time,
+                    exec_time=exec_time,
+                    total_time=total_time,
+                )
 
                 response_obj.username = username
 
@@ -867,6 +900,17 @@ async def ask(payload: AskRequest):
                         error="Request cancelled by user.",
                         total_time=exc_total_time,
                     )
+                    _append_query_log(
+                        username=username,
+                        session_id=session_id,
+                        question=payload.question or "",
+                        sql="",
+                        status="cancelled",
+                        answer="",
+                        error="Request cancelled by user.",
+                        pii_audit=pii_audit_str,
+                        total_time=exc_total_time,
+                    )
                     yield json.dumps({"sql": "", "result": [{"error": "Request cancelled.", "status": "cancelled"}]}).encode()
                 else:
                     traceback.print_exc()
@@ -878,6 +922,7 @@ async def ask(payload: AskRequest):
                         status="error",
                         answer="",
                         error=str(exc),
+                        pii_audit=pii_audit_str,
                         total_time=exc_total_time,
                     )
                     yield json.dumps({"sql": "", "result": [{"error": str(exc), "status": "failed"}]}).encode()

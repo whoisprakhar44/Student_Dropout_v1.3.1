@@ -1,16 +1,16 @@
 # Graph Report - ap_citizen360_v2.0  (2026-08-09)
 
 ## Corpus Check
-- 54 files · ~370,191 words
+- 54 files · ~365,613 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 524 nodes · 824 edges · 30 communities (25 shown, 5 thin omitted)
-- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 51 edges (avg confidence: 0.55)
+- 520 nodes · 833 edges · 29 communities (25 shown, 4 thin omitted)
+- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 53 edges (avg confidence: 0.56)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7f371b95`
+- Built from commit: `8b1b72e8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -25,58 +25,57 @@
 - manifest.json
 - hive_startup_check.py
 - build_milvus_index.py
-- project_architecture_and_algorithms_8fdf81ec.md
+- Transcriber
 - Curated School Datamodel — NL2SQL Agent
 - Endpoints
 - Live Audio Transcription — Frontend Integration Guide
 - test_generation.py
 - check_llm
 - mcp_sql_execution.py
-- create_database
 - ollama_check.py
 - langgraph.json
 - rules/graphify.md
 - workflows/graphify.md
 - database/__init__.py
-- query_log_f3a48ab6.md
+- mask_egress_rows
 - speech_to_text/__init__.py
 
 ## God Nodes (most connected - your core abstractions)
 1. `HiveExecutor` - 24 edges
-2. `build_graph()` - 20 edges
+2. `build_graph()` - 23 edges
 3. `Transcriber` - 18 edges
 4. `✅ FINAL VERIFICATION & HANDOFF` - 18 edges
-5. `AgentState` - 15 edges
+5. `AgentState` - 17 edges
 6. `LiveTranscriptionSession` - 15 edges
 7. `VectorDBClient` - 14 edges
-8. `ask()` - 12 edges
+8. `ask()` - 13 edges
 9. `TranscriptionResponse` - 12 edges
 10. `run_all_checks()` - 11 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `main()` --calls--> `HiveExecutor`  [INFERRED]
   inspect_remote_schema.py → MCP/hive_executor.py
-- `main()` --calls--> `HiveExecutor`  [EXTRACTED]
-  inspect_distinct_values.py → MCP/hive_executor.py
-- `main()` --calls--> `HiveExecutor`  [INFERRED]
-  inspect_impala_tables.py → MCP/hive_executor.py
-- `main()` --calls--> `HiveExecutor`  [EXTRACTED]
-  test_fewshots_impala.py → MCP/hive_executor.py
-- `AskRequest` --uses--> `MessageModel`  [INFERRED]
-  app.py → database/postgres.py
+- `AskRequest` --uses--> `Transcriber`  [INFERRED]
+  app.py → speech_to_text/transcriber.py
+- `AskResponse` --uses--> `Transcriber`  [INFERRED]
+  app.py → speech_to_text/transcriber.py
+- `SessionSummary` --uses--> `Transcriber`  [INFERRED]
+  app.py → speech_to_text/transcriber.py
+- `MessageDetail` --uses--> `Transcriber`  [INFERRED]
+  app.py → speech_to_text/transcriber.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (30 total, 5 thin omitted)
+## Communities (29 total, 4 thin omitted)
 
 ### Community 0 - "app.py"
-Cohesion: 0.05
-Nodes (63): _append_excel_log(), _append_query_log(), ask(), AskRequest, AskResponse, _extract_sql_and_result(), _extract_tool_content(), get_session_messages() (+55 more)
+Cohesion: 0.06
+Nodes (53): _append_excel_log(), _append_query_log(), ask(), AskRequest, AskResponse, _extract_sql_and_result(), _extract_tool_content(), get_session_messages() (+45 more)
 
 ### Community 1 - "nodes.py"
 Cohesion: 0.08
-Nodes (49): _get_graph(), after_tool_node(), after_verify_node(), build_graph(), main(), agent.py -------- Constructs and compiles the LangGraph agent. Graph flow:…, After llm_node: - If the LLM emitted tool calls → run the tools. - If verified…, After tool_node executes: - If the LLM called execute_sql, go to verify_node to… (+41 more)
+Nodes (53): _get_graph(), after_tool_node(), after_verify_node(), build_graph(), main(), agent.py -------- Constructs and compiles the LangGraph agent. Graph flow:…, After llm_node: - If the LLM emitted tool calls → run the tools. - If verified…, After tool_node executes: - If the LLM called execute_sql, go to verify_node to… (+45 more)
 
 ### Community 2 - "HiveExecutor"
 Cohesion: 0.07
@@ -110,13 +109,13 @@ Nodes (20): check_hadoop_conf_dir(), check_hadoop_home(), check_hdfs(), check_im
 Cohesion: 0.17
 Nodes (16): build_index(), embed_text(), load_config(), load_join_chunks(), load_table_chunks(), Build Milvus Lite schema index from schema/curated_datamodels/. Run from…, resolve_milvus_uri(), ensure_table_yaml_files() (+8 more)
 
-### Community 10 - "project_architecture_and_algorithms_8fdf81ec.md"
-Cohesion: 0.11
-Nodes (18): 1. Executive Summary, 2.1. Structural Component Breakdown, 2.2. Retrieval and Generation Boundaries, 2.3.1. Enriched RAG Query Construction, 2.3.2. AgentState Extensions, 2.3. Intent Classification and Department Scope (v1.4 Feature), 2. Reference Architecture, 3.1. Node Trajectory and State Transition Logic (+10 more)
+### Community 10 - "Transcriber"
+Cohesion: 0.14
+Nodes (17): BaseSettings, get_settings(), Runtime settings for the speech-to-text API., Settings, HealthResponse, BaseModel, SegmentResponse, TranscriptionResponse (+9 more)
 
 ### Community 11 - "Curated School Datamodel — NL2SQL Agent"
-Cohesion: 0.11
-Nodes (18): Agent Flow & Self-Correction, API Endpoints, Complete Hive Setup (run in order on the server), Components, Curated School Datamodel — NL2SQL Agent, Deploying to Server, Hive Mode (Production Server), Ingestion (+10 more)
+Cohesion: 0.10
+Nodes (20): 1. Start the Stack, 2. Initialize the Database & Vectors, Agent Flow & Self-Correction, API Endpoints, Complete Hive Setup (run in order on the server), Components, Curated School Datamodel — NL2SQL Agent, Hive Mode (Production Server) (+12 more)
 
 ### Community 12 - "Endpoints"
 Cohesion: 0.12
@@ -138,10 +137,6 @@ Nodes (12): _http_error_from_exc(), Exception, HTTPException, chat_model_name(),
 Cohesion: 0.28
 Nodes (8): _build_engine(), execute_sql(), tool, sql_mcp_server.py — MCP server for SQL execution. Tools: • execute_sql(query) :…, Allow ONLY read-only SELECT queries. Supports: - SELECT ... - WITH cte AS (...)…, Execute ONLY SELECT SQL queries., _resolve_sqlite_path(), _validate_query()
 
-### Community 17 - "create_database"
-Cohesion: 0.43
-Nodes (5): init_database(), Initialize curated sample database if missing or still on the old schema., create_database(), _sqlite_type(), generate_synthetic_data()
-
 ### Community 18 - "ollama_check.py"
 Cohesion: 0.57
 Nodes (6): chat_model_name(), check_ollama(), list_ollama_models(), model_is_available(), ollama_base_url(), Ollama connectivity and model availability checks.
@@ -150,25 +145,29 @@ Nodes (6): chat_model_name(), check_ollama(), list_ollama_models(), model_is_ava
 Cohesion: 0.33
 Nodes (5): dependencies, env, graphs, agent, .
 
+### Community 23 - "mask_egress_rows"
+Cohesion: 0.36
+Nodes (7): get_user_role(), mask_egress_rows(), _mask_value(), Any, Mock function to get the user's role. In a real system, you would query a user…, Mask a string value according to the pattern., Masks sensitive columns in the result rows based on user role and policy.…
+
 ## Knowledge Gaps
-- **101 isolated node(s):** `.`, `agent`, `env`, `active_wal_number`, `current_seq` (+96 more)
+- **88 isolated node(s):** `.`, `agent`, `env`, `active_wal_number`, `current_seq` (+83 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **4 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `build_graph()` connect `nodes.py` to `app.py`, `test_generation.py`?**
-  _High betweenness centrality (0.030) - this node is a cross-community bridge._
+- **Why does `build_graph()` connect `nodes.py` to `app.py`, `test_generation.py`, `mask_egress_rows`?**
+  _High betweenness centrality (0.039) - this node is a cross-community bridge._
+- **Why does `Transcriber` connect `Transcriber` to `app.py`?**
+  _High betweenness centrality (0.020) - this node is a cross-community bridge._
 - **Why does `HiveExecutor` connect `HiveExecutor` to `hive_startup_check.py`?**
   _High betweenness centrality (0.013) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `HiveExecutor` (e.g. with `main()` and `main()`) actually correct?**
   _`HiveExecutor` has 2 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 10 inferred relationships involving `build_graph()` (e.g. with `after_tool_node()` and `after_verify_node()`) actually correct?**
-  _`build_graph()` has 10 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 12 inferred relationships involving `build_graph()` (e.g. with `after_tool_node()` and `after_verify_node()`) actually correct?**
+  _`build_graph()` has 12 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 8 inferred relationships involving `Transcriber` (e.g. with `AskRequest` and `AskResponse`) actually correct?**
   _`Transcriber` has 8 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `.`, `agent`, `env` to the rest of the system?**
-  _101 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `app.py` be split into smaller, more focused modules?**
-  _Cohesion score 0.05465765501028504 - nodes in this community are weakly interconnected._
+  _88 weakly-connected nodes found - possible documentation gaps or missing edges._

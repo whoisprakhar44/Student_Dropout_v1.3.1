@@ -40,8 +40,8 @@
     "semantic_hash": ""
   },
   "app.py": {
-    "mtime": 1786294939.3317919,
-    "ast_hash": "5f1965e3045697cab8c292b0a18fee65",
+    "mtime": 1786295997.5857272,
+    "ast_hash": "8c85be39c9cadf90ee6823c657b615b3",
     "semantic_hash": ""
   },
   "check_yamls.py": {
@@ -115,8 +115,8 @@
     "semantic_hash": ""
   },
   "my_agent/agent.py": {
-    "mtime": 1786293907.2263224,
-    "ast_hash": "0f7d6da12267e577e22f85652e8ac407",
+    "mtime": 1786296375.2601066,
+    "ast_hash": "cf42ba74f9eed0be3647f3bb91a90022",
     "semantic_hash": ""
   },
   "my_agent/utils/__init__.py": {
@@ -135,8 +135,8 @@
     "semantic_hash": ""
   },
   "my_agent/utils/nodes.py": {
-    "mtime": 1786294749.543326,
-    "ast_hash": "064c69920b48a69e8526fa19141a7da5",
+    "mtime": 1786296367.8674314,
+    "ast_hash": "9c73f0c690b0e6247a5e89d455500b76",
     "semantic_hash": ""
   },
   "my_agent/utils/ollama_check.py": {
@@ -145,8 +145,8 @@
     "semantic_hash": ""
   },
   "my_agent/utils/state.py": {
-    "mtime": 1786291945.8565218,
-    "ast_hash": "bba1e8bb0a307229af1e13853e23b0c9",
+    "mtime": 1786295877.352921,
+    "ast_hash": "f218b70fea17214f97edfba6ee6e4375",
     "semantic_hash": ""
   },
   "my_agent/utils/tools.py": {
@@ -260,8 +260,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1786291945.8728611,
-    "ast_hash": "0498388a6a6295f14ae2c9648a3cc6da",
+    "mtime": 1786295343.7717352,
+    "ast_hash": "3665a3b9ffd38352ab0a1af40f37f43b",
     "semantic_hash": ""
   },
   "TEST_HANDOFF.txt": {
@@ -304,16 +304,6 @@
     "ast_hash": "34df281f8d6c5109d8e3e231a7784d08",
     "semantic_hash": ""
   },
-  "graphify-out/converted/project_architecture_and_algorithms_8fdf81ec.md": {
-    "mtime": 1786294987.631303,
-    "ast_hash": "2cdd1a61a2be7b1d06f3d72e9d9b2eb2",
-    "semantic_hash": ""
-  },
-  "graphify-out/converted/query_log_f3a48ab6.md": {
-    "mtime": 1786294987.504276,
-    "ast_hash": "9aa59c12110f3865854a005c569beaec",
-    "semantic_hash": ""
-  },
   "impala_distinct_values.txt": {
     "mtime": 1786291945.8936815,
     "ast_hash": "2076774eca74450a1d1a28282922b5e3",
@@ -325,8 +315,8 @@
     "semantic_hash": ""
   },
   "requirements.txt": {
-    "mtime": 1786294829.5264368,
-    "ast_hash": "fc7589c7ad8ff2b28c68e01415587792",
+    "mtime": 1786295890.0593355,
+    "ast_hash": "d6e1aad59a18d34aab5d7a28096c781a",
     "semantic_hash": ""
   },
   "schema/curated_datamodels/database.yaml": {
@@ -502,6 +492,21 @@
   "mermaid-diagram-1784183518294(1).png": {
     "mtime": 1786292611.0758872,
     "ast_hash": "9ccf360cb0125cc0a48e3ba992718629",
+    "semantic_hash": ""
+  },
+  "guardrails/egress.py": {
+    "mtime": 1786295849.7332168,
+    "ast_hash": "6c0d17c7cad710140df8e295a5b17878",
+    "semantic_hash": ""
+  },
+  "guardrails/ingress.py": {
+    "mtime": 1786295733.2969923,
+    "ast_hash": "d1cec67b1ddac250baa7cd43d045d16a",
+    "semantic_hash": ""
+  },
+  "guardrails/pii_columns.yaml": {
+    "mtime": 1786295834.260299,
+    "ast_hash": "ecf9a0b7a5b510d5d85c778e5f1e0afc",
     "semantic_hash": ""
   }
 }

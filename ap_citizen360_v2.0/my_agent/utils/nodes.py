@@ -654,6 +654,8 @@ INTENT_DEPARTMENT_MAP: dict[str, list[str]] = {
     "citizen_socioeconomic_profile": ["ap_citizen360"],
     "teacher_attendance":            ["ap_citizen360"],
     "academic_performance":          ["ap_citizen360"],
+    "greeting":                      ["ap_citizen360"],
+    "out_of_scope":                  ["ap_citizen360"],
     "general_query":                 ["ap_citizen360"],
 }
 
@@ -669,6 +671,8 @@ INTENT_DESCRIPTIONS = """
 - citizen_socioeconomic_profile: citizen asset, land, property, utility, socioeconomic profiling
 - teacher_attendance: teacher attendance records & teacher master profiling
 - academic_performance: exam marks, scores, pass/fail, assessment analysis
+- greeting: greetings, hellos, introductions, or casual chat (e.g. hi, hello, hey, good morning, who are you)
+- out_of_scope: gibberish (e.g. asdf, test, foo, 123), random single words, or off-topic questions (sports, cooking, jokes, weather, general trivia) unrelated to AP Citizen360 / education / welfare
 - general_query: anything that does not fit the above intents
 """
 
@@ -690,6 +694,8 @@ Given a user question, you must:
    - "data_query": needs SQL (counts, lists, averages, specific data lookups)
    - "document_query": needs document context (policies, rules, procedures, guidelines, explanations of WHY something exists, eligibility criteria text)
    - "hybrid": needs BOTH data AND policy/document context
+   - "greeting": simple greetings, hellos, introductions, or casual chat
+   - "out_of_scope": gibberish, random single words, or off-topic questions unrelated to AP Citizen360 / education / welfare
 
 3. Extract these entities if mentioned (leave blank string "" if not present):
    - district_name: AP district (e.g. Guntur, Anantapur, Chittoor, Krishna, Kurnool, Srikakulam, Vizianagaram, Visakhapatnam, East Godavari, West Godavari, Prakasam, Nellore, Kadapa, YSR Kadapa)
@@ -717,7 +723,7 @@ def _parse_intent_response(raw: str) -> tuple[str, str, dict[str, str]]:
         if intent not in INTENT_DEPARTMENT_MAP:
             logger.warning("intent_node: unknown intent '%s', falling back to general_query", intent)
             intent = "general_query"
-        if query_type not in ("data_query", "document_query", "hybrid"):
+        if query_type not in ("data_query", "document_query", "hybrid", "greeting", "out_of_scope"):
             query_type = "data_query"
         entities = {k: str(v) for k, v in data.get("entities", {}).items() if v}
         return intent, query_type, entities
@@ -731,13 +737,52 @@ def intent_node(state: AgentState) -> dict:
     LangGraph node: classify intent, query_type, and extract entities from user_query.
 
     Writes to state:
-        intent          – 1 of 13 domain intent labels
-        query_type      – "data_query" | "document_query" | "hybrid"
+        intent          – 1 of 14 domain intent labels
+        query_type      – "data_query" | "document_query" | "hybrid" | "greeting"
         department_scope – relevant database departments for RAG scoping
         entities        – extracted district, year, grade, social_category
     """
     t0 = time.perf_counter()
     user_query = state.get("user_query", "")
+
+    # Fast-path regex for instant greeting detection
+    _GREETING_REGEX = re.compile(
+        r"^\s*(hi|hello|hey|good morning|good afternoon|good evening|namaste|greetings|hi there|hello there|who are you|who r u|hi!|hello!)\b",
+        re.IGNORECASE,
+    )
+    if _GREETING_REGEX.search(user_query.strip()):
+        logger.info("intent_node: fast-path detected greeting query: '%s'", user_query)
+        return {
+            "intent": "greeting",
+            "query_type": "greeting",
+            "department_scope": ["ap_citizen360"],
+            "entities": {},
+        }
+
+    # Fast-path detection for short single-word gibberish and keyboard mashing
+    clean_q = user_query.strip().lower()
+    tokens = clean_q.split()
+    valid_domain_words = {
+        "ap", "sc", "st", "obc", "kyc", "bpl", "sql", "gsws", "id", "ddl", "rag",
+        "student", "students", "dropout", "dropouts", "school", "schools", "teacher", "teachers",
+        "attendance", "marks", "grade", "district", "schemes", "scheme", "aadhaar", "pan"
+    }
+    keyboard_patterns = (
+        "asdf", "sdfg", "dfgh", "fghj", "ghjk", "hjkl",
+        "qwer", "wert", "erty", "rtyu", "tyui", "yuio", "uiop",
+        "zxcv", "xcvb", "cvbn", "vbnm", "1234", "qwerty"
+    )
+    is_gibberish = (
+        (len(tokens) == 1 and tokens[0] not in valid_domain_words and (len(tokens[0]) <= 3 or any(p in tokens[0] for p in keyboard_patterns)))
+    )
+    if is_gibberish:
+        logger.info("intent_node: fast-path detected single-word/gibberish query: '%s'", user_query)
+        return {
+            "intent": "out_of_scope",
+            "query_type": "out_of_scope",
+            "department_scope": ["ap_citizen360"],
+            "entities": {},
+        }
 
     try:
         response = _intent_model.invoke([
@@ -812,13 +857,50 @@ def initialize_node(state: AgentState) -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def route_node(state: AgentState) -> str:
-    """Returns the next node name based on query_type."""
+    """Returns the next node name based on query_type or intent."""
     qt = state.get("query_type", "data_query")
-    if qt == "document_query":
+    intent = state.get("intent", "")
+    if qt == "greeting" or intent == "greeting":
+        return "greeting_node"
+    elif qt == "out_of_scope" or intent == "out_of_scope":
+        return "out_of_scope_node"
+    elif qt == "document_query":
         return "doc_search_node"
     elif qt == "hybrid":
         return "initialize_node"  # Runs both paths (for now, we will map hybrid to data_query but eventually support both)
     return "initialize_node"   # existing SQL path
+
+def greeting_node(state: AgentState) -> dict:
+    """Responds to greetings and user introductions cleanly."""
+    username = state.get("username", "")
+    name_str = f", {username}" if username and username.lower() not in ("user", "default", "admin") else ""
+    
+    reply = (
+        f"Hello{name_str}! I am the **Citizen360 AI Assistant**, your intelligent data and document assistant "
+        f"for the AP Citizen360 platform.\n\n"
+        f"How can I help you today? You can ask me about:\n"
+        f"- Student dropout risk lists and school performance hotspots\n"
+        f"- Teacher attendance and academic marks analysis\n"
+        f"- Welfare scheme delivery gaps and eligibility criteria\n"
+        f"- Policy documents, circulars, and official guidelines"
+    )
+    return {
+        "messages": [AIMessage(content=reply)],
+        "verified": True,
+    }
+
+def out_of_scope_node(state: AgentState) -> dict:
+    """Handles gibberish or out-of-domain queries by asking the user to rephrase."""
+    reply = (
+        "I could not understand your request or it appears to be out of scope for this system.\n\n"
+        "I am specialized in the **AP Citizen360** platform for monitoring student dropouts, "
+        "school performance analytics, teacher attendance, and welfare scheme delivery.\n\n"
+        "Please rephrase your question with a specific request (for example: *'Show dropout risk in Guntur district'* or *'List schools with low attendance'*)."
+    )
+    return {
+        "messages": [AIMessage(content=reply)],
+        "verified": True,
+    }
 
 def doc_search_node(state: AgentState) -> dict:
     """Force-calls the document search MCP tool."""
