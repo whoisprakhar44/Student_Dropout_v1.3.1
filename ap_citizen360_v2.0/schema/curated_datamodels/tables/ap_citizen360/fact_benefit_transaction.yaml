@@ -1,0 +1,74 @@
+database: ap_citizen360
+table: fact_benefit_transaction
+department: ap_citizen360
+description: One row per individual benefit disbursement transaction against an entitlement — the itemized payment history
+  behind fact_entitlement's summarized last_disbursed_date. Partitioned by month and district for efficient time-range/geo
+  queries.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_benefit_transaction
+partitioned_by: months(transaction_date), district_id
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_benefit_transaction`(\n  `transaction_id` STRING COMMENT 'Primary Key:\
+  \ transaction identifier.',\n  `entitlement_id` STRING COMMENT 'Foreign Key: References fact_entitlement.entitlement_id.',\n\
+  \  `person_id` STRING COMMENT 'Foreign Key: References dim_person.person_id.',\n  `scheme_id` STRING COMMENT 'Foreign Key:\
+  \ References dim_scheme.scheme_id.',\n  `amount` DECIMAL(12,2) COMMENT 'Amount disbursed in this transaction, in INR. Unit:\
+  \ INR.',\n  `transaction_date` DATE COMMENT 'Date the transaction was disbursed. Partition key.',\n  `district_id` STRING\
+  \ COMMENT 'Foreign Key: References dim_district.district_id. partition key. Partition key.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_benefit_transaction'\n\
+  PARTITIONED BY (months(transaction_date), district_id)"
+columns:
+- name: transaction_id
+  type: STRING
+  nullable: true
+  description: 'Primary Key: transaction identifier.'
+- name: entitlement_id
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: References fact_entitlement.entitlement_id.'
+- name: person_id
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: References dim_person.person_id.'
+- name: scheme_id
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: References dim_scheme.scheme_id.'
+- name: amount
+  type: DECIMAL(12,2)
+  nullable: true
+  description: 'Amount disbursed in this transaction, in INR. Unit: INR.'
+- name: transaction_date
+  type: DATE
+  nullable: true
+  description: Date the transaction was disbursed. Partition key.
+- name: district_id
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: References dim_district.district_id. partition key. Partition key.'
+primary_key:
+- transaction_id
+relationships:
+- fact_benefit_transaction.entitlement_id is a foreign key to fact_entitlement.entitlement_id.
+- fact_benefit_transaction.person_id is a foreign key to dim_person.person_id.
+- fact_benefit_transaction.scheme_id is a foreign key to dim_scheme.scheme_id.
+- fact_benefit_transaction.district_id is a foreign key to dim_district.district_id.
+business_terms:
+- ap_citizen360
+- data_transfer_api_—_entitlements,_transactions,_disbursements
+- fact
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- aggregate measures in fact_benefit_transaction by geography and time period
+- join fact_benefit_transaction with dimension tables via facility_id or person_id
+- filter fact_benefit_transaction by district_id or period_date

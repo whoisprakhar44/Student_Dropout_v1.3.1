@@ -1,0 +1,375 @@
+database: combined
+description: Explicit join relations for the AP Citizen 360 + AP Community 360 schemas.
+joins:
+- name: dim_district_to_dim_state
+  from_table: dim_district
+  from_column: state_id
+  to_table: dim_state
+  to_column: state_id
+  cardinality: many_to_one
+  usage: Join dim_district to dim_state via state_id to resolve entity attributes.
+- name: dim_mandal_to_dim_district
+  from_table: dim_mandal
+  from_column: district_id
+  to_table: dim_district
+  to_column: district_id
+  cardinality: many_to_one
+  usage: Join dim_mandal to dim_district via district_id to resolve entity attributes.
+- name: dim_village_to_dim_mandal
+  from_table: dim_village
+  from_column: mandal_id
+  to_table: dim_mandal
+  to_column: mandal_id
+  cardinality: many_to_one
+  usage: Join dim_village to dim_mandal via mandal_id to resolve entity attributes.
+- name: dim_person_to_dim_district
+  from_table: dim_person
+  from_column: district_id
+  to_table: dim_district
+  to_column: district_id
+  cardinality: many_to_one
+  usage: Join dim_person to dim_district via district_id to resolve entity attributes.
+- name: dim_person_to_dim_mandal
+  from_table: dim_person
+  from_column: mandal_id
+  to_table: dim_mandal
+  to_column: mandal_id
+  cardinality: many_to_one
+  usage: Join dim_person to dim_mandal via mandal_id to resolve entity attributes.
+- name: dim_person_to_dim_household
+  from_table: dim_person
+  from_column: household_id
+  to_table: dim_household
+  to_column: household_id
+  cardinality: many_to_one
+  usage: Join dim_person to dim_household via household_id to resolve entity attributes.
+- name: dim_person_to_dim_person
+  from_table: dim_person
+  from_column: father_person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_person to dim_person via father_person_id to resolve entity attributes.
+- name: dim_person_to_dim_person
+  from_table: dim_person
+  from_column: mother_person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_person to dim_person via mother_person_id to resolve entity attributes.
+- name: dim_person_to_dim_person
+  from_table: dim_person
+  from_column: husband_person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_person to dim_person via husband_person_id to resolve entity attributes.
+- name: dim_household_to_dim_person
+  from_table: dim_household
+  from_column: head_person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_household to dim_person via head_person_id to resolve entity attributes.
+- name: dim_household_to_dim_mandal
+  from_table: dim_household
+  from_column: mandal_id
+  to_table: dim_mandal
+  to_column: mandal_id
+  cardinality: many_to_one
+  usage: Join dim_household to dim_mandal via mandal_id to resolve entity attributes.
+- name: dim_household_to_dim_district
+  from_table: dim_household
+  from_column: district_id
+  to_table: dim_district
+  to_column: district_id
+  cardinality: many_to_one
+  usage: Join dim_household to dim_district via district_id to resolve entity attributes.
+- name: dim_family_member_to_dim_person
+  from_table: dim_family_member
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_family_member to dim_person via person_id to resolve entity attributes.
+- name: dim_family_member_to_dim_household
+  from_table: dim_family_member
+  from_column: household_id
+  to_table: dim_household
+  to_column: household_id
+  cardinality: many_to_one
+  usage: Join dim_family_member to dim_household via household_id to resolve entity attributes.
+- name: dim_citizen_identifier_to_dim_person
+  from_table: dim_citizen_identifier
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_citizen_identifier to dim_person via person_id to resolve entity attributes.
+- name: dim_consent_to_dim_person
+  from_table: dim_consent
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_consent to dim_person via person_id to resolve entity attributes.
+- name: dim_tax_profile_to_dim_person
+  from_table: dim_tax_profile
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_tax_profile to dim_person via person_id to resolve entity attributes.
+- name: dim_occupation_to_dim_person
+  from_table: dim_occupation
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_occupation to dim_person via person_id to resolve entity attributes.
+- name: dim_student_to_dim_person
+  from_table: dim_student
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_student to dim_person via person_id to resolve entity attributes.
+- name: dim_vehicle_to_dim_person
+  from_table: dim_vehicle
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_vehicle to dim_person via person_id to resolve entity attributes.
+- name: dim_vehicle_to_dim_person
+  from_table: dim_vehicle
+  from_column: owner_name
+  to_table: dim_person
+  to_column: owner_name
+  cardinality: many_to_one
+  usage: Join dim_vehicle to dim_person via owner_name using conformed attributes.
+- name: dim_vehicle_compliance_to_dim_person
+  from_table: dim_vehicle_compliance
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_vehicle_compliance to dim_person via person_id to resolve entity attributes.
+- name: dim_vehicle_compliance_to_dim_vehicle
+  from_table: dim_vehicle_compliance
+  from_column: reg_no
+  to_table: dim_vehicle
+  to_column: reg_no
+  cardinality: many_to_one
+  usage: Join dim_vehicle_compliance to dim_vehicle via reg_no for domain correlation.
+- name: dim_land_to_dim_person
+  from_table: dim_land
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_land to dim_person via person_id to resolve entity attributes.
+- name: dim_land_to_dim_district
+  from_table: dim_land
+  from_column: district_id
+  to_table: dim_district
+  to_column: district_id
+  cardinality: many_to_one
+  usage: Join dim_land to dim_district via district_id to resolve entity attributes.
+- name: dim_land_to_dim_mandal
+  from_table: dim_land
+  from_column: mandal_id
+  to_table: dim_mandal
+  to_column: mandal_id
+  cardinality: many_to_one
+  usage: Join dim_land to dim_mandal via mandal_id to resolve entity attributes.
+- name: dim_property_to_dim_person
+  from_table: dim_property
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_property to dim_person via person_id to resolve entity attributes.
+- name: dim_property_to_dim_district
+  from_table: dim_property
+  from_column: district_id
+  to_table: dim_district
+  to_column: district_id
+  cardinality: many_to_one
+  usage: Join dim_property to dim_district via district_id to resolve entity attributes.
+- name: dim_property_to_dim_property_tax
+  from_table: dim_property
+  from_column: ptin
+  to_table: dim_property_tax
+  to_column: ptin
+  cardinality: many_to_one
+  usage: Join dim_property to dim_property_tax via ptin for domain correlation.
+- name: dim_property_to_dim_person
+  from_table: dim_property
+  from_column: owner_name
+  to_table: dim_person
+  to_column: owner_name
+  cardinality: many_to_one
+  usage: Join dim_property to dim_person via owner_name using conformed attributes.
+- name: dim_property_tax_to_dim_person
+  from_table: dim_property_tax
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_property_tax to dim_person via person_id to resolve entity attributes.
+- name: dim_property_tax_to_dim_property
+  from_table: dim_property_tax
+  from_column: ptin
+  to_table: dim_property
+  to_column: ptin
+  cardinality: many_to_one
+  usage: Join dim_property_tax to dim_property via ptin for domain correlation.
+- name: dim_property_tax_to_dim_department
+  from_table: dim_property_tax
+  from_column: department_id
+  to_table: dim_department
+  to_column: department_id
+  cardinality: many_to_one
+  usage: Join dim_property_tax to dim_department via department_id to resolve entity attributes.
+- name: dim_health_profile_to_dim_person
+  from_table: dim_health_profile
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_health_profile to dim_person via person_id to resolve entity attributes.
+- name: dim_health_profile_to_dim_department
+  from_table: dim_health_profile
+  from_column: department_id
+  to_table: dim_department
+  to_column: department_id
+  cardinality: many_to_one
+  usage: Join dim_health_profile to dim_department via department_id to resolve entity attributes.
+- name: dim_agriculture_profile_to_dim_person
+  from_table: dim_agriculture_profile
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_agriculture_profile to dim_person via person_id to resolve entity attributes.
+- name: dim_agriculture_profile_to_dim_department
+  from_table: dim_agriculture_profile
+  from_column: department_id
+  to_table: dim_department
+  to_column: department_id
+  cardinality: many_to_one
+  usage: Join dim_agriculture_profile to dim_department via department_id to resolve entity attributes.
+- name: dim_crop_sale_to_dim_person
+  from_table: dim_crop_sale
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_crop_sale to dim_person via person_id to resolve entity attributes.
+- name: dim_social_welfare_to_dim_person
+  from_table: dim_social_welfare
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_social_welfare to dim_person via person_id to resolve entity attributes.
+- name: dim_social_welfare_to_dim_department
+  from_table: dim_social_welfare
+  from_column: department_id
+  to_table: dim_department
+  to_column: department_id
+  cardinality: many_to_one
+  usage: Join dim_social_welfare to dim_department via department_id to resolve entity attributes.
+- name: dim_utility_connection_to_dim_person
+  from_table: dim_utility_connection
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_utility_connection to dim_person via person_id to resolve entity attributes.
+- name: dim_epfo_contribution_to_dim_person
+  from_table: dim_epfo_contribution
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_epfo_contribution to dim_person via person_id to resolve entity attributes.
+- name: dim_scheme_to_dim_department
+  from_table: dim_scheme
+  from_column: department_id
+  to_table: dim_department
+  to_column: department_id
+  cardinality: many_to_one
+  usage: Join dim_scheme to dim_department via department_id to resolve entity attributes.
+- name: fact_entitlement_to_dim_person
+  from_table: fact_entitlement
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join fact_entitlement to dim_person via person_id to resolve entity attributes.
+- name: fact_entitlement_to_dim_household
+  from_table: fact_entitlement
+  from_column: household_id
+  to_table: dim_household
+  to_column: household_id
+  cardinality: many_to_one
+  usage: Join fact_entitlement to dim_household via household_id to resolve entity attributes.
+- name: fact_entitlement_to_dim_scheme
+  from_table: fact_entitlement
+  from_column: scheme_id
+  to_table: dim_scheme
+  to_column: scheme_id
+  cardinality: many_to_one
+  usage: Join fact_entitlement to dim_scheme via scheme_id to resolve entity attributes.
+- name: fact_entitlement_to_dim_district
+  from_table: fact_entitlement
+  from_column: district_id
+  to_table: dim_district
+  to_column: district_id
+  cardinality: many_to_one
+  usage: Join fact_entitlement to dim_district via district_id to resolve entity attributes.
+- name: fact_benefit_transaction_to_fact_entitlement
+  from_table: fact_benefit_transaction
+  from_column: entitlement_id
+  to_table: fact_entitlement
+  to_column: entitlement_id
+  cardinality: many_to_one
+  usage: Join fact_benefit_transaction to fact_entitlement via entitlement_id to resolve entity attributes.
+- name: fact_benefit_transaction_to_dim_person
+  from_table: fact_benefit_transaction
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join fact_benefit_transaction to dim_person via person_id to resolve entity attributes.
+- name: fact_benefit_transaction_to_dim_scheme
+  from_table: fact_benefit_transaction
+  from_column: scheme_id
+  to_table: dim_scheme
+  to_column: scheme_id
+  cardinality: many_to_one
+  usage: Join fact_benefit_transaction to dim_scheme via scheme_id to resolve entity attributes.
+- name: fact_benefit_transaction_to_dim_district
+  from_table: fact_benefit_transaction
+  from_column: district_id
+  to_table: dim_district
+  to_column: district_id
+  cardinality: many_to_one
+  usage: Join fact_benefit_transaction to dim_district via district_id to resolve entity attributes.
+- name: fact_scheme_disbursement_to_dim_scheme
+  from_table: fact_scheme_disbursement
+  from_column: scheme_id
+  to_table: dim_scheme
+  to_column: scheme_id
+  cardinality: many_to_one
+  usage: Join fact_scheme_disbursement to dim_scheme via scheme_id to resolve entity attributes.
+- name: fact_scheme_disbursement_to_dim_department
+  from_table: fact_scheme_disbursement
+  from_column: department_id
+  to_table: dim_department
+  to_column: department_id
+  cardinality: many_to_one
+  usage: Join fact_scheme_disbursement to dim_department via department_id to resolve entity attributes.
+

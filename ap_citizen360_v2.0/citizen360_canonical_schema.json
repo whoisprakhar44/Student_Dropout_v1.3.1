@@ -1,0 +1,2778 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12",
+  "$id": "ap-citizen360:canonical:v3.0",
+  "title": "AP Citizen 360\u00b0 Canonical Data Model \u2014 Table-by-Table Reference",
+  "description": "One JSON object per Iceberg table in ap_citizen360, generated directly from scripts/citizen360_full_model_ddl.sql so the column list/types here can never drift from the live DDL. Every field carries a plain-language description of what it holds and how it's used. Tables are listed in DDL order, grouped under the same section banners as the DDL file.",
+  "version": "3.0.0",
+  "effectiveDate": "2026-06-27",
+  "steward": "AP Datalake Platform Team",
+  "databaseName": "ap_citizen360",
+  "sourceDdl": "scripts/citizen360_full_model_ddl.sql",
+  "tableCount": 41,
+  "totalFieldCount": 561,
+  "groups": [
+    "GEOGRAPHY",
+    "PERSON / HOUSEHOLD / IDENTITY",
+    "EMPLOYMENT / OCCUPATION",
+    "EDUCATION",
+    "ASSETS \u2014 VEHICLES",
+    "ASSETS \u2014 LAND & PROPERTY",
+    "HEALTH",
+    "AGRICULTURE",
+    "SOCIAL WELFARE",
+    "UTILITIES",
+    "EMPLOYMENT \u2014 EPFO",
+    "SCHEMES, DEPARTMENTS & GOVERNANCE",
+    "SECURITY \u2014 DATA TRANSFER API DEPARTMENT CLIENT REGISTRY",
+    "DATA TRANSFER API \u2014 ENTITLEMENTS, TRANSACTIONS, DISBURSEMENTS",
+    "DATA TRANSFER API \u2014 UNIFIED EVENTS",
+    "DATA TRANSFER API \u2014 REQUEST IDEMPOTENCY, EVENT-DELIVERY INDEX, ACK/STATUS PERSISTENCE",
+    "P4 (PEOPLE-PUBLIC POLICY PERFORMANCE) SCORING",
+    "POPULATION & UTILITY TRENDS"
+  ],
+  "tables": {
+    "dim_state": {
+      "group": "GEOGRAPHY",
+      "tableType": "dimension",
+      "primaryKey": "state_id",
+      "partitionedBy": null,
+      "description": "One row per state per effective-dated period (slowly-changing dimension via effective_from/effective_to/is_current) \u2014 currently only Andhra Pradesh. Backs the State Profile view and top-of-hierarchy rollups.",
+      "fieldCount": 24,
+      "fields": {
+        "state_id": {
+          "type": "STRING",
+          "description": "Canonical state code, e.g. 'ap'."
+        },
+        "state_name": {
+          "type": "STRING",
+          "description": "Full state name, e.g. 'Andhra Pradesh'."
+        },
+        "population": {
+          "type": "BIGINT",
+          "description": "Total state population (census/projected)."
+        },
+        "households": {
+          "type": "BIGINT",
+          "description": "Total household count in the state."
+        },
+        "literacy_rate": {
+          "type": "DOUBLE",
+          "description": "State literacy rate, percentage (0-100)."
+        },
+        "sex_ratio": {
+          "type": "INT",
+          "description": "Females per 1000 males."
+        },
+        "districts_count": {
+          "type": "INT",
+          "description": "Number of districts in the state."
+        },
+        "mandals_count": {
+          "type": "INT",
+          "description": "Number of mandals across all districts."
+        },
+        "villages_count": {
+          "type": "INT",
+          "description": "Number of villages/habitations across all mandals."
+        },
+        "median_age": {
+          "type": "DOUBLE",
+          "description": "Median age of the population, in years."
+        },
+        "urbanization_pct": {
+          "type": "DOUBLE",
+          "description": "Percentage of population classified urban."
+        },
+        "gross_state_income_cr": {
+          "type": "BIGINT",
+          "description": "Gross state income/product, in INR crores."
+        },
+        "electricity_consumers": {
+          "type": "BIGINT",
+          "description": "Total registered electricity consumer connections."
+        },
+        "avg_monthly_kwh": {
+          "type": "INT",
+          "description": "Average monthly electricity consumption per consumer, in kWh."
+        },
+        "property_tax_collected": {
+          "type": "BIGINT",
+          "description": "Total property tax collected statewide, in INR."
+        },
+        "agri_land_acres": {
+          "type": "BIGINT",
+          "description": "Total agricultural land extent, in acres."
+        },
+        "ration_cards_total": {
+          "type": "BIGINT",
+          "description": "Total NFSA ration cards issued statewide."
+        },
+        "ration_aay": {
+          "type": "BIGINT",
+          "description": "Ration cards under the Antyodaya Anna Yojana (poorest-of-poor) category."
+        },
+        "ration_phh": {
+          "type": "BIGINT",
+          "description": "Ration cards under the Priority Household category."
+        },
+        "ration_nphh": {
+          "type": "BIGINT",
+          "description": "Ration cards under the Non-Priority Household category."
+        },
+        "ration_others": {
+          "type": "BIGINT",
+          "description": "Ration cards under other/legacy categories not covered above."
+        },
+        "effective_from": {
+          "type": "DATE",
+          "description": "Start date this snapshot row is valid from (SCD2 versioning)."
+        },
+        "effective_to": {
+          "type": "DATE",
+          "description": "End date this snapshot row is valid until; null/open-ended for the current row."
+        },
+        "is_current": {
+          "type": "BOOLEAN",
+          "description": "True if this is the latest/active version of the state snapshot.",
+          "value_description": "['True']"
+        }
+      }
+    },
+    "dim_district": {
+      "group": "GEOGRAPHY",
+      "tableType": "dimension",
+      "primaryKey": "district_id",
+      "partitionedBy": null,
+      "description": "One row per district per effective-dated period (slowly-changing dimension), nested under dim_state via state_id. Backs the District Profile drilldown view.",
+      "fieldCount": 24,
+      "fields": {
+        "district_id": {
+          "type": "STRING",
+          "description": "Canonical district code, e.g. 'guntur'."
+        },
+        "district_name": {
+          "type": "STRING",
+          "description": "Display name of the district."
+        },
+        "state_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_state.state_id."
+        },
+        "population": {
+          "type": "BIGINT",
+          "description": "Total district population."
+        },
+        "households": {
+          "type": "BIGINT",
+          "description": "Total household count in the district."
+        },
+        "literacy_rate": {
+          "type": "DOUBLE",
+          "description": "District literacy rate, percentage (0-100)."
+        },
+        "sex_ratio": {
+          "type": "INT",
+          "description": "Females per 1000 males in the district."
+        },
+        "urbanization_pct": {
+          "type": "DOUBLE",
+          "description": "Percentage of the district's population classified urban."
+        },
+        "ration_cards_total": {
+          "type": "BIGINT",
+          "description": "Total NFSA ration cards issued in the district."
+        },
+        "ration_aay": {
+          "type": "BIGINT",
+          "description": "District ration cards under the Antyodaya Anna Yojana category."
+        },
+        "ration_phh": {
+          "type": "BIGINT",
+          "description": "District ration cards under the Priority Household category."
+        },
+        "ration_nphh": {
+          "type": "BIGINT",
+          "description": "District ration cards under the Non-Priority Household category."
+        },
+        "ration_others": {
+          "type": "BIGINT",
+          "description": "District ration cards under other/legacy categories."
+        },
+        "vehicles": {
+          "type": "BIGINT",
+          "description": "Total registered vehicles in the district."
+        },
+        "land_acres": {
+          "type": "BIGINT",
+          "description": "Total land extent recorded in the district, in acres."
+        },
+        "agri_land_acres": {
+          "type": "BIGINT",
+          "description": "Total agricultural land extent in the district, in acres."
+        },
+        "properties": {
+          "type": "BIGINT",
+          "description": "Total registered properties (residential/commercial) in the district."
+        },
+        "gas_connections": {
+          "type": "BIGINT",
+          "description": "Total registered domestic gas connections in the district."
+        },
+        "electricity_consumers": {
+          "type": "BIGINT",
+          "description": "Total registered electricity consumer connections in the district."
+        },
+        "avg_monthly_kwh": {
+          "type": "INT",
+          "description": "Average monthly electricity consumption per consumer, in kWh."
+        },
+        "property_tax_coverage": {
+          "type": "INT",
+          "description": "Percentage of assessed properties that are current on property tax."
+        },
+        "effective_from": {
+          "type": "DATE",
+          "description": "Start date this snapshot row is valid from (SCD2 versioning)."
+        },
+        "effective_to": {
+          "type": "DATE",
+          "description": "End date this snapshot row is valid until; null/open-ended for the current row."
+        },
+        "is_current": {
+          "type": "BOOLEAN",
+          "description": "True if this is the latest/active version of the district snapshot.",
+          "value_description": "['True']"
+        }
+      }
+    },
+    "dim_mandal": {
+      "group": "GEOGRAPHY",
+      "tableType": "dimension",
+      "primaryKey": "mandal_id",
+      "partitionedBy": null,
+      "description": "One row per mandal (sub-district administrative unit), nested under dim_district via district_id. A thin lookup table \u2014 aggregate metrics for a mandal are computed on the fly from the fact/dim tables that carry mandal_id, not stored here.",
+      "fieldCount": 3,
+      "fields": {
+        "mandal_id": {
+          "type": "STRING",
+          "description": "Canonical mandal code."
+        },
+        "mandal_name": {
+          "type": "STRING",
+          "description": "Display name of the mandal."
+        },
+        "district_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_district.district_id."
+        }
+      }
+    },
+    "dim_village": {
+      "group": "GEOGRAPHY",
+      "tableType": "dimension",
+      "primaryKey": "village_id",
+      "partitionedBy": null,
+      "description": "One row per village/habitation, nested under dim_mandal via mandal_id. Like dim_mandal, a thin lookup table \u2014 village-level metrics are computed on the fly from records carrying village_name.",
+      "fieldCount": 3,
+      "fields": {
+        "village_id": {
+          "type": "STRING",
+          "description": "Canonical village code."
+        },
+        "village_name": {
+          "type": "STRING",
+          "description": "Display name of the village \u2014 the value other tables (dim_person, dim_household, ...) actually join on, since they denormalize village_name directly rather than village_id."
+        },
+        "mandal_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_mandal.mandal_id."
+        }
+      }
+    },
+    "dim_person": {
+      "group": "PERSON / HOUSEHOLD / IDENTITY",
+      "tableType": "dimension",
+      "primaryKey": "person_id",
+      "partitionedBy": null,
+      "description": "The core citizen record \u2014 one row per person. Every other dim_*/fact_* table that describes an individual (vehicles, land, health, education, ...) joins back to this table via person_id. Backs the Citizen 360 profile view and is the default-join target for every Citizen Dimension Data API lookup.",
+      "fieldCount": 40,
+      "fields": {
+        "person_id": {
+          "type": "STRING",
+          "description": "Canonical citizen identifier, persistent across all source updates. Primary source: Citizen Register of Andhra Pradesh (CR-AP); falls back to UIDAI Aadhaar seeding records when no CR-AP record exists."
+        },
+        "person_name": {
+          "type": "STRING",
+          "description": "Full legal name. Primary source: CR-AP; falls back to UIDAI Aadhaar authentication response, then EPDS ration card beneficiary name."
+        },
+        "age": {
+          "type": "INT",
+          "description": "Current age in years \u2014 derived from date_of_birth at query time, not stored as a static value."
+        },
+        "date_of_birth": {
+          "type": "DATE",
+          "description": "Date of birth, as registered in the birth certificate or Aadhaar record."
+        },
+        "gender": {
+          "type": "STRING",
+          "description": "Male / Female / Others.",
+          "value_description": "['Female', 'Male', 'Transgender', 'Others']"
+        },
+        "social_category": {
+          "type": "STRING",
+          "description": "Social category for reservation/welfare purposes \u2014 OC / BC / SC / ST / Others.",
+          "value_description": "['BC', 'OC', 'SC', 'ST', 'Others']"
+        },
+        "phone": {
+          "type": "STRING",
+          "description": "Primary contact mobile number."
+        },
+        "income_band": {
+          "type": "STRING",
+          "description": "Household income bracket the person falls into (e.g. 'Below \u20b91.5L', '\u20b91.5L \u2013 \u20b93L') \u2014 used for scheme eligibility filtering.",
+          "value_description": "['0\u20131L', '?0\u2013?1L', '1L\u20133L', '?1L\u2013?3L', '>?5L', '?3L\u2013?5L', '3L\u20135L', '>5L']"
+        },
+        "dwelling_type": {
+          "type": "STRING",
+          "description": "Housing tenure and construction quality, e.g. 'Own House \u2013 Pucca', 'Rented Apartment'.",
+          "value_description": "['Puccahouse-Daba', 'RCChouse', 'Pakkahouse', 'Foilhouse', 'Kacchahouse', 'Shells', 'Flat', 'Duplexhouse']"
+        },
+        "address": {
+          "type": "STRING",
+          "description": "Free-text postal address."
+        },
+        "district_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_district.district_id \u2014 the person's current district of residence."
+        },
+        "mandal_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_mandal.mandal_id \u2014 the person's current mandal of residence."
+        },
+        "village_name": {
+          "type": "STRING",
+          "description": "The person's current village/habitation of residence (denormalized text, not a village_id FK)."
+        },
+        "household_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_household.household_id \u2014 the household this person belongs to."
+        },
+        "created_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp the canonical row was first created."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp the canonical row was last updated by any source \u2014 used for asOf incremental-sync filters."
+        },
+        "occupation_type": {
+          "type": "STRING",
+          "description": "Denormalized 'current' occupation snapshot for fast filtering (e.g. 'Farmer', 'MGNREGA Worker') \u2014 full occupation history with concurrent occupations lives in dim_occupation."
+        },
+        "occupation_sector": {
+          "type": "STRING",
+          "description": "Sector of the current occupation, e.g. 'Agriculture', 'Government', 'Private'."
+        },
+        "employer_name": {
+          "type": "STRING",
+          "description": "Name of the current employer, where applicable."
+        },
+        "designation": {
+          "type": "STRING",
+          "description": "Job title/designation in the current occupation."
+        },
+        "employment_status": {
+          "type": "STRING",
+          "description": "Employment status, e.g. 'Employed', 'Self-employed', 'Unemployed'."
+        },
+        "religion": {
+          "type": "STRING",
+          "description": "Religion as self-declared/registered.",
+          "value_description": "['Hindu', 'Islam', 'Christian', 'Muslim', 'No Religion', 'Other Religion', 'Jain', 'Others', 'Sikh', 'Buddhist', 'Animist', 'Volunteer C15']"
+        },
+        "caste_name": {
+          "type": "STRING",
+          "description": "Specific caste/sub-caste detail, complementing the broader social_category (OC/BC/SC/ST) classification.",
+          "value_description": "['Mala', 'Madiga', 'Kapu', 'Reddy', 'Shaik / Sheikh', 'Yadava (Golla)', 'Kamma', 'Settibalija', 'Balija', 'Valmiki Boya (Boya, Bedar, Kirataka, Nishadi, Yellapi, Pedda Boya)', 'Yadava', 'Shaik', 'Vysya', 'Rajaka (Chakali, Vannar)', 'Thurupukapus or Gajulakapus', 'Telaga', 'Turupu kapu', 'Koppulavelama', 'Rajaka', 'Yenadis', ...]"
+        },
+        "caste_derived_flag": {
+          "type": "BOOLEAN",
+          "description": "True if caste_name was derived/inferred rather than directly certified.",
+          "value_description": "['False', 'True']"
+        },
+        "caste_base_certificate_no": {
+          "type": "STRING",
+          "description": "Certificate number of the underlying caste certificate this record is based on."
+        },
+        "door_no": {
+          "type": "STRING",
+          "description": "Door/house number component of the residential address."
+        },
+        "secretariat_code": {
+          "type": "STRING",
+          "description": "Gram/Ward Sachivalayam administrative unit code \u2014 sits between mandal and village/habitation in AP's local-governance hierarchy."
+        },
+        "constituency_code": {
+          "type": "STRING",
+          "description": "Electoral assembly constituency code covering the person's residence."
+        },
+        "rural_urban_flag": {
+          "type": "STRING",
+          "description": "Whether the residence is classified Rural or Urban.",
+          "value_description": "['R', 'U']"
+        },
+        "cluster_id": {
+          "type": "STRING",
+          "description": "Local administrative cluster grouping (sub-mandal), used for some welfare-scheme targeting."
+        },
+        "domicile_status": {
+          "type": "BOOLEAN",
+          "description": "True if the person holds confirmed AP domicile status.",
+          "value_description": "['True']"
+        },
+        "marital_status": {
+          "type": "STRING",
+          "description": "Current marital status. Resolved by latest status_date across sources, with source priority as the tie-breaker on equal dates.",
+          "value_description": "['Married', 'Single', 'Unmarried', 'Widowed', 'Widow', 'Widower', 'Divorced', 'Separated', 'Single woman']"
+        },
+        "govt_employment_type": {
+          "type": "STRING",
+          "description": "None | Active Govt Employee | Pensioner | Contractual \u2014 distinct from the broader employment_status field, specifically tracking government-sector employment for pension/benefit eligibility.",
+          "value_description": "['None', 'Regular', 'Pensioner', 'Contract']"
+        },
+        "is_deceased": {
+          "type": "BOOLEAN",
+          "description": "True if a death has been registered for this person \u2014 triggers DBT pipeline stoppage and entitlement-closure workflows.",
+          "value_description": "['False', 'True']"
+        },
+        "father_name": {
+          "type": "STRING",
+          "description": "Father's name, as registered."
+        },
+        "father_person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id for the father, when the father is also a known canonical citizen."
+        },
+        "mother_name": {
+          "type": "STRING",
+          "description": "Mother's name, as registered."
+        },
+        "mother_person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id for the mother, when the mother is also a known canonical citizen."
+        },
+        "husband_name": {
+          "type": "STRING",
+          "description": "Husband's name, where applicable (e.g. for widow-pension eligibility checks)."
+        },
+        "husband_person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id for the husband, when the husband is also a known canonical citizen."
+        }
+      }
+    },
+    "dim_household": {
+      "group": "PERSON / HOUSEHOLD / IDENTITY",
+      "tableType": "dimension",
+      "primaryKey": "household_id",
+      "partitionedBy": null,
+      "description": "One row per household \u2014 the family/ration-card unit that dim_person.household_id and dim_family_member.household_id join against. Carries household-level (not individual-level) attributes like ration card and income category.",
+      "fieldCount": 20,
+      "fields": {
+        "household_id": {
+          "type": "STRING",
+          "description": "Canonical household identifier."
+        },
+        "head_person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id for the head of household."
+        },
+        "head_name": {
+          "type": "STRING",
+          "description": "Name of the head of household (denormalized for display without a join)."
+        },
+        "head_gender": {
+          "type": "STRING",
+          "description": "Gender of the head of household.",
+          "value_description": "['Female', 'Male', 'Others', 'Transgender']"
+        },
+        "members_count": {
+          "type": "INT",
+          "description": "Total number of members in the household."
+        },
+        "social_category": {
+          "type": "STRING",
+          "description": "Household-level social category (typically the head's), used for some household-targeted welfare schemes.",
+          "value_description": "['BC', 'OC', 'SC', 'ST', 'Others']"
+        },
+        "ration_card_no": {
+          "type": "STRING",
+          "description": "NFSA ration card number issued to this household."
+        },
+        "ration_card_type": {
+          "type": "STRING",
+          "description": "AAY / PHH / NPHH \u2014 ration card priority category.",
+          "value_description": "['BPL', 'AAY']"
+        },
+        "income_band": {
+          "type": "STRING",
+          "description": "Household income bracket (ranged, e.g. 'Below \u20b91.5L').",
+          "value_description": "['?0\u2013?1L', '0\u20131L', '?1L\u2013?3L', '1L\u20133L', '>?5L', '?3L\u2013?5L', '3L\u20135L', '>5L']"
+        },
+        "village_name": {
+          "type": "STRING",
+          "description": "Village/habitation the household resides in."
+        },
+        "mandal_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_mandal.mandal_id."
+        },
+        "district_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_district.district_id."
+        },
+        "latitude": {
+          "type": "DOUBLE",
+          "description": "Geocoded latitude of the household's residence, where available."
+        },
+        "longitude": {
+          "type": "DOUBLE",
+          "description": "Geocoded longitude of the household's residence, where available."
+        },
+        "pincode": {
+          "type": "STRING",
+          "description": "Postal PIN code of the household's residence."
+        },
+        "address": {
+          "type": "STRING",
+          "description": "Free-text household address."
+        },
+        "dwelling_type": {
+          "type": "STRING",
+          "description": "Household-level housing tenure/quality, e.g. 'Own House \u2013 Pucca'.",
+          "value_description": "['Puccahouse-Daba', 'RCChouse', 'Pakkahouse', 'Foilhouse', 'Kacchahouse', 'Shells', 'Flat', 'Duplexhouse']"
+        },
+        "phone": {
+          "type": "STRING",
+          "description": "Primary contact number for the household."
+        },
+        "household_income_category": {
+          "type": "STRING",
+          "description": "BPL / APL classification \u2014 distinct from the ranged income_band, used by schemes that key specifically on Below/Above Poverty Line status rather than an income range."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp the household record was last updated by any source."
+        }
+      }
+    },
+    "dim_family_member": {
+      "group": "PERSON / HOUSEHOLD / IDENTITY",
+      "tableType": "dimension",
+      "primaryKey": "family_member_id",
+      "partitionedBy": null,
+      "description": "One row per other household member as recorded against a primary person_id's household \u2014 used to show a citizen's family composition without requiring every relative to themselves be a fully resolved dim_person row (handles cases where a household member's own person_id record doesn't exist or isn't linked yet).",
+      "fieldCount": 8,
+      "fields": {
+        "family_member_id": {
+          "type": "STRING",
+          "description": "Canonical identifier for this family-member record."
+        },
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id \u2014 the citizen whose profile this family member is listed under."
+        },
+        "household_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_household.household_id."
+        },
+        "member_name": {
+          "type": "STRING",
+          "description": "Name of the family member."
+        },
+        "relation": {
+          "type": "STRING",
+          "description": "Relationship to the primary person_id, e.g. 'Spouse', 'Son', 'Daughter'."
+        },
+        "age": {
+          "type": "INT",
+          "description": "Family member's age in years."
+        },
+        "gender": {
+          "type": "STRING",
+          "description": "Family member's gender.",
+          "value_description": "['Male', 'Female', 'Others', 'Transgender']"
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this family-member record was last updated."
+        }
+      }
+    },
+    "dim_citizen_identifier": {
+      "group": "PERSON / HOUSEHOLD / IDENTITY",
+      "tableType": "dimension",
+      "primaryKey": "identifier_id",
+      "partitionedBy": null,
+      "description": "One row per government-issued identifier held by a person (Aadhaar, Voter ID, Driving License, Bank Account, ...) \u2014 a person can hold multiple identifiers of different types, and dim_person itself stores none of them directly.",
+      "fieldCount": 11,
+      "fields": {
+        "identifier_id": {
+          "type": "STRING",
+          "description": "Canonical identifier-record id."
+        },
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id."
+        },
+        "identifier_type": {
+          "type": "STRING",
+          "description": "Type of identifier, e.g. 'Aadhaar', 'VoterID', 'DrivingLicense', 'BankAccount'.",
+          "value_description": "['Mobile Number', 'Aadhaar', 'Household Id', 'Ration card', 'Driving licence']"
+        },
+        "identifier_value": {
+          "type": "STRING",
+          "description": "The identifier's value/number itself (PII \u2014 masked in most API responses)."
+        },
+        "is_primary": {
+          "type": "BOOLEAN",
+          "description": "True if this is the person's primary identifier of this type, when more than one of the same type is on file.",
+          "value_description": "['False', 'True']"
+        },
+        "issuing_authority": {
+          "type": "STRING",
+          "description": "Authority that issued the identifier, e.g. 'UIDAI', 'Election Commission of AP'."
+        },
+        "issued_date": {
+          "type": "DATE",
+          "description": "Date the identifier was issued."
+        },
+        "expiry_date": {
+          "type": "DATE",
+          "description": "Expiry date of the identifier, where applicable (e.g. driving licenses)."
+        },
+        "is_active": {
+          "type": "BOOLEAN",
+          "description": "True if the identifier is currently active/valid (not cancelled or superseded).",
+          "value_description": "['True']"
+        },
+        "verified_flag": {
+          "type": "BOOLEAN",
+          "description": "True if the identifier has been verified against its issuing authority's system (e.g. Aadhaar e-KYC verified), distinct from merely being on file.",
+          "value_description": "['False', 'True']"
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this identifier record was last updated."
+        }
+      }
+    },
+    "dim_consent": {
+      "group": "PERSON / HOUSEHOLD / IDENTITY",
+      "tableType": "dimension",
+      "primaryKey": "consent_id",
+      "partitionedBy": null,
+      "description": "One row per data-sharing consent grant a citizen has given \u2014 backs purpose-limitation checks before citizen data is released to a requesting department via the Data Transfer API.",
+      "fieldCount": 9,
+      "fields": {
+        "consent_id": {
+          "type": "STRING",
+          "description": "Canonical consent-record id."
+        },
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id \u2014 whose data this consent covers."
+        },
+        "allowed_purposes": {
+          "type": "ARRAY<STRING>",
+          "description": "Array of purpose codes this consent permits (e.g. 'SCHEME_ELIGIBILITY_CHECK', 'AUDIT') \u2014 must include the purpose a Data Transfer request declares, or the request is denied."
+        },
+        "valid_from": {
+          "type": "DATE",
+          "description": "Date this consent becomes effective."
+        },
+        "valid_to": {
+          "type": "DATE",
+          "description": "Date this consent expires, if not revoked earlier."
+        },
+        "is_revocable": {
+          "type": "BOOLEAN",
+          "description": "True if the citizen can revoke this consent before its valid_to date."
+        },
+        "created_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp the consent was originally granted."
+        },
+        "revoked_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp the consent was revoked, if applicable; null if still active."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this consent record was last updated."
+        }
+      }
+    },
+    "dim_tax_profile": {
+      "group": "PERSON / HOUSEHOLD / IDENTITY",
+      "tableType": "dimension",
+      "primaryKey": "person_id",
+      "partitionedBy": null,
+      "description": "One row per person summarizing income-tax and GST liability \u2014 distinct from dim_property_tax, which covers municipal property tax rather than income/GST.",
+      "fieldCount": 4,
+      "fields": {
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id."
+        },
+        "income_tax_paid": {
+          "type": "BOOLEAN",
+          "description": "True if the person has a record of having paid income tax in the relevant assessment period."
+        },
+        "gst_paid_annual": {
+          "type": "DECIMAL(15,2)",
+          "description": "Annual GST paid by the person (e.g. as a registered business owner), in INR.",
+          "value_description": "['0.00', '12493878.02', '10043474.00', '1313840.00', '20752156.55', '246170.00', '5449490.00', '331524.49', '65585604.68', '339600.00', '78195.00', '6000.00', '2015152.00', '100000.00', '20000.00', '15331429.85', '351450.00', '33746516.72', '309470.00', '12636000.00', ...]"
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this tax profile was last updated."
+        }
+      }
+    },
+    "dim_occupation": {
+      "group": "EMPLOYMENT / OCCUPATION",
+      "tableType": "dimension",
+      "primaryKey": "occupation_record_id",
+      "partitionedBy": null,
+      "description": "Full occupation HISTORY \u2014 one row per person per occupation, since a citizen can hold more than one concurrently (e.g. farmer + seasonal MGNREGA labourer). dim_person.occupation_type remains a denormalized 'current' snapshot for fast filtering; this table is the source of truth for the complete history.",
+      "fieldCount": 11,
+      "fields": {
+        "occupation_record_id": {
+          "type": "STRING",
+          "description": "Canonical identifier for this occupation record."
+        },
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id."
+        },
+        "occupation_type": {
+          "type": "STRING",
+          "description": "Type of occupation, e.g. 'Farmer', 'Teacher', 'MGNREGA Worker'.",
+          "value_description": "['Student', 'Unemployed', 'SHG member Rural', 'Farmer', 'Agriculture & Allied Activities', 'Senior Citizen', 'Homemaker', 'Minor', 'Pensioner / Retired', 'SHG member Urban', 'Regular- Employee', 'Pensioner', 'Driver', 'Government Employee', 'Auto Driver', 'Professional', 'Business / Retail', 'Skilled Worker', 'Weaver', 'Service Worker', ...]"
+        },
+        "occupation_sector": {
+          "type": "STRING",
+          "description": "Sector this occupation falls under, e.g. 'Agriculture', 'Government', 'Private', 'Informal'."
+        },
+        "employer_name": {
+          "type": "STRING",
+          "description": "Employer name for this occupation record, where applicable."
+        },
+        "designation": {
+          "type": "STRING",
+          "description": "Job title/designation for this occupation record."
+        },
+        "employment_status": {
+          "type": "STRING",
+          "description": "Status of this occupation record, e.g. 'Active', 'Seasonal', 'Ended'.",
+          "value_description": "['Working', '1', '0', 'Leave', 'Suspension']"
+        },
+        "source": {
+          "type": "STRING",
+          "description": "System/department that reported this occupation record.",
+          "value_description": "['UFS', 'DEPT-EDU', 'SERP', 'Open', 'DBT Schemes', 'MEPMA', 'HRMS']"
+        },
+        "occupation_year": {
+          "type": "STRING",
+          "description": "Year (or year range) this occupation record pertains to."
+        },
+        "is_current": {
+          "type": "BOOLEAN",
+          "description": "True if this is the person's currently active occupation among possibly several historical/concurrent records.",
+          "value_description": "['True']"
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this occupation record was last updated."
+        }
+      }
+    },
+    "dim_student": {
+      "group": "EDUCATION",
+      "tableType": "dimension",
+      "primaryKey": "student_record_id",
+      "partitionedBy": null,
+      "description": "One row per person PER education level reached (Primary/Secondary/Intermediate/Polytechnic/Degree/PostGraduate) \u2014 so a person's full education history is retrievable, not just their latest/highest level.",
+      "fieldCount": 28,
+      "fields": {
+        "student_record_id": {
+          "type": "STRING",
+          "description": "Canonical identifier for this education-level record."
+        },
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id."
+        },
+        "education_level": {
+          "type": "STRING",
+          "description": "Normalized education tier this record represents \u2014 Primary / Secondary / Intermediate / Polytechnic / Degree / PostGraduate. This is what eligibility filters match against (not highest_qualification).",
+          "value_description": "['Secondary', 'Primary', 'Intermediate']"
+        },
+        "highest_qualification": {
+          "type": "STRING",
+          "description": "Free-text specific qualification within this level, e.g. '10th Class', 'B.Tech (CSE)', 'M.Tech' \u2014 finer-grained detail than education_level."
+        },
+        "institution_id": {
+          "type": "STRING",
+          "description": "Canonical identifier of the educational institution attended."
+        },
+        "institution_code": {
+          "type": "STRING",
+          "description": "Government-assigned code for the institution (e.g. UDISE code for schools)."
+        },
+        "school_name": {
+          "type": "STRING",
+          "description": "Name of the school/college/institution attended."
+        },
+        "education_board": {
+          "type": "STRING",
+          "description": "Examining board/university for this level, e.g. 'BSEAP', 'AP State Board'."
+        },
+        "class_currently_enrolled": {
+          "type": "INT",
+          "description": "Class/grade currently enrolled in, for ongoing levels."
+        },
+        "academic_year": {
+          "type": "STRING",
+          "description": "Academic year this record pertains to."
+        },
+        "is_current_level": {
+          "type": "BOOLEAN",
+          "description": "True if this is the person's currently active education level among possibly several historical records.",
+          "value_description": "['True', 'False']"
+        },
+        "is_dropout": {
+          "type": "BOOLEAN",
+          "description": "True if the person dropped out at this education level without completing it.",
+          "value_description": "['True']"
+        },
+        "dropout_reason": {
+          "type": "STRING",
+          "description": "Reason recorded for the dropout, where is_dropout is true.",
+          "value_description": "['Class 12 - Passed Out', 'Active for Import/Status Not Known', 'Others Reasons', 'Student absent since many days', 'Gone for Some other Mode of Study/Courses', 'Migrated to Other State', 'Gone for ITI/Polytechnic', 'Gone for Study in Open Schooling / Un-Recognized Schools', 'Migrated to Other Block/District', 'Economic Reason', 'Wrong Entry', 'Gone for Study in Non-Regular Mode', 'Duplicate Entry', 'Due to Death', 'Transportation Difficulties', 'Employment', 'Studying in Other School in Same Block', 'Migrated to Other Country', 'Orphan']"
+        },
+        "medium_of_instruction": {
+          "type": "STRING",
+          "description": "Language of instruction at this level, e.g. 'Telugu', 'English'.",
+          "value_description": "['English', 'Telugu', 'Urdu', 'Sanskrit', 'Tamil']"
+        },
+        "aadhaar_seeded": {
+          "type": "BOOLEAN",
+          "description": "True if this education record has been seeded/linked with the person's Aadhaar.",
+          "value_description": "['True']"
+        },
+        "has_apaar_id": {
+          "type": "BOOLEAN",
+          "description": "True if the student has been issued an APAAR (Automated Permanent Academic Account Registry) ID."
+        },
+        "apaar_id": {
+          "type": "STRING",
+          "description": "The student's APAAR ID, when has_apaar_id is true."
+        },
+        "student_id": {
+          "type": "STRING",
+          "description": "School/institution-issued student roll number or ID."
+        },
+        "aposs_id": {
+          "type": "STRING",
+          "description": "Andhra Pradesh Open School Society enrollment ID, for open-schooling students."
+        },
+        "epass_id": {
+          "type": "STRING",
+          "description": "AP ePass scholarship portal enrollment ID."
+        },
+        "epass_amount": {
+          "type": "DECIMAL(10,2)",
+          "description": "Scholarship amount disbursed via AP ePass for this education level, in INR."
+        },
+        "thalliki_vandanam": {
+          "type": "BOOLEAN",
+          "description": "True if this education level's enrollment qualified the family for the Thalliki Vandanam scheme (cash support to mothers for sending children to school).",
+          "value_description": "['False']"
+        },
+        "ntr_vidya_deevena": {
+          "type": "BOOLEAN",
+          "description": "True if this education level's enrollment qualified for the NTR Vidya Deevena fee-reimbursement scheme.",
+          "value_description": "['False']"
+        },
+        "pre_matric_scholarship": {
+          "type": "BOOLEAN",
+          "description": "True if a pre-matriculation scholarship was received for this level.",
+          "value_description": "['False']"
+        },
+        "post_matric_scholarship": {
+          "type": "BOOLEAN",
+          "description": "True if a post-matriculation scholarship was received for this level.",
+          "value_description": "['False']"
+        },
+        "digital_literacy_level": {
+          "type": "STRING",
+          "description": "Self-assessed/tested digital literacy at this education level \u2014 None / Basic / Intermediate / Advanced."
+        },
+        "scholarship_scheme_ids": {
+          "type": "ARRAY<STRING>",
+          "description": "Array of dim_scheme.scheme_id values for every scholarship scheme linked to this education-level record."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this education record was last updated."
+        }
+      }
+    },
+    "dim_vehicle": {
+      "group": "ASSETS \u2014 VEHICLES",
+      "tableType": "dimension",
+      "primaryKey": "vehicle_id",
+      "partitionedBy": null,
+      "description": "One row per vehicle owned \u2014 identity/registration details. Compliance/regulatory status (insurance, fitness, permits, challans) is split out into dim_vehicle_compliance to keep slow-changing compliance data separate from largely-static identity data.",
+      "fieldCount": 20,
+      "fields": {
+        "vehicle_id": {
+          "type": "STRING",
+          "description": "Canonical vehicle identifier."
+        },
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id \u2014 the registered owner."
+        },
+        "vehicle_type": {
+          "type": "STRING",
+          "description": "Type of vehicle, e.g. 'Car', 'Motorcycle', 'Tractor'.",
+          "value_description": "['Motor Car', 'Three Wheeler (Passenger)', 'Goods Carrier', 'Agricultural Tractor', 'Trailer (Commercial)', 'Tractor (Commercial)', 'Trailer (Agricultural)', 'Three Wheeler (Goods)', 'Omni Bus (Private Use)', 'Construction Equipment Vehicle', 'Mobile Canteen', 'Ambulance', 'Adapted Vehicle', 'Harvester', 'Private Service Vehicle', 'Motor Cycle/Scooter-Used For Hire', 'Excavator (Commercial)', 'Omni Bus', 'Road Roller', 'Vehicle Fitted With Rig', ...]"
+        },
+        "vehicle_class": {
+          "type": "STRING",
+          "description": "RTO vehicle class, e.g. 'Light Motor Vehicle', 'Motor Cycle', 'Non Transport'."
+        },
+        "reg_no": {
+          "type": "STRING",
+          "description": "Vehicle registration number plate."
+        },
+        "make": {
+          "type": "STRING",
+          "description": "Vehicle manufacturer/make.",
+          "value_description": "['32', '12', '89', '9999', '36', '3982', '66', '39', '71', '86', '84', '60', '37', '19', '7', '99', '85', '3875', '2474', '97', ...]"
+        },
+        "model": {
+          "type": "STRING",
+          "description": "Vehicle model name.",
+          "value_description": "['GLAMOUR DRUM/SELF CAST WHEEL B', 'TVS XL SUPER HEAVY DUTY BSIII', 'BAJAJ CHETAK', 'PULSAR 150 DTS-I', 'ACTIVA 5G', 'PASSION PRO (DRUM-SELF CAST WH', 'HERO HONDA PASSION PLUS', 'PULSAR 150 DTS-I BSIII', 'HERO HONDA SPLENDOR +', 'ACTIVA 3G W ELECTRIC A START&K', 'ACCESS 125', 'GLAMOUR (HE) (DRUM-SELF-CAST)', 'CB SHINE', 'ACTIVA ELECTIRC AS  AND KS  AN', 'TVS XL SUPER', 'XL100 HEAVY DUTY I-TOUCH START', 'HF DELUXE (I3S-SELF-DRUM-CAST)', 'HF DELUXE SELF CAST WHEELS- BS', 'ACTIVA 4G', 'HERO HONDA SPLENDOR', ...]"
+        },
+        "year_of_manufacture": {
+          "type": "INT",
+          "description": "Year the vehicle was manufactured."
+        },
+        "fuel_type": {
+          "type": "STRING",
+          "description": "Fuel type, e.g. 'Petrol', 'Diesel'.",
+          "value_description": "['PETROL', 'DIESEL', 'NOT APPLICABLE', 'ELECTRIC(BOV)', 'PETROL(E20)', 'PETROL/LPG', 'PETROL/CNG', 'PURE EV', 'PETROL/HYBRID', 'CNG ONLY', 'STRONG HYBRID EV', 'DIESEL/HYBRID', 'LPG ONLY', 'SOLAR', 'PLUG-IN HYBRID EV']"
+        },
+        "chassis_no": {
+          "type": "STRING",
+          "description": "Vehicle chassis (VIN) number."
+        },
+        "engine_no": {
+          "type": "STRING",
+          "description": "Vehicle engine number."
+        },
+        "color": {
+          "type": "STRING",
+          "description": "Vehicle color as registered.",
+          "value_description": "['BLACK', 'RED', 'GREEN', 'INA', 'SBK', 'BLUE', 'MOSS GREEN', 'WHITE', 'GRAY', 'GOLDEN YELLOW', 'GREY', 'G YELLOW', 'PEARL IGNEOUS BLACK', 'YELLOW', 'PBK', 'EBONY BLK RED DKL', 'TBK', 'RBK', 'VBK', 'BHG', ...]"
+        },
+        "seating_capacity": {
+          "type": "INT",
+          "description": "Number of seats."
+        },
+        "unladen_weight_kg": {
+          "type": "INT",
+          "description": "Unladen (kerb) weight of the vehicle, in kilograms."
+        },
+        "registration_date": {
+          "type": "DATE",
+          "description": "Date the vehicle was first registered."
+        },
+        "rto_office": {
+          "type": "STRING",
+          "description": "Regional Transport Office that registered the vehicle.",
+          "value_description": "['Vishakapatnam RTA', 'Vijayawada RTA', 'Guntur RTA', 'RTA Kakinada', 'Nellore RTA', 'Tirupati RTA', 'Srikakulam RTA', 'Anantapur RTA', 'Cuddapah RTA', 'Kurnool RTA', 'Vizianagaram RTA', 'Anakapalli RTA', 'Prakasam RTA', 'Chittoor RTA', 'RTA Eluru', 'Nandyal RTA', 'Narasaraopet RTA', 'Bhimavaram RTA', 'Proddutur RTA', 'Rajahmundry RTA', ...]"
+        },
+        "owner_name": {
+          "type": "STRING",
+          "description": "Registered owner's name (denormalized for display without a join to dim_person)."
+        },
+        "owner_mobile_number": {
+          "type": "STRING",
+          "description": "Registered owner's contact mobile number on file with the RTO."
+        },
+        "data_source": {
+          "type": "STRING",
+          "description": "Source system this vehicle record was sourced from, e.g. 'VAHAN'.",
+          "value_description": "['Vahan']"
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this vehicle record was last updated."
+        }
+      }
+    },
+    "dim_vehicle_compliance": {
+      "group": "ASSETS \u2014 VEHICLES",
+      "tableType": "dimension",
+      "primaryKey": "person_id, reg_no",
+      "partitionedBy": null,
+      "description": "One row per vehicle's regulatory/compliance status \u2014 insurance, fitness, permits, taxes, loans, challans. Keyed by (person_id, reg_no) back to the owning dim_vehicle row, kept separate because this data changes far more often than vehicle identity.",
+      "fieldCount": 18,
+      "fields": {
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id \u2014 the vehicle owner."
+        },
+        "reg_no": {
+          "type": "STRING",
+          "description": "Vehicle registration number \u2014 joins back to dim_vehicle.reg_no."
+        },
+        "insurance_valid_to": {
+          "type": "DATE",
+          "description": "Date the current insurance policy expires."
+        },
+        "insurance_company": {
+          "type": "STRING",
+          "description": "Name of the insurer."
+        },
+        "policy_no": {
+          "type": "STRING",
+          "description": "Insurance policy number."
+        },
+        "fitness_valid_to": {
+          "type": "DATE",
+          "description": "Date the vehicle's fitness certificate expires."
+        },
+        "registration_valid_to": {
+          "type": "DATE",
+          "description": "Date the vehicle's registration itself expires/needs renewal."
+        },
+        "puc_valid_to": {
+          "type": "DATE",
+          "description": "Date the Pollution Under Control certificate expires."
+        },
+        "permit_type": {
+          "type": "STRING",
+          "description": "Type of transport permit held, where applicable (e.g. commercial vehicles)."
+        },
+        "permit_valid_to": {
+          "type": "DATE",
+          "description": "Date the transport permit expires."
+        },
+        "tax_paid_upto": {
+          "type": "DATE",
+          "description": "Date through which road tax has been paid."
+        },
+        "green_tax_due": {
+          "type": "BOOLEAN",
+          "description": "True if a green tax (for older vehicles) is currently due."
+        },
+        "financer_name": {
+          "type": "STRING",
+          "description": "Name of the financing bank/NBFC, if the vehicle is under loan."
+        },
+        "hypothecation_status": {
+          "type": "STRING",
+          "description": "Hypothecation (loan lien) status with the financer, e.g. 'Active', 'Terminated'."
+        },
+        "loan_outstanding": {
+          "type": "DECIMAL(12,2)",
+          "description": "Outstanding loan amount against the vehicle, in INR."
+        },
+        "hsrp_issued": {
+          "type": "BOOLEAN",
+          "description": "True if a High Security Registration Plate has been issued for this vehicle."
+        },
+        "challan_pending": {
+          "type": "BOOLEAN",
+          "description": "True if there is at least one unpaid traffic challan against this vehicle."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this compliance record was last updated."
+        }
+      }
+    },
+    "dim_land": {
+      "group": "ASSETS \u2014 LAND & PROPERTY",
+      "tableType": "dimension",
+      "primaryKey": "land_id",
+      "partitionedBy": null,
+      "description": "One row per land parcel owned \u2014 agricultural, residential, or commercial. Carries revenue-record detail (survey numbers, registration, mutation) as well as agronomic detail (soil, irrigation) for parcels used for farming.",
+      "fieldCount": 31,
+      "fields": {
+        "land_id": {
+          "type": "STRING",
+          "description": "Canonical land-parcel identifier."
+        },
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id \u2014 the owner."
+        },
+        "land_type": {
+          "type": "STRING",
+          "description": "Agricultural / Residential / Commercial classification of the parcel.",
+          "value_description": "['\u0c2a\u0c1f\u0c4d\u0c1f\u0c3e', '\u0c1c\u0c3f.\u0c2a\u0c1f\u0c4d\u0c1f\u0c3e', '\u0c1c\u0c3f\u0c30\u0c3e\u0c2f\u0c3f\u0c24\u0c3f \u0c2a\u0c1f\u0c4d\u0c1f\u0c3e', '\u0c1c\u0c3f\u0c30\u0c3e\u0c2f\u0c3f\u0c24\u0c3f', '\u0c1c\u0c3f\u0c30\u0c3e\u0c2f\u0c3f\u0c24\u0c40 \u0c2a\u0c1f\u0c4d\u0c1f\u0c3e', 'Assigned Land Made Freehold in 2023', '\u0c2a\u0c4d\u0c30\u0c2d\u0c41\u0c24\u0c4d\u0c35 \u0c2d\u0c42\u0c2e\u0c3f', '\u0c2a\u0c4d\u0c30.\u0c2d\u0c42\u0c2e\u0c3f', '\u0c26.\u0c2a\u0c1f\u0c4d\u0c1f\u0c3e', '\u0c2a\u0c4d\u0c30\u0c2d\u0c41\u0c24\u0c4d\u0c35\u0c2e\u0c41', 'Village Service Inam made FreeHold in 2023', '\u0c21\u0c3f\u0c2a\u0c1f\u0c4d\u0c1f\u0c3e', 'unknown', '\u0c07\u0c28\u0c3e\u0c02', '\u0c21\u0c3f.\u0c2a\u0c1f\u0c4d\u0c1f\u0c3e', '\u0c2a\u0c1f\u0c4d\u0c1f\u0c3e(PATTA LAND)', '\u0c05\u0c24\u0c41\u0c15\u0c41\u0c2c\u0c21\u0c3f\u0c2a\u0c1f\u0c4d\u0c1f\u0c3e', '\u0c2e\u0c46\u0c1f\u0c4d\u0c1f', 'Assigned in the Year 2012', 'Assigned in the Year 2018', ...]"
+        },
+        "land_classification": {
+          "type": "STRING",
+          "description": "Revenue classification of the land, e.g. 'Wet', 'Dry', 'Garden'."
+        },
+        "acres": {
+          "type": "DOUBLE",
+          "description": "Total extent of the parcel, in acres."
+        },
+        "survey_no": {
+          "type": "STRING",
+          "description": "Revenue survey number of the parcel."
+        },
+        "sub_survey_no": {
+          "type": "STRING",
+          "description": "Sub-division of the survey number, where the parcel is a subdivided plot."
+        },
+        "hissa_no": {
+          "type": "STRING",
+          "description": "Hissa (further subdivision) number, where applicable."
+        },
+        "khata_no": {
+          "type": "STRING",
+          "description": "Khata (revenue account) number the parcel is recorded under."
+        },
+        "location": {
+          "type": "STRING",
+          "description": "Free-text location description of the parcel."
+        },
+        "district_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_district.district_id."
+        },
+        "mandal_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_mandal.mandal_id."
+        },
+        "village_name": {
+          "type": "STRING",
+          "description": "Village the parcel is located in."
+        },
+        "revenue_circle": {
+          "type": "STRING",
+          "description": "Revenue administrative circle covering the parcel."
+        },
+        "sro_office": {
+          "type": "STRING",
+          "description": "Sub-Registrar Office where the parcel's deed is registered."
+        },
+        "registration_no": {
+          "type": "STRING",
+          "description": "Deed registration number."
+        },
+        "pattadar_passbook_no": {
+          "type": "STRING",
+          "description": "Pattadar passbook (title document) number for the parcel."
+        },
+        "registration_date": {
+          "type": "DATE",
+          "description": "Date the current deed was registered."
+        },
+        "mutation_date": {
+          "type": "DATE",
+          "description": "Date land-records mutation (ownership transfer reflected in revenue records) was completed."
+        },
+        "market_value": {
+          "type": "DECIMAL(12,2)",
+          "description": "Estimated market value of the parcel, in INR."
+        },
+        "guideline_value": {
+          "type": "DECIMAL(12,2)",
+          "description": "Government guideline (registration) value of the parcel, in INR."
+        },
+        "stamp_duty_paid": {
+          "type": "DECIMAL(10,2)",
+          "description": "Stamp duty paid on the most recent registration, in INR."
+        },
+        "soil_type": {
+          "type": "STRING",
+          "description": "Soil type of the parcel, e.g. 'Black', 'Red', 'Alluvial' \u2014 relevant for agricultural parcels."
+        },
+        "irrigation_type": {
+          "type": "STRING",
+          "description": "Irrigation source/type for the parcel, e.g. 'Canal', 'Borewell', 'Rain-fed'."
+        },
+        "encumbrance_status": {
+          "type": "STRING",
+          "description": "Whether the parcel is encumbered (e.g. under mortgage), per the Encumbrance Certificate."
+        },
+        "mortgage_bank": {
+          "type": "STRING",
+          "description": "Bank holding a mortgage on the parcel, where encumbered."
+        },
+        "mortgage_amount": {
+          "type": "DECIMAL(12,2)",
+          "description": "Outstanding mortgage amount against the parcel, in INR."
+        },
+        "is_assigned_land": {
+          "type": "BOOLEAN",
+          "description": "True if this is government-assigned land (allotted under a land-assignment scheme) rather than freehold.",
+          "value_description": "['False']"
+        },
+        "extent_wet_land": {
+          "type": "DOUBLE",
+          "description": "Portion of the parcel's extent classified as wet (irrigated) land, in acres."
+        },
+        "extent_dry_land": {
+          "type": "DOUBLE",
+          "description": "Portion of the parcel's extent classified as dry (unirrigated) land, in acres."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this land record was last updated."
+        }
+      }
+    },
+    "dim_property": {
+      "group": "ASSETS \u2014 LAND & PROPERTY",
+      "tableType": "dimension",
+      "primaryKey": "property_id",
+      "partitionedBy": null,
+      "description": "One row per built property owned \u2014 residential, commercial, or apartment units. Municipal tax status for each property lives separately in dim_property_tax, joined via ptin.",
+      "fieldCount": 34,
+      "fields": {
+        "property_id": {
+          "type": "STRING",
+          "description": "Canonical property identifier."
+        },
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id \u2014 the owner."
+        },
+        "property_type": {
+          "type": "STRING",
+          "description": "Residential / Commercial / Apartment classification.",
+          "value_description": "['Individual', 'Joint Property', 'Government']"
+        },
+        "property_sub_type": {
+          "type": "STRING",
+          "description": "Finer classification, e.g. 'Independent House', 'Flat', 'Shop', 'Commercial Complex'."
+        },
+        "door_no": {
+          "type": "STRING",
+          "description": "Door number of the property."
+        },
+        "ward_no": {
+          "type": "STRING",
+          "description": "Municipal ward number the property falls under."
+        },
+        "block_no": {
+          "type": "STRING",
+          "description": "Block number, in layouts organized by block."
+        },
+        "plot_no": {
+          "type": "STRING",
+          "description": "Plot number within the layout/survey."
+        },
+        "street_name": {
+          "type": "STRING",
+          "description": "Street name of the property's address."
+        },
+        "locality": {
+          "type": "STRING",
+          "description": "Locality/neighbourhood name."
+        },
+        "location": {
+          "type": "STRING",
+          "description": "Free-text location description."
+        },
+        "pincode": {
+          "type": "STRING",
+          "description": "Postal PIN code."
+        },
+        "district_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_district.district_id."
+        },
+        "area_sq_ft": {
+          "type": "INT",
+          "description": "Total area of the property, in square feet."
+        },
+        "built_up_area_sq_ft": {
+          "type": "INT",
+          "description": "Built-up (constructed) area, in square feet."
+        },
+        "site_area_sq_ft": {
+          "type": "INT",
+          "description": "Underlying site/plot area, in square feet."
+        },
+        "construction_type": {
+          "type": "STRING",
+          "description": "Construction method, e.g. 'RCC', 'Load Bearing'."
+        },
+        "roof_type": {
+          "type": "STRING",
+          "description": "Type of roofing."
+        },
+        "usage_type": {
+          "type": "STRING",
+          "description": "Residential / Commercial usage classification for tax/zoning purposes."
+        },
+        "registration_no": {
+          "type": "STRING",
+          "description": "Deed registration number for the property."
+        },
+        "registration_date": {
+          "type": "DATE",
+          "description": "Date the property deed was registered."
+        },
+        "market_value": {
+          "type": "DECIMAL(12,2)",
+          "description": "Estimated market value of the property, in INR."
+        },
+        "guideline_value": {
+          "type": "DECIMAL(12,2)",
+          "description": "Government guideline (registration) value of the property, in INR."
+        },
+        "ptin": {
+          "type": "STRING",
+          "description": "Property Tax Identification Number \u2014 joins to dim_property_tax.ptin."
+        },
+        "municipal_no": {
+          "type": "STRING",
+          "description": "Municipal assessment/door number assigned by the local body."
+        },
+        "municipal_body": {
+          "type": "STRING",
+          "description": "Name of the municipal corporation/council/panchayat administering the property."
+        },
+        "sro_office": {
+          "type": "STRING",
+          "description": "Sub-Registrar Office where the property deed is registered."
+        },
+        "construction_year": {
+          "type": "INT",
+          "description": "Year the property was constructed."
+        },
+        "floor_count": {
+          "type": "INT",
+          "description": "Number of floors."
+        },
+        "assessment_no": {
+          "type": "STRING",
+          "description": "Municipal tax assessment number."
+        },
+        "owner_name": {
+          "type": "STRING",
+          "description": "Registered owner's name (denormalized for display without a join to dim_person)."
+        },
+        "plinth_area_units": {
+          "type": "STRING",
+          "description": "Unit of measure used for plinth area in source records, e.g. 'sq.ft', 'sq.m'."
+        },
+        "site_extent_units": {
+          "type": "STRING",
+          "description": "Unit of measure used for site extent in source records."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this property record was last updated."
+        }
+      }
+    },
+    "dim_property_tax": {
+      "group": "ASSETS \u2014 LAND & PROPERTY",
+      "tableType": "dimension",
+      "primaryKey": "person_id, ptin, assessment_year",
+      "partitionedBy": null,
+      "description": "One row per property per assessment year \u2014 municipal property tax demand, dues, and payment status. Joins back to dim_property via ptin.",
+      "fieldCount": 14,
+      "fields": {
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id \u2014 the property owner liable for the tax."
+        },
+        "ptin": {
+          "type": "STRING",
+          "description": "Property Tax Identification Number \u2014 joins to dim_property.ptin."
+        },
+        "assessment_year": {
+          "type": "STRING",
+          "description": "Financial/assessment year this tax record covers."
+        },
+        "annual_demand_rs": {
+          "type": "DECIMAL(12,2)",
+          "description": "Annual property tax demand for this assessment year, in INR."
+        },
+        "arrears_rs": {
+          "type": "DECIMAL(12,2)",
+          "description": "Arrears carried over from prior assessment years, in INR."
+        },
+        "total_due_rs": {
+          "type": "DECIMAL(12,2)",
+          "description": "Total amount currently due (demand + arrears \u2212 paid), in INR."
+        },
+        "amount_paid_rs": {
+          "type": "DECIMAL(12,2)",
+          "description": "Amount paid against this assessment year's demand, in INR."
+        },
+        "tax_status": {
+          "type": "STRING",
+          "description": "Current payment status, e.g. 'Up-to-date', 'Due'."
+        },
+        "last_paid_date": {
+          "type": "DATE",
+          "description": "Date of the most recent payment."
+        },
+        "payment_mode": {
+          "type": "STRING",
+          "description": "Mode of the most recent payment, e.g. 'Online', 'Counter'."
+        },
+        "exemption_category": {
+          "type": "STRING",
+          "description": "Exemption category applied, if the property qualifies for a tax exemption/concession."
+        },
+        "municipal_body": {
+          "type": "STRING",
+          "description": "Municipal body that raised this assessment."
+        },
+        "department_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_department.department_id \u2014 the municipal/revenue department owning this tax record."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this tax record was last updated."
+        }
+      }
+    },
+    "dim_health_profile": {
+      "group": "HEALTH",
+      "tableType": "dimension",
+      "primaryKey": "person_id",
+      "partitionedBy": null,
+      "description": "One row per person summarizing their health-system identifiers, chronic conditions, maternal-health status, and government health-scheme coverage. The aggregation point for everything the Health department tracks about a citizen.",
+      "fieldCount": 35,
+      "fields": {
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id."
+        },
+        "abdm_id": {
+          "type": "STRING",
+          "description": "Ayushman Bharat Digital Mission health ID."
+        },
+        "abha_address": {
+          "type": "STRING",
+          "description": "Ayushman Bharat Health Account address (the ABDM health-ID's human-readable handle)."
+        },
+        "aarogyasri_card_no": {
+          "type": "STRING",
+          "description": "NTR Vaidya Seva (Aarogyasri) health insurance card number."
+        },
+        "aarogyasri_status": {
+          "type": "STRING",
+          "description": "Enrollment status under Aarogyasri, e.g. 'Active', 'Not Enrolled'."
+        },
+        "pmjay_beneficiary_id": {
+          "type": "STRING",
+          "description": "Ayushman Bharat PM-JAY beneficiary ID."
+        },
+        "pmjay_family_id": {
+          "type": "STRING",
+          "description": "Ayushman Bharat PM-JAY family unit ID."
+        },
+        "blood_group": {
+          "type": "STRING",
+          "description": "Blood group, e.g. 'O+', 'AB-'.",
+          "value_description": "['O+', 'B+', 'A+', 'O-', 'AB+', 'A-', 'B-', 'AB-', '-1']"
+        },
+        "height_cm": {
+          "type": "INT",
+          "description": "Height in centimetres, from the most recent recorded measurement."
+        },
+        "weight_kg": {
+          "type": "DOUBLE",
+          "description": "Weight in kilograms, from the most recent recorded measurement."
+        },
+        "bmi": {
+          "type": "DOUBLE",
+          "description": "Body mass index, computed from the most recent height/weight."
+        },
+        "conditions": {
+          "type": "ARRAY<STRING>",
+          "description": "Array of free-text chronic conditions/diagnoses on file, beyond the specific boolean flags below."
+        },
+        "has_diabetes": {
+          "type": "BOOLEAN",
+          "description": "True if diagnosed with diabetes.",
+          "value_description": "['True']"
+        },
+        "has_hypertension": {
+          "type": "BOOLEAN",
+          "description": "True if diagnosed with hypertension.",
+          "value_description": "['True']"
+        },
+        "has_tuberculosis": {
+          "type": "BOOLEAN",
+          "description": "True if diagnosed with active or treated tuberculosis."
+        },
+        "has_hiv": {
+          "type": "BOOLEAN",
+          "description": "True if HIV-positive per health records."
+        },
+        "has_cancer": {
+          "type": "BOOLEAN",
+          "description": "True if diagnosed with cancer (any type)."
+        },
+        "registered_phc": {
+          "type": "STRING",
+          "description": "Primary Health Centre the person is registered with."
+        },
+        "assigned_asha_worker": {
+          "type": "STRING",
+          "description": "Name/ID of the assigned ASHA (community health) worker."
+        },
+        "is_pregnant": {
+          "type": "BOOLEAN",
+          "description": "True if currently pregnant per the latest ANC record.",
+          "value_description": "['True']"
+        },
+        "lmp_date": {
+          "type": "DATE",
+          "description": "Last menstrual period date, for current/recent pregnancies."
+        },
+        "edd_date": {
+          "type": "DATE",
+          "description": "Expected date of delivery, for current pregnancies."
+        },
+        "anc_registrations": {
+          "type": "INT",
+          "description": "Count of antenatal care check-up registrations for the current/most recent pregnancy."
+        },
+        "institutional_delivery": {
+          "type": "BOOLEAN",
+          "description": "True if the most recent delivery took place in a healthcare institution rather than at home."
+        },
+        "covid_vaccinated": {
+          "type": "BOOLEAN",
+          "description": "True if the person has received at least one COVID-19 vaccine dose."
+        },
+        "covid_doses": {
+          "type": "INT",
+          "description": "Total number of COVID-19 vaccine doses received."
+        },
+        "esi_covered": {
+          "type": "BOOLEAN",
+          "description": "True if covered under Employee State Insurance.",
+          "value_description": "['False']"
+        },
+        "cghs_covered": {
+          "type": "BOOLEAN",
+          "description": "True if covered under the Central Government Health Scheme.",
+          "value_description": "['False']"
+        },
+        "rsby_covered": {
+          "type": "BOOLEAN",
+          "description": "True if covered under the Rashtriya Swasthya Bima Yojana.",
+          "value_description": "['False']"
+        },
+        "has_mental_health_condition": {
+          "type": "BOOLEAN",
+          "description": "True if a mental health condition is on file.",
+          "value_description": "['False']"
+        },
+        "mental_health_type": {
+          "type": "STRING",
+          "description": "Type of mental health condition, where has_mental_health_condition is true."
+        },
+        "last_encounter_date": {
+          "type": "DATE",
+          "description": "Date of the most recent recorded healthcare encounter of any kind."
+        },
+        "linked_scheme_ids": {
+          "type": "ARRAY<STRING>",
+          "description": "Array of dim_scheme.scheme_id values for every health-related welfare scheme this person is linked to."
+        },
+        "department_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_department.department_id \u2014 the Health department record owner."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this health profile was last updated."
+        }
+      }
+    },
+    "dim_agriculture_profile": {
+      "group": "AGRICULTURE",
+      "tableType": "dimension",
+      "primaryKey": "person_id",
+      "partitionedBy": null,
+      "description": "One row per person who is a registered farmer \u2014 landholding summary, crop information, irrigation, credit, and agricultural welfare-scheme enrollment. Complements dim_land (which records individual parcels) with a farmer-level rollup and scheme/credit detail land records don't carry.",
+      "fieldCount": 26,
+      "fields": {
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id."
+        },
+        "farmer_id": {
+          "type": "STRING",
+          "description": "Department-issued farmer registration ID."
+        },
+        "farmer_type": {
+          "type": "STRING",
+          "description": "Landholding-size classification, e.g. 'Small', 'Semi-medium', 'Medium', 'Large'.",
+          "value_description": "['Medium', 'Marginal', 'Semi-medium', 'Large', 'Small']"
+        },
+        "total_land_acres": {
+          "type": "DOUBLE",
+          "description": "Total land held by the farmer, in acres (across all parcels)."
+        },
+        "irrigated_land_acres": {
+          "type": "DOUBLE",
+          "description": "Portion of total land that is irrigated, in acres."
+        },
+        "dry_land_acres": {
+          "type": "DOUBLE",
+          "description": "Portion of total land that is unirrigated (dry), in acres."
+        },
+        "primary_crop": {
+          "type": "STRING",
+          "description": "Primary crop grown.",
+          "value_description": "['Paddy', 'Red gram', 'Cotton', 'Mango', 'Coconut', 'Maize', 'Cashew nut', 'Red Chillies', 'Groundnut', 'Oil Palm', 'Tomato', 'casuarina', 'Sweet Orange', 'subabul', 'Turmeric', 'Banana', 'Onion', 'Ragi', 'Super napier grass', 'Eucalyptus', ...]"
+        },
+        "secondary_crop": {
+          "type": "STRING",
+          "description": "Secondary crop grown, where applicable.",
+          "value_description": "['Paddy', 'Red gram', 'Cotton', 'Mango', 'Coconut', 'Maize', 'Cashew nut', 'Red Chillies', 'Groundnut', 'Oil Palm', 'Tomato', 'casuarina', 'Sweet Orange', 'subabul', 'Turmeric', 'Banana', 'Onion', 'Ragi', 'Super napier grass', 'Eucalyptus', ...]"
+        },
+        "crop_season": {
+          "type": "STRING",
+          "description": "Cropping season this record reflects, e.g. 'Kharif', 'Rabi'."
+        },
+        "crop_types": {
+          "type": "ARRAY<STRING>",
+          "description": "Array of all crop types grown by this farmer across seasons/parcels."
+        },
+        "land_reg_nos": {
+          "type": "ARRAY<STRING>",
+          "description": "Array of land registration numbers (cross-referencing dim_land.registration_no) held by this farmer."
+        },
+        "soil_health_card_no": {
+          "type": "STRING",
+          "description": "Soil Health Card scheme registration number."
+        },
+        "irrigation_source": {
+          "type": "STRING",
+          "description": "Primary irrigation source, e.g. 'Borewell', 'Canal', 'Drip'.",
+          "value_description": "['Conventional/ Flooding', 'Rainfed', 'Drip System', 'Sprinkler System']"
+        },
+        "pump_set_hp": {
+          "type": "DOUBLE",
+          "description": "Horsepower of the farmer's irrigation pump set, where applicable."
+        },
+        "kcc_bank": {
+          "type": "STRING",
+          "description": "Bank that issued the farmer's Kisan Credit Card."
+        },
+        "kcc_account_no": {
+          "type": "STRING",
+          "description": "Kisan Credit Card account number."
+        },
+        "kcc_limit": {
+          "type": "DECIMAL(12,2)",
+          "description": "Sanctioned credit limit on the Kisan Credit Card, in INR."
+        },
+        "pm_kisan_beneficiary": {
+          "type": "BOOLEAN",
+          "description": "True if enrolled in the PM-KISAN income-support scheme.",
+          "value_description": "['True', 'False']"
+        },
+        "rythu_bharosa_beneficiary": {
+          "type": "BOOLEAN",
+          "description": "True if enrolled in the AP Rythu Bharosa farmer-support scheme.",
+          "value_description": "['True', 'False']"
+        },
+        "pmfby_enrolled": {
+          "type": "BOOLEAN",
+          "description": "True if enrolled in the Pradhan Mantri Fasal Bima Yojana crop insurance scheme.",
+          "value_description": "['False']"
+        },
+        "market_linkage": {
+          "type": "STRING",
+          "description": "Market/procurement channel the farmer is linked to, e.g. a specific mandi or FPO marketing tie-up."
+        },
+        "fpo_name": {
+          "type": "STRING",
+          "description": "Name of the Farmer Producer Organisation the farmer belongs to, if any."
+        },
+        "last_yield_qtl_acre": {
+          "type": "DOUBLE",
+          "description": "Most recent recorded yield, in quintals per acre."
+        },
+        "linked_scheme_ids": {
+          "type": "ARRAY<STRING>",
+          "description": "Array of dim_scheme.scheme_id values for every agriculture-related welfare scheme this farmer is linked to."
+        },
+        "department_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_department.department_id \u2014 the Agriculture department record owner."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this agriculture profile was last updated."
+        }
+      }
+    },
+    "dim_crop_sale": {
+      "group": "AGRICULTURE",
+      "tableType": "dimension",
+      "primaryKey": "person_id, financial_year",
+      "partitionedBy": null,
+      "description": "One row per farmer per financial year \u2014 total value of crop sales through tracked procurement/market channels, split paddy vs non-paddy. Used for agricultural income verification.",
+      "fieldCount": 6,
+      "fields": {
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id."
+        },
+        "financial_year": {
+          "type": "STRING",
+          "description": "Financial year this sales total covers, e.g. '2025-26'."
+        },
+        "amt_paddy": {
+          "type": "DECIMAL(14,2)",
+          "description": "Total sale value of paddy in this financial year, in INR."
+        },
+        "amt_nonpaddy": {
+          "type": "DECIMAL(14,2)",
+          "description": "Total sale value of all non-paddy crops in this financial year, in INR."
+        },
+        "amt_total": {
+          "type": "DECIMAL(14,2)",
+          "description": "Total crop sale value across all crops in this financial year, in INR."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this record was last updated."
+        }
+      }
+    },
+    "dim_social_welfare": {
+      "group": "SOCIAL WELFARE",
+      "tableType": "dimension",
+      "primaryKey": "person_id",
+      "partitionedBy": null,
+      "description": "One row per person summarizing pension, disability, and other Social Welfare department entitlements and self-help-group participation \u2014 the aggregation point for everything the Social Welfare department tracks about a citizen, distinct from the broader fact_entitlement table which spans every department's schemes.",
+      "fieldCount": 22,
+      "fields": {
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id."
+        },
+        "pension_id": {
+          "type": "STRING",
+          "description": "Pension scheme enrollment ID, where the person receives a pension."
+        },
+        "pension_type": {
+          "type": "STRING",
+          "description": "Type of pension received, e.g. 'Old Age Pension', 'Widow Pension', 'Fishermen Pension'."
+        },
+        "monthly_amount": {
+          "type": "DECIMAL(10,2)",
+          "description": "Monthly pension amount, in INR."
+        },
+        "pension_status": {
+          "type": "STRING",
+          "description": "Current pension status, e.g. 'Active', 'N/A'."
+        },
+        "pension_bank": {
+          "type": "STRING",
+          "description": "Bank through which the pension is disbursed."
+        },
+        "pension_account_no": {
+          "type": "STRING",
+          "description": "Bank account number the pension is credited to."
+        },
+        "is_disabled": {
+          "type": "BOOLEAN",
+          "description": "True if the person has a registered disability."
+        },
+        "disability_type": {
+          "type": "STRING",
+          "description": "Category of disability per RPWD Act 2016 classifications, where is_disabled is true."
+        },
+        "disability_percentage": {
+          "type": "INT",
+          "description": "Certified disability percentage."
+        },
+        "udid_card_no": {
+          "type": "STRING",
+          "description": "Unique Disability ID card number."
+        },
+        "bpl_card_no": {
+          "type": "STRING",
+          "description": "Below Poverty Line card number, where issued separately from the ration card."
+        },
+        "secc_family_id": {
+          "type": "STRING",
+          "description": "Socio Economic Caste Census family identifier."
+        },
+        "annual_family_income": {
+          "type": "DECIMAL(12,2)",
+          "description": "Annual family income as recorded for welfare-eligibility purposes, in INR."
+        },
+        "deepam_beneficiary": {
+          "type": "BOOLEAN",
+          "description": "True if enrolled in the Deepam free-LPG-connection scheme."
+        },
+        "bc_welfare_scheme": {
+          "type": "STRING",
+          "description": "Name of the Backward Classes welfare scheme this person is enrolled in, where applicable."
+        },
+        "shg_name": {
+          "type": "STRING",
+          "description": "Name of the Self-Help Group the person belongs to, if any."
+        },
+        "shg_role": {
+          "type": "STRING",
+          "description": "Role held within the Self-Help Group, e.g. 'Member', 'Leader'."
+        },
+        "ntr_bharosa_flag": {
+          "type": "BOOLEAN",
+          "description": "True if enrolled in the NTR Bharosa pension consolidation scheme."
+        },
+        "department_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_department.department_id \u2014 the Social Welfare department record owner."
+        },
+        "disability_certificate_date": {
+          "type": "DATE",
+          "description": "Date the disability certificate was issued."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this social welfare record was last updated."
+        }
+      }
+    },
+    "dim_utility_connection": {
+      "group": "UTILITIES",
+      "tableType": "dimension",
+      "primaryKey": "person_id",
+      "partitionedBy": null,
+      "description": "One row per person summarizing their domestic gas, electricity, and water connection status.",
+      "fieldCount": 9,
+      "fields": {
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id."
+        },
+        "gas_connection_status": {
+          "type": "STRING",
+          "description": "Status of the domestic LPG connection, e.g. 'Active', 'Inactive'.",
+          "value_description": "['Active', 'Inactive']"
+        },
+        "electricity_status": {
+          "type": "STRING",
+          "description": "Status of the electricity connection, e.g. 'Active', 'Inactive'.",
+          "value_description": "['Inactive', 'Active']"
+        },
+        "avg_monthly_kwh": {
+          "type": "INT",
+          "description": "Average monthly electricity consumption, in kWh."
+        },
+        "water_connection_status": {
+          "type": "STRING",
+          "description": "Status of the piped water connection, e.g. 'Active', 'Inactive'.",
+          "value_description": "['Active', 'Inactive']"
+        },
+        "electricity_sc_no": {
+          "type": "STRING",
+          "description": "DISCOM service connection (SC) number for the electricity connection."
+        },
+        "discom_name": {
+          "type": "STRING",
+          "description": "Name of the electricity distribution company (DISCOM) serving this connection."
+        },
+        "electricity_status_updated_on": {
+          "type": "DATE",
+          "description": "Date the electricity connection status was last confirmed/updated by the DISCOM.",
+          "value_description": "['2026-07-01']"
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this utility record was last updated."
+        }
+      }
+    },
+    "dim_epfo_contribution": {
+      "group": "EMPLOYMENT \u2014 EPFO",
+      "tableType": "dimension",
+      "primaryKey": "person_id",
+      "partitionedBy": null,
+      "description": "One row per person summarizing their Employees' Provident Fund Organisation contribution status \u2014 for formal-sector employees contributing to EPF/EPS.",
+      "fieldCount": 8,
+      "fields": {
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id."
+        },
+        "employee_contribution": {
+          "type": "DECIMAL(10,0)",
+          "description": "Most recent employee-side EPF contribution amount, in INR."
+        },
+        "employer_contribution": {
+          "type": "DECIMAL(10,0)",
+          "description": "Most recent employer-side EPF contribution amount, in INR."
+        },
+        "eps_contribution": {
+          "type": "DECIMAL(10,0)",
+          "description": "Most recent Employees' Pension Scheme contribution amount, in INR."
+        },
+        "latest_contribution_date": {
+          "type": "DATE",
+          "description": "Date of the most recent contribution."
+        },
+        "secretariat_code": {
+          "type": "STRING",
+          "description": "Gram/Ward Sachivalayam code associated with the person's registered address."
+        },
+        "establishment_id": {
+          "type": "STRING",
+          "description": "EPFO establishment (employer) code the contributions were made through."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this EPFO record was last updated."
+        }
+      }
+    },
+    "dim_department": {
+      "group": "SCHEMES, DEPARTMENTS & GOVERNANCE",
+      "tableType": "dimension",
+      "primaryKey": "department_id",
+      "partitionedBy": null,
+      "description": "Canonical government department lookup \u2014 the department_id namespace referenced by entitlement, tax, health, agriculture, and social-welfare records to attribute which department owns a piece of citizen data. Distinct from dim_department_client, which is the separate Data Transfer API client-registry namespace (e.g. 'DEPT-SWD-001') used for authentication rather than data ownership.",
+      "fieldCount": 2,
+      "fields": {
+        "department_id": {
+          "type": "STRING",
+          "description": "Canonical department code, e.g. 'DEPT-HEALTH'."
+        },
+        "department_name": {
+          "type": "STRING",
+          "description": "Full department name, e.g. 'Health, Medical & Family Welfare'."
+        }
+      }
+    },
+    "dim_scheme": {
+      "group": "SCHEMES, DEPARTMENTS & GOVERNANCE",
+      "tableType": "dimension",
+      "primaryKey": "scheme_id",
+      "partitionedBy": null,
+      "description": "Canonical welfare/benefit scheme catalog \u2014 referenced by fact_entitlement, fact_benefit_transaction, fact_scheme_disbursement, and the linked_scheme_ids arrays on several dim_* tables.",
+      "fieldCount": 4,
+      "fields": {
+        "scheme_id": {
+          "type": "STRING",
+          "description": "Canonical scheme code, e.g. 'SCH-001'."
+        },
+        "scheme_name": {
+          "type": "STRING",
+          "description": "Display name of the scheme, e.g. 'Anna NTR', 'PM-Kisan'."
+        },
+        "department_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_department.department_id \u2014 the department administering this scheme."
+        },
+        "benefit_type": {
+          "type": "STRING",
+          "description": "Nature of the benefit, e.g. 'Cash Transfer', 'In-kind', 'Subsidy', 'Insurance'.",
+          "value_description": "['Direct Cash Transfer', 'In-Kind', 'Fee Reimbursement', 'Insurance Coverage', 'Credit / Loan']"
+        }
+      }
+    },
+    "dim_department_client": {
+      "group": "SECURITY \u2014 DATA TRANSFER API DEPARTMENT CLIENT REGISTRY",
+      "tableType": "dimension",
+      "primaryKey": "department_id",
+      "partitionedBy": null,
+      "description": "Registered Data Transfer API clients \u2014 backs the OAuth2 client-credentials grant at POST /auth/token and verify_bearer_token's suspension check. department_id here is a separate registry-style namespace (e.g. 'DEPT-SWD-001') from dim_department's canonical codes, and has no department_name column \u2014 readable names for these specific IDs are maintained as a small static lookup in app code, not in the warehouse.",
+      "fieldCount": 7,
+      "fields": {
+        "department_id": {
+          "type": "STRING",
+          "description": "Registered client identifier, e.g. 'DEPT-SWD-001' \u2014 presented as the OAuth2 client_id."
+        },
+        "client_secret_hash": {
+          "type": "STRING",
+          "description": "Salted hash of the client's secret credential \u2014 the secret itself is never stored."
+        },
+        "scopes": {
+          "type": "ARRAY<STRING>",
+          "description": "Array of purpose codes this client is authorized to request, e.g. 'SCHEME_ELIGIBILITY_CHECK', 'AUDIT'."
+        },
+        "dimensions": {
+          "type": "ARRAY<STRING>",
+          "description": "Array of citizen-data dimensions this client is authorized to request, e.g. 'PERSON', 'HOUSEHOLD', 'HEALTH'."
+        },
+        "is_active": {
+          "type": "BOOLEAN",
+          "description": "True if this client's credentials are currently active; false suspends/revokes API access immediately.",
+          "value_description": "['True']"
+        },
+        "created_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this client registration was created."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this client registration was last updated (e.g. on scope change or suspension)."
+        }
+      }
+    },
+    "fact_entitlement": {
+      "group": "DATA TRANSFER API \u2014 ENTITLEMENTS, TRANSACTIONS, DISBURSEMENTS",
+      "tableType": "fact",
+      "primaryKey": "entitlement_id",
+      "partitionedBy": [
+        "district_id"
+      ],
+      "description": "One row per person-scheme enrollment \u2014 whether a citizen is entitled to a given scheme's benefit, and its current status. Partitioned by district_id. The annual_benefit/last_disbursed_date columns summarize the entitlement; itemized payments live in fact_benefit_transaction.",
+      "fieldCount": 9,
+      "fields": {
+        "entitlement_id": {
+          "type": "STRING",
+          "description": "Canonical entitlement-record identifier."
+        },
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id."
+        },
+        "household_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_household.household_id, for household-scoped entitlements."
+        },
+        "scheme_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_scheme.scheme_id."
+        },
+        "enrollment_status": {
+          "type": "STRING",
+          "description": "Status of this entitlement, e.g. 'Active', 'Pending', 'Closed'.",
+          "value_description": "['Active']"
+        },
+        "annual_benefit": {
+          "type": "DECIMAL(12,2)",
+          "description": "Annualized benefit value of this entitlement, in INR."
+        },
+        "last_disbursed_date": {
+          "type": "DATE",
+          "description": "Date of the most recent disbursement against this entitlement."
+        },
+        "enrolled_date": {
+          "type": "DATE",
+          "description": "Date the person was enrolled into the scheme."
+        },
+        "district_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_district.district_id \u2014 partition key."
+        }
+      }
+    },
+    "fact_benefit_transaction": {
+      "group": "DATA TRANSFER API \u2014 ENTITLEMENTS, TRANSACTIONS, DISBURSEMENTS",
+      "tableType": "fact",
+      "primaryKey": "transaction_id",
+      "partitionedBy": [
+        "months(transaction_date)",
+        "district_id"
+      ],
+      "description": "One row per individual benefit disbursement transaction against an entitlement \u2014 the itemized payment history behind fact_entitlement's summarized last_disbursed_date. Partitioned by month and district for efficient time-range/geo queries.",
+      "fieldCount": 7,
+      "fields": {
+        "transaction_id": {
+          "type": "STRING",
+          "description": "Canonical transaction identifier."
+        },
+        "entitlement_id": {
+          "type": "STRING",
+          "description": "Foreign key to fact_entitlement.entitlement_id."
+        },
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id."
+        },
+        "scheme_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_scheme.scheme_id."
+        },
+        "amount": {
+          "type": "DECIMAL(12,2)",
+          "description": "Amount disbursed in this transaction, in INR."
+        },
+        "transaction_date": {
+          "type": "DATE",
+          "description": "Date the transaction was disbursed."
+        },
+        "district_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_district.district_id \u2014 partition key."
+        }
+      }
+    },
+    "fact_scheme_disbursement": {
+      "group": "DATA TRANSFER API \u2014 ENTITLEMENTS, TRANSACTIONS, DISBURSEMENTS",
+      "tableType": "fact",
+      "primaryKey": "disbursement_id",
+      "partitionedBy": [
+        "geo_level",
+        "fiscal_year"
+      ],
+      "description": "Pre-aggregated scheme disbursement totals per geography per fiscal year, broken down by social category \u2014 backs the Budget Integrity / disbursement dashboards without having to aggregate fact_benefit_transaction at query time. Partitioned by geo_level and fiscal_year.",
+      "fieldCount": 13,
+      "fields": {
+        "disbursement_id": {
+          "type": "STRING",
+          "description": "Canonical disbursement-aggregate identifier."
+        },
+        "scheme_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_scheme.scheme_id."
+        },
+        "department_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_department.department_id."
+        },
+        "geo_level": {
+          "type": "STRING",
+          "description": "Geography level this aggregate is rolled up to, e.g. 'state', 'district', 'mandal'.",
+          "value_description": "['district']"
+        },
+        "geo_id": {
+          "type": "STRING",
+          "description": "Identifier of the specific geography at geo_level (e.g. a district_id when geo_level='district')."
+        },
+        "fiscal_year": {
+          "type": "STRING",
+          "description": "Fiscal year this aggregate covers."
+        },
+        "total_crores": {
+          "type": "DECIMAL(12,2)",
+          "description": "Total disbursement amount, in INR crores."
+        },
+        "beneficiaries": {
+          "type": "BIGINT",
+          "description": "Total count of beneficiaries covered by this aggregate."
+        },
+        "amount_oc": {
+          "type": "DECIMAL(12,2)",
+          "description": "Disbursement amount attributable to OC-category beneficiaries, in INR crores."
+        },
+        "amount_bc": {
+          "type": "DECIMAL(12,2)",
+          "description": "Disbursement amount attributable to BC-category beneficiaries, in INR crores."
+        },
+        "amount_sc": {
+          "type": "DECIMAL(12,2)",
+          "description": "Disbursement amount attributable to SC-category beneficiaries, in INR crores."
+        },
+        "amount_st": {
+          "type": "DECIMAL(12,2)",
+          "description": "Disbursement amount attributable to ST-category beneficiaries, in INR crores."
+        },
+        "amount_others": {
+          "type": "DECIMAL(12,2)",
+          "description": "Disbursement amount attributable to beneficiaries outside the OC/BC/SC/ST categories, in INR crores."
+        }
+      }
+    },
+    "fact_event_details": {
+      "group": "DATA TRANSFER API \u2014 UNIFIED EVENTS",
+      "tableType": "fact",
+      "primaryKey": "event_id",
+      "partitionedBy": [
+        "months(detected_at)",
+        "district_id"
+      ],
+      "description": "The single unified events table \u2014 every row is either a LIFECYCLE_EVENT (e.g. BirthRegistered, DeathRegistered, SchemeEnrolled) or an ANOMALY_EVENT (e.g. DualLoanHousehold, PregnancyMismatch), distinguished by event_type with the specific sub-type in sub_event_type. Backs POST /datatransfer/request and GET /api/v1/events/*, and is department_id-scoped so each department only ever sees events routed to it. Replaces the older fact_lifecycle_event/fact_anomaly_event tables, which are no longer queried anywhere. Partitioned by month and district.",
+      "fieldCount": 16,
+      "fields": {
+        "event_id": {
+          "type": "STRING",
+          "description": "Canonical event identifier."
+        },
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id \u2014 the citizen this event concerns."
+        },
+        "citizen_name": {
+          "type": "STRING",
+          "description": "Citizen's name, denormalized for display without a join."
+        },
+        "event_type": {
+          "type": "STRING",
+          "description": "Broad event category \u2014 'LIFECYCLE_EVENT' or 'ANOMALY_EVENT'."
+        },
+        "sub_event_type": {
+          "type": "STRING",
+          "description": "Specific event type within the category, e.g. 'DeathRegistered' (lifecycle) or 'DualLoanHousehold' (anomaly)."
+        },
+        "severity": {
+          "type": "STRING",
+          "description": "Severity rating for anomaly events ('High'/'Medium'/'Low'); null for lifecycle events, which don't carry a severity dimension."
+        },
+        "detected_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp the event was detected/occurred \u2014 partition key (by month)."
+        },
+        "district_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_district.district_id \u2014 partition key."
+        },
+        "mandal_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_mandal.mandal_id."
+        },
+        "village_name": {
+          "type": "STRING",
+          "description": "Village associated with the event."
+        },
+        "summary": {
+          "type": "STRING",
+          "description": "Human-readable one-line summary of the event."
+        },
+        "resolution_status": {
+          "type": "STRING",
+          "description": "Current status \u2014 lifecycle events use 'Published'/'Processing'/'Failed'; anomaly events use 'Open'/'Under Review'/'Resolved'."
+        },
+        "household_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_household.household_id, where the event is household-scoped (e.g. DualLoanHousehold anomalies)."
+        },
+        "department_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_department_client.department_id \u2014 the department this event is routed to/owned by."
+        },
+        "eventdata": {
+          "type": "STRING",
+          "description": "Base64-encoded JSON blob of event-type-specific structured detail \u2014 e.g. for DualLoanHousehold/PregnancyMismatch anomalies, the per-event loans[]/pregnancyRecords[] arrays are folded in here rather than joined from separate tables."
+        },
+        "linked_scheme_ids": {
+          "type": "STRING",
+          "description": "Comma-separated dim_scheme.scheme_id values linked to this event (e.g. schemes affected by a DeathRegistered event's entitlement closure)."
+        }
+      }
+    },
+    "fact_event_request_registry": {
+      "group": "DATA TRANSFER API \u2014 REQUEST IDEMPOTENCY, EVENT-DELIVERY INDEX, ACK/STATUS PERSISTENCE",
+      "tableType": "fact",
+      "primaryKey": "request_id",
+      "partitionedBy": null,
+      "description": "One row per POST /datatransfer/request call \u2014 backs idempotency: a reused request_id with a different payload_hash is rejected with 409 CONFLICT, while a reused request_id with the same hash safely replays the original response.",
+      "fieldCount": 6,
+      "fields": {
+        "request_id": {
+          "type": "STRING",
+          "description": "Client-supplied idempotency key from the request payload."
+        },
+        "payload_hash": {
+          "type": "STRING",
+          "description": "Hash of the original request payload \u2014 compared against replays of the same request_id to detect a conflicting reuse."
+        },
+        "department_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_department_client.department_id \u2014 the calling department."
+        },
+        "event_correlation_ids": {
+          "type": "STRING",
+          "description": "Comma-separated correlation IDs generated for the events delivered in response to this request."
+        },
+        "payload_json": {
+          "type": "STRING",
+          "description": "The original request payload, stored verbatim for replay/audit."
+        },
+        "created_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this request was first registered."
+        }
+      }
+    },
+    "fact_event_index": {
+      "group": "DATA TRANSFER API \u2014 REQUEST IDEMPOTENCY, EVENT-DELIVERY INDEX, ACK/STATUS PERSISTENCE",
+      "tableType": "fact",
+      "primaryKey": "event_correlation_id",
+      "partitionedBy": null,
+      "description": "One row per delivered event correlation ID, recording which department it was actually sent to \u2014 lets on_request/event_status reject an acknowledgement or status update for an event that was never sent to the calling department (404/403), independent of fact_event_details' own department_id routing.",
+      "fieldCount": 4,
+      "fields": {
+        "event_correlation_id": {
+          "type": "STRING",
+          "description": "Canonical correlation ID assigned to a delivered event."
+        },
+        "request_id": {
+          "type": "STRING",
+          "description": "Foreign key to fact_event_request_registry.request_id \u2014 the request this event was delivered in response to."
+        },
+        "created_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this delivery record was created."
+        },
+        "department_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_department_client.department_id \u2014 the department this event's correlation ID was actually delivered to."
+        }
+      }
+    },
+    "fact_event_acknowledgement": {
+      "group": "DATA TRANSFER API \u2014 REQUEST IDEMPOTENCY, EVENT-DELIVERY INDEX, ACK/STATUS PERSISTENCE",
+      "tableType": "fact",
+      "primaryKey": "acknowledgement_id",
+      "partitionedBy": null,
+      "description": "One row per POST /datatransfer/on_request acknowledgement received from a department, confirming receipt of a previously delivered request/event batch.",
+      "fieldCount": 6,
+      "fields": {
+        "acknowledgement_id": {
+          "type": "STRING",
+          "description": "Canonical acknowledgement-record identifier."
+        },
+        "original_request_id": {
+          "type": "STRING",
+          "description": "Foreign key to fact_event_request_registry.request_id \u2014 the request being acknowledged."
+        },
+        "department_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_department_client.department_id \u2014 the acknowledging department."
+        },
+        "acknowledged_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp the department reported as having received the request."
+        },
+        "payload_json": {
+          "type": "STRING",
+          "description": "The acknowledgement payload, stored verbatim for audit."
+        },
+        "created_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this acknowledgement was recorded."
+        }
+      }
+    },
+    "fact_event_status_update": {
+      "group": "DATA TRANSFER API \u2014 REQUEST IDEMPOTENCY, EVENT-DELIVERY INDEX, ACK/STATUS PERSISTENCE",
+      "tableType": "fact",
+      "primaryKey": "event_correlation_id",
+      "partitionedBy": null,
+      "description": "Append-only log of POST /datatransfer/event_status updates \u2014 what processing status a department reports back for a specific delivered event over time (e.g. a department reporting it has actioned a lifecycle event).",
+      "fieldCount": 7,
+      "fields": {
+        "event_correlation_id": {
+          "type": "STRING",
+          "description": "Foreign key to fact_event_index.event_correlation_id \u2014 the event this status update concerns."
+        },
+        "processing_status": {
+          "type": "STRING",
+          "description": "Status the department is reporting, e.g. 'Received', 'Processed', 'Rejected'."
+        },
+        "department_reference_id": {
+          "type": "STRING",
+          "description": "The department's own internal reference/ticket ID for its handling of this event."
+        },
+        "updated_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this status update was reported."
+        },
+        "remarks": {
+          "type": "STRING",
+          "description": "Free-text remarks accompanying the status update."
+        },
+        "source": {
+          "type": "STRING",
+          "description": "System/integration that submitted this status update on the department's behalf."
+        },
+        "created_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this status-update row was recorded."
+        }
+      }
+    },
+    "dim_p4_kpi": {
+      "group": "P4 (PEOPLE-PUBLIC POLICY PERFORMANCE) SCORING",
+      "tableType": "dimension",
+      "primaryKey": "kpi_id",
+      "partitionedBy": null,
+      "description": "Canonical catalog of P4/Bangaru Kutumbam KPIs \u2014 the indicators rolled up into the five thematic scores (health & nutrition, education, agriculture & livelihood, financial inclusion, infrastructure & living) used throughout the P4 scoring system. KPI forecasts are computed on the fly from this and the score facts below \u2014 there is no stored forecast table.",
+      "fieldCount": 8,
+      "fields": {
+        "kpi_id": {
+          "type": "STRING",
+          "description": "Canonical KPI code, e.g. 'HN01'."
+        },
+        "thematic_area": {
+          "type": "STRING",
+          "description": "Which of the five P4 thematic areas this KPI belongs to."
+        },
+        "area_weightage": {
+          "type": "DOUBLE",
+          "description": "Weight this thematic area contributes to the overall composite score (0-1)."
+        },
+        "kpi_name": {
+          "type": "STRING",
+          "description": "Display name of the KPI."
+        },
+        "description": {
+          "type": "STRING",
+          "description": "Explanation of what this KPI measures and how."
+        },
+        "unit": {
+          "type": "STRING",
+          "description": "Unit of measure for the KPI's value, e.g. '%', 'per 1000'."
+        },
+        "target_value": {
+          "type": "DOUBLE",
+          "description": "Target value policy aims to reach for this KPI."
+        },
+        "is_inverse": {
+          "type": "BOOLEAN",
+          "description": "True if lower values are better for this KPI (e.g. a mortality rate), so achievement % is computed inversely against the target."
+        }
+      }
+    },
+    "fact_p4_citizen_score": {
+      "group": "P4 (PEOPLE-PUBLIC POLICY PERFORMANCE) SCORING",
+      "tableType": "fact",
+      "primaryKey": "citizen_score_id",
+      "partitionedBy": null,
+      "description": "One row per person per scoring period \u2014 their individual P4 scores across the five thematic areas plus a composite score, and whether they're flagged as part of the Bangaru Kutumbam (uplift-priority household) cohort.",
+      "fieldCount": 16,
+      "fields": {
+        "citizen_score_id": {
+          "type": "STRING",
+          "description": "Canonical score-record identifier."
+        },
+        "person_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_person.person_id."
+        },
+        "household_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_household.household_id."
+        },
+        "district_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_district.district_id."
+        },
+        "mandal_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_mandal.mandal_id."
+        },
+        "village_name": {
+          "type": "STRING",
+          "description": "Village this score record pertains to."
+        },
+        "period": {
+          "type": "STRING",
+          "description": "Scoring period this row covers, e.g. a year-month."
+        },
+        "is_bangaru_kutumbam": {
+          "type": "BOOLEAN",
+          "description": "True if this person's household is flagged as a priority-uplift (Bangaru Kutumbam) household for this period."
+        },
+        "health_nutrition_score": {
+          "type": "DOUBLE",
+          "description": "Health & Nutrition thematic score for this period."
+        },
+        "education_score": {
+          "type": "DOUBLE",
+          "description": "Education thematic score for this period."
+        },
+        "agriculture_livelihood_score": {
+          "type": "DOUBLE",
+          "description": "Agriculture & Livelihood thematic score for this period."
+        },
+        "financial_inclusion_score": {
+          "type": "DOUBLE",
+          "description": "Financial Inclusion thematic score for this period."
+        },
+        "infrastructure_living_score": {
+          "type": "DOUBLE",
+          "description": "Infrastructure & Living thematic score for this period."
+        },
+        "composite_score": {
+          "type": "DOUBLE",
+          "description": "Weighted composite of the five thematic scores for this period."
+        },
+        "upliftment_status": {
+          "type": "STRING",
+          "description": "Trend classification of this citizen's progress, e.g. 'Improving', 'Stagnant', 'Declining'."
+        },
+        "created_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this score record was computed/created."
+        }
+      }
+    },
+    "fact_p4_geo_score": {
+      "group": "P4 (PEOPLE-PUBLIC POLICY PERFORMANCE) SCORING",
+      "tableType": "fact",
+      "primaryKey": "score_id",
+      "partitionedBy": null,
+      "description": "One row per KPI per geography per period \u2014 aggregated KPI achievement at state/district/mandal/village level, backing the P4 geographic dashboards and rankings.",
+      "fieldCount": 10,
+      "fields": {
+        "score_id": {
+          "type": "STRING",
+          "description": "Canonical geo-score record identifier."
+        },
+        "kpi_id": {
+          "type": "STRING",
+          "description": "Foreign key to dim_p4_kpi.kpi_id."
+        },
+        "geo_level": {
+          "type": "STRING",
+          "description": "Geography level this score is aggregated to, e.g. 'state', 'district', 'mandal', 'village'."
+        },
+        "geo_id": {
+          "type": "STRING",
+          "description": "Identifier of the specific geography at geo_level."
+        },
+        "period": {
+          "type": "STRING",
+          "description": "Scoring period this row covers."
+        },
+        "current_value": {
+          "type": "DOUBLE",
+          "description": "Current measured value of the KPI for this geography/period."
+        },
+        "target_value": {
+          "type": "DOUBLE",
+          "description": "Target value for this KPI (denormalized from dim_p4_kpi for this period's comparison)."
+        },
+        "achievement_pct": {
+          "type": "DOUBLE",
+          "description": "Achievement percentage against target for this geography/period."
+        },
+        "delta_mom": {
+          "type": "DOUBLE",
+          "description": "Month-over-month change in the KPI's value."
+        },
+        "created_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this geo-score record was computed/created."
+        }
+      }
+    },
+    "fact_p4_ranking": {
+      "group": "P4 (PEOPLE-PUBLIC POLICY PERFORMANCE) SCORING",
+      "tableType": "fact",
+      "primaryKey": "ranking_id",
+      "partitionedBy": null,
+      "description": "One row per geography per period \u2014 composite P4 scores and rank position relative to peer geographies, plus Bangaru Kutumbam uplift progress for that geography. Backs the P4 leaderboard/ranking views.",
+      "fieldCount": 18,
+      "fields": {
+        "ranking_id": {
+          "type": "STRING",
+          "description": "Canonical ranking-record identifier."
+        },
+        "geo_level": {
+          "type": "STRING",
+          "description": "Geography level this ranking is computed at, e.g. 'district', 'mandal'."
+        },
+        "geo_id": {
+          "type": "STRING",
+          "description": "Identifier of the specific geography at geo_level."
+        },
+        "geo_name": {
+          "type": "STRING",
+          "description": "Display name of the geography, denormalized for the leaderboard view."
+        },
+        "period": {
+          "type": "STRING",
+          "description": "Ranking period this row covers."
+        },
+        "health_nutrition_score": {
+          "type": "DOUBLE",
+          "description": "Health & Nutrition thematic score for this geography/period."
+        },
+        "education_score": {
+          "type": "DOUBLE",
+          "description": "Education thematic score for this geography/period."
+        },
+        "agriculture_livelihood_score": {
+          "type": "DOUBLE",
+          "description": "Agriculture & Livelihood thematic score for this geography/period."
+        },
+        "financial_inclusion_score": {
+          "type": "DOUBLE",
+          "description": "Financial Inclusion thematic score for this geography/period."
+        },
+        "infrastructure_living_score": {
+          "type": "DOUBLE",
+          "description": "Infrastructure & Living thematic score for this geography/period."
+        },
+        "composite_score": {
+          "type": "DOUBLE",
+          "description": "Weighted composite score used to rank this geography."
+        },
+        "rank": {
+          "type": "INT",
+          "description": "Current rank position among peer geographies for this period."
+        },
+        "previous_rank": {
+          "type": "INT",
+          "description": "Rank position in the previous period."
+        },
+        "delta_rank": {
+          "type": "INT",
+          "description": "Change in rank versus the previous period (positive = improved)."
+        },
+        "bangaru_kutumbam_total": {
+          "type": "INT",
+          "description": "Total count of Bangaru Kutumbam (priority-uplift) households in this geography."
+        },
+        "bangaru_kutumbam_uplifted": {
+          "type": "INT",
+          "description": "Count of those households that have since been uplifted out of priority status."
+        },
+        "upliftment_pct": {
+          "type": "DOUBLE",
+          "description": "Percentage of Bangaru Kutumbam households uplifted in this geography/period."
+        },
+        "created_at": {
+          "type": "TIMESTAMP",
+          "description": "Timestamp this ranking record was computed/created."
+        }
+      }
+    },
+    "fact_population_hierarchy": {
+      "group": "POPULATION & UTILITY TRENDS",
+      "tableType": "fact",
+      "primaryKey": "geo_level, geo_id, gender, social_category",
+      "partitionedBy": null,
+      "description": "Pre-aggregated population pyramid cells \u2014 population, household, and ration-card counts broken down by geography, gender, and social category. Backs the Population Hierarchy / demographic pyramid views without aggregating dim_person at query time.",
+      "fieldCount": 7,
+      "fields": {
+        "geo_level": {
+          "type": "STRING",
+          "description": "state | district | mandal | village.",
+          "value_description": "['village', 'mandal', 'district', 'state']"
+        },
+        "geo_id": {
+          "type": "STRING",
+          "description": "ap | district_id | mandal_id | village_name \u2014 the identifier appropriate to geo_level."
+        },
+        "gender": {
+          "type": "STRING",
+          "description": "Male | Female | Others.",
+          "value_description": "['Female', 'Male', 'Others']"
+        },
+        "social_category": {
+          "type": "STRING",
+          "description": "OC | BC | SC | ST | Others.",
+          "value_description": "['Others', 'BC', 'OC', 'SC', 'ST']"
+        },
+        "population_count": {
+          "type": "BIGINT",
+          "description": "Census population for this geography/gender/category cell."
+        },
+        "household_count": {
+          "type": "BIGINT",
+          "description": "Number of households headed by this gender/category in this geography."
+        },
+        "ration_card_count": {
+          "type": "BIGINT",
+          "description": "NFSA ration card holders in this gender/category cell."
+        }
+      }
+    },
+    "fact_population_age_band": {
+      "group": "POPULATION & UTILITY TRENDS",
+      "tableType": "fact",
+      "primaryKey": "age_band_id",
+      "partitionedBy": null,
+      "description": "Pre-aggregated population age-distribution snapshot per geography \u2014 backs the population age-pyramid chart.",
+      "fieldCount": 6,
+      "fields": {
+        "age_band_id": {
+          "type": "STRING",
+          "description": "Canonical age-band record identifier."
+        },
+        "geo_level": {
+          "type": "STRING",
+          "description": "Geography level this age-band aggregate covers, e.g. 'state', 'district'."
+        },
+        "geo_id": {
+          "type": "STRING",
+          "description": "Identifier of the specific geography at geo_level."
+        },
+        "age_band": {
+          "type": "STRING",
+          "description": "Age range this row covers, e.g. '0-14', '15-59', '60+'."
+        },
+        "percentage": {
+          "type": "DOUBLE",
+          "description": "Percentage of the geography's population falling in this age band."
+        },
+        "snapshot_date": {
+          "type": "DATE",
+          "description": "Date this age-distribution snapshot was taken/computed."
+        }
+      }
+    },
+    "fact_utility_trend": {
+      "group": "POPULATION & UTILITY TRENDS",
+      "tableType": "fact",
+      "primaryKey": "trend_id",
+      "partitionedBy": [
+        "geo_level",
+        "months(trend_month)"
+      ],
+      "description": "Monthly utility-index trend per geography \u2014 electricity, gas, and water indices over time, backing utility-adoption trend charts. Partitioned by geo_level and month.",
+      "fieldCount": 7,
+      "fields": {
+        "trend_id": {
+          "type": "STRING",
+          "description": "Canonical trend-record identifier."
+        },
+        "geo_level": {
+          "type": "STRING",
+          "description": "Geography level this trend row covers, e.g. 'state', 'district'."
+        },
+        "geo_id": {
+          "type": "STRING",
+          "description": "Identifier of the specific geography at geo_level."
+        },
+        "trend_month": {
+          "type": "DATE",
+          "description": "Month this trend data point covers \u2014 partition key."
+        },
+        "electricity_index": {
+          "type": "INT",
+          "description": "Electricity adoption/consumption index for this geography/month."
+        },
+        "gas_index": {
+          "type": "INT",
+          "description": "Gas connection adoption index for this geography/month."
+        },
+        "water_index": {
+          "type": "INT",
+          "description": "Water connection adoption index for this geography/month."
+        }
+      }
+    }
+  }
+}

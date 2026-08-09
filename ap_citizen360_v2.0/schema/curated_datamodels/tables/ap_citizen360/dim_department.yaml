@@ -1,0 +1,76 @@
+database: ap_citizen360
+table: dim_department
+department: ap_citizen360
+description: "Canonical government department lookup \u2014 the department_id namespace\
+  \ referenced by entitlement, tax, health, agriculture, and social-welfare records\
+  \ to attribute which department owns a piece of citizen data. Distinct from dim_department_client,\
+  \ which is the separate Data Transfer API client-registry namespace (e.g. 'DEPT-SWD-001')\
+  \ used for authentication rather than data ownership."
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_department
+partitioned_by: null
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_department`(\n  `department_id`\
+  \ STRING COMMENT 'Primary Key: department code, e.g. \\'DEPT-HEALTH\\'.',\n  `department_name`\
+  \ STRING COMMENT 'Full department name, e.g. \\'Health, Medical & Family Welfare\\\
+  '. [Value Examples: \\'Health, Medical & Family Welfare\\']')\nROW FORMAT SERDE\n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_department'"
+columns:
+- name: department_id
+  type: STRING
+  nullable: true
+  description: 'Primary Key: department code, e.g. ''DEPT-HEALTH''.'
+- name: department_name
+  type: STRING
+  nullable: true
+  description: 'Full department name, e.g. ''Health, Medical & Family Welfare''. [Value
+    Examples: ''Health, Medical & Family Welfare'']'
+  distinct:
+  - Health, Medical & Family Welfare
+  - MEPMA (Urban Poverty Alleviation)
+  - School Education
+  - Minority Welfare
+  - RTGS
+  - Revenue & Disaster Management
+  - Backward Classes Welfare
+  - Agriculture & Cooperation
+  - Government of India (Central Schemes)
+  - Rural Development & Panchayati Raj
+  - SERP / Stree Nidhi (Rural SHG Credit)
+  - Women & Child Development (ICDS)
+  - Department of Energy
+  - Housing & Urban Development
+  - Finance & Planning
+  - Labour, Employment & Training
+  - Department of Industries
+  - Fisheries
+  - Higher Education
+  - Regional Transport Authority
+  - Petroleum, Gas & Energy
+  - AP Maritime Board
+  - Social Welfare & Tribal Welfare
+  - Food & Civil Supplies
+primary_key:
+- department_id
+relationships: []
+business_terms:
+- ap_citizen360
+- schemes,_departments_and_governance
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_department
+- join dim_department to dim_person via person_id
+- filter dim_department by district_id or mandal_id

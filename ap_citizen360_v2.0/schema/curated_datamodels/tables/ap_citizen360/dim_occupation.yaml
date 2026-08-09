@@ -1,0 +1,130 @@
+database: ap_citizen360
+table: dim_occupation
+department: ap_citizen360
+description: "Full occupation HISTORY \u2014 one row per person per occupation, since\
+  \ a citizen can hold more than one concurrently (e.g. farmer + seasonal MGNREGA\
+  \ labourer). dim_person.occupation_type remains a denormalized 'current' snapshot\
+  \ for fast filtering; this table is the source of truth for the complete history."
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_occupation
+partitioned_by: null
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_occupation`(\n  `occupation_record_id`\
+  \ STRING COMMENT 'Primary Key: identifier for this occupation record.',\n  `person_id`\
+  \ STRING COMMENT 'Foreign Key: References dim_person.person_id.',\n  `occupation_type`\
+  \ STRING COMMENT 'Type of occupation, e.g. \\'Farmer\\', \\'Teacher\\', \\'MGNREGA\
+  \ Worker\\'. [Value Examples: \\'Farmer\\', \\'Teacher\\', \\'MGNREGA Worker\\']',\n\
+  \  `occupation_sector` STRING COMMENT 'Sector this occupation falls under, e.g.\
+  \ \\'Agriculture\\', \\'Government\\', \\'Private\\', \\'Informal\\'. [Value Examples:\
+  \ \\'Agriculture\\', \\'Government\\', \\'Private\\', \\'Informal\\']',\n  `employer_name`\
+  \ STRING COMMENT 'Employer name for this occupation record, where applicable.',\n\
+  \  `designation` STRING COMMENT 'Categorical column. Distinct values: \\'Job title\\\
+  ', \\'designation for this occupation record.\\'. Job title/designation for this\
+  \ occupation record.',\n  `employment_status` STRING COMMENT 'Status of this occupation\
+  \ record, e.g. \\'Active\\', \\'Seasonal\\', \\'Ended\\'. [Value Examples: \\'Active\\\
+  ', \\'Seasonal\\', \\'Ended\\']',\n  `source` STRING COMMENT 'System/department\
+  \ that reported this occupation record.',\n  `occupation_year` STRING COMMENT 'Year\
+  \ (or year range) this occupation record pertains to.',\n  `is_current` BOOLEAN\
+  \ COMMENT 'Boolean flag. True if this is the person\\'s currently active occupation\
+  \ among possibly several historical/concurrent records.',\n  `updated_at` TIMESTAMP\
+  \ COMMENT 'Timestamp this occupation record was last updated.')\nROW FORMAT SERDE\n\
+  \  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  \nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_occupation'"
+columns:
+- name: occupation_record_id
+  type: STRING
+  nullable: true
+  description: 'Primary Key: identifier for this occupation record.'
+- name: person_id
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: References dim_person.person_id.'
+- name: occupation_type
+  type: STRING
+  nullable: true
+  description: 'Type of occupation, e.g. ''Farmer'', ''Teacher'', ''MGNREGA Worker''.
+    [Value Examples: ''Farmer'', ''Teacher'', ''MGNREGA Worker'']'
+- name: occupation_sector
+  type: STRING
+  nullable: true
+  description: 'Sector this occupation falls under, e.g. ''Agriculture'', ''Government'',
+    ''Private'', ''Informal''. [Value Examples: ''Agriculture'', ''Government'', ''Private'',
+    ''Informal'']'
+  distinct:
+  - 'NULL'
+  - Public
+  - Private
+- name: employer_name
+  type: STRING
+  nullable: true
+  description: Employer name for this occupation record, where applicable.
+- name: designation
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: ''Job title'', ''designation
+    for this occupation record.''. Job title/designation for this occupation record.'
+- name: employment_status
+  type: STRING
+  nullable: true
+  description: 'Status of this occupation record, e.g. ''Active'', ''Seasonal'', ''Ended''.
+    [Value Examples: ''Active'', ''Seasonal'', ''Ended'']'
+  distinct:
+  - 'NULL'
+  - ''
+  - Working
+  - '1'
+  - '0'
+  - Leave
+  - Suspension
+- name: source
+  type: STRING
+  nullable: true
+  description: System/department that reported this occupation record.
+  distinct:
+  - UFS
+  - DEPT-EDU
+  - SERP
+  - Open
+  - DBT Schemes
+  - MEPMA
+  - HRMS
+  - APCOS
+- name: occupation_year
+  type: STRING
+  nullable: true
+  description: Year (or year range) this occupation record pertains to.
+- name: is_current
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if this is the person's currently active occupation
+    among possibly several historical/concurrent records.
+  distinct:
+  - 'True'
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp this occupation record was last updated.
+primary_key:
+- occupation_record_id
+relationships:
+- dim_occupation.person_id is a foreign key to dim_person.person_id.
+business_terms:
+- ap_citizen360
+- employment___occupation
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_occupation
+- join dim_occupation to dim_person via person_id
+- filter dim_occupation by district_id or mandal_id

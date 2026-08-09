@@ -1,0 +1,398 @@
+database: ap_citizen360
+table: dim_person
+department: ap_citizen360
+description: "The core citizen record \u2014 one row per person. Every other dim_*/fact_*\
+  \ table that describes an individual (vehicles, land, health, education, ...) joins\
+  \ back to this table via person_id. Backs the Citizen 360 profile view and is the\
+  \ default-join target for every Citizen Dimension Data API lookup."
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_person
+partitioned_by: null
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_person`(\n  `person_id` STRING\
+  \ COMMENT 'Primary Key: citizen identifier, persistent across all source updates.\
+  \ Primary source: Citizen Register of Andhra Pradesh (CR-AP); falls back to UIDAI\
+  \ Aadhaar seeding records when no CR-AP record exists.',\n  `person_name` STRING\
+  \ COMMENT 'Full legal name. Primary source: CR-AP; falls back to UIDAI Aadhaar authentication\
+  \ response, then EPDS ration card beneficiary name.',\n  `age` INT COMMENT 'Current\
+  \ age in years \u2014 derived from date_of_birth at query time, not stored as a\
+  \ static value.',\n  `date_of_birth` DATE COMMENT 'Date of birth, as registered\
+  \ in the birth certificate or Aadhaar record.',\n  `gender` STRING COMMENT 'Categorical\
+  \ column. Distinct values: \\'Male\\', \\'Female\\', \\'Others.\\'. Male / Female\
+  \ / Others.',\n  `social_category` STRING COMMENT 'Social category for reservation/welfare\
+  \ purposes \u2014 OC / BC / SC / ST / Others.',\n  `phone` STRING COMMENT 'Primary\
+  \ contact mobile number.',\n  `income_band` STRING COMMENT 'Household income bracket\
+  \ the person falls into (e.g. \\'Below \u20B91.5L\\', \\'\u20B91.5L \u2013 \u20B9\
+  3L\\') \u2014 used for scheme eligibility filtering.',\n  `dwelling_type` STRING\
+  \ COMMENT 'Housing tenure and construction quality, e.g. \\'Own House \u2013 Pucca\\\
+  ', \\'Rented Apartment\\'. [Value Examples: \\'Own House \u2013 Pucca\\', \\'Rented\
+  \ Apartment\\']',\n  `address` STRING COMMENT 'Free-text postal address.',\n  `district_id`\
+  \ STRING COMMENT 'Foreign Key: References dim_district.district_id. the person\\\
+  's current district of residence.',\n  `mandal_id` STRING COMMENT 'Foreign Key:\
+  \ References dim_mandal.mandal_id. the person\\'s current mandal of residence.',\n\
+  \  `village_name` STRING COMMENT 'The person\\'s current village/habitation of residence\
+  \ (denormalized text, not a village_id FK).',\n  `household_id` STRING COMMENT 'Foreign\
+  \ Key: References dim_household.household_id. the household this person belongs\
+  \ to.',\n  `created_at` TIMESTAMP COMMENT 'Timestamp the canonical row was first\
+  \ created.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp the canonical row was\
+  \ last updated by any source \u2014 used for asOf incremental-sync filters.',\n\
+  \  `occupation_type` STRING COMMENT 'Denormalized \\'current\\' occupation snapshot\
+  \ for fast filtering (e.g. \\'Farmer\\', \\'MGNREGA Worker\\') \u2014 full occupation\
+  \ history with concurrent occupations lives in dim_occupation. [Value Examples:\
+  \ \\'Farmer\\', \\'MGNREGA Worker\\']',\n  `occupation_sector` STRING COMMENT 'Sector\
+  \ of the current occupation, e.g. \\'Agriculture\\', \\'Government\\', \\'Private\\\
+  '. [Value Examples: \\'Agriculture\\', \\'Government\\', \\'Private\\']',\n  `employer_name`\
+  \ STRING COMMENT 'Name of the current employer, where applicable.',\n  `designation`\
+  \ STRING COMMENT 'Categorical column. Distinct values: \\'Job title\\', \\'designation\
+  \ in the current occupation.\\'. Job title/designation in the current occupation.',\n\
+  \  `employment_status` STRING COMMENT 'Employment status, e.g. \\'Employed\\', \\\
+  'Self-employed\\', \\'Unemployed\\'. [Value Examples: \\'Employed\\', \\'Self-employed\\\
+  ', \\'Unemployed\\']',\n  `religion` STRING COMMENT 'Categorical column. Distinct\
+  \ values: \\'Religion as self-declared\\', \\'registered.\\'. Religion as self-declared/registered.',\n\
+  \  `caste_name` STRING COMMENT 'Specific caste/sub-caste detail, complementing the\
+  \ broader social_category (OC/BC/SC/ST) classification.',\n  `caste_derived_flag`\
+  \ BOOLEAN COMMENT 'Boolean flag. True if caste_name was derived/inferred rather\
+  \ than directly certified.',\n  `caste_base_certificate_no` STRING COMMENT 'Certificate\
+  \ number of the underlying caste certificate this record is based on.',\n  `door_no`\
+  \ STRING COMMENT 'Door/house number component of the residential address.',\n  `secretariat_code`\
+  \ STRING COMMENT 'Gram/Ward Sachivalayam administrative unit code \u2014 sits between\
+  \ mandal and village/habitation in AP\\'s local-governance hierarchy.',\n  `constituency_code`\
+  \ STRING COMMENT 'Electoral assembly constituency code covering the person\\'s residence.',\n\
+  \  `rural_urban_flag` STRING COMMENT 'Whether the residence is classified Rural\
+  \ or Urban.',\n  `cluster_id` STRING COMMENT 'Local administrative cluster grouping\
+  \ (sub-mandal), used for some welfare-scheme targeting.',\n  `domicile_status` BOOLEAN\
+  \ COMMENT 'Boolean flag. True if the person holds confirmed ap domicile status.',\n\
+  \  `marital_status` STRING COMMENT 'Current marital status. Resolved by latest status_date\
+  \ across sources, with source priority as the tie-breaker on equal dates.',\n  `govt_employment_type`\
+  \ STRING COMMENT 'None | Active Govt Employee | Pensioner | Contractual \u2014 distinct\
+  \ from the broader employment_status field, specifically tracking government-sector\
+  \ employment for pension/benefit eligibility.',\n  `is_deceased` BOOLEAN COMMENT\
+  \ 'Boolean flag. True if a death has been registered for this person \u2014 triggers\
+  \ dbt pipeline stoppage and entitlement-closure workflows.',\n  `father_name` STRING\
+  \ COMMENT 'Father\\'s name, as registered.',\n  `father_person_id` STRING COMMENT\
+  \ 'Foreign Key: References dim_person.person_id. for the father, when the father\
+  \ is also a known canonical citizen.',\n  `mother_name` STRING COMMENT 'Mother\\\
+  's name, as registered.',\n  `mother_person_id` STRING COMMENT 'Foreign Key: References\
+  \ dim_person.person_id. for the mother, when the mother is also a known canonical\
+  \ citizen.',\n  `husband_name` STRING COMMENT 'Husband\\'s name, where applicable\
+  \ (e.g. for widow-pension eligibility checks).',\n  `husband_person_id` STRING COMMENT\
+  \ 'Foreign Key: References dim_person.person_id. for the husband, when the husband\
+  \ is also a known canonical citizen.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
+  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_person'"
+columns:
+- name: person_id
+  type: STRING
+  nullable: true
+  description: 'Primary Key: citizen identifier, persistent across all source updates.
+    Primary source: Citizen Register of Andhra Pradesh (CR-AP); falls back to UIDAI
+    Aadhaar seeding records when no CR-AP record exists.'
+- name: person_name
+  type: STRING
+  nullable: true
+  description: 'Full legal name. Primary source: CR-AP; falls back to UIDAI Aadhaar
+    authentication response, then EPDS ration card beneficiary name.'
+- name: age
+  type: INT
+  nullable: true
+  description: "Current age in years \u2014 derived from date_of_birth at query time,\
+    \ not stored as a static value."
+- name: date_of_birth
+  type: DATE
+  nullable: true
+  description: Date of birth, as registered in the birth certificate or Aadhaar record.
+- name: gender
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: ''Male'', ''Female'', ''Others.''.
+    Male / Female / Others.'
+  distinct:
+  - Female
+  - Male
+  - 'NULL'
+  - Transgender
+  - Others
+- name: social_category
+  type: STRING
+  nullable: true
+  description: "Social category for reservation/welfare purposes \u2014 OC / BC /\
+    \ SC / ST / Others."
+  distinct:
+  - BC
+  - 'NULL'
+  - OC
+  - SC
+  - ST
+- name: phone
+  type: STRING
+  nullable: true
+  description: Primary contact mobile number.
+- name: income_band
+  type: STRING
+  nullable: true
+  description: "Household income bracket the person falls into (e.g. 'Below \u20B9\
+    1.5L', '\u20B91.5L \u2013 \u20B93L') \u2014 used for scheme eligibility filtering."
+  distinct:
+  - 'NULL'
+  - "0\u20131L"
+  - '>?5L'
+  - "?1L\u2013?3L"
+  - "?3L\u2013?5L"
+  - "1L\u20133L"
+  - "?0\u2013?1L"
+  - "3L\u20135L"
+  - '>5L'
+- name: dwelling_type
+  type: STRING
+  nullable: true
+  description: "Housing tenure and construction quality, e.g. 'Own House \u2013 Pucca',\
+    \ 'Rented Apartment'. [Value Examples: 'Own House \u2013 Pucca', 'Rented Apartment']"
+  distinct:
+  - Puccahouse-Daba
+  - RCChouse
+  - Pakkahouse
+  - 'NULL'
+  - Foilhouse
+  - 'null'
+  - Kacchahouse
+  - Shells
+  - Flat
+  - Duplexhouse
+- name: address
+  type: STRING
+  nullable: true
+  description: Free-text postal address.
+- name: district_id
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: References dim_district.district_id. the person''s current
+    district of residence.'
+- name: mandal_id
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: References dim_mandal.mandal_id. the person''s current
+    mandal of residence.'
+- name: village_name
+  type: STRING
+  nullable: true
+  description: The person's current village/habitation of residence (denormalized
+    text, not a village_id FK).
+- name: household_id
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: References dim_household.household_id. the household
+    this person belongs to.'
+- name: created_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp the canonical row was first created.
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: "Timestamp the canonical row was last updated by any source \u2014\
+    \ used for asOf incremental-sync filters."
+- name: occupation_type
+  type: STRING
+  nullable: true
+  description: "Denormalized 'current' occupation snapshot for fast filtering (e.g.\
+    \ 'Farmer', 'MGNREGA Worker') \u2014 full occupation history with concurrent occupations\
+    \ lives in dim_occupation. [Value Examples: 'Farmer', 'MGNREGA Worker']"
+- name: occupation_sector
+  type: STRING
+  nullable: true
+  description: 'Sector of the current occupation, e.g. ''Agriculture'', ''Government'',
+    ''Private''. [Value Examples: ''Agriculture'', ''Government'', ''Private'']'
+- name: employer_name
+  type: STRING
+  nullable: true
+  description: Name of the current employer, where applicable.
+- name: designation
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: ''Job title'', ''designation
+    in the current occupation.''. Job title/designation in the current occupation.'
+- name: employment_status
+  type: STRING
+  nullable: true
+  description: 'Employment status, e.g. ''Employed'', ''Self-employed'', ''Unemployed''.
+    [Value Examples: ''Employed'', ''Self-employed'', ''Unemployed'']'
+- name: religion
+  type: STRING
+  nullable: true
+  description: 'Categorical column. Distinct values: ''Religion as self-declared'',
+    ''registered.''. Religion as self-declared/registered.'
+  distinct:
+  - Hindu
+  - 'NULL'
+  - Islam
+  - 'null'
+  - Christian
+  - Muslim
+  - ''
+  - No Religion
+  - Other Religion
+  - Jain
+  - Others
+  - Sikh
+  - Buddhist
+  - Animist
+  - Volunteer C15
+- name: caste_name
+  type: STRING
+  nullable: true
+  description: Specific caste/sub-caste detail, complementing the broader social_category
+    (OC/BC/SC/ST) classification.
+- name: caste_derived_flag
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if caste_name was derived/inferred rather than directly
+    certified.
+  distinct:
+  - 'False'
+  - 'True'
+- name: caste_base_certificate_no
+  type: STRING
+  nullable: true
+  description: Certificate number of the underlying caste certificate this record
+    is based on.
+- name: door_no
+  type: STRING
+  nullable: true
+  description: Door/house number component of the residential address.
+- name: secretariat_code
+  type: STRING
+  nullable: true
+  description: "Gram/Ward Sachivalayam administrative unit code \u2014 sits between\
+    \ mandal and village/habitation in AP's local-governance hierarchy."
+- name: constituency_code
+  type: STRING
+  nullable: true
+  description: Electoral assembly constituency code covering the person's residence.
+- name: rural_urban_flag
+  type: STRING
+  nullable: true
+  description: Whether the residence is classified Rural or Urban.
+  distinct:
+  - R
+  - U
+  - 'NULL'
+- name: cluster_id
+  type: STRING
+  nullable: true
+  description: Local administrative cluster grouping (sub-mandal), used for some welfare-scheme
+    targeting.
+- name: domicile_status
+  type: BOOLEAN
+  nullable: true
+  description: Boolean flag. True if the person holds confirmed ap domicile status.
+  distinct:
+  - 'NULL'
+  - 'True'
+- name: marital_status
+  type: STRING
+  nullable: true
+  description: Current marital status. Resolved by latest status_date across sources,
+    with source priority as the tie-breaker on equal dates.
+  distinct:
+  - Married
+  - Single
+  - 'NULL'
+  - Unmarried
+  - Widowed
+  - Widow
+  - Widower
+  - Divorced
+  - Separated
+  - Single woman
+- name: govt_employment_type
+  type: STRING
+  nullable: true
+  description: "None | Active Govt Employee | Pensioner | Contractual \u2014 distinct\
+    \ from the broader employment_status field, specifically tracking government-sector\
+    \ employment for pension/benefit eligibility."
+  distinct:
+  - None
+  - Regular
+  - Pensioner
+  - Contract
+- name: is_deceased
+  type: BOOLEAN
+  nullable: true
+  description: "Boolean flag. True if a death has been registered for this person\
+    \ \u2014 triggers dbt pipeline stoppage and entitlement-closure workflows."
+  distinct:
+  - 'False'
+  - 'True'
+- name: father_name
+  type: STRING
+  nullable: true
+  description: Father's name, as registered.
+- name: father_person_id
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: References dim_person.person_id. for the father, when
+    the father is also a known canonical citizen.'
+- name: mother_name
+  type: STRING
+  nullable: true
+  description: Mother's name, as registered.
+- name: mother_person_id
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: References dim_person.person_id. for the mother, when
+    the mother is also a known canonical citizen.'
+- name: husband_name
+  type: STRING
+  nullable: true
+  description: Husband's name, where applicable (e.g. for widow-pension eligibility
+    checks).
+- name: husband_person_id
+  type: STRING
+  nullable: true
+  description: 'Foreign Key: References dim_person.person_id. for the husband, when
+    the husband is also a known canonical citizen.'
+primary_key:
+- person_id
+relationships:
+- dim_person.district_id is a foreign key to dim_district.district_id.
+- dim_person.mandal_id is a foreign key to dim_mandal.mandal_id.
+- dim_person.household_id is a foreign key to dim_household.household_id.
+- dim_person.father_person_id is a foreign key to dim_person.person_id.
+- dim_person.mother_person_id is a foreign key to dim_person.person_id.
+- dim_person.husband_person_id is a foreign key to dim_person.person_id.
+business_terms:
+- ap_citizen360
+- person___household___identity
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_person
+- join dim_person to dim_person via person_id
+- filter dim_person by district_id or mandal_id
+- name: disability_type
+  type: STRING
+  nullable: true
+  description: Added from metadata.
+- name: disability_status
+  type: STRING
+  nullable: true
+  description: Added from metadata.
+- name: disability_percentage
+  type: STRING
+  nullable: true
+  description: Added from metadata.
+- name: ration_card_no
+  type: STRING
+  nullable: true
+  description: Added from metadata.
