@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversational Query Engine Architecture v1.5.2</title>
+    <title>Conversational Query Engine Architecture v2.0</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -99,7 +99,7 @@
 <body>
     <header>
         <h1>Conversational Query Engine — Architecture</h1>
-        <p>ap_citizen360 v1.5.2 &nbsp;&middot;&nbsp; LangGraph + MCP (RAG &middot; Impala) &nbsp;&middot;&nbsp; Milvus Lite</p>
+        <p>ap_citizen360 v2.0 &nbsp;&middot;&nbsp; LangGraph + MCP (RAG &middot; Impala) &nbsp;&middot;&nbsp; Milvus Lite &nbsp;&middot;&nbsp; vLLM &nbsp;&middot;&nbsp; Valkey</p>
     </header>
 
     <div class="legend">
@@ -121,7 +121,7 @@
         </div>
     </div>
 
-    <footer>Auto-generated from source analysis &middot; MCP/mcp_rag.py &middot; MCP/mcp_hive_execution.py &middot; MCP/mcp_sql_execution.py &middot; my_agent/ &middot; ap_citizen360 v1.5.2</footer>
+    <footer>Auto-generated from source analysis &middot; MCP/mcp_rag.py &middot; MCP/mcp_hive_execution.py &middot; MCP/mcp_sql_execution.py &middot; my_agent/ &middot; ap_citizen360 v2.0</footer>
 
     <script>
         mermaid.initialize({
@@ -154,7 +154,7 @@ graph LR
     classDef impala fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#0f172a
     classDef endcls fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#0f172a
 
-    LLM["LLM (OpenAI / Ollama)"]:::llm
+    LLM["LLM (vLLM / Ollama)"]:::llm
 
     UserText["User Question (Text)"]:::user
     UserAudio["User Question (Voice)"]:::user
@@ -170,22 +170,28 @@ graph LR
 
         Route -- "document_query" --> DocSearch["doc_search_node"]:::core
         Route -- "data_query / hybrid" --> Init["initialize_node\nBuild enriched RAG query"]:::core
+        Route -- "greeting" --> Greeting["greeting_node\nHandle small talk"]:::core
+        Route -- "out_of_scope" --> OutOfScope["out_of_scope_node\nReject unrelated queries"]:::core
+
+        Greeting --> END5(["END"]):::endcls
+        OutOfScope --> END6(["END"]):::endcls
 
         DocSearch --> ToolNode["tool_node\n(Executes MCP tools)"]:::tool
-        Init --> ToolNode
+        Init --> LLMNode["llm_node\nGenerate SQL or RAG"]:::core
 
         ToolNode -- "search_documents" --> Synth["synthesize_node\nSummarize answer"]:::core
         Synth --> END1(["END"]):::endcls
 
-        ToolNode -- "retrive_schema_rag / get_column_values" --> LLMNode["llm_node\nGenerate SQL"]:::core
         LLMNode -- "tool call" --> ToolNode
         LLMNode -- "plain answer" --> END2(["END"]):::endcls
 
         ToolNode -- "execute_sql" --> Verify["verify_node\nCheck result"]:::core
+        ToolNode -- "retrive_schema_rag / get_column_values" --> LLMNode
 
         Verify -- "Correct" --> END3(["END"]):::endcls
-        Verify -- "retry < 3" --> ToolNode
-        Verify -- "retries >= 3" --> END4(["END - Max Retries"]):::endcls
+        Verify -- "retry w/ forced tool" --> ToolNode
+        Verify -- "retry w/ plain correction" --> LLMNode
+        Verify -- "retries >= max" --> END4(["END - Max Retries"]):::endcls
     end
 
     Intent  -. "LLM call" .-> LLM

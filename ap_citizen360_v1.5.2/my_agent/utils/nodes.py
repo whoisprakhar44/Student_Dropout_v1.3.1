@@ -608,95 +608,17 @@ def verify_node(state: AgentState) -> dict:
         }
 
     last_result_msg = successful[-1]
-    sql = _extract_sql_from_history(history)
     result_table = _result_table_str(last_result_msg.content)
+    summary = _summarize_sql_result(state["user_query"], last_result_msg.content)
 
-    # Hard cap: if we have exhausted all verify loops, accept the current result
-    if verify_calls >= _MAX_VERIFY_LOOPS:
-        logger.warning(
-            "verify_node: max verification loops (%d) reached; accepting result as-is",
-            _MAX_VERIFY_LOOPS,
-        )
-        summary = _summarize_sql_result(state["user_query"], last_result_msg.content)
-        return {
-            "messages": [AIMessage(content=summary or result_table)],
-            "verify_calls": verify_calls + 1,
-            "verified": True,
-        }
-
-    # Short-circuit: single-value result (e.g. COUNT, SUM, AVG) is unambiguous.
-    # Skip the LLM verification call entirely — saves ~2-3s per request.
-    try:
-        _payload = json.loads(_extract_tool_content(last_result_msg.content) or "{}")
-        _rows = _payload.get("rows") or []
-        _cols = _payload.get("columns") or []
-        if len(_rows) == 1 and len(_cols) == 1:
-            summary = _summarize_sql_result(state["user_query"], last_result_msg.content)
-            logger.info(
-                "verify_node: single-value result — skipping LLM verification (%.2fs saved)",
-                time.perf_counter() - t0,
-            )
-            return {
-                "messages": [AIMessage(content=summary or result_table)],
-                "verify_calls": verify_calls + 1,
-                "verified": True,
-            }
-    except Exception:
-        pass  # fall through to LLM verification if parse fails
-
-    # Build and call the verifier
-    verifier_prompt = _VERIFY_PROMPT.format(
-        user_query=state["user_query"],
-        sql=sql or "(SQL not captured)",
-        result_table=result_table,
-    )
-    verdict_response = _base_model.invoke([
-        SystemMessage(content=(
-            "You are a strict SQL result verifier. "
-            "Your only job is to decide whether a SQL query result correctly and completely answers the user's question. "
-            "Reply with EXACTLY 'CORRECT: <reason>' or 'RETRY: <reason>'. No other output."
-        )),
-        HumanMessage(content=verifier_prompt),
-    ])
-    verdict_text = (verdict_response.content or "").strip()
     logger.info(
-        "verify_node [round %d]: raw verdict=%s  (%.2fs)",
-        verify_calls + 1,
-        verdict_text[:80],
+        "verify_node: query executed successfully — skipping LLM verification (%.2fs saved)",
         time.perf_counter() - t0,
     )
-
-    # Clean up thinking/reasoning tags
-    clean_verdict = re.sub(r"<think>.*?(?:</think>|$)", "", verdict_text, flags=re.DOTALL).strip()
-    if not clean_verdict:
-        clean_verdict = verdict_text
-
-    if clean_verdict.upper().startswith("CORRECT"):
-        # Result is verified — produce the final pretty summary
-        summary = _summarize_sql_result(state["user_query"], last_result_msg.content)
-        final_answer = summary or result_table
-        logger.info("verify_node: result verified as CORRECT in round %d", verify_calls + 1)
-        return {
-            "messages": [AIMessage(content=final_answer)],
-            "verify_calls": verify_calls + 1,
-            "verified": True,
-        }
-
-    # RETRY path — extract the reason and inject a corrective instruction
-    retry_reason = clean_verdict.split(":", 1)[-1].strip() if ":" in clean_verdict else clean_verdict
-    correction_msg = HumanMessage(
-        content=(
-            f'The previous SQL result did NOT correctly answer: "{state["user_query"]}"\n'
-            f"Reason: {retry_reason}\n\n"
-            f"The SQL that was run:\n{sql}\n\n"
-            "Please call execute_sql again with a corrected query that fixes the issue described above."
-        )
-    )
-    logger.info("verify_node: RETRY round %d — injecting correction", verify_calls + 1)
     return {
-        "messages": [correction_msg],
+        "messages": [AIMessage(content=summary or result_table)],
         "verify_calls": verify_calls + 1,
-        "verified": False,
+        "verified": True,
     }
 
 
