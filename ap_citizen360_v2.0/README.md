@@ -15,7 +15,7 @@ both table schemas and few-shot NL→SQL exemplars.
 | Chat model | **vLLM** (`qwen3.5:0.8b-mlx`) |
 | Embedding model | Ollama (`nomic-embed-text`) |
 | Database / History | **PostgreSQL** (SQLAlchemy connection pool) |
-| Cache & Rate Limiting | **Redis** (In-memory schema RAG caching + Sliding window limit) |
+| Cache & Rate Limiting | **Valkey** (Redis-compatible open-source fork — schema RAG caching + sliding window rate limit) |
 | Schema retrieval | MCP `retrive_schema_rag` → Milvus (HTTP SSE transport) |
 | SQL execution | MCP `execute_sql` → SQLite or Hive (HTTP SSE transport) |
 | **Vector injection** | **`pipeline.py`** — schema + few-shot |
@@ -36,7 +36,7 @@ One collection (`schema_chunks`) with **three named partitions**:
 
 ## Setup & Deployment (Docker Compose)
 
-The entire backend is fully containerized. It orchestrates **PostgreSQL**, **Redis**, **Milvus Standalone**, and the **FastAPI** backend. 
+The entire backend is fully containerized. It orchestrates **PostgreSQL**, **Valkey**, **Milvus Standalone**, and the **FastAPI** backend. 
 
 > [!IMPORTANT]
 > The MCP tool servers communicate with the main API over HTTP Server-Sent Events (SSE) via internal Docker networks. Ensure **vLLM** and **Ollama** are running on your host machine (they are reached via `host.docker.internal`).
@@ -71,7 +71,7 @@ MILVUS_URI="http://localhost:19530" python3 MCP/ingest_documents.py
 
 ### Production Controls (`.env`)
 - **`VLLM_NUM_CTX=16384`**: Context window capacity natively handled by the vLLM server.
-- **`RATE_LIMIT_PER_MINUTE=20`**: Redis-backed API sliding window limit.
+- **`RATE_LIMIT_PER_MINUTE=20`**: Valkey-backed API sliding window rate limit.
 - **`MAX_CONCURRENT_QUERIES=5`**: Global semaphore limiting simultaneous LLM graph executions.
 
 ---

@@ -22,7 +22,7 @@ pydantic-settings
 python-multipart
 openpyxl                  # Excel query log
 psycopg2-binary           # PostgreSQL driver (for production chat history)
-redis                     # Redis in-memory cache for RAG & SQL
+redis                     # Valkey-compatible client for caching & rate limiting
 PyMuPDF                   # PDF text extraction (fitz)
 python-docx               # DOCX parsing
 rapidocr-onnxruntime      # OCR for images in documents

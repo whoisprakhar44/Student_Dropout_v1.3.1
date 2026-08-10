@@ -49,19 +49,19 @@ services:
     ports:
       - "19530:19530"
 
-  redis:
-    image: redis:7-alpine
+  valkey:
+    image: valkey/valkey:8-alpine
     ports:
       - "6379:6379"
     volumes:
-      - redisdata:/data
+      - valkeydata:/data
 
   rag-server:
     build: .
     command: ["python", "MCP/mcp_rag.py", "--transport", "sse", "--port", "8000"]
     environment:
       - MILVUS_URI=http://milvus:19530
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://valkey:6379/0
       # Use host.docker.internal to reach Ollama on the host. 
       # On Linux/RHEL, you may need to add: extra_hosts: - "host.docker.internal:host-gateway"
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
@@ -71,7 +71,7 @@ services:
       - "host.docker.internal:host-gateway"
     depends_on:
       - milvus
-      - redis
+      - valkey
 
   sql-server:
     build: .
@@ -86,7 +86,7 @@ services:
       - "8080:8080"
     environment:
       - DATABASE_URL=postgresql://citizen360:citizen360@postgres:5432/citizen360
-      - REDIS_URL=redis://redis:6379/0
+      - REDIS_URL=redis://valkey:6379/0
       - RATE_LIMIT_PER_MINUTE=20
       - MCP_TRANSPORT=sse
       - RAG_HOST=rag-server
@@ -98,7 +98,7 @@ services:
       - "host.docker.internal:host-gateway"
     depends_on:
       - postgres
-      - redis
+      - valkey
       - rag-server
       - sql-server
 
@@ -106,4 +106,4 @@ volumes:
   pgdata:
   etcd:
   minio:
-  redisdata:
+  valkeydata:
