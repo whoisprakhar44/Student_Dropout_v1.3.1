@@ -23,11 +23,26 @@ from langgraph.graph import END, START, StateGraph
 
 from my_agent.utils.nodes import (
     build_tool_node, initialize_node, intent_node, llm_node, verify_node,
-    route_node, doc_search_node, synthesize_node, greeting_node, out_of_scope_node
+    route_node, doc_search_node, synthesize_node, greeting_node, out_of_scope_node,
+    cache_check_node, fewshot_sim_node
 )
 from my_agent.utils.state import AgentState
 from my_agent.utils.tools import cleanup_tools, init_tools
 
+
+def cache_hit_check(state: AgentState):
+    """Check if cache_check_node injected a tool call (cache hit)."""
+    last_message = state["messages"][-1]
+    if getattr(last_message, "tool_calls", None):
+        return "tool_node"
+    return "fewshot_sim_node"
+
+def fewshot_hit_check(state: AgentState):
+    """Check if fewshot_sim_node injected a tool call (similarity hit)."""
+    last_message = state["messages"][-1]
+    if getattr(last_message, "tool_calls", None):
+        return "tool_node"
+    return "initialize_node"
 
 def should_continue(state: AgentState) -> Literal["tool_node", "verify_node", "__end__"]:
     """
@@ -125,6 +140,8 @@ async def build_graph():
 
     builder = StateGraph(AgentState)
     builder.add_node("intent_node",      intent_node)       # NEW — classifies intent
+    builder.add_node("cache_check_node", cache_check_node)
+    builder.add_node("fewshot_sim_node", fewshot_sim_node)
     builder.add_node("initialize_node",  initialize_node)
     builder.add_node("llm_node",         llm_node)
     builder.add_node("tool_node",        wrapped_tool_node)
@@ -140,7 +157,21 @@ async def build_graph():
     builder.add_conditional_edges(
         "intent_node",
         route_node,
-        ["initialize_node", "doc_search_node", "greeting_node", "out_of_scope_node"],
+        ["cache_check_node", "doc_search_node", "greeting_node", "out_of_scope_node"],
+    )
+    
+    # cache_check_node -> tool_node (cache hit) or fewshot_sim_node (cache miss)
+    builder.add_conditional_edges(
+        "cache_check_node",
+        cache_hit_check,
+        ["tool_node", "fewshot_sim_node"],
+    )
+    
+    # fewshot_sim_node -> tool_node (hit) or initialize_node (miss)
+    builder.add_conditional_edges(
+        "fewshot_sim_node",
+        fewshot_hit_check,
+        ["tool_node", "initialize_node"],
     )
     
     builder.add_edge("greeting_node", END)

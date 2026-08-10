@@ -623,6 +623,17 @@ def verify_node(state: AgentState) -> dict:
         summary = _summarize_sql_result(state["user_query"], last_result_msg.content)
         final_answer = summary or result_table
         logger.info("verify_node: result verified as CORRECT in round %d", verify_calls + 1)
+        
+        # Cache the valid SQL in Valkey
+        if sql:
+            try:
+                from database.redis_cache import set_cache, make_cache_key
+                key = make_cache_key("valkey_query", state["user_query"])
+                set_cache(key, sql, ttl_seconds=86400) # Cache for 1 day
+                logger.info(f"verify_node: Cached valid SQL in Valkey for query: {state['user_query']}")
+            except Exception as e:
+                logger.warning(f"Failed to cache SQL to Valkey: {e}")
+                
         return {
             "messages": [AIMessage(content=final_answer)],
             "verify_calls": verify_calls + 1,
@@ -861,6 +872,69 @@ def initialize_node(state: AgentState) -> dict:
     }
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Early Exit Logic: Cache and Few-Shot Similarity
+# ─────────────────────────────────────────────────────────────────────────────
+
+def cache_check_node(state: AgentState) -> dict:
+    """Check Valkey cache for an exact query match. If hit, force execute_sql."""
+    query = state.get("user_query", "")
+    try:
+        from database.redis_cache import get_cache, make_cache_key
+        key = make_cache_key("valkey_query", query)
+        cached_sql = get_cache(key)
+        
+        if cached_sql:
+            logger.info(f"cache_check_node: Valkey cache HIT for query '{query}'")
+            import uuid
+            tool_msg = AIMessage(
+                content="Found exact query in cache. Executing SQL directly.",
+                tool_calls=[{
+                    "name": "execute_sql",
+                    "args": {"query": cached_sql},
+                    "id": f"call_{uuid.uuid4().hex[:8]}"
+                }]
+            )
+            return {"messages": [tool_msg]}
+    except Exception as e:
+        logger.warning(f"cache_check_node: Valkey check failed: {e}")
+        
+    logger.info("cache_check_node: cache miss.")
+    return {}
+
+
+async def fewshot_sim_node(state: AgentState) -> dict:
+    """Check if query is highly similar to a few-shot exemplar. If yes, force execute_sql."""
+    query = state.get("user_query", "")
+    from my_agent.utils.tools import check_fewshot_tool
+    
+    if check_fewshot_tool:
+        logger.info("fewshot_sim_node: checking few-shot similarity...")
+        try:
+            # Our tool expects threshold=0.95 by default, but we can pass it explicitly
+            result_json = await check_fewshot_tool.ainvoke({"query": query, "threshold": 0.95})
+            result = json.loads(result_json)
+            
+            if result.get("hit") and result.get("sql"):
+                sql = result["sql"]
+                logger.info(f"fewshot_sim_node: High similarity HIT (score: {result.get('score')}).")
+                import uuid
+                tool_msg = AIMessage(
+                    content=f"Query is highly similar to an existing verified example. Executing SQL directly.",
+                    tool_calls=[{
+                        "name": "execute_sql",
+                        "args": {"query": sql},
+                        "id": f"call_{uuid.uuid4().hex[:8]}"
+                    }]
+                )
+                return {"messages": [tool_msg]}
+        except Exception as e:
+            logger.warning(f"fewshot_sim_node: Similarity check failed: {e}")
+
+    logger.info("fewshot_sim_node: few-shot check miss.")
+    return {}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Document Search and Synthesis Nodes
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -875,8 +949,8 @@ def route_node(state: AgentState) -> str:
     elif qt == "document_query":
         return "doc_search_node"
     elif qt == "hybrid":
-        return "initialize_node"  # Runs both paths (for now, we will map hybrid to data_query but eventually support both)
-    return "initialize_node"   # existing SQL path
+        return "cache_check_node"  # Runs both paths (for now, we will map hybrid to data_query but eventually support both)
+    return "cache_check_node"   # existing SQL path
 
 def greeting_node(state: AgentState) -> dict:
     """Responds to greetings and user introductions cleanly."""

@@ -473,6 +473,43 @@ def retrive_schema_rag(query: str, top_k: int = 15):
     return output
 
 
+@mcp.tool()
+def check_fewshot_similarity(query: str, threshold: float = 0.95) -> str:
+    """
+    Check if the user query is highly similar to any few-shot SQL examples.
+    Returns a JSON string with {"hit": bool, "sql": str, "score": float}
+    """
+    logger.info(f"Checking fewshot similarity for '{query}' with threshold {threshold}")
+    emb = embedder.embed(query)
+    
+    if vector_db.provider != "milvus":
+        return json.dumps({"hit": False, "sql": None, "score": 0.0})
+        
+    try:
+        res = vector_db.client.search(
+            collection_name=vector_db.collection,
+            data=[emb],
+            limit=1,
+            output_fields=["raw_ddl"],
+            search_params={"metric_type": "COSINE"},
+            partition_names=["few_shot_store"],
+        )
+        if res and res[0]:
+            best_match = res[0][0]
+            score = best_match["distance"]
+            if score >= threshold:
+                sql = best_match["entity"].get("raw_ddl", "")
+                logger.info(f"Fewshot HIT! Score: {score:.4f}")
+                return json.dumps({"hit": True, "sql": sql, "score": score})
+            else:
+                logger.info(f"Fewshot MISS. Best score: {score:.4f} < {threshold}")
+                return json.dumps({"hit": False, "sql": None, "score": score})
+    except Exception as e:
+        logger.error(f"Error checking fewshot similarity: {e}")
+        
+    return json.dumps({"hit": False, "sql": None, "score": 0.0})
+
+
 # =========================
 # RUN
 # =========================

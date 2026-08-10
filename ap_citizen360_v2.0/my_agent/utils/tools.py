@@ -106,6 +106,9 @@ async def init_tools() -> None:
         raise RuntimeError("Execution MCP server returned no tools.")
 
     col_val_tool = None
+    global check_fewshot_tool
+    check_fewshot_tool = None
+    
     for t in rag_tools_list:
         if t.name == "retrive_schema_rag":
             rag_tool = t
@@ -113,6 +116,8 @@ async def init_tools() -> None:
             doc_tool = t
         elif t.name == "get_column_values":
             col_val_tool = t
+        elif t.name == "check_fewshot_similarity":
+            check_fewshot_tool = t
 
     if not rag_tool or not doc_tool:
         raise RuntimeError("RAG server did not return both tools.")
@@ -135,6 +140,8 @@ async def init_tools() -> None:
     print("RAG tool loaded :", rag_tool.name)
     if doc_tool:
         print("Doc tool loaded :", doc_tool.name, "(Disabled from LLM)")
+    if check_fewshot_tool:
+        print("Fewshot tool loaded:", check_fewshot_tool.name)
     print("LLM tools loaded:", [t.name for t in all_tools])
 
 

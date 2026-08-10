@@ -169,7 +169,13 @@ graph LR
         Intent --> Route["route_node"]:::core
 
         Route -- "document_query" --> DocSearch["doc_search_node"]:::core
-        Route -- "data_query / hybrid" --> Init["initialize_node\nBuild enriched RAG query"]:::core
+        
+        Route -- "data_query / hybrid" --> CacheCheck["cache_check_node\nCheck Valkey cache"]:::core
+        CacheCheck -- "hit (SQL found)" --> ToolNode
+        CacheCheck -- "miss" --> FewShotCheck["fewshot_sim_node\nCheck semantic sim"]:::core
+        FewShotCheck -- "high sim (use exemplar)" --> ToolNode
+        FewShotCheck -- "low sim" --> Init["initialize_node\nBuild enriched RAG query"]:::core
+
         Route -- "greeting" --> Greeting["greeting_node\nHandle small talk"]:::core
         Route -- "out_of_scope" --> OutOfScope["out_of_scope_node\nReject unrelated queries"]:::core
 
@@ -213,6 +219,12 @@ graph LR
     ToolNode -...-> MCPHive
     ToolNode -...-> MCPDoc
 
+    subgraph Valkey ["Valkey"]
+        ValkeyStore[("semantic_cache\nQuery → SQL cache")]:::db
+    end
+
+    CacheCheck -. "Lookup" .-> ValkeyStore
+
     subgraph Milvus ["Milvus Lite"]
         direction TB
         SchemaStore[("schema_store\nTable DDLs")]:::db
@@ -220,6 +232,7 @@ graph LR
         DocStore[("document_store\nPDF / DOCX passages")]:::db
     end
 
+    FewShotCheck -. "Vector Search" .-> FewShotStore
     MCPSchema -..-> SchemaStore
     MCPSchema -..-> FewShotStore
     MCPDoc    -..-> DocStore
