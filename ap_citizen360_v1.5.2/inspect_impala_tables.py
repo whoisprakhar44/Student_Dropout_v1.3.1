@@ -2,6 +2,7 @@
 import os
 import sys
 import json
+import re
 from pathlib import Path
 
 # Add MCP folder to path to import HiveExecutor
@@ -32,14 +33,23 @@ def main():
     tables_dir = BASE_DIR / "schema" / "curated_datamodels" / "tables"
     config_path = mcp_path / "hive_config.yaml"
 
-    if not tables_dir.exists():
-        print(f"Error: Tables schema directory not found at: {tables_dir}")
-        sys.exit(1)
+    sql_file = BASE_DIR / "Citizen360_latest_DDLs 1.sql"
+    if not sql_file.exists():
+        sql_files = list(BASE_DIR.glob("*.sql"))
+        if sql_files:
+            sql_file = sql_files[0]
 
-    # Gather table names defined in schema/curated_datamodels/tables
-    defined_tables = get_yaml_tables(str(tables_dir))
+    if sql_file.exists():
+        print(f"Reading table definitions from SQL file: {sql_file.name}")
+        defined_tables = get_sql_tables(str(sql_file))
+    else:
+        if not tables_dir.exists():
+            print(f"Error: Tables schema directory not found at: {tables_dir}")
+            sys.exit(1)
+        defined_tables = get_yaml_tables(str(tables_dir))
+
     if not defined_tables:
-        print("No tables found in schemas folder.")
+        print("No tables found to inspect.")
         sys.exit(0)
 
     # Open the text file for writing
@@ -54,12 +64,15 @@ def main():
         out_f.write(msg + "\n")
 
     log("=" * 80)
-    log("🔍 IMPALA DATABASE INSPECTOR (TABLES FOLDER ONLY)")
+    log("🔍 IMPALA DATABASE INSPECTOR (SQL & SCHEMA TABLES)")
     log(f"Config: {config_path}")
-    log(f"Schemas Folder: {tables_dir}")
+    if sql_file.exists():
+        log(f"Source DDL File: {sql_file.name}")
+    else:
+        log(f"Schemas Folder: {tables_dir}")
     log("=" * 80)
     log()
-    log(f"Found {len(defined_tables)} tables defined in the tables folder.\n")
+    log(f"Found {len(defined_tables)} tables defined to inspect.\n")
 
     print(f"Connecting to Impala (requires valid Kerberos ticket)...")
     os.environ["HIVE_MCP_ENABLED"] = "true"
@@ -105,7 +118,7 @@ def main():
         log(f"Table: {db}.{table}")
         log("-" * 80)
 
-        query = f"SELECT * FROM {db}.{table} LIMIT 5;"
+        query = f"SELECT * FROM {db}.{table} LIMIT 2;"
         try:
             res = executor.execute(query)
             payload = json.loads(res)
@@ -162,6 +175,28 @@ def main():
     
     out_f.close()
     print(f"\n✓ Successfully exported Impala table samples to: {output_path}")
+
+def get_sql_tables(sql_file_path):
+    tables = []
+    if not os.path.isfile(sql_file_path):
+        return tables
+    try:
+        with open(sql_file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+        # Strip block comments
+        content = re.sub(r"/\*.*?\*/", "", content, flags=re.DOTALL)
+        # Strip line comments
+        content = re.sub(r"--.*$", "", content, flags=re.MULTILINE)
+        
+        pattern = r"CREATE\s+(?:EXTERNAL\s+)?TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:`?([a-zA-Z0-9_]+)`?\.)?`?([a-zA-Z0-9_]+)`?"
+        matches = re.findall(pattern, content, re.IGNORECASE)
+        for db, tbl in matches:
+            db_name = db if db else "ap_citizen360"
+            tables.append((db_name.lower(), tbl.lower()))
+    except Exception as e:
+        print(f"Error reading SQL file {sql_file_path}: {e}")
+    return sorted(list(set(tables)), key=lambda x: (x[0], x[1]))
+
 
 def get_yaml_tables(tables_dir):
     yaml_tables = []

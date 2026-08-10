@@ -1,0 +1,5 @@
+column_name,type,nullable
+benefit_type,TEXT,true
+department_id,TEXT,true
+scheme_id,TEXT,true
+scheme_name,TEXT,true

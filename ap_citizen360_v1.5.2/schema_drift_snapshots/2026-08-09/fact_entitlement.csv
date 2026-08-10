@@ -1,0 +1,10 @@
+column_name,type,nullable
+annual_benefit,REAL,true
+district_id,TEXT,true
+enrolled_date,TEXT,true
+enrollment_status,TEXT,true
+entitlement_id,TEXT,true
+household_id,TEXT,true
+last_disbursed_date,TEXT,true
+person_id,TEXT,true
+scheme_id,TEXT,true
