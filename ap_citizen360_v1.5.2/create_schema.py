@@ -16,6 +16,16 @@ def _sqlite_type(source_type: str) -> str:
         return "REAL"
     return "TEXT"
 
+def find_columns(node):
+    if isinstance(node, dict):
+        if "name" in node and "type" in node:
+            yield node
+        for v in node.values():
+            yield from find_columns(v)
+    elif isinstance(node, list):
+        for item in node:
+            yield from find_columns(item)
+
 def create_database(db_path=None, replace=True) -> None:
     path = db_path or DB_PATH
     if replace and os.path.exists(path):
@@ -32,23 +42,22 @@ def create_database(db_path=None, replace=True) -> None:
             table = doc["table"]
             primary_key = set(doc.get("primary_key") or [])
             
-            # Gather all columns defined in doc["columns"] as well as any appended - name: entries
             cols_dict = {}
-            for col in doc.get("columns") or []:
-                if isinstance(col, dict) and "name" in col:
-                    cols_dict[col["name"]] = col.get("type", "TEXT")
-            
-            # Also catch any appended column definitions in the YAML file
-            import re
-            appended_matches = re.findall(r'^\s*-\s*name:\s*([a-zA-Z0-9_]+)\s*\n\s*type:\s*([a-zA-Z0-9_]+)', content, re.MULTILINE)
-            for col_name, col_type in appended_matches:
-                if col_name not in cols_dict:
-                    cols_dict[col_name] = col_type
+            for col in find_columns(doc):
+                cols_dict[col["name"]] = col
 
             columns = []
-            for name, raw_type in cols_dict.items():
+            for name, col_data in cols_dict.items():
+                raw_type = col_data.get("type", "TEXT")
                 col_type = _sqlite_type(raw_type)
                 suffix = " PRIMARY KEY" if name in primary_key and len(primary_key) == 1 else ""
+                
+                distinct_vals = col_data.get("distinct")
+                if distinct_vals and isinstance(distinct_vals, list):
+                    vals = [f"'{str(v).replace(chr(39), chr(39)+chr(39))}'" for v in distinct_vals if str(v).upper() != 'NULL']
+                    if vals:
+                        suffix += f' CHECK("{name}" IS NULL OR "{name}" IN ({", ".join(vals)}))'
+                        
                 columns.append(f'"{name}" {col_type}{suffix}')
                 
             cursor.execute(f'DROP TABLE IF EXISTS "{table}"')
