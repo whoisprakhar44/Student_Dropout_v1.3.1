@@ -26,16 +26,31 @@ def create_database(db_path=None, replace=True) -> None:
 
     count = 0
     for file_path in sorted(TABLES_DIR.rglob("*.yaml")):
-        doc = yaml.safe_load(file_path.read_text(encoding="utf-8"))
-        if doc and doc.get("table") and doc.get("columns"):
+        content = file_path.read_text(encoding="utf-8")
+        doc = yaml.safe_load(content)
+        if doc and doc.get("table"):
             table = doc["table"]
-            columns = []
             primary_key = set(doc.get("primary_key") or [])
-            for col in doc["columns"]:
-                name = col["name"]
-                col_type = _sqlite_type(col.get("type", "TEXT"))
+            
+            # Gather all columns defined in doc["columns"] as well as any appended - name: entries
+            cols_dict = {}
+            for col in doc.get("columns") or []:
+                if isinstance(col, dict) and "name" in col:
+                    cols_dict[col["name"]] = col.get("type", "TEXT")
+            
+            # Also catch any appended column definitions in the YAML file
+            import re
+            appended_matches = re.findall(r'^\s*-\s*name:\s*([a-zA-Z0-9_]+)\s*\n\s*type:\s*([a-zA-Z0-9_]+)', content, re.MULTILINE)
+            for col_name, col_type in appended_matches:
+                if col_name not in cols_dict:
+                    cols_dict[col_name] = col_type
+
+            columns = []
+            for name, raw_type in cols_dict.items():
+                col_type = _sqlite_type(raw_type)
                 suffix = " PRIMARY KEY" if name in primary_key and len(primary_key) == 1 else ""
                 columns.append(f'"{name}" {col_type}{suffix}')
+                
             cursor.execute(f'DROP TABLE IF EXISTS "{table}"')
             cursor.execute(f'CREATE TABLE "{table}" ({", ".join(columns)})')
             count += 1
