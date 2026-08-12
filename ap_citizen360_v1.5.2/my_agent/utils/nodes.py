@@ -51,6 +51,15 @@ _summarize_model = ChatOllama(
     num_predict=int(os.getenv("OLLAMA_SUMMARIZE_NUM_PREDICT", "128")),
 )
 
+_doc_synthesize_model = ChatOllama(
+    model=_CHAT_MODEL,
+    temperature=0,
+    reasoning=False,
+    base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+    num_ctx=int(os.getenv("OLLAMA_DOC_NUM_CTX", "4096")),
+    num_predict=int(os.getenv("OLLAMA_DOC_NUM_PREDICT", "256")),
+)
+
 _HIVE_ENABLED = os.getenv("HIVE_MCP_ENABLED", "false").strip().lower() in ("true", "1", "yes")
 _RAG_TOP_K = int(os.getenv("RAG_TOP_K", "15"))
 
@@ -714,8 +723,8 @@ _intent_model = ChatOllama(
     temperature=0,
     reasoning=False,
     base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-    num_ctx=int(os.getenv("OLLAMA_NUM_CTX", "4096")),
-    num_predict=256,
+    num_ctx=int(os.getenv("OLLAMA_INTENT_NUM_CTX", "2048")),
+    num_predict=int(os.getenv("OLLAMA_INTENT_NUM_PREDICT", "256")),
 )
 
 _INTENT_SYSTEM_PROMPT = f"""You are an intent classifier for a school dropout monitoring system.
@@ -1008,7 +1017,7 @@ def synthesize_node(state: AgentState) -> dict:
         HumanMessage(content=f"User question: {state['user_query']}\n\n{doc_content}")
     ]
     
-    model = _base_model  # No tools needed for synthesis
+    model = _doc_synthesize_model  # Lightweight model with small context for doc synthesis
     response = model.invoke(messages_for_llm)
     
     logger.info("synthesize_node: completed in %.2fs", time.perf_counter() - t0)
