@@ -23,8 +23,8 @@ from langgraph.graph import END, START, StateGraph
 
 from my_agent.utils.nodes import (
     build_tool_node, initialize_node, intent_node, llm_node, verify_node,
-    route_node, doc_search_node, synthesize_node,
-    deterministic_search_node, eval_fast_path_node
+    route_node, doc_search_node, synthesize_node, greeting_node,
+    deterministic_search_node, eval_fast_path_node, summarization_node
 )
 from my_agent.utils.state import AgentState
 from my_agent.utils.tools import cleanup_tools, init_tools
@@ -75,16 +75,16 @@ def after_eval_fast_path(state: AgentState) -> Literal["tool_node", "initialize_
     return "initialize_node"
 
 
-def after_verify_node(state: AgentState) -> Literal["llm_node", "tool_node", "__end__"]:
+def after_verify_node(state: AgentState) -> Literal["llm_node", "tool_node", "summarization_node"]:
     """
     After verify_node:
-    - CORRECT (verified=True) → stop; the final AIMessage is already in state.
+    - CORRECT (verified=True) → summarization_node to summarize the result.
     - RETRY with forced tool call (verified=False, last message has tool_calls) →
         go to tool_node to execute the pending tool (e.g. forced RAG re-retrieval).
     - RETRY plain correction (verified=False) → loop back to llm_node.
     """
     if state.get("verified", False):
-        return END
+        return "summarization_node"
     # If verify_node emitted a forced tool call (e.g. RAG re-retrieval on SQL error),
     # route directly to tool_node to execute it rather than passing through llm_node.
     last_message = state["messages"][-1]
@@ -118,8 +118,10 @@ async def build_graph():
     builder.add_node("verify_node",      verify_node)
     builder.add_node("doc_search_node",  doc_search_node)
     builder.add_node("synthesize_node",  synthesize_node)
+    builder.add_node("greeting_node",    greeting_node)
     builder.add_node("deterministic_search_node", deterministic_search_node)
     builder.add_node("eval_fast_path_node",       eval_fast_path_node)
+    builder.add_node("summarization_node",        summarization_node)
 
     # Intent classification → route_node
     builder.add_edge(START,           "intent_node")
@@ -127,12 +129,13 @@ async def build_graph():
     builder.add_conditional_edges(
         "intent_node",
         route_node,
-        ["initialize_node", "doc_search_node", "deterministic_search_node"],
+        ["initialize_node", "doc_search_node", "deterministic_search_node", "greeting_node"],
     )
     
     builder.add_edge("initialize_node", "tool_node")
     builder.add_edge("doc_search_node", "tool_node")
     builder.add_edge("deterministic_search_node", "tool_node")
+    builder.add_edge("greeting_node", END)
 
     # llm_node → tool_node (tool call) or END (plain answer)
     builder.add_conditional_edges(
@@ -155,14 +158,15 @@ async def build_graph():
         ["tool_node", "initialize_node"],
     )
 
-    # verify_node → END (correct) or llm_node (retry plain) or tool_node (retry with forced tool call)
+    # verify_node → summarization_node (correct) or llm_node (retry plain) or tool_node (retry with forced tool call)
     builder.add_conditional_edges(
         "verify_node",
         after_verify_node,
-        ["llm_node", "tool_node", END],
+        ["llm_node", "tool_node", "summarization_node"],
     )
     
     builder.add_edge("synthesize_node", END)
+    builder.add_edge("summarization_node", END)
 
     graph = builder.compile()
     print("Agent graph compiled successfully.")

@@ -42,6 +42,15 @@ _base_model = ChatOllama(
 )
 _model_with_tools = None
 
+_summarize_model = ChatOllama(
+    model=_CHAT_MODEL,
+    temperature=0,
+    reasoning=False,
+    base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
+    num_ctx=int(os.getenv("OLLAMA_SUMMARIZE_NUM_CTX", "2048")),
+    num_predict=int(os.getenv("OLLAMA_SUMMARIZE_NUM_PREDICT", "128")),
+)
+
 _HIVE_ENABLED = os.getenv("HIVE_MCP_ENABLED", "false").strip().lower() in ("true", "1", "yes")
 _RAG_TOP_K = int(os.getenv("RAG_TOP_K", "15"))
 
@@ -616,7 +625,6 @@ def verify_node(state: AgentState) -> dict:
         time.perf_counter() - t0,
     )
     return {
-        "messages": [AIMessage(content=summary or result_table)],
         "verify_calls": verify_calls + 1,
         "verified": True,
     }
@@ -627,6 +635,48 @@ def verify_node(state: AgentState) -> dict:
 # ─────────────────────────────────────────────────────────────────────────────
 # Intent Classification & Entity Extraction (v1.4 Feature)
 # ─────────────────────────────────────────────────────────────────────────────
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Intent Classification & Entity Extraction (v1.4 Feature)
+# ─────────────────────────────────────────────────────────────────────────────
+
+_GREETING_PATTERNS = re.compile(
+    r"^(?:"
+    r"hi+|hello+|hey+|greetings+|namaste+|good\s*(?:morning|afternoon|evening|day)|"
+    r"howdy|hi\s*there|hello\s*there|hey\s*there|who\s*are\s*you|what\s*are\s*you|"
+    r"how\s*are\s*you|welcome"
+    r")(?:\s+(?:assistant|bot|there|friend|everyone|all))?[\s!.,?]*$",
+    re.IGNORECASE,
+)
+
+_DOMAIN_KEYWORDS = {
+    "student", "dropout", "scheme", "ration", "district", "aadhaar", "count",
+    "list", "show", "find", "select", "where", "how many", "what is", "policy",
+    "guideline", "mandal", "village", "school", "health", "land", "vehicle",
+    "hospital", "income", "caste", "gender", "person", "household", "property",
+    "epfo", "tax", "crop", "disbursement", "entitlement", "agriculture", "compliance",
+    "avg", "sum", "total", "details", "info", "table", "sql", "data"
+}
+
+
+def _is_greeting_query(user_query: str) -> bool:
+    if not user_query:
+        return False
+    clean_q = user_query.strip().lower()
+
+    # 1. Exact or pattern match for common greetings
+    if _GREETING_PATTERNS.match(clean_q):
+        return True
+
+    # 2. Short queries under 30 chars starting with a greeting word with no domain keywords
+    words = set(re.findall(r"\b\w+\b", clean_q))
+    greeting_words = {"hi", "hello", "hey", "greetings", "namaste", "howdy"}
+    if len(clean_q) <= 30 and words.intersection(greeting_words):
+        if not words.intersection(_DOMAIN_KEYWORDS):
+            return True
+
+    return False
+
 
 INTENT_DEPARTMENT_MAP: dict[str, list[str]] = {
     "student_risk_list":             ["ap_citizen360"],
@@ -639,6 +689,7 @@ INTENT_DEPARTMENT_MAP: dict[str, list[str]] = {
     "citizen_socioeconomic_profile": ["ap_citizen360"],
     "teacher_attendance":            ["ap_citizen360"],
     "academic_performance":          ["ap_citizen360"],
+    "greeting":                      [],
     "general_query":                 ["ap_citizen360"],
 }
 
@@ -654,6 +705,7 @@ INTENT_DESCRIPTIONS = """
 - citizen_socioeconomic_profile: citizen asset, land, property, utility, socioeconomic profiling
 - teacher_attendance: teacher attendance records & teacher master profiling
 - academic_performance: exam marks, scores, pass/fail, assessment analysis
+- greeting: conversational greeting, salutation, or non-data introductory message (e.g. "hi", "hello", "good morning")
 - general_query: anything that does not fit the above intents
 """
 
@@ -676,6 +728,7 @@ Given a user question, you must:
    - "data_query": needs SQL (counts, lists, averages, specific data lookups)
    - "document_query": needs document context (policies, rules, procedures, guidelines, explanations of WHY something exists, eligibility criteria text)
    - "hybrid": needs BOTH data AND policy/document context
+   - "greeting": conversational greeting or salutation (e.g. "hi", "hello", "good morning")
 
 3. Extract these entities if mentioned (leave blank string "" if not present):
    - district_name: AP district (e.g. Guntur, Anantapur, Chittoor, Krishna, Kurnool, Srikakulam, Vizianagaram, Visakhapatnam, East Godavari, West Godavari, Prakasam, Nellore, Kadapa, YSR Kadapa)
@@ -703,7 +756,7 @@ def _parse_intent_response(raw: str) -> tuple[str, str, dict[str, str]]:
         if intent not in INTENT_DEPARTMENT_MAP:
             logger.warning("intent_node: unknown intent '%s', falling back to general_query", intent)
             intent = "general_query"
-        if query_type not in ("data_query", "document_query", "hybrid"):
+        if query_type not in ("data_query", "document_query", "hybrid", "greeting"):
             query_type = "data_query"
         entities = {k: str(v) for k, v in data.get("entities", {}).items() if v}
         return intent, query_type, entities
@@ -718,12 +771,22 @@ def intent_node(state: AgentState) -> dict:
 
     Writes to state:
         intent          – 1 of 13 domain intent labels
-        query_type      – "data_query" | "document_query" | "hybrid"
+        query_type      – "data_query" | "document_query" | "hybrid" | "greeting"
         department_scope – relevant database departments for RAG scoping
         entities        – extracted district, year, grade, social_category
     """
     t0 = time.perf_counter()
     user_query = state.get("user_query", "")
+
+    # Guardrail check for pure greetings / salutations
+    if _is_greeting_query(user_query):
+        logger.info("intent_node: detected greeting query '%s'", user_query)
+        return {
+            "intent":           "greeting",
+            "query_type":       "greeting",
+            "department_scope": [],
+            "entities":         {},
+        }
 
     try:
         response = _intent_model.invoke([
@@ -809,10 +872,28 @@ def initialize_node(state: AgentState) -> dict:
 # Document Search and Synthesis Nodes
 # ─────────────────────────────────────────────────────────────────────────────
 
+def greeting_node(state: AgentState) -> dict:
+    """
+    Guardrail node for greeting queries.
+    Returns a polite greeting response directing the user to ask database/data queries only.
+    """
+    response_text = (
+        "Hello! 👋 Welcome to AP Citizen 360 AI Assistant.\n\n"
+        "Please ask your question regarding the Citizen 360 database or policy documents in short."
+    )
+    return {
+        "messages": [AIMessage(content=response_text)],
+        "verified": True,
+        "fast_sql": None,
+    }
+
+
 def route_node(state: AgentState) -> str:
     """Returns the next node name based on query_type."""
     qt = state.get("query_type", "data_query")
-    if qt == "document_query":
+    if qt == "greeting":
+        return "greeting_node"
+    elif qt == "document_query":
         return "doc_search_node"
     elif qt == "hybrid":
         return "deterministic_search_node"  # Runs fast path check first
@@ -931,6 +1012,56 @@ def synthesize_node(state: AgentState) -> dict:
     response = model.invoke(messages_for_llm)
     
     logger.info("synthesize_node: completed in %.2fs", time.perf_counter() - t0)
+    
+    return {
+        "messages": [response],
+        "llm_calls": state.get("llm_calls", 0) + 1,
+    }
+
+def summarization_node(state: AgentState) -> dict:
+    """LLM call to summarize the SQL result based on the user query."""
+    t0 = time.perf_counter()
+    history = state.get("messages", [])
+    
+    successful = _tool_messages(history, "execute_sql")
+    if not successful:
+        return {}
+        
+    last_result_msg = successful[-1]
+    text_content = _extract_tool_content(last_result_msg.content)
+    
+    payload = {}
+    if text_content:
+        try:
+            payload = json.loads(text_content)
+        except Exception:
+            pass
+            
+    if payload.get("status") != "success":
+        return {}
+        
+    rows = payload.get("rows", [])
+    if not rows:
+        return {
+            "messages": [AIMessage(content="The query ran successfully but returned no data.")],
+        }
+        
+    result_table = _result_table_str(last_result_msg.content)
+    
+    system_prompt = (
+        "You are an AI assistant. Summarize the following database query results in short based on the user's query.\n"
+        "Do not explain the SQL query. Just provide a concise summary of the data table returned."
+    )
+    
+    messages_for_llm = [
+        SystemMessage(content=system_prompt),
+        HumanMessage(content=f"User question: {state['user_query']}\n\nQuery result table:\n{result_table}")
+    ]
+    
+    model = _summarize_model
+    response = model.invoke(messages_for_llm)
+    
+    logger.info("summarization_node: completed in %.2fs", time.perf_counter() - t0)
     
     return {
         "messages": [response],
