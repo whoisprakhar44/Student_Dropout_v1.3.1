@@ -815,8 +815,70 @@ def route_node(state: AgentState) -> str:
     if qt == "document_query":
         return "doc_search_node"
     elif qt == "hybrid":
-        return "initialize_node"  # Runs both paths (for now, we will map hybrid to data_query but eventually support both)
-    return "initialize_node"   # existing SQL path
+        return "deterministic_search_node"  # Runs fast path check first
+    return "deterministic_search_node"   # existing SQL path goes to fast path first
+
+def deterministic_search_node(state: AgentState) -> dict:
+    """Force-calls the search_exact_fewshot MCP tool to check for a 0.95+ cosine match."""
+    import uuid
+    tool_call_id = f"call_{uuid.uuid4().hex}"
+    
+    forced_tool_call_msg = AIMessage(
+        content="",
+        tool_calls=[{
+            "id": tool_call_id,
+            "name": "search_exact_fewshot",
+            "args": {
+                "query": state["user_query"],
+                "threshold": 0.99
+            }
+        }]
+    )
+    
+    return {
+        "messages": [forced_tool_call_msg],
+        "llm_calls": 0,
+    }
+
+def eval_fast_path_node(state: AgentState) -> dict:
+    """
+    Evaluates the result of search_exact_fewshot.
+    If matched, it yields an AIMessage forcing execute_sql to bypass LLM generation.
+    """
+    import uuid
+    history = state.get("messages", [])
+    
+    results = _tool_messages(history, "search_exact_fewshot")
+    if not results:
+        return {"fast_sql": None}
+        
+    try:
+        content = _extract_tool_content(results[-1].content)
+        payload = json.loads(content)
+    except Exception:
+        payload = {"matched": False}
+        
+    if payload.get("matched") and payload.get("sql"):
+        sql = payload["sql"]
+        tool_call_id = f"call_{uuid.uuid4().hex}"
+        
+        forced_execute_msg = AIMessage(
+            content="I found an exact match for your query. Executing now.",
+            tool_calls=[{
+                "id": tool_call_id,
+                "name": "execute_sql",
+                "args": {
+                    "query": sql
+                }
+            }]
+        )
+        return {
+            "messages": [forced_execute_msg],
+            "fast_sql": sql,
+            "query_type": "fast_path"
+        }
+        
+    return {"fast_sql": None}
 
 def doc_search_node(state: AgentState) -> dict:
     """Force-calls the document search MCP tool."""

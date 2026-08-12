@@ -9,6 +9,7 @@ import re
 
 import sys
 import logging
+import json
 
 # =========================
 # LOGGING — must be FIRST before any other imports
@@ -108,13 +109,12 @@ class VectorDB:
 
         elif self.provider == "milvus":
             from pymilvus import MilvusClient
-            uri = cfg["vector_db"]["milvus"]["uri"]
-            if not uri.startswith(("http://", "https://")) and not os.path.isabs(uri):
-                config_dir = os.path.dirname(
-                    os.path.abspath(os.environ.get("RETRIEVAL_CONFIG", "mcp_rag.yaml"))
-                )
-                uri = os.path.join(config_dir, uri)
-            self.client = MilvusClient(uri=uri)
+            _uri = cfg["vector_db"]["milvus"]["uri"]
+            if not _uri.startswith(("http://", "https://")) and not os.path.isabs(_uri):
+                # Resolve relative to project root (ap_citizen360_v1.5.2) which is parent of MCP
+                project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                _uri = os.path.join(project_root, _uri)
+            self.client = MilvusClient(uri=_uri)
             self.collection = cfg["vector_db"]["milvus"]["collection"]
             self.client.load_collection(self.collection)
         else:
@@ -555,6 +555,57 @@ def search_documents(query: str, top_k: int = 5) -> str:
         sections.append(f"{header}\n{hit['passage']}")
 
     return "\n\n".join(sections)
+
+
+@mcp.tool()
+def search_exact_fewshot(query: str, threshold: float = 0.95) -> str:
+    """
+    Search strictly the few-shot examples for an exact semantic match (>= 0.95 cosine).
+    Returns a JSON payload with "matched": true/false and the exact "sql" to execute if matched.
+    """
+    logger.info(f"search_exact_fewshot query: '{query}' (threshold={threshold})")
+    
+    if vector_db.provider != "milvus":
+        return json.dumps({"matched": False, "error": "Only Milvus supports partitioned few-shot fast path."})
+
+    try:
+        emb = embedder.embed(query)
+        res = vector_db.client.search(
+            collection_name=vector_db.collection,
+            data=[emb],
+            limit=1,
+            output_fields=["database_name", "table_name", "raw_ddl", "embedding_text"],
+            search_params={"metric_type": "COSINE"},
+            partition_names=["few_shot_store"],
+        )
+        logger.info(f"DEBUG: search_exact_fewshot result: {res}")
+        
+        if res and res[0]:
+            hit = res[0][0]
+            score = float(hit["distance"]) # COSINE metric
+            logger.info(f"search_exact_fewshot top match score: {score:.4f}")
+            
+            if score >= threshold:
+                sql = hit["entity"].get("raw_ddl", "")
+                
+                # Apply same cleanup as retrive_schema_rag if SQLite mode is on
+                hive_enabled = os.getenv("HIVE_MCP_ENABLED", "false").strip().lower() in ("true", "1", "yes")
+                if not hive_enabled and sql:
+                    sql = sql.replace("ap_citizen360.", "")
+                    
+                logger.info(f"Exact match found! Score: {score:.4f} >= {threshold}")
+                return json.dumps({
+                    "matched": True,
+                    "score": score,
+                    "sql": sql
+                })
+                
+    except Exception as e:
+        import traceback
+        logger.error(f"search_exact_fewshot failed: {e}")
+        logger.error(traceback.format_exc())
+
+    return json.dumps({"matched": False})
 
 
 if __name__ == "__main__":

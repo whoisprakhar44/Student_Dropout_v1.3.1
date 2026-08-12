@@ -24,7 +24,7 @@ vector_db:
   # --- Milvus (server via URL) ---
   provider: milvus
   milvus:
-    uri: "../milvus_schemas.db"
+    uri: "milvus_schemas.db"
     collection: schema_chunks
     dim: 768                       # must match embedding model output dim
     metric_type: COSINE

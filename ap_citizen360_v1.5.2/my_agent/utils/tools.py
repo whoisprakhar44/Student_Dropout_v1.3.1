@@ -86,6 +86,7 @@ async def init_tools() -> None:
         raise RuntimeError("Execution MCP server returned no tools.")
 
     col_val_tool = None
+    fewshot_tool = None
     for t in rag_tools_list:
         if t.name == "retrive_schema_rag":
             rag_tool = t
@@ -93,6 +94,8 @@ async def init_tools() -> None:
             doc_tool = t
         elif t.name == "get_column_values":
             col_val_tool = t
+        elif t.name == "search_exact_fewshot":
+            fewshot_tool = t
 
     if not rag_tool or not doc_tool:
         raise RuntimeError("RAG server did not return both tools.")
@@ -102,6 +105,8 @@ async def init_tools() -> None:
     tools_to_add = [rag_tool]
     if col_val_tool:
         tools_to_add.append(col_val_tool)
+    if fewshot_tool:
+        tools_to_add.append(fewshot_tool)
     execution_tools.extend(tools_to_add + sql_tools_list)
 
     # Document path tools: only search_documents
@@ -114,6 +119,8 @@ async def init_tools() -> None:
 
     print("RAG tool loaded :", rag_tool.name)
     print("Doc tool loaded :", doc_tool.name)
+    if fewshot_tool:
+        print("Fewshot tool loaded:", fewshot_tool.name)
     print("LLM tools loaded:", [t.name for t in all_tools])
 
 

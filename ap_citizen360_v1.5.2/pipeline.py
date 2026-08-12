@@ -437,13 +437,12 @@ class VectorDBClient:
             for r in records
         ]
 
-        # upsert into the named partition — handles duplicate re-runs cleanly.
-        # MilvusClient auto-persists; no explicit flush() needed.
-        self._client.upsert(
+        res = self._client.insert(
             collection_name=self._collection_name,
             partition_name=partition,
             data=data,
         )
+        print("Milvus insert result:", res)
 
     # ── Query ─────────────────────────────────────────────────────────────────
 
@@ -718,6 +717,8 @@ def run_fewshot_pipeline(config_path: str, jsonl_path: str):
     # Step 4 — Build and insert into few_shot_store partition
     records = build_fewshot_records(raw_records, embeddings)
     vdb.insert(records, partition=PARTITION_FEW_SHOT)
+    if vdb.provider == "milvus":
+        vdb._client.load_collection(vdb._collection_name)
     logger.info(
         f"Inserted {len(records)} record(s) into "
         f"partition '{PARTITION_FEW_SHOT}'"
