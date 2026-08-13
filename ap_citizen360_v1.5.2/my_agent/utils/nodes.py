@@ -43,7 +43,7 @@ _base_model = ChatOllama(
 _model_with_tools = None
 
 _summarize_model = ChatOllama(
-    model=_CHAT_MODEL,
+    model=os.getenv("OLLAMA_SUMMARIZE_MODEL", _CHAT_MODEL),
     temperature=0,
     reasoning=False,
     base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),

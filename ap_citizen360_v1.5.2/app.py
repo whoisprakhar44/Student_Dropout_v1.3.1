@@ -147,6 +147,7 @@ class AskResponse(BaseModel):
     result: list[dict[str, Any]]
     username: str = Field(..., description="The username associated with this chat.")
     timings: dict[str, float] | None = None
+    summary: str | None = None
 
 class SessionSummary(BaseModel):
     id: str
@@ -776,36 +777,41 @@ async def ask(payload: AskRequest):
                     else:
                         response_text = "Here is the query result."
 
-                # Save user query and assistant response to chat history database
-                save_chat_turn(
-                    session_id=session_id,
-                    question=payload.question,
-                    response_text=response_text,
-                    sql=response_obj.sql,
-                    result=response_obj.result,
-                    username=username
-                )
-
-                # Determine status and error for Excel log
-                is_error = (
-                    response_obj.result
-                    and len(response_obj.result) > 0
-                    and response_obj.result[0].get("status") in ("failed", "cancelled")
-                )
-                excel_status = response_obj.result[0].get("status", "success") if is_error else "success"
-                excel_error = response_obj.result[0].get("error", "") if is_error else ""
-                _append_excel_log(
-                    username=username,
-                    session_id=session_id,
-                    question=payload.question or "",
-                    sql=response_obj.sql or "",
-                    status=excel_status,
-                    answer=response_text,
-                    error=excel_error,
-                    gen_time=gen_time,
-                    exec_time=exec_time,
-                    total_time=total_time,
-                )
+                response_obj.summary = response_text
+                
+                is_greeting = state.get("intent") == "greeting"
+                
+                if not is_greeting:
+                    # Save user query and assistant response to chat history database
+                    save_chat_turn(
+                        session_id=session_id,
+                        question=payload.question,
+                        response_text="",
+                        sql=response_obj.sql,
+                        result=response_obj.result,
+                        username=username
+                    )
+    
+                    # Determine status and error for Excel log
+                    is_error = (
+                        response_obj.result
+                        and len(response_obj.result) > 0
+                        and response_obj.result[0].get("status") in ("failed", "cancelled")
+                    )
+                    excel_status = response_obj.result[0].get("status", "success") if is_error else "success"
+                    excel_error = response_obj.result[0].get("error", "") if is_error else ""
+                    _append_excel_log(
+                        username=username,
+                        session_id=session_id,
+                        question=payload.question or "",
+                        sql=response_obj.sql or "",
+                        status=excel_status,
+                        answer="",
+                        error=excel_error,
+                        gen_time=gen_time,
+                        exec_time=exec_time,
+                        total_time=total_time,
+                    )
 
                 response_obj.username = username
 
