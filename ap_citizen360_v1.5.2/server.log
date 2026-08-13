@@ -27,3 +27,12 @@ INFO:     127.0.0.1:59948 - "POST /ask HTTP/1.1" 500 Internal Server Error
 INFO:     127.0.0.1:59952 - "POST /ask HTTP/1.1" 200 OK
 I0813 20:30:47.657596  321658 chttp2_transport.cc:1393] ipv4:127.0.0.1:59926: Got goaway [11] err=UNAVAILABLE:GOAWAY received; Error code: 11; Debug Text: too_many_pings {http2_error:11}
 E0813 20:30:47.658352  321658 chttp2_transport.cc:1425] ipv4:127.0.0.1:59926: Received a GOAWAY with error code ENHANCE_YOUR_CALM and debug data equal to "too_many_pings". Current keepalive time (before throttling): 10000ms
+INFO:     127.0.0.1:60071 - "OPTIONS /ask HTTP/1.1" 200 OK
+Failed to infer axes via LLM, falling back to heuristics: [Errno 61] Connection refused
+INFO:     127.0.0.1:60071 - "POST /ask HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60071 - "OPTIONS /ask HTTP/1.1" 200 OK
+Failed to infer axes via LLM, falling back to heuristics: [Errno 61] Connection refused
+INFO:     127.0.0.1:60071 - "POST /ask HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60071 - "OPTIONS /ask HTTP/1.1" 200 OK
+Failed to infer axes via LLM, falling back to heuristics: [Errno 61] Connection refused
+INFO:     127.0.0.1:60071 - "POST /ask HTTP/1.1" 200 OK

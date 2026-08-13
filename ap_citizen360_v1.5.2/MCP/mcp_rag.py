@@ -608,6 +608,75 @@ def search_exact_fewshot(query: str, threshold: float = 0.95) -> str:
     return json.dumps({"matched": False})
 
 
+# =============================================================================
+# TEMPORAL CONTEXT TOOL
+# =============================================================================
+
+@mcp.tool()
+def get_current_date() -> str:
+    """
+    Returns today's date, the current calendar year, the current financial year
+    (April–March), and the current academic year (June–May, Andhra Pradesh school
+    calendar).
+
+    Call this tool whenever the user's question contains any relative time
+    reference such as:
+      - "this year", "current year", "current academic year"
+      - "last year", "previous year", "last academic year"
+      - "this financial year", "current FY"
+      - any question about students without specifying an explicit year
+
+    The `current_academic_year` value (e.g. "2026-27") is the exact string stored
+    in the `academic_year` column of the `dim_student` table. Always use this
+    value literally in SQL filters — do NOT compute it yourself.
+
+    Example SQL usage:
+        WHERE academic_year = '2026-27'
+        WHERE academic_year = '2025-26'   -- for "last academic year"
+    """
+    from datetime import date
+
+    today = date.today()
+    year  = today.year
+    month = today.month
+
+    # ── Academic year: June–May (AP school calendar) ─────────────────────────
+    # If current month >= June → AY is YYYY/(YY+1)  e.g. Aug 2026 → "2026-27"
+    # If current month < June  → AY is (YYYY-1)/YY  e.g. Feb 2026 → "2025-26"
+    if month >= 6:
+        ay_start = year
+        ay_end   = year + 1
+    else:
+        ay_start = year - 1
+        ay_end   = year
+    current_academic_year = f"{ay_start}-{str(ay_end)[2:]}"       # e.g. "2026-27"
+    prev_academic_year    = f"{ay_start - 1}-{str(ay_start)[2:]}" # e.g. "2025-26"
+
+    # ── Financial year: April–March ───────────────────────────────────────────
+    if month >= 4:
+        fy_start = year
+        fy_end   = year + 1
+    else:
+        fy_start = year - 1
+        fy_end   = year
+    current_financial_year = f"FY {fy_start}-{str(fy_end)[2:]}"   # e.g. "FY 2026-27"
+
+    result = {
+        "today":                   today.isoformat(),            # "2026-08-14"
+        "calendar_year":           year,                          # 2026
+        "current_academic_year":   current_academic_year,         # "2026-27"  ← use in dim_student SQL
+        "previous_academic_year":  prev_academic_year,            # "2025-26"
+        "current_financial_year":  current_financial_year,        # "FY 2026-27"
+        "note": (
+            "For student queries, use `current_academic_year` as the exact value "
+            "for the `academic_year` column in dim_student. "
+            "The AP academic year runs June–May."
+        ),
+    }
+    logger.info(f"get_current_date called → {result}")
+    return json.dumps(result)
+
+
 if __name__ == "__main__":
     mcp.run(
         transport="stdio",

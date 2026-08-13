@@ -145,7 +145,7 @@ joins:
   from_table: dim_vehicle
   from_column: owner_name
   to_table: dim_person
-  to_column: owner_name
+  to_column: person_name
   cardinality: many_to_one
   usage: Join dim_vehicle to dim_person via owner_name using conformed attributes.
 - name: dim_vehicle_compliance_to_dim_person
@@ -208,7 +208,7 @@ joins:
   from_table: dim_property
   from_column: owner_name
   to_table: dim_person
-  to_column: owner_name
+  to_column: person_name
   cardinality: many_to_one
   usage: Join dim_property to dim_person via owner_name using conformed attributes.
 - name: dim_property_tax_to_dim_person

@@ -5,7 +5,15 @@ Initialises both MCP clients and exposes:
   - rag_tool       : the single retrieve tool from the RAG server
   - execution_tools: SQL execution tools plus LLM-selectable RAG tools
   - all_tools      : same list, kept for compatibility
+
+Tools loaded from mcp_rag.py:
+  retrive_schema_rag   — schema vector search
+  search_documents     — document vector search
+  get_column_values    — distinct column value lookup
+  search_exact_fewshot — exact few-shot match
+  get_current_date     — current date / academic year / financial year
 """
+
 import os
 import sys
 from pathlib import Path
@@ -87,6 +95,7 @@ async def init_tools() -> None:
 
     col_val_tool = None
     fewshot_tool = None
+    date_tool    = None
     for t in rag_tools_list:
         if t.name == "retrive_schema_rag":
             rag_tool = t
@@ -96,17 +105,21 @@ async def init_tools() -> None:
             col_val_tool = t
         elif t.name == "search_exact_fewshot":
             fewshot_tool = t
+        elif t.name == "get_current_date":
+            date_tool = t
 
     if not rag_tool or not doc_tool:
         raise RuntimeError("RAG server did not return both tools.")
 
-    # SQL path tools: schema RAG + column values + SQL execution
+    # SQL path tools: schema RAG + column values + few-shot + date + SQL execution
     execution_tools.clear()
     tools_to_add = [rag_tool]
     if col_val_tool:
         tools_to_add.append(col_val_tool)
     if fewshot_tool:
         tools_to_add.append(fewshot_tool)
+    if date_tool:
+        tools_to_add.append(date_tool)
     execution_tools.extend(tools_to_add + sql_tools_list)
 
     # Document path tools: only search_documents
@@ -117,11 +130,13 @@ async def init_tools() -> None:
     all_tools.clear()
     all_tools.extend(execution_tools + doc_search_tools)
 
-    print("RAG tool loaded :", rag_tool.name)
-    print("Doc tool loaded :", doc_tool.name)
+    print("RAG tool loaded   :", rag_tool.name)
+    print("Doc tool loaded   :", doc_tool.name)
     if fewshot_tool:
-        print("Fewshot tool loaded:", fewshot_tool.name)
-    print("LLM tools loaded:", [t.name for t in all_tools])
+        print("Fewshot tool loaded :", fewshot_tool.name)
+    if date_tool:
+        print("Date tool loaded    :", date_tool.name)
+    print("LLM tools loaded  :", [t.name for t in all_tools])
 
 
 async def cleanup_tools() -> None:
