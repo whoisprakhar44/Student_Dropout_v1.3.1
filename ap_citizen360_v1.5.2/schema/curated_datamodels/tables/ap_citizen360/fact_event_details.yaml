@@ -1,0 +1,150 @@
+database: ap_citizen360
+table: fact_event_details
+department: ap_citizen360
+description: The single unified events table — every row is either a LIFECYCLE_EVENT (e.g. BirthRegistered, DeathRegistered,
+  SchemeEnrolled) or an ANOMALY_EVENT (e.g. DualLoanHousehold, PregnancyMismatch), distinguished by event_type with the specific
+  sub-type in sub_event_type. Backs POST /datatransfer/request and GET /api/v1/events/*, and is department_id-scoped so each
+  department only ever sees events routed to it. Replaces the older fact_lifecycle_event/fact_anomaly_event tables, which
+  are no longer queried anywhere. Partitioned by month and district.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_event_details
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_event_details`(\n  `event_id` STRING COMMENT 'Canonical event identifier.',\n\
+  \  `person_id` STRING COMMENT 'Foreign key to dim_person.person_id — the citizen this event concerns.',\n  `citizen_name`\
+  \ STRING COMMENT 'Citizen\\'s name, denormalized for display without a join.',\n  `event_type` STRING COMMENT 'Broad event\
+  \ category — \\'LIFECYCLE_EVENT\\' or \\'ANOMALY_EVENT\\'.',\n  `sub_event_type` STRING COMMENT 'Specific event type within\
+  \ the category, e.g. \\'DeathRegistered\\' (lifecycle) or \\'DualLoanHousehold\\' (anomaly).',\n  `severity` STRING COMMENT\
+  \ 'Severity rating for anomaly events (\\'High\\'/\\'Medium\\'/\\'Low\\'); null for lifecycle events, which don\\'t carry\
+  \ a severity dimension.',\n  `detected_at` TIMESTAMP COMMENT 'Timestamp the event was detected/occurred — partition key\
+  \ (by month).',\n  `district_id` STRING COMMENT 'Foreign key to dim_district.district_id — partition key.',\n  `mandal_id`\
+  \ STRING COMMENT 'Foreign key to dim_mandal.mandal_id.',\n  `village_name` STRING COMMENT 'Village associated with the event.',\n\
+  \  `summary` STRING COMMENT 'Human-readable one-line summary of the event.',\n  `resolution_status` STRING COMMENT 'Current\
+  \ status — lifecycle events use \\'Published\\'/\\'Processing\\'/\\'Failed\\'; anomaly events use \\'Open\\'/\\'Under Review\\\
+  '/\\'Resolved\\'.',\n  `household_id` STRING COMMENT 'Foreign key to dim_household.household_id, where the event is household-scoped\
+  \ (e.g. DualLoanHousehold anomalies).',\n  `department_id` STRING COMMENT 'Foreign key to dim_department_client.department_id\
+  \ — the department this event is routed to/owned by.',\n  `eventdata` STRING COMMENT 'Base64-encoded JSON blob of event-type-specific\
+  \ structured detail — e.g. for DualLoanHousehold/PregnancyMismatch anomalies, the per-event loans[]/pregnancyRecords[] arrays\
+  \ are folded in here rather than joined from separate tables.',\n  `linked_scheme_ids` STRING COMMENT 'Comma-separated dim_scheme.scheme_id\
+  \ values linked to this event (e.g. schemes affected by a DeathRegistered event\\'s entitlement closure).'\n)\nROW FORMAT\
+  \ SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  LOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_event_details'"
+columns:
+- name: event_id
+  type: STRING
+  nullable: true
+  description: Canonical event identifier.
+- name: person_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_person.person_id — the citizen this event concerns.
+- name: citizen_name
+  type: STRING
+  nullable: true
+  description: Citizen's name, denormalized for display without a join.
+- name: event_type
+  type: STRING
+  nullable: true
+  description: 'Broad event category — ''LIFECYCLE_EVENT'' or ''ANOMALY_EVENT''. [Value Examples: ''LIFECYCLE_EVENT'', ''ANOMALY_EVENT'']'
+  distinct:
+  - LIFECYCLE_EVENT
+  - ANOMALY_EVENT
+- name: sub_event_type
+  type: STRING
+  nullable: true
+  description: 'Specific event type within the category, e.g. ''DeathRegistered'' (lifecycle) or ''DualLoanHousehold'' (anomaly).
+    [Value Examples: ''Class1Enrollment'', ''DeathRegistered'', ''BirthRegistered'', ''SchemeEnrolled'', ''DualLoanHousehold'',
+    ''PregnancyMismatch'', ''ElectricityAnomalousUsage'']'
+  distinct:
+  - Class1Enrollment
+  - DeathRegistered
+  - BirthRegistered
+  - SchemeEnrolled
+  - DualLoanHousehold
+  - PregnancyMismatch
+  - ElectricityAnomalousUsage
+- name: severity
+  type: STRING
+  nullable: true
+  description: 'Severity rating for anomaly events (''High''/''Medium''/''Low''); null for lifecycle events, which don''t
+    carry a severity dimension. [Value Examples: ''High'', ''Medium'', ''Low'']'
+  distinct:
+  - High
+  - Medium
+  - Low
+- name: detected_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp the event was detected/occurred — partition key (by month).
+- name: district_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_district.district_id — partition key.
+- name: mandal_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_mandal.mandal_id.
+- name: village_name
+  type: STRING
+  nullable: true
+  description: Village associated with the event.
+- name: summary
+  type: STRING
+  nullable: true
+  description: Human-readable one-line summary of the event.
+- name: resolution_status
+  type: STRING
+  nullable: true
+  description: 'Current status — lifecycle events use ''Published''/''Processing''/''Failed''; anomaly events use ''Open''/''Under
+    Review''/''Resolved''. [Value Examples: ''Published'', ''Processing'', ''Failed'', ''Open'', ''Under Review'', ''Resolved'']'
+  distinct:
+  - Published
+  - Processing
+  - Failed
+  - Open
+  - Under Review
+  - Resolved
+- name: household_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_household.household_id, where the event is household-scoped (e.g. DualLoanHousehold anomalies).
+- name: department_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_department_client.department_id — the department this event is routed to/owned by.
+- name: eventdata
+  type: STRING
+  nullable: true
+  description: Base64-encoded JSON blob of event-type-specific structured detail — e.g. for DualLoanHousehold/PregnancyMismatch
+    anomalies, the per-event loans[]/pregnancyRecords[] arrays are folded in here rather than joined from separate tables.
+- name: linked_scheme_ids
+  type: STRING
+  nullable: true
+  description: Comma-separated dim_scheme.scheme_id values linked to this event (e.g. schemes affected by a DeathRegistered
+    event's entitlement closure).
+primary_key:
+- event_id
+relationships:
+- fact_event_details.person_id is a foreign key to dim_person.person_id.
+- fact_event_details.district_id is a foreign key to dim_district.district_id.
+- fact_event_details.mandal_id is a foreign key to dim_mandal.mandal_id.
+- fact_event_details.household_id is a foreign key to dim_household.household_id.
+- fact_event_details.department_id is a foreign key to dim_department.department_id.
+business_terms:
+- ap_citizen360
+- data_transfer_api___unified_events
+- fact
+- Iceberg
+- ICEBERG
+common_operations:
+- aggregate measures in fact_event_details by geography and time period
+- join fact_event_details with dimension tables via person_id or district_id
+- filter fact_event_details by district_id or date

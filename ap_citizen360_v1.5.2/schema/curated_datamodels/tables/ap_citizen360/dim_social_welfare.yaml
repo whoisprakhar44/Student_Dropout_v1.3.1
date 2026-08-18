@@ -6,7 +6,6 @@ description: One row per person summarizing pension, disability, and other Socia
   the broader fact_entitlement table which spans every department's schemes.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_social_welfare
-partitioned_by: null
 tblproperties:
   engine.hive.enabled: 'true'
   external: 'true'
@@ -17,33 +16,30 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_social_welfare`(\n  `person_id` STRING COMMENT 'Primary Key: Foreign\
-  \ key to dim_person.person_id.',\n  `pension_id` STRING COMMENT 'Pension scheme enrollment ID, where the person receives\
-  \ a pension.',\n  `pension_type` STRING COMMENT 'Type of pension received, e.g. \\'Old Age Pension\\', \\'Widow Pension\\\
-  ', \\'Fishermen Pension\\'. [Value Examples: \\'Old Age Pension\\', \\'Widow Pension\\', \\'Fishermen Pension\\']',\n  `monthly_amount`\
-  \ DECIMAL(10,2) COMMENT 'Monthly pension amount, in INR. Unit: INR.',\n  `pension_status` STRING COMMENT 'Current pension\
-  \ status, e.g. \\'Active\\', \\'N/A\\'. [Value Examples: \\'Active\\', \\'N/A\\']',\n  `pension_bank` STRING COMMENT 'Bank\
-  \ through which the pension is disbursed.',\n  `pension_account_no` STRING COMMENT 'Bank account number the pension is credited\
-  \ to.',\n  `is_disabled` BOOLEAN COMMENT 'Boolean flag. True if the person has a registered disability.',\n  `disability_type`\
-  \ STRING COMMENT 'Category of disability per RPWD Act 2016 classifications, where is_disabled is true.',\n  `disability_percentage`\
-  \ INT COMMENT 'Certified disability percentage. Unit: percentage (0-100).',\n  `udid_card_no` STRING COMMENT 'Unique Disability\
-  \ ID card number.',\n  `bpl_card_no` STRING COMMENT 'Below Poverty Line card number, where issued separately from the ration\
-  \ card.',\n  `secc_family_id` STRING COMMENT 'Socio Economic Caste Census family identifier.',\n  `annual_family_income`\
-  \ DECIMAL(12,2) COMMENT 'Annual family income as recorded for welfare-eligibility purposes, in INR. Unit: INR.',\n  `deepam_beneficiary`\
-  \ BOOLEAN COMMENT 'Boolean flag. True if enrolled in the deepam free-lpg-connection scheme.',\n  `bc_welfare_scheme` STRING\
-  \ COMMENT 'Name of the Backward Classes welfare scheme this person is enrolled in, where applicable.',\n  `shg_name` STRING\
-  \ COMMENT 'Name of the Self-Help Group the person belongs to, if any.',\n  `shg_role` STRING COMMENT 'Role held within the\
-  \ Self-Help Group, e.g. \\'Member\\', \\'Leader\\'. [Value Examples: \\'Member\\', \\'Leader\\']',\n  `ntr_bharosa_flag`\
-  \ BOOLEAN COMMENT 'Boolean flag. True if enrolled in the ntr bharosa pension consolidation scheme.',\n  `department_id`\
-  \ STRING COMMENT 'Foreign Key: References dim_department.department_id. the Social Welfare department record owner.',\n\
-  \  `disability_certificate_date` DATE COMMENT 'Date the disability certificate was issued.',\n  `updated_at` TIMESTAMP COMMENT\
-  \ 'Timestamp this social welfare record was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_social_welfare'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_social_welfare`(\n  `person_id` STRING COMMENT 'Foreign key to dim_person.person_id.',\n\
+  \  `pension_id` STRING COMMENT 'Pension scheme enrollment ID, where the person receives a pension.',\n  `pension_type` STRING\
+  \ COMMENT 'Type of pension received, e.g. \\'Old Age Pension\\', \\'Widow Pension\\', \\'Fishermen Pension\\'.',\n  `monthly_amount`\
+  \ DECIMAL(10,2) COMMENT 'Monthly pension amount, in INR.',\n  `pension_status` STRING COMMENT 'Current pension status, e.g.\
+  \ \\'Active\\', \\'N/A\\'.',\n  `pension_bank` STRING COMMENT 'Bank through which the pension is disbursed.',\n  `pension_account_no`\
+  \ STRING COMMENT 'Bank account number the pension is credited to.',\n  `is_disabled` BOOLEAN COMMENT 'True if the person\
+  \ has a registered disability.',\n  `disability_type` STRING COMMENT 'Category of disability per RPWD Act 2016 classifications,\
+  \ where is_disabled is true.',\n  `disability_percentage` INT COMMENT 'Certified disability percentage.',\n  `udid_card_no`\
+  \ STRING COMMENT 'Unique Disability ID card number.',\n  `bpl_card_no` STRING COMMENT 'Below Poverty Line card number, where\
+  \ issued separately from the ration card.',\n  `secc_family_id` STRING COMMENT 'Socio Economic Caste Census family identifier.',\n\
+  \  `annual_family_income` DECIMAL(12,2) COMMENT 'Annual family income as recorded for welfare-eligibility purposes, in INR.',\n\
+  \  `deepam_beneficiary` BOOLEAN COMMENT 'True if enrolled in the Deepam free-LPG-connection scheme.',\n  `bc_welfare_scheme`\
+  \ STRING COMMENT 'Name of the Backward Classes welfare scheme this person is enrolled in, where applicable.',\n  `shg_name`\
+  \ STRING COMMENT 'Name of the Self-Help Group the person belongs to, if any.',\n  `shg_role` STRING COMMENT 'Role held within\
+  \ the Self-Help Group, e.g. \\'Member\\', \\'Leader\\'.',\n  `ntr_bharosa_flag` BOOLEAN COMMENT 'True if enrolled in the\
+  \ NTR Bharosa pension consolidation scheme.',\n  `department_id` STRING COMMENT 'Foreign key to dim_department.department_id\
+  \ — the Social Welfare department record owner.',\n  `disability_certificate_date` DATE COMMENT 'Date the disability certificate\
+  \ was issued.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  LOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_social_welfare'"
 columns:
 - name: person_id
   type: STRING
   nullable: true
-  description: 'Primary Key: Foreign key to dim_person.person_id.'
+  description: Foreign key to dim_person.person_id.
 - name: pension_id
   type: STRING
   nullable: true
@@ -51,16 +47,15 @@ columns:
 - name: pension_type
   type: STRING
   nullable: true
-  description: 'Type of pension received, e.g. ''Old Age Pension'', ''Widow Pension'', ''Fishermen Pension''. [Value Examples:
-    ''Old Age Pension'', ''Widow Pension'', ''Fishermen Pension'']'
+  description: Type of pension received, e.g. 'Old Age Pension', 'Widow Pension', 'Fishermen Pension'.
 - name: monthly_amount
   type: DECIMAL(10,2)
   nullable: true
-  description: 'Monthly pension amount, in INR. Unit: INR.'
+  description: Monthly pension amount, in INR.
 - name: pension_status
   type: STRING
   nullable: true
-  description: 'Current pension status, e.g. ''Active'', ''N/A''. [Value Examples: ''Active'', ''N/A'']'
+  description: Current pension status, e.g. 'Active', 'N/A'.
 - name: pension_bank
   type: STRING
   nullable: true
@@ -72,7 +67,7 @@ columns:
 - name: is_disabled
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if the person has a registered disability.
+  description: True if the person has a registered disability.
 - name: disability_type
   type: STRING
   nullable: true
@@ -80,7 +75,7 @@ columns:
 - name: disability_percentage
   type: INT
   nullable: true
-  description: 'Certified disability percentage. Unit: percentage (0-100).'
+  description: Certified disability percentage.
 - name: udid_card_no
   type: STRING
   nullable: true
@@ -96,11 +91,11 @@ columns:
 - name: annual_family_income
   type: DECIMAL(12,2)
   nullable: true
-  description: 'Annual family income as recorded for welfare-eligibility purposes, in INR. Unit: INR.'
+  description: Annual family income as recorded for welfare-eligibility purposes, in INR.
 - name: deepam_beneficiary
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if enrolled in the deepam free-lpg-connection scheme.
+  description: True if enrolled in the Deepam free-LPG-connection scheme.
 - name: bc_welfare_scheme
   type: STRING
   nullable: true
@@ -112,23 +107,19 @@ columns:
 - name: shg_role
   type: STRING
   nullable: true
-  description: 'Role held within the Self-Help Group, e.g. ''Member'', ''Leader''. [Value Examples: ''Member'', ''Leader'']'
+  description: Role held within the Self-Help Group, e.g. 'Member', 'Leader'.
 - name: ntr_bharosa_flag
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if enrolled in the ntr bharosa pension consolidation scheme.
+  description: True if enrolled in the NTR Bharosa pension consolidation scheme.
 - name: department_id
   type: STRING
   nullable: true
-  description: 'Foreign Key: References dim_department.department_id. the Social Welfare department record owner.'
+  description: Foreign key to dim_department.department_id — the Social Welfare department record owner.
 - name: disability_certificate_date
   type: DATE
   nullable: true
   description: Date the disability certificate was issued.
-- name: updated_at
-  type: TIMESTAMP
-  nullable: true
-  description: Timestamp this social welfare record was last updated.
 primary_key:
 - person_id
 relationships:

@@ -1,0 +1,6 @@
+column_name,type,nullable
+client_secret_hash,TEXT,true
+created_at,TEXT,true
+department_id,TEXT,true
+is_active,INTEGER,true
+updated_at,TEXT,true

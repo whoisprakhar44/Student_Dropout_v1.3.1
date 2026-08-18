@@ -1,0 +1,8 @@
+column_name,type,nullable
+created_at,TEXT,true
+department_reference_id,TEXT,true
+event_correlation_id,TEXT,true
+processing_status,TEXT,true
+remarks,TEXT,true
+source,TEXT,true
+updated_at,TEXT,true

@@ -1,0 +1,5 @@
+column_name,type,nullable
+gst_paid_annual,REAL,true
+income_tax_paid,INTEGER,true
+person_id,TEXT,true
+updated_at,TEXT,true

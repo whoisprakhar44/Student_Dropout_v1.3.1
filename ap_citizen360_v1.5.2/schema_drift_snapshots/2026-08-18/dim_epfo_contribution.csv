@@ -1,0 +1,9 @@
+column_name,type,nullable
+employee_contribution,REAL,true
+employer_contribution,REAL,true
+eps_contribution,REAL,true
+establishment_id,TEXT,true
+latest_contribution_date,TEXT,true
+person_id,TEXT,true
+secretariat_code,TEXT,true
+updated_at,TEXT,true

@@ -1,0 +1,11 @@
+column_name,type,nullable
+avg_monthly_kwh,INTEGER,true
+discom_name,TEXT,true
+electricity_sc_no,TEXT,true
+electricity_status,TEXT,true
+electricity_status_updated_on,TEXT,true
+gas_connection_status,TEXT,true
+lpg_consumer_id,TEXT,true
+person_id,TEXT,true
+updated_at,TEXT,true
+water_connection_status,TEXT,true

@@ -1,0 +1,3 @@
+column_name,type,nullable
+department_id,TEXT,true
+department_name,TEXT,true

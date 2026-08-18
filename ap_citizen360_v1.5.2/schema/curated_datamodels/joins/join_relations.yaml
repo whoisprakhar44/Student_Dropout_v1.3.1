@@ -1,5 +1,5 @@
-database: combined
-description: Explicit join relations for the AP Citizen 360 + AP Community 360 schemas.
+database: ap_citizen360
+description: Explicit join relations for the AP Citizen 360 schema.
 joins:
 - name: dim_district_to_dim_state
   from_table: dim_district
@@ -372,4 +372,87 @@ joins:
   to_column: department_id
   cardinality: many_to_one
   usage: Join fact_scheme_disbursement to dim_department via department_id to resolve entity attributes.
-
+- name: dim_driving_licence_to_dim_person
+  from_table: dim_driving_licence
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join dim_driving_licence to dim_person via person_id to resolve citizen driving licence attributes.
+- name: dim_secretariat_to_dim_mandal
+  from_table: dim_secretariat
+  from_column: mandal_id
+  to_table: dim_mandal
+  to_column: mandal_id
+  cardinality: many_to_one
+  usage: Join dim_secretariat to dim_mandal via mandal_id to resolve administrative mandal hierarchy.
+- name: dim_scheme_main_mapping_to_dim_scheme
+  from_table: dim_scheme_main_mapping
+  from_column: scheme_id
+  to_table: dim_scheme
+  to_column: scheme_id
+  cardinality: many_to_one
+  usage: Join dim_scheme_main_mapping to dim_scheme via scheme_id to resolve sub-scheme to parent scheme mappings.
+- name: dim_department_client_to_dim_department
+  from_table: dim_department_client
+  from_column: department_id
+  to_table: dim_department
+  to_column: department_id
+  cardinality: many_to_one
+  usage: Join dim_department_client to dim_department via department_id to resolve department credentials.
+- name: fact_event_details_to_dim_person
+  from_table: fact_event_details
+  from_column: person_id
+  to_table: dim_person
+  to_column: person_id
+  cardinality: many_to_one
+  usage: Join fact_event_details to dim_person via person_id to resolve citizen attributes for lifecycle/anomaly events.
+- name: fact_event_details_to_dim_district
+  from_table: fact_event_details
+  from_column: district_id
+  to_table: dim_district
+  to_column: district_id
+  cardinality: many_to_one
+  usage: Join fact_event_details to dim_district via district_id to resolve geographic district details.
+- name: fact_event_details_to_dim_mandal
+  from_table: fact_event_details
+  from_column: mandal_id
+  to_table: dim_mandal
+  to_column: mandal_id
+  cardinality: many_to_one
+  usage: Join fact_event_details to dim_mandal via mandal_id to resolve geographic mandal details.
+- name: fact_event_details_to_dim_household
+  from_table: fact_event_details
+  from_column: household_id
+  to_table: dim_household
+  to_column: household_id
+  cardinality: many_to_one
+  usage: Join fact_event_details to dim_household via household_id to resolve household anomaly context.
+- name: fact_event_details_to_dim_department
+  from_table: fact_event_details
+  from_column: department_id
+  to_table: dim_department
+  to_column: department_id
+  cardinality: many_to_one
+  usage: Join fact_event_details to dim_department via department_id to resolve originating department.
+- name: fact_event_request_registry_to_dim_department
+  from_table: fact_event_request_registry
+  from_column: department_id
+  to_table: dim_department
+  to_column: department_id
+  cardinality: many_to_one
+  usage: Join fact_event_request_registry to dim_department via department_id to resolve event requesting department.
+- name: fact_event_index_to_dim_department
+  from_table: fact_event_index
+  from_column: department_id
+  to_table: dim_department
+  to_column: department_id
+  cardinality: many_to_one
+  usage: Join fact_event_index to dim_department via department_id to resolve event indexing department.
+- name: fact_event_acknowledgement_to_dim_department
+  from_table: fact_event_acknowledgement
+  from_column: department_id
+  to_table: dim_department
+  to_column: department_id
+  cardinality: many_to_one
+  usage: Join fact_event_acknowledgement to dim_department via department_id to resolve acknowledgement department.

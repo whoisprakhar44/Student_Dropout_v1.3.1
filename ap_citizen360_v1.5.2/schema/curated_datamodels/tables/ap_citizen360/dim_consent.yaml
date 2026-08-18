@@ -5,7 +5,7 @@ description: One row per data-sharing consent grant a citizen has given — back
   is released to a requesting department via the Data Transfer API.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_consent
-partitioned_by: null
+partitioned_by: updated_at
 tblproperties:
   engine.hive.enabled: 'true'
   external: 'true'
@@ -16,30 +16,23 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_consent`(\n  `consent_id` STRING COMMENT 'Primary Key: consent-record\
-  \ id.',\n  `person_id` STRING COMMENT 'Foreign Key: References dim_person.person_id. whose data this consent covers.',\n\
-  \  `allowed_purposes` ARRAY<STRING> COMMENT 'ARRAY<STRING> column. Contains codes this consent permits (e.g. \\'SCHEME_ELIGIBILITY_CHECK\\\
-  ', \\'AUDIT\\') — must include the purpose a Data Transfer request declares, or the request is denied.',\n  `valid_from`\
-  \ DATE COMMENT 'Date this consent becomes effective.',\n  `valid_to` DATE COMMENT 'Date this consent expires, if not revoked\
-  \ earlier.',\n  `is_revocable` BOOLEAN COMMENT 'Boolean flag. True if the citizen can revoke this consent before its valid_to\
-  \ date.',\n  `created_at` TIMESTAMP COMMENT 'Timestamp the consent was originally granted.',\n  `revoked_at` TIMESTAMP COMMENT\
-  \ 'Timestamp the consent was revoked, if applicable; null if still active.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp\
-  \ this consent record was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n\
-  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_consent'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_consent`(\n  `consent_id` STRING COMMENT 'Canonical consent-record id.',\n\
+  \  `person_id` STRING COMMENT 'Foreign key to dim_person.person_id — whose data this consent covers.',\n  `valid_from` DATE\
+  \ COMMENT 'Date this consent becomes effective.',\n  `valid_to` DATE COMMENT 'Date this consent expires, if not revoked\
+  \ earlier.',\n  `is_revocable` BOOLEAN COMMENT 'True if the citizen can revoke this consent before its valid_to date.',\n\
+  \  `created_at` TIMESTAMP COMMENT 'Timestamp the consent was originally granted.',\n  `revoked_at` TIMESTAMP COMMENT 'Timestamp\
+  \ the consent was revoked, if applicable; null if still active.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this consent\
+  \ record was last updated.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  LOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_consent'\nPARTITIONED BY (updated_at)"
 columns:
 - name: consent_id
   type: STRING
   nullable: true
-  description: 'Primary Key: consent-record id.'
+  description: Canonical consent-record id.
 - name: person_id
   type: STRING
   nullable: true
-  description: 'Foreign Key: References dim_person.person_id. whose data this consent covers.'
-- name: allowed_purposes
-  type: ARRAY<STRING>
-  nullable: true
-  description: ARRAY<STRING> column. Contains codes this consent permits (e.g. 'SCHEME_ELIGIBILITY_CHECK', 'AUDIT') — must
-    include the purpose a Data Transfer request declares, or the request is denied.
+  description: Foreign key to dim_person.person_id — whose data this consent covers.
 - name: valid_from
   type: DATE
   nullable: true
@@ -51,7 +44,7 @@ columns:
 - name: is_revocable
   type: BOOLEAN
   nullable: true
-  description: Boolean flag. True if the citizen can revoke this consent before its valid_to date.
+  description: True if the citizen can revoke this consent before its valid_to date.
 - name: created_at
   type: TIMESTAMP
   nullable: true

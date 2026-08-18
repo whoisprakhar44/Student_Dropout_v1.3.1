@@ -17,43 +17,43 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_benefit_transaction`(\n  `transaction_id` STRING COMMENT 'Primary Key:\
-  \ transaction identifier.',\n  `entitlement_id` STRING COMMENT 'Foreign Key: References fact_entitlement.entitlement_id.',\n\
-  \  `person_id` STRING COMMENT 'Foreign Key: References dim_person.person_id.',\n  `scheme_id` STRING COMMENT 'Foreign Key:\
-  \ References dim_scheme.scheme_id.',\n  `amount` DECIMAL(12,2) COMMENT 'Amount disbursed in this transaction, in INR. Unit:\
-  \ INR.',\n  `transaction_date` DATE COMMENT 'Date the transaction was disbursed. Partition key.',\n  `district_id` STRING\
-  \ COMMENT 'Foreign Key: References dim_district.district_id. partition key. Partition key.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_benefit_transaction'\n\
-  PARTITIONED BY (months(transaction_date), district_id)"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_benefit_transaction`(\n  `transaction_id` STRING COMMENT 'Canonical\
+  \ transaction identifier.',\n  `entitlement_id` STRING COMMENT 'Foreign key to fact_entitlement.entitlement_id.',\n  `person_id`\
+  \ STRING COMMENT 'Foreign key to dim_person.person_id.',\n  `scheme_id` STRING COMMENT 'Foreign key to dim_scheme.scheme_id.',\n\
+  \  `amount` DECIMAL(12,2) COMMENT 'Amount disbursed in this transaction, in INR.',\n  `transaction_date` DATE COMMENT 'Date\
+  \ the transaction was disbursed.',\n  `district_id` STRING COMMENT 'Foreign key to dim_district.district_id — partition\
+  \ key.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  LOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_benefit_transaction'\nPARTITIONED BY (months(transaction_date),\
+  \ district_id)"
 columns:
 - name: transaction_id
   type: STRING
   nullable: true
-  description: 'Primary Key: transaction identifier.'
+  description: Canonical transaction identifier.
 - name: entitlement_id
   type: STRING
   nullable: true
-  description: 'Foreign Key: References fact_entitlement.entitlement_id.'
+  description: Foreign key to fact_entitlement.entitlement_id.
 - name: person_id
   type: STRING
   nullable: true
-  description: 'Foreign Key: References dim_person.person_id.'
+  description: Foreign key to dim_person.person_id.
 - name: scheme_id
   type: STRING
   nullable: true
-  description: 'Foreign Key: References dim_scheme.scheme_id.'
+  description: Foreign key to dim_scheme.scheme_id.
 - name: amount
   type: DECIMAL(12,2)
   nullable: true
-  description: 'Amount disbursed in this transaction, in INR. Unit: INR.'
+  description: Amount disbursed in this transaction, in INR.
 - name: transaction_date
   type: DATE
   nullable: true
-  description: Date the transaction was disbursed. Partition key.
+  description: Date the transaction was disbursed.
 - name: district_id
   type: STRING
   nullable: true
-  description: 'Foreign Key: References dim_district.district_id. partition key. Partition key.'
+  description: Foreign key to dim_district.district_id — partition key.
 primary_key:
 - transaction_id
 relationships:

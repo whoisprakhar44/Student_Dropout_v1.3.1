@@ -1,11 +1,9 @@
 database: ap_citizen360
 table: dim_utility_connection
 department: ap_citizen360
-description: One row per person summarizing their domestic gas, electricity, and water
-  connection status.
+description: One row per person summarizing their domestic gas, electricity, and water connection status.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_utility_connection
-partitioned_by: null
 tblproperties:
   engine.hive.enabled: 'true'
   external: 'true'
@@ -16,59 +14,51 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_utility_connection`(\n  `person_id`\
-  \ STRING COMMENT 'Primary Key: Foreign key to dim_person.person_id.',\n  `gas_connection_status`\
-  \ STRING COMMENT 'Status of the domestic LPG connection, e.g. \\'Active\\', \\'Inactive\\\
-  '. [Value Examples: \\'Active\\', \\'Inactive\\']',\n  `electricity_status` STRING\
-  \ COMMENT 'Status of the electricity connection, e.g. \\'Active\\', \\'Inactive\\\
-  '. [Value Examples: \\'Active\\', \\'Inactive\\']',\n  `avg_monthly_kwh` INT COMMENT\
-  \ 'Average monthly electricity consumption, in kWh. Unit: kWh.',\n  `water_connection_status`\
-  \ STRING COMMENT 'Status of the piped water connection, e.g. \\'Active\\', \\'Inactive\\\
-  '. [Value Examples: \\'Active\\', \\'Inactive\\']',\n  `electricity_sc_no` STRING\
-  \ COMMENT 'DISCOM service connection (SC) number for the electricity connection.',\n\
-  \  `discom_name` STRING COMMENT 'Name of the electricity distribution company (DISCOM)\
-  \ serving this connection.',\n  `electricity_status_updated_on` DATE COMMENT 'Date\
-  \ the electricity connection status was last confirmed/updated by the DISCOM.',\n\
-  \  `updated_at` TIMESTAMP COMMENT 'Timestamp this utility record was last updated.')\n\
-  ROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n \
-  \ 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_utility_connection'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_utility_connection`(\n  `person_id` STRING COMMENT 'Foreign key to dim_person.person_id.',\n\
+  \  `gas_connection_status` STRING COMMENT 'Status of the domestic LPG connection, e.g. \\'Active\\', \\'Inactive\\'. [Value\
+  \ Examples: \\'Active_gsws\\', \\'Active\\', \\'Inactive\\']',\n  `electricity_status` STRING COMMENT 'Status of the electricity\
+  \ connection, e.g. \\'Active\\', \\'Inactive\\'. [Value Examples: \\'Inactive\\', \\'Active\\']',\n  `avg_monthly_kwh` INT\
+  \ COMMENT 'Average monthly electricity consumption, in kWh.',\n  `water_connection_status` STRING COMMENT 'Status of the\
+  \ piped water connection, e.g. \\'Active\\', \\'Inactive\\'. [Value Examples: \\'Active\\', \\'Inactive\\']',\n  `electricity_sc_no`\
+  \ STRING COMMENT 'DISCOM service connection (SC) number for the electricity connection.',\n  `discom_name` STRING COMMENT\
+  \ 'Name of the electricity distribution company (DISCOM) serving this connection. [Value Examples: \\'SPDCL\\', \\'EPDCL\\\
+  ', \\'CPDCL\\']',\n  `electricity_status_updated_on` DATE COMMENT 'Date the electricity connection status was last confirmed/updated\
+  \ by the DISCOM. [Value Examples: \\'2026-07-01\\']',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this utility record was\
+  \ last updated.',\n  `lpg_consumer_id` STRING COMMENT 'LPG consumer identifier for the household gas connection.'\n)\nROW\
+  \ FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  LOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_utility_connection'"
 columns:
 - name: person_id
   type: STRING
   nullable: true
-  description: 'Primary Key: Foreign key to dim_person.person_id.'
+  description: Foreign key to dim_person.person_id.
 - name: gas_connection_status
   type: STRING
   nullable: true
-  description: 'Status of the domestic LPG connection, e.g. ''Active'', ''Inactive''.
-    [Value Examples: ''Active'', ''Inactive'']'
+  description: 'Status of the domestic LPG connection, e.g. ''Active'', ''Inactive''. [Value Examples: ''Active_gsws'', ''Active'',
+    ''Inactive'']'
   distinct:
   - Active_gsws
   - Active
   - Inactive
-  - 'NULL'
 - name: electricity_status
   type: STRING
   nullable: true
-  description: 'Status of the electricity connection, e.g. ''Active'', ''Inactive''.
-    [Value Examples: ''Active'', ''Inactive'']'
+  description: 'Status of the electricity connection, e.g. ''Active'', ''Inactive''. [Value Examples: ''Inactive'', ''Active'']'
   distinct:
   - Inactive
   - Active
-  - 'NULL'
 - name: avg_monthly_kwh
   type: INT
   nullable: true
-  description: 'Average monthly electricity consumption, in kWh. Unit: kWh.'
+  description: Average monthly electricity consumption, in kWh.
 - name: water_connection_status
   type: STRING
   nullable: true
-  description: 'Status of the piped water connection, e.g. ''Active'', ''Inactive''.
-    [Value Examples: ''Active'', ''Inactive'']'
+  description: 'Status of the piped water connection, e.g. ''Active'', ''Inactive''. [Value Examples: ''Active'', ''Inactive'']'
   distinct:
   - Active
   - Inactive
-  - 'NULL'
 - name: electricity_sc_no
   type: STRING
   nullable: true
@@ -76,25 +66,26 @@ columns:
 - name: discom_name
   type: STRING
   nullable: true
-  description: Name of the electricity distribution company (DISCOM) serving this
-    connection.
+  description: 'Name of the electricity distribution company (DISCOM) serving this connection. [Value Examples: ''SPDCL'',
+    ''EPDCL'', ''CPDCL'']'
   distinct:
-  - 'NULL'
   - SPDCL
   - EPDCL
   - CPDCL
 - name: electricity_status_updated_on
   type: DATE
   nullable: true
-  description: Date the electricity connection status was last confirmed/updated by
-    the DISCOM.
+  description: 'Date the electricity connection status was last confirmed/updated by the DISCOM. [Value Examples: ''2026-07-01'']'
   distinct:
   - '2026-07-01'
-  - 'NULL'
 - name: updated_at
   type: TIMESTAMP
   nullable: true
   description: Timestamp this utility record was last updated.
+- name: lpg_consumer_id
+  type: STRING
+  nullable: true
+  description: LPG consumer identifier for the household gas connection.
 primary_key:
 - person_id
 relationships:

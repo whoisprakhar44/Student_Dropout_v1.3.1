@@ -1,0 +1,9 @@
+column_name,type,nullable
+consent_id,TEXT,true
+created_at,TEXT,true
+is_revocable,INTEGER,true
+person_id,TEXT,true
+revoked_at,TEXT,true
+updated_at,TEXT,true
+valid_from,TEXT,true
+valid_to,TEXT,true

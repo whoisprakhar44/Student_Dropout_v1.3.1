@@ -1,12 +1,10 @@
 database: ap_citizen360
 table: dim_crop_sale
 department: ap_citizen360
-description: "One row per farmer per financial year \u2014 total value of crop sales\
-  \ through tracked procurement/market channels, split paddy vs non-paddy. Used for\
-  \ agricultural income verification."
+description: One row per farmer per financial year — total value of crop sales through tracked procurement/market channels,
+  split paddy vs non-paddy. Used for agricultural income verification.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_crop_sale
-partitioned_by: null
 tblproperties:
   engine.hive.enabled: 'true'
   external: 'true'
@@ -17,51 +15,96 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_crop_sale`(\n  `person_id` STRING\
-  \ COMMENT 'Primary Key: Foreign key to dim_person.person_id.',\n  `financial_year`\
-  \ STRING COMMENT 'Primary Key: Financial year this sales total covers, e.g. \\'2025-26\\\
-  '.',\n  `amt_paddy` DECIMAL(14,2) COMMENT 'Total sale value of paddy in this financial\
-  \ year, in INR. Unit: INR.',\n  `amt_nonpaddy` DECIMAL(14,2) COMMENT 'Total sale\
-  \ value of all non-paddy crops in this financial year, in INR. Unit: INR.',\n  `amt_total`\
-  \ DECIMAL(14,2) COMMENT 'Total crop sale value across all crops in this financial\
-  \ year, in INR. Unit: INR.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this record\
-  \ was last updated.')\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_crop_sale'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_crop_sale`(\n  `person_id` STRING COMMENT 'Foreign key to dim_person.person_id.',\n\
+  \  `financial_year` STRING COMMENT 'Financial year this sales total covers, e.g. \\'2025-26\\'. [Value Examples: \\'2025-26\\\
+  ']',\n  `amt_paddy` DECIMAL(14,2) COMMENT 'Total sale value of paddy in this financial year, in INR.',\n  `amt_nonpaddy`\
+  \ DECIMAL(14,2) COMMENT 'Total sale value of all non-paddy crops in this financial year, in INR. [Value Examples: \\'0.00\\\
+  ']',\n  `amt_total` DECIMAL(14,2) COMMENT 'Total crop sale value across all crops in this financial year, in INR.',\n  `updated_at`\
+  \ TIMESTAMP COMMENT 'Timestamp this record was last updated.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_crop_sale'"
 columns:
 - name: person_id
   type: STRING
   nullable: true
-  description: 'Primary Key: Foreign key to dim_person.person_id.'
+  description: Foreign key to dim_person.person_id.
 - name: financial_year
   type: STRING
   nullable: true
-  description: 'Primary Key: Financial year this sales total covers, e.g. ''2025-26''.'
+  description: 'Financial year this sales total covers, e.g. ''2025-26''. [Value Examples: ''2025-26'']'
   distinct:
   - 2025-26
 - name: amt_paddy
   type: DECIMAL(14,2)
   nullable: true
-  description: 'Total sale value of paddy in this financial year, in INR. Unit: INR.'
+  description: Total sale value of paddy in this financial year, in INR.
+  distinct:
+  - '118450.00'
+  - '47380.00'
+  - '71070.00'
+  - '56856.00'
+  - '28428.00'
+  - '37904.00'
+  - '94760.00'
+  - '142140.00'
+  - '66332.00'
+  - '33166.00'
+  - '35061.00'
+  - '75808.00'
+  - '18952.00'
+  - '23690.00'
+  - '26532.00'
+  - '42642.00'
+  - '52118.00'
+  - '32218.00'
+  - '31270.00'
+  - '45484.00'
+  - '85284.00'
+  - '34113.00'
+  - '39799.00'
+  - '22742.00'
+  - '53065.00'
 - name: amt_nonpaddy
   type: DECIMAL(14,2)
   nullable: true
-  description: 'Total sale value of all non-paddy crops in this financial year, in
-    INR. Unit: INR.'
+  description: 'Total sale value of all non-paddy crops in this financial year, in INR. [Value Examples: ''0.00'']'
   distinct:
   - '0.00'
 - name: amt_total
   type: DECIMAL(14,2)
   nullable: true
-  description: 'Total crop sale value across all crops in this financial year, in
-    INR. Unit: INR.'
+  description: Total crop sale value across all crops in this financial year, in INR.
+  distinct:
+  - '118450.00'
+  - '47380.00'
+  - '71070.00'
+  - '56856.00'
+  - '28428.00'
+  - '37904.00'
+  - '94760.00'
+  - '142140.00'
+  - '66332.00'
+  - '33166.00'
+  - '35061.00'
+  - '75808.00'
+  - '18952.00'
+  - '23690.00'
+  - '26532.00'
+  - '42642.00'
+  - '52118.00'
+  - '32218.00'
+  - '31270.00'
+  - '45484.00'
+  - '85284.00'
+  - '34113.00'
+  - '39799.00'
+  - '22742.00'
+  - '53065.00'
 - name: updated_at
   type: TIMESTAMP
   nullable: true
   description: Timestamp this record was last updated.
 primary_key:
-- person_id
-- financial_year
+- person_id, financial_year
 relationships:
 - dim_crop_sale.person_id is a foreign key to dim_person.person_id.
 business_terms:
