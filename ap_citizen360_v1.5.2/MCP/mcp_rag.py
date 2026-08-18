@@ -223,19 +223,11 @@ _SCHEMA_MIN_SCORE = float(os.getenv("SCHEMA_MIN_SCORE", "0.20"))
 # that have no analytical value for the Student Dropout NL2SQL use-case.
 # The Milvus index and metadata structure are unchanged — exclusion happens
 # purely at query-time, after vector search returns results.
-EXCLUDED_FACT_TABLES: set[str] = {
-    # Data Transfer API — event infrastructure
-    "fact_event_details",
-    "fact_event_request_registry",
-    "fact_event_index",
-    "fact_event_acknowledgement",
-    "fact_event_status_update",
-    # P4 scoring — geo aggregates & leaderboard (citizen-level score kept)
-    "fact_p4_geo_score",
-    "fact_p4_ranking",
-    # Utility trend — macro monthly indices, not useful for dropout queries
-    "fact_utility_trend",
-}
+# Fact tables excluded from RAG results (empty by default for AP Citizen 360)
+EXCLUDED_FACT_TABLES: set[str] = set(
+    x.strip() for x in os.getenv("EXCLUDED_FACT_TABLES", "").split(",") if x.strip()
+)
+
 
 
 def dedupe(rows: List[Dict]):
@@ -560,8 +552,21 @@ def search_documents(query: str, top_k: int = 5) -> str:
 @mcp.tool()
 def search_exact_fewshot(query: str, threshold: float = 0.95) -> str:
     """
-    Search strictly the few-shot examples for an exact semantic match (>= 0.95 cosine).
-    Returns a JSON payload with "matched": true/false and the exact "sql" to execute if matched.
+    ALWAYS call this tool FIRST before retrive_schema_rag or any other retrieval.
+
+    Searches the curated few-shot store for an exact semantic match to the user's question.
+    Returns a JSON object with:
+      - "matched": true  → an exact match was found at or above the similarity threshold
+      - "sql": "<query>" → the pre-verified SQL to execute directly
+
+    CRITICAL RULES — you MUST follow these without exception:
+    1. If "matched" is true:
+       - USE the returned "sql" value DIRECTLY as your final SQL.
+       - Do NOT call retrive_schema_rag, get_column_values, or any other tool.
+       - Do NOT modify, rephrase, or regenerate the SQL.
+       - Immediately execute the SQL and return the results to the user.
+    2. If "matched" is false:
+       - Proceed to call retrive_schema_rag to retrieve schema context, then generate SQL.
     """
     logger.info(f"search_exact_fewshot query: '{query}' (threshold={threshold})")
     
@@ -570,30 +575,54 @@ def search_exact_fewshot(query: str, threshold: float = 0.95) -> str:
 
     try:
         emb = embedder.embed(query)
+        # L2-normalize to match the unit-norm vectors stored during ingestion
+        import math as _math
+        _norm = _math.sqrt(sum(x * x for x in emb))
+        if _norm > 0:
+            emb = [x / _norm for x in emb]
         res = vector_db.client.search(
             collection_name=vector_db.collection,
             data=[emb],
             limit=1,
             output_fields=["database_name", "table_name", "raw_ddl", "embedding_text"],
-            search_params={"metric_type": "COSINE"},
             partition_names=["few_shot_store"],
         )
         logger.info(f"DEBUG: search_exact_fewshot result: {res}")
         
         if res and res[0]:
             hit = res[0][0]
-            score = float(hit["distance"]) # COSINE metric
-            logger.info(f"search_exact_fewshot top match score: {score:.4f}")
+            dist = float(hit["distance"])
+            # Milvus with COSINE metric returns Cosine Distance (1.0 - Cosine Similarity),
+            # where 0.0 = identical (similarity 1.0). Convert to similarity in [0, 1].
+            score = (1.0 - dist) if (0.0 <= dist <= 1.0) else dist
+            logger.info(f"search_exact_fewshot top match score: {score:.4f} (distance: {dist:.4f})")
             
             if score >= threshold:
-                sql = hit["entity"].get("raw_ddl", "")
-                
-                # Apply same cleanup as retrive_schema_rag if SQLite mode is on
+
+                raw_ddl = hit["entity"].get("raw_ddl", "")
+
+                # raw_ddl is the full LLM payload: "Question: ...\nSQL:\n<query>\nTables: ..."
+                # Extract ONLY the SQL block — everything between "SQL:\n" and the next
+                # section header (or end of string). Pass that clean SQL to execute_sql.
+                sql = ""
+                sql_match = re.search(
+                    r"SQL:\n(.*?)(?=\nTables:|\nOutput Columns:|\nRisk Signal:|\nGrain:|\nQuality Notes:|$)",
+                    raw_ddl,
+                    re.DOTALL,
+                )
+                if sql_match:
+                    sql = sql_match.group(1).strip()
+                else:
+                    # Fallback: use raw_ddl as-is (shouldn't happen for well-formed records)
+                    sql = raw_ddl
+
+                # Strip ap_citizen360. prefix when not in Hive/Iceberg mode
                 hive_enabled = os.getenv("HIVE_MCP_ENABLED", "false").strip().lower() in ("true", "1", "yes")
                 if not hive_enabled and sql:
                     sql = sql.replace("ap_citizen360.", "")
-                    
+
                 logger.info(f"Exact match found! Score: {score:.4f} >= {threshold}")
+                logger.info(f"Extracted SQL: {sql[:120]}...")
                 return json.dumps({
                     "matched": True,
                     "score": score,

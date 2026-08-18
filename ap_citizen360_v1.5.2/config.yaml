@@ -57,3 +57,4 @@ vector_db:
     dim: 768
 
     metric_type: COSINE            # COSINE | IP | L2
+

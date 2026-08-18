@@ -1,8 +1,9 @@
 database: ap_citizen360
 table: dim_scheme_main_mapping
 department: ap_citizen360
-description: Maps each leaf scheme_id to a main (parent) scheme_id so variants roll up together in counts, disbursement totals,
-  and the Schemes UI. A scheme with no row here is treated as its own main scheme.
+description: Maps each leaf scheme_id to a main (parent) scheme_id so variants 
+  roll up together in counts, disbursement totals, and the Schemes UI. A scheme 
+  with no row here is treated as its own main scheme.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_scheme_main_mapping
 partitioned_by: district_id
@@ -16,20 +17,43 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_scheme_main_mapping`(\n  `scheme_id` STRING COMMENT 'Leaf / actual scheme\
-  \ id from dim_scheme.',\n  `main_scheme_id` STRING COMMENT 'Parent / main scheme id from dim_scheme that this leaf rolls\
-  \ up under.',\n  `updated_at` TIMESTAMP COMMENT 'When this mapping row was last updated.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_scheme_main_mapping'\n\
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_scheme_main_mapping`(\n  `scheme_id`
+  STRING COMMENT 'Leaf / actual scheme id from dim_scheme.',\n  `main_scheme_id` STRING
+  COMMENT 'Parent / main scheme id from dim_scheme that this leaf rolls up under.',\n\
+  \  `updated_at` TIMESTAMP COMMENT 'When this mapping row was last updated.'\n)\n\
+  ROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n \
+  \ 'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_scheme_main_mapping'\n\
   PARTITIONED BY (district_id)"
 columns:
 - name: scheme_id
   type: STRING
   nullable: true
-  description: Leaf / actual scheme id from dim_scheme.
+  description: "Leaf / actual scheme id from dim_scheme. [Value Examples: 'SCH-055',
+    'SCH-050', 'SCH-024', 'SCH-049', 'SCH-057', 'SCH-052']"
+  distinct:
+  - SCH-055
+  - SCH-050
+  - SCH-024
+  - SCH-049
+  - SCH-057
+  - SCH-052
+  - SCH-051
+  - SCH-056
+  - SCH-025
+  - SCH-054
+  - SCH-062
+  - SCH-047
+  - SCH-053
+  - SCH-046
+  - SCH-048
+  - SCH-023
 - name: main_scheme_id
   type: STRING
   nullable: true
-  description: Parent / main scheme id from dim_scheme that this leaf rolls up under.
+  description: "Parent / main scheme id from dim_scheme that this leaf rolls up under.
+    [Value Examples: 'SCH-062']"
+  distinct:
+  - SCH-062
 - name: updated_at
   type: TIMESTAMP
   nullable: true

@@ -1,8 +1,9 @@
 database: ap_citizen360
 table: dim_scheme
 department: ap_citizen360
-description: Canonical welfare/benefit scheme catalog — referenced by fact_entitlement, fact_benefit_transaction, fact_scheme_disbursement,
-  and the linked_scheme_ids arrays on several dim_* tables.
+description: Canonical welfare/benefit scheme catalog — referenced by 
+  fact_entitlement, fact_benefit_transaction, fact_scheme_disbursement, and the 
+  linked_scheme_ids arrays on several dim_* tables.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_scheme
 partitioned_by: district_id
@@ -16,13 +17,16 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_scheme`(\n  `scheme_id` STRING COMMENT 'Canonical scheme code, e.g. \\\
-  'SCH-001\\'.',\n  `scheme_name` STRING COMMENT 'Display name of the scheme, e.g. \\'Anna NTR\\', \\'PM-Kisan\\'.',\n  `department_id`\
-  \ STRING COMMENT 'Foreign key to dim_department.department_id — the department administering this scheme.',\n  `benefit_type`\
-  \ STRING COMMENT 'Nature of the benefit, e.g. \\'Cash Transfer\\', \\'In-kind\\', \\'Subsidy\\', \\'Insurance\\'. [Value\
-  \ Examples: \\'Direct Cash Transfer\\', \\'In-Kind\\', \\'Fee Reimbursement\\', \\'Insurance Coverage\\', \\'Credit / Loan\\\
-  ']'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
-  LOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_scheme'\nPARTITIONED BY (district_id)"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_scheme`(\n  `scheme_id` STRING
+  COMMENT 'Canonical scheme code, e.g. \\'SCH-001\\'.',\n  `scheme_name` STRING COMMENT
+  'Display name of the scheme, e.g. \\'Anna NTR\\', \\'PM-Kisan\\'.',\n  `department_id`
+  STRING COMMENT 'Foreign key to dim_department.department_id — the department administering
+  this scheme.',\n  `benefit_type` STRING COMMENT 'Nature of the benefit, e.g. \\\
+  'Cash Transfer\\', \\'In-kind\\', \\'Subsidy\\', \\'Insurance\\'. [Value Examples:
+  \\'Direct Cash Transfer\\', \\'In-Kind\\', \\'Fee Reimbursement\\', \\'Insurance
+  Coverage\\', \\'Credit / Loan\\']'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
+  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_scheme'\nPARTITIONED BY (district_id)"
 columns:
 - name: scheme_id
   type: STRING
@@ -31,48 +35,50 @@ columns:
 - name: scheme_name
   type: STRING
   nullable: true
-  description: Display name of the scheme, e.g. 'Anna NTR', 'PM-Kisan'.
-  distinct:
-  - Pre-Matric Scholarship (SC/ST/BC/Min)
-  - PM-YASASVI - Post-Matric Scholarship for OBC, EBC & DNT [AP146]
-  - Bala Sanjeevani Plus
-  - Kutir Jyoti (Free Electricity Connection)
-  - NTR Bharosa Pension (Old Age)
-  - Post-Matriculation Scholarships (MTF)
-  - Rythu Bandhu Pathakam
-  - NTR Bharosa Pension (Abhayahastam)
-  - NTR Bharosa Pension (Widow)
-  - AP ePass (Post-Matric Scholarship)
-  - PM-Kisan (Pradhan Mantri Kisan)
-  - Sumangali (Marriage Assistance)
-  - AB-PMJAY (Ayushman Bharat)
-  - MEPMA Urban SHG Loan
-  - Amma Vodi (School Dropout Prevention)
-  - YSR Free Solar Rooftop Scheme
-  - Rythu Bharosa (Input Subsidy)
-  - Janani Suraksha Yojana (JSY)
-  - Weavers Pension
-  - Rajiv Gandhi Vidyarthi Abhaya Hastham
-  - UDID Disability Certificate & Benefits
-  - NTR Vaidya Seva (Aarogyasri)
-  - Matsyakara Sevalo
-  - NTR Vidya Deevena (Fee Reimbursement)
-  - NTR Bharosa Pension (Transgender)
+  description: "Display name of the scheme, e.g. 'Anna NTR', 'PM-Kisan'. [Value Examples:
+    'Sumangali (Marriage Assistance)', 'Pre-Matric Scholarship (SC/ST/BC/Min)', 'PM-YASASVI
+    - Post-Matric Scholarship for OBC, EBC & DNT [AP146]', 'Chandranna Bima (Accidental
+    Insurance)', 'PM Fasal Bima Yojana (PMFBY)', 'Post-Matric Scholarship to SCs [AP232]']"
 - name: department_id
   type: STRING
   nullable: true
-  description: Foreign key to dim_department.department_id — the department administering this scheme.
+  description: "Foreign key to dim_department.department_id — the department administering
+    this scheme. [Value Examples: 'DEPT-SW', 'DEPT-EDU', 'DEPT-AGRI', 'DEPT-WCD',
+    'DEPT-RD', 'DEPT-GOI']"
+  distinct:
+  - DEPT-SW
+  - DEPT-EDU
+  - DEPT-AGRI
+  - DEPT-WCD
+  - DEPT-RD
+  - DEPT-GOI
+  - DEPT-PG
+  - DEPT-HEALTH
+  - DEPT-FISH
+  - DEPT-HE
+  - DEPT-BC
+  - DEPT-HUD
+  - DEPT-FCS
+  - DEPT-FIN
+  - DEPT-LABOUR
+  - DEPT-MEPMA
+  - DEPT-RTA
+  - DEPT-SERP
+  - DEPT-MIN
+  - DEPT-ENE
 - name: benefit_type
   type: STRING
   nullable: true
-  description: 'Nature of the benefit, e.g. ''Cash Transfer'', ''In-kind'', ''Subsidy'', ''Insurance''. [Value Examples: ''Direct
-    Cash Transfer'', ''In-Kind'', ''Fee Reimbursement'', ''Insurance Coverage'', ''Credit / Loan'']'
+  description: 'Nature of the benefit, e.g. ''Cash Transfer'', ''In-kind'', ''Subsidy'',
+    ''Insurance''. [Value Examples: ''Direct Cash Transfer'', ''In-Kind'', ''Fee Reimbursement'',
+    ''Insurance Coverage'', ''Credit / Loan'', ''Direct Benfit Transfer'']'
   distinct:
   - Direct Cash Transfer
   - In-Kind
   - Fee Reimbursement
   - Insurance Coverage
   - Credit / Loan
+  - Direct Benfit Transfer
 primary_key:
 - scheme_id
 relationships:

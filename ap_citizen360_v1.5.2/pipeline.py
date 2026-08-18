@@ -624,9 +624,17 @@ def load_fewshot_records(jsonl_path: str) -> list[dict]:
             if row.get("sql"):
                 payload_lines.append(f"SQL:\n{row['sql']}")
             if row.get("tables"):
-                payload_lines.append(f"Tables: {', '.join(row['tables'])}")
+                tables = row["tables"]
+                # Normalize: new_fewshots.json stores tables as a comma-separated
+                # string; old JSONL files store them as a list. Handle both.
+                if isinstance(tables, str):
+                    tables = [t.strip() for t in tables.split(",")]
+                payload_lines.append(f"Tables: {', '.join(tables)}")
             if row.get("output_columns"):
-                payload_lines.append(f"Output Columns: {', '.join(row['output_columns'])}")
+                oc = row["output_columns"]
+                if isinstance(oc, str):
+                    oc = [c.strip() for c in oc.split(",")]
+                payload_lines.append(f"Output Columns: {', '.join(oc)}")
             if row.get("risk_signal"):
                 payload_lines.append(f"Risk Signal: {row['risk_signal']}")
             if row.get("grain"):
@@ -655,9 +663,20 @@ def build_fewshot_records(
     Pairs loaded JSONL rows with their embeddings.
     Produces dicts that match the exact 7-field Milvus schema:
         id, database_name, table_name, embedding_text, raw_ddl, source_file, embedding
+
+    NOTE: Embeddings are L2-normalized before storage. MilvusLite has a known
+    bug where COSINE search on partitions returns incorrect scores for unnormalized
+    vectors (manual cosine = 1.0 but Milvus returns 0.0). Normalizing to unit
+    length makes COSINE = dot product, which MilvusLite computes correctly.
     """
+    import math
     records = []
     for row, emb in zip(raw_records, embeddings):
+        # L2-normalize the embedding vector
+        norm = math.sqrt(sum(x * x for x in emb))
+        if norm > 0:
+            emb = [x / norm for x in emb]
+
         # Use deterministic UUID derived from source_id to prevent duplicates on re-runs
         doc_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, row["source_id"])) if row.get("source_id") else str(uuid.uuid4())
         record = {
@@ -670,6 +689,7 @@ def build_fewshot_records(
             "embedding":      emb,
         }
         records.append(record)
+
     return records
 
 
@@ -704,13 +724,23 @@ def run_fewshot_pipeline(config_path: str, jsonl_path: str):
     logger.info(f"Connecting to vector DB: {cfg['vector_db']['provider']}")
     vdb = VectorDBClient(cfg["vector_db"])
 
-    # Clear old few-shot partition to purge legacy stale records
+    # Clear old few-shot records — use delete-by-filter instead of drop+recreate.
+    # MilvusLite bug: dropping and recreating a partition causes the COSINE index
+    # to stop working (all search scores return 0.0). Deleting records preserves
+    # the partition and its index structure.
     if vdb.provider == "milvus":
         try:
             if vdb._client.has_partition(collection_name=vdb._collection_name, partition_name=PARTITION_FEW_SHOT):
-                vdb._client.drop_partition(collection_name=vdb._collection_name, partition_name=PARTITION_FEW_SHOT)
-                logger.info(f"Dropped legacy partition '{PARTITION_FEW_SHOT}'")
-            vdb._client.create_partition(collection_name=vdb._collection_name, partition_name=PARTITION_FEW_SHOT)
+                # Delete all existing records in the partition
+                vdb._client.delete(
+                    collection_name=vdb._collection_name,
+                    partition_name=PARTITION_FEW_SHOT,
+                    filter='id != ""',
+                )
+                logger.info(f"Cleared existing records from partition '{PARTITION_FEW_SHOT}'")
+            else:
+                vdb._client.create_partition(collection_name=vdb._collection_name, partition_name=PARTITION_FEW_SHOT)
+                logger.info(f"Created partition '{PARTITION_FEW_SHOT}'")
         except Exception as e:
             logger.warning(f"Partition reset warning: {e}")
 

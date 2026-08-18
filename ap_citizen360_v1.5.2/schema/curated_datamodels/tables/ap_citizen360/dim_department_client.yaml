@@ -1,10 +1,12 @@
 database: ap_citizen360
 table: dim_department_client
 department: ap_citizen360
-description: Registered Data Transfer API clients — backs the OAuth2 client-credentials grant at POST /auth/token and verify_bearer_token's
-  suspension check. department_id here is a separate registry-style namespace (e.g. 'DEPT-SWD-001') from dim_department's
-  canonical codes, and has no department_name column — readable names for these specific IDs are maintained as a small static
-  lookup in app code, not in the warehouse.
+description: Registered Data Transfer API clients — backs the OAuth2 
+  client-credentials grant at POST /auth/token and verify_bearer_token's 
+  suspension check. department_id here is a separate registry-style namespace 
+  (e.g. 'DEPT-SWD-001') from dim_department's canonical codes, and has no 
+  department_name column — readable names for these specific IDs are maintained 
+  as a small static lookup in app code, not in the warehouse.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_department_client
 partitioned_by: district_id
@@ -18,56 +20,37 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_department_client`(\n  `department_id` STRING COMMENT 'Registered client\
-  \ identifier, e.g. \\'DEPT-SWD-001\\' — presented as the OAuth2 client_id.',\n  `client_secret_hash` STRING COMMENT 'Salted\
-  \ hash of the client\\'s secret credential — the secret itself is never stored.',\n  `is_active` BOOLEAN COMMENT 'True if\
-  \ this client\\'s credentials are currently active; false suspends/revokes API access immediately. [Value Examples: \\'True\\\
-  ']',\n  `created_at` TIMESTAMP COMMENT 'Timestamp this client registration was created.',\n  `updated_at` TIMESTAMP COMMENT\
-  \ 'Timestamp this client registration was last updated (e.g. on scope change or suspension).'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_department_client'\n\
-  PARTITIONED BY (district_id)"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_department_client`(\n  `department_id`
+  STRING COMMENT 'Registered client identifier, e.g. \\'DEPT-SWD-001\\' — presented
+  as the OAuth2 client_id.',\n  `client_secret_hash` STRING COMMENT 'Salted hash of
+  the client\\'s secret credential — the secret itself is never stored.',\n  `is_active`
+  BOOLEAN COMMENT 'True if this client\\'s credentials are currently active; false
+  suspends/revokes API access immediately. [Value Examples: \\'True\\']',\n  `created_at`
+  TIMESTAMP COMMENT 'Timestamp this client registration was created.',\n  `updated_at`
+  TIMESTAMP COMMENT 'Timestamp this client registration was last updated (e.g. on
+  scope change or suspension).'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
+  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_department_client'\nPARTITIONED
+  BY (district_id)"
 columns:
 - name: department_id
   type: STRING
   nullable: true
-  description: Registered client identifier, e.g. 'DEPT-SWD-001' — presented as the OAuth2 client_id.
+  description: "Registered client identifier, e.g. 'DEPT-SWD-001' — presented as the
+    OAuth2 client_id. [Value Examples: 'DEPT-AGRI', 'DEPT-GOI', 'DEPT-SW', 'DEPT-PG',
+    'DEPT-HUD', 'DEPT-APMB']"
 - name: client_secret_hash
   type: STRING
   nullable: true
-  description: Salted hash of the client's secret credential — the secret itself is never stored.
-  distinct:
-  - 7d92be54a9011757f56e23ec239be4ea47783fb65b8b3d11cd8f7468ccc982b2
-  - cd6fd5556526e421ca9784733a87cd14a0e2e493fd566d7bf24c80771b35fd59
-  - 4ed7a80d3662221ec7f7437759141b2ec9289b66db67e693a733ce1baaa4b4a1
-  - 221e2916398a5a26ed5a01e1f932583f533c5687da57f56084fb0e83f6fba757
-  - 6b7ad8813ab98e38ddaf7760bf96571d98b027e972fce0f6adb9697c277ef9fe
-  - 2c6b1f5f400fb5710af83be4030f231b615326f8fb0d2e730fa3f5f7eb8f7891
-  - 9fa88afd2990b35577df378173be9e26cdf8a63cbd4e431259a61ca4988dc76d
-  - b7773e584f17e261867000f682f7f5500e91daa478692ec363cad45738fb499a
-  - 5a556c4dc80e9ef1c3ddf91c92d8b6310370599021f92827ad90a7083c4f8aa6
-  - c2671eea40ce1974521f058274d31398aa205b30e47e77703b80d750d8384800
-  - 4f5d6fc00fd049d850fcdd0e3e5ab354b7caa4b6111e6411af2f9d1e34e58d98
-  - 35e0a2ce8a428f0fe575de4ad5b3b72f279d9fe71ad44a5ca02c821b883bb734
-  - 066ab0e6a25709206cb10732ae4af835439558ff1e90564607eae25d6d204500
-  - 06d04790a7d29ba5ca65c4474085e7f3ff1ea30009b91eda5be8f8cdedf1d27a
-  - acd1fb3095c75784d6061d22b67e9821d382c34a3f4cf26c8eddbb784a85ad9a
-  - c58042bc3003713918b8b7db4520e1cb475a32ddfe28d0fb910d3dac2e768943
-  - a32df263bba75feb74bccf11f8739eeab6dc74c1ad414921bb0cab97a218a9c0
-  - 8d23ec6316eed90d87fc32d67fd9c879a0ae06563f2ca7407cbbe2c1c321c4b4
-  - 108713c878db498f698179e8f66b6faa344d12c62796daf52bd2d0f04e5cecbe
-  - 6a3c3faa44800c6e371f50b4a6c4aa50b312f69cf41061b80b9c0487d9307d37
-  - fda3a52b95934f004faf2846b43795acd50de4068885aef6d0f9e5d95e44d97c
-  - 4d68792f41410804351b5e8f8b108a0382fdad9a204316165453bbb42e94a1b2
-  - 19f4edd785b32e3194ec3d1b552dccaf99c0b7c9cc45474e1c5d7a44f6be60ce
-  - 84a3520b14f8c7d00357de7d827413cdae0f72ce8d2f1c60667d22e446082eb2
+  description: Salted hash of the client's secret credential — the secret itself
+    is never stored.
 - name: is_active
   type: BOOLEAN
   nullable: true
-  description: 'True if this client''s credentials are currently active; false suspends/revokes API access immediately. [Value
-    Examples: ''True'']'
+  description: 'True if this client''s credentials are currently active; false suspends/revokes
+    API access immediately. [Value Examples: ''True'']'
   distinct:
   - 'True'
-  - 'False'
 - name: created_at
   type: TIMESTAMP
   nullable: true
@@ -75,11 +58,13 @@ columns:
 - name: updated_at
   type: TIMESTAMP
   nullable: true
-  description: Timestamp this client registration was last updated (e.g. on scope change or suspension).
+  description: Timestamp this client registration was last updated (e.g. on 
+    scope change or suspension).
 primary_key:
 - department_id
 relationships:
-- dim_department_client.department_id is a foreign key to dim_department.department_id.
+- dim_department_client.department_id is a foreign key to 
+  dim_department.department_id.
 business_terms:
 - ap_citizen360
 - security_—_data_transfer_api_department_client_registry

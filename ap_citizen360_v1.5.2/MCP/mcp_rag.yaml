@@ -29,6 +29,7 @@ vector_db:
     dim: 768                       # must match embedding model output dim
     metric_type: COSINE
 
+
 # Per-table schema YAMLs (one Milvus vector per file)
 yaml_dir: ../schema/curated_datamodels/tables
 full_schema: ../schema/curated_datamodels/full_schema.yaml

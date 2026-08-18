@@ -1,8 +1,9 @@
 database: ap_citizen360
 table: dim_epfo_contribution
 department: ap_citizen360
-description: One row per person summarizing their Employees' Provident Fund Organisation contribution status — for formal-sector
-  employees contributing to EPF/EPS.
+description: One row per person summarizing their Employees' Provident Fund 
+  Organisation contribution status — for formal-sector employees contributing to
+  EPF/EPS.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_epfo_contribution
 tblproperties:
@@ -15,15 +16,19 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_epfo_contribution`(\n  `person_id` STRING COMMENT 'Foreign key to dim_person.person_id.',\n\
-  \  `employee_contribution` DECIMAL(10,0) COMMENT 'Most recent employee-side EPF contribution amount, in INR.',\n  `employer_contribution`\
-  \ DECIMAL(10,0) COMMENT 'Most recent employer-side EPF contribution amount, in INR.',\n  `eps_contribution` DECIMAL(10,0)\
-  \ COMMENT 'Most recent Employees\\' Pension Scheme contribution amount, in INR.',\n  `latest_contribution_date` DATE COMMENT\
-  \ 'Date of the most recent contribution.',\n  `secretariat_code` STRING COMMENT 'Gram/Ward Sachivalayam code associated\
-  \ with the person\\'s registered address.',\n  `establishment_id` STRING COMMENT 'EPFO establishment (employer) code the\
-  \ contributions were made through.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this EPFO record was last updated.'\n\
-  )\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
-  LOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_epfo_contribution'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_epfo_contribution`(\n  `person_id`
+  STRING COMMENT 'Foreign key to dim_person.person_id.',\n  `employee_contribution`
+  DECIMAL(10,0) COMMENT 'Most recent employee-side EPF contribution amount, in INR.',\n\
+  \  `employer_contribution` DECIMAL(10,0) COMMENT 'Most recent employer-side EPF
+  contribution amount, in INR.',\n  `eps_contribution` DECIMAL(10,0) COMMENT 'Most
+  recent Employees\\' Pension Scheme contribution amount, in INR.',\n  `latest_contribution_date`
+  DATE COMMENT 'Date of the most recent contribution.',\n  `secretariat_code` STRING
+  COMMENT 'Gram/Ward Sachivalayam code associated with the person\\'s registered address.',\n\
+  \  `establishment_id` STRING COMMENT 'EPFO establishment (employer) code the contributions
+  were made through.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this EPFO record
+  was last updated.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
+  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_epfo_contribution'"
 columns:
 - name: person_id
   type: STRING
@@ -33,92 +38,15 @@ columns:
   type: DECIMAL(10,0)
   nullable: true
   description: Most recent employee-side EPF contribution amount, in INR.
-  distinct:
-  - '1800'
-  - '0'
-  - '720'
-  - '1200'
-  - '1440'
-  - '480'
-  - '600'
-  - '1080'
-  - '360'
-  - '840'
-  - '780'
-  - '960'
-  - '900'
-  - '1680'
-  - '240'
-  - '1500'
-  - '1740'
-  - '1560'
-  - '1486'
-  - '2544'
-  - '540'
-  - '420'
-  - '1260'
-  - '3600'
-  - '300'
 - name: employer_contribution
   type: DECIMAL(10,0)
   nullable: true
   description: Most recent employer-side EPF contribution amount, in INR.
-  distinct:
-  - '550'
-  - '0'
-  - '1800'
-  - '551'
-  - '220'
-  - '367'
-  - '147'
-  - '440'
-  - '110'
-  - '330'
-  - '257'
-  - '183'
-  - '239'
-  - '18'
-  - '73'
-  - '294'
-  - '275'
-  - '514'
-  - '17'
-  - '128'
-  - '92'
-  - '477'
-  - '15'
-  - '532'
-  - '165'
 - name: eps_contribution
   type: DECIMAL(10,0)
   nullable: true
-  description: Most recent Employees' Pension Scheme contribution amount, in INR.
-  distinct:
-  - '1250'
-  - '0'
-  - '500'
-  - '833'
-  - '1000'
-  - '333'
-  - '417'
-  - '250'
-  - '750'
-  - '583'
-  - '541'
-  - '666'
-  - '625'
-  - '1166'
-  - '2500'
-  - '167'
-  - '1208'
-  - '1083'
-  - '292'
-  - '1032'
-  - '375'
-  - '1041'
-  - '875'
-  - '208'
-  - '1125'
+  description: Most recent Employees' Pension Scheme contribution amount, in 
+    INR.
 - name: latest_contribution_date
   type: DATE
   nullable: true
@@ -126,11 +54,13 @@ columns:
 - name: secretariat_code
   type: STRING
   nullable: true
-  description: Gram/Ward Sachivalayam code associated with the person's registered address.
+  description: Gram/Ward Sachivalayam code associated with the person's 
+    registered address.
 - name: establishment_id
   type: STRING
   nullable: true
-  description: EPFO establishment (employer) code the contributions were made through.
+  description: EPFO establishment (employer) code the contributions were made 
+    through.
 - name: updated_at
   type: TIMESTAMP
   nullable: true

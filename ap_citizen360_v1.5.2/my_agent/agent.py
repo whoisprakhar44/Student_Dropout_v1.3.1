@@ -43,13 +43,15 @@ def should_continue(state: AgentState) -> Literal["tool_node", "verify_node", "_
     return END
 
 
-def after_tool_node(state: AgentState) -> Literal["verify_node", "llm_node", "synthesize_node", "eval_fast_path_node"]:
+def after_tool_node(state: AgentState) -> Literal["verify_node", "summarization_node", "llm_node", "synthesize_node", "eval_fast_path_node"]:
     """
     After tool_node executes:
-    - If the LLM called execute_sql, go to verify_node to verify the query outcome.
-    - If the LLM called search_documents, go to synthesize_node.
-    - If the tool was search_exact_fewshot, go to eval_fast_path_node.
-    - If it only called schema retrieval, go back to llm_node so it can generate the SQL using the retrieved context.
+    - If the tool was search_exact_fewshot → go to eval_fast_path_node.
+    - If the tool was execute_sql:
+        - SUCCESS → summarization_node directly (no verify needed, results are real data).
+        - FAILURE → verify_node for targeted RAG re-retrieval and SQL rewrite.
+    - If the tool was search_documents → go to synthesize_node.
+    - Otherwise (schema retrieval) → go back to llm_node to generate SQL.
     """
     last_ai_message = None
     for msg in reversed(state.get("messages", [])):
@@ -59,14 +61,32 @@ def after_tool_node(state: AgentState) -> Literal["verify_node", "llm_node", "sy
 
     if last_ai_message and getattr(last_ai_message, "tool_calls", None):
         tool_names = [tc["name"] for tc in last_ai_message.tool_calls]
+        if "search_exact_fewshot" in tool_names:
+            return "eval_fast_path_node"
         if "execute_sql" in tool_names:
+            # Peek at the most recent ToolMessage to check execution outcome.
+            # execute_sql returns {"status": "error", ...} on failure; anything
+            # else (columns + rows) means the query ran successfully.
+            for msg in reversed(state.get("messages", [])):
+                if getattr(msg, "type", None) == "tool" or msg.__class__.__name__ == "ToolMessage":
+                    try:
+                        import json as _json
+                        content = msg.content
+                        if isinstance(content, list):
+                            # Some ToolMessage implementations wrap content in a list
+                            content = content[0].get("text", "") if content else ""
+                        payload = _json.loads(content)
+                        if payload.get("status") == "error":
+                            return "verify_node"   # SQL failed → error recovery loop
+                        return "summarization_node"  # SQL succeeded → summarize directly
+                    except Exception:
+                        break  # Can't parse → fall back to verify_node below
             return "verify_node"
         if "search_documents" in tool_names:
             return "synthesize_node"
-        if "search_exact_fewshot" in tool_names:
-            return "eval_fast_path_node"
 
     return "llm_node"
+
 
 
 def after_eval_fast_path(state: AgentState) -> Literal["tool_node", "initialize_node"]:
@@ -144,11 +164,12 @@ async def build_graph():
         ["tool_node", END],
     )
 
-    # tool_node goes to verify_node, synthesize_node, eval_fast_path_node, or llm_node
+    # tool_node goes to verify_node, summarization_node (fast path), synthesize_node,
+    # eval_fast_path_node, or llm_node
     builder.add_conditional_edges(
         "tool_node",
         after_tool_node,
-        ["verify_node", "llm_node", "synthesize_node", "eval_fast_path_node"],
+        ["verify_node", "summarization_node", "llm_node", "synthesize_node", "eval_fast_path_node"],
     )
 
     # eval_fast_path_node goes to tool_node (if match) or initialize_node (fallback)

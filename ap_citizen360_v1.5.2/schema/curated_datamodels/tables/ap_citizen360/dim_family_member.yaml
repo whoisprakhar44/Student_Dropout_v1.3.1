@@ -1,9 +1,11 @@
 database: ap_citizen360
 table: dim_family_member
 department: ap_citizen360
-description: One row per other household member as recorded against a primary person_id's household — used to show a citizen's
-  family composition without requiring every relative to themselves be a fully resolved dim_person row (handles cases where
-  a household member's own person_id record doesn't exist or isn't linked yet).
+description: One row per other household member as recorded against a primary 
+  person_id's household — used to show a citizen's family composition without 
+  requiring every relative to themselves be a fully resolved dim_person row 
+  (handles cases where a household member's own person_id record doesn't exist 
+  or isn't linked yet).
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_family_member
 tblproperties:
@@ -16,15 +18,19 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_family_member`(\n  `family_member_id` STRING COMMENT 'Canonical identifier\
-  \ for this family-member record.',\n  `person_id` STRING COMMENT 'Foreign key to dim_person.person_id — the citizen whose\
-  \ profile this family member is listed under.',\n  `household_id` STRING COMMENT 'Foreign key to dim_household.household_id.',\n\
-  \  `member_name` STRING COMMENT 'Name of the family member.',\n  `relation` STRING COMMENT 'Relationship to the primary\
-  \ person_id, e.g. \\'Spouse\\', \\'Son\\', \\'Daughter\\'. [Value Examples: \\'Son\\', \\'Daughter\\', \\'Husband\\', \\\
-  'Wife\\']',\n  `age` INT COMMENT 'Family member\\'s age in years.',\n  `gender` STRING COMMENT 'Family member\\'s gender.\
-  \ [Value Examples: \\'Male\\', \\'Female\\', \\'Transgender\\', \\'Others\\']',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp\
-  \ this family-member record was last updated.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED\
-  \ BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_family_member'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_family_member`(\n  `family_member_id`
+  STRING COMMENT 'Canonical identifier for this family-member record.',\n  `person_id`
+  STRING COMMENT 'Foreign key to dim_person.person_id — the citizen whose profile
+  this family member is listed under.',\n  `household_id` STRING COMMENT 'Foreign
+  key to dim_household.household_id.',\n  `member_name` STRING COMMENT 'Name of the
+  family member.',\n  `relation` STRING COMMENT 'Relationship to the primary person_id,
+  e.g. \\'Spouse\\', \\'Son\\', \\'Daughter\\'. [Value Examples: \\'Son\\', \\'Daughter\\\
+  ', \\'Husband\\', \\'Wife\\']',\n  `age` INT COMMENT 'Family member\\'s age in years.',\n\
+  \  `gender` STRING COMMENT 'Family member\\'s gender. [Value Examples: \\'Male\\\
+  ', \\'Female\\', \\'Transgender\\', \\'Others\\']',\n  `updated_at` TIMESTAMP COMMENT
+  'Timestamp this family-member record was last updated.'\n)\nROW FORMAT SERDE\n \
+  \ 'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
+  LOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_family_member'"
 columns:
 - name: family_member_id
   type: STRING
@@ -33,7 +39,8 @@ columns:
 - name: person_id
   type: STRING
   nullable: true
-  description: Foreign key to dim_person.person_id — the citizen whose profile this family member is listed under.
+  description: Foreign key to dim_person.person_id — the citizen whose profile 
+    this family member is listed under.
 - name: household_id
   type: STRING
   nullable: true
@@ -42,37 +49,11 @@ columns:
   type: STRING
   nullable: true
   description: Name of the family member.
-  distinct:
-  - Shaik Mahaboob Basha
-  - Shaik Reshma
-  - Shaik Karimulla
-  - Babu
-  - Lakshmi
-  - Shaik Subhani
-  - Shaik Baji
-  - Shaik Mastan Vali
-  - Shaik Ayesha
-  - Shaik Moulali
-  - Shaik Haseena
-  - Shaik Karishma
-  - Shaik Basha
-  - LAKSHMI
-  - Shaik Salma
-  - Shaik Sameera
-  - Shaik Shabana
-  - Shaik Sameer
-  - Shaik Rafi
-  - Venkatesh
-  - Shaik Mastan
-  - Shaik Khadar Basha
-  - Shaik Suhana
-  - Suresh
-  - Shaik Fathima
 - name: relation
   type: STRING
   nullable: true
-  description: 'Relationship to the primary person_id, e.g. ''Spouse'', ''Son'', ''Daughter''. [Value Examples: ''Son'', ''Daughter'',
-    ''Husband'', ''Wife'']'
+  description: 'Relationship to the primary person_id, e.g. ''Spouse'', ''Son'', ''Daughter''.
+    [Value Examples: ''Son'', ''Daughter'', ''Husband'', ''Wife'']'
   distinct:
   - Son
   - Daughter
@@ -85,7 +66,8 @@ columns:
 - name: gender
   type: STRING
   nullable: true
-  description: 'Family member''s gender. [Value Examples: ''Male'', ''Female'', ''Transgender'', ''Others'']'
+  description: 'Family member''s gender. [Value Examples: ''Male'', ''Female'', ''Transgender'',
+    ''Others'']'
   distinct:
   - Male
   - Female

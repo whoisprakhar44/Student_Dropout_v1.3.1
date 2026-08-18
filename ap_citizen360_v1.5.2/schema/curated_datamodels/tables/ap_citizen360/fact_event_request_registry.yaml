@@ -1,8 +1,9 @@
 database: ap_citizen360
 table: fact_event_request_registry
 department: ap_citizen360
-description: 'One row per POST /datatransfer/request call — backs idempotency: a reused request_id with a different payload_hash
-  is rejected with 409 CONFLICT, while a reused request_id with the same hash safely replays the original response.'
+description: 'One row per POST /datatransfer/request call — backs idempotency: a reused
+  request_id with a different payload_hash is rejected with 409 CONFLICT, while a
+  reused request_id with the same hash safely replays the original response.'
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_event_request_registry
 tblproperties:
@@ -15,14 +16,18 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_event_request_registry`(\n  `request_id` STRING COMMENT 'Client-supplied\
-  \ idempotency key from the request payload.',\n  `payload_hash` STRING COMMENT 'Hash of the original request payload — compared\
-  \ against replays of the same request_id to detect a conflicting reuse.',\n  `department_id` STRING COMMENT 'Foreign key\
-  \ to dim_department_client.department_id — the calling department.',\n  `event_correlation_ids` STRING COMMENT 'Comma-separated\
-  \ correlation IDs generated for the events delivered in response to this request.',\n  `payload_json` STRING COMMENT 'The\
-  \ original request payload, stored verbatim for replay/audit.',\n  `created_at` TIMESTAMP COMMENT 'Timestamp this request\
-  \ was first registered.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
-  LOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_event_request_registry'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_event_request_registry`(\n \
+  \ `request_id` STRING COMMENT 'Client-supplied idempotency key from the request
+  payload.',\n  `payload_hash` STRING COMMENT 'Hash of the original request payload
+  — compared against replays of the same request_id to detect a conflicting reuse.',\n\
+  \  `department_id` STRING COMMENT 'Foreign key to dim_department_client.department_id
+  — the calling department.',\n  `event_correlation_ids` STRING COMMENT 'Comma-separated
+  correlation IDs generated for the events delivered in response to this request.',\n\
+  \  `payload_json` STRING COMMENT 'The original request payload, stored verbatim
+  for replay/audit.',\n  `created_at` TIMESTAMP COMMENT 'Timestamp this request was
+  first registered.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
+  \  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_event_request_registry'"
 columns:
 - name: request_id
   type: STRING
@@ -31,16 +36,30 @@ columns:
 - name: payload_hash
   type: STRING
   nullable: true
-  description: Hash of the original request payload — compared against replays of the same request_id to detect a conflicting
-    reuse.
+  description: Hash of the original request payload — compared against replays 
+    of the same request_id to detect a conflicting reuse.
 - name: department_id
   type: STRING
   nullable: true
-  description: Foreign key to dim_department_client.department_id — the calling department.
+  description: "Foreign key to dim_department_client.department_id — the calling department.
+    [Value Examples: 'DEPT-RTGS', 'DEPT-FCS', 'DEPT-WCD', 'DEPT-RD', 'DEPT-HUD', 'DEPT-ENE']"
+  distinct:
+  - DEPT-RTGS
+  - DEPT-FCS
+  - DEPT-WCD
+  - DEPT-RD
+  - DEPT-HUD
+  - DEPT-ENE
+  - DEPT-IND
+  - DEPT-AGRI
+  - DEPT-REV
+  - DEPT-APMB
+  - DEPT-EDU
 - name: event_correlation_ids
   type: STRING
   nullable: true
-  description: Comma-separated correlation IDs generated for the events delivered in response to this request.
+  description: Comma-separated correlation IDs generated for the events 
+    delivered in response to this request.
 - name: payload_json
   type: STRING
   nullable: true
@@ -52,7 +71,8 @@ columns:
 primary_key:
 - request_id
 relationships:
-- fact_event_request_registry.department_id is a foreign key to dim_department.department_id.
+- fact_event_request_registry.department_id is a foreign key to 
+  dim_department.department_id.
 business_terms:
 - ap_citizen360
 - data_transfer_api___request_idempotency,_event-delivery_index,_ack/status_persistence
@@ -61,5 +81,6 @@ business_terms:
 - ICEBERG
 common_operations:
 - aggregate measures in fact_event_request_registry by geography and time period
-- join fact_event_request_registry with dimension tables via person_id or district_id
+- join fact_event_request_registry with dimension tables via person_id or 
+  district_id
 - filter fact_event_request_registry by district_id or date

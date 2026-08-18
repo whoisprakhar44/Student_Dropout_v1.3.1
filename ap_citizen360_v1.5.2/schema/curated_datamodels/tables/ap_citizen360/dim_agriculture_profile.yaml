@@ -1,9 +1,10 @@
 database: ap_citizen360
 table: dim_agriculture_profile
 department: ap_citizen360
-description: One row per person who is a registered farmer — landholding summary, crop information, irrigation, credit, and
-  agricultural welfare-scheme enrollment. Complements dim_land (which records individual parcels) with a farmer-level rollup
-  and scheme/credit detail land records don't carry.
+description: One row per person who is a registered farmer — landholding 
+  summary, crop information, irrigation, credit, and agricultural welfare-scheme
+  enrollment. Complements dim_land (which records individual parcels) with a 
+  farmer-level rollup and scheme/credit detail land records don't carry.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_agriculture_profile
 tblproperties:
@@ -16,27 +17,37 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_agriculture_profile`(\n  `person_id` STRING COMMENT 'Foreign key to dim_person.person_id.',\n\
-  \  `farmer_id` STRING COMMENT 'Department-issued farmer registration ID.',\n  `farmer_type` STRING COMMENT 'Landholding-size\
-  \ classification, e.g. \\'Small\\', \\'Semi-medium\\', \\'Medium\\', \\'Large\\'.',\n  `total_land_acres` DOUBLE COMMENT\
-  \ 'Total land held by the farmer, in acres (across all parcels).',\n  `irrigated_land_acres` DOUBLE COMMENT 'Portion of\
-  \ total land that is irrigated, in acres.',\n  `dry_land_acres` DOUBLE COMMENT 'Portion of total land that is unirrigated\
-  \ (dry), in acres.',\n  `primary_crop` STRING COMMENT 'Primary crop grown.',\n  `secondary_crop` STRING COMMENT 'Secondary\
-  \ crop grown, where applicable.',\n  `crop_season` STRING COMMENT 'Cropping season this record reflects, e.g. \\'Kharif\\\
-  ', \\'Rabi\\'.',\n  `soil_health_card_no` STRING COMMENT 'Soil Health Card scheme registration number.',\n  `irrigation_source`\
-  \ STRING COMMENT 'Primary irrigation source, e.g. \\'Borewell\\', \\'Canal\\', \\'Drip\\'.',\n  `pump_set_hp` DOUBLE COMMENT\
-  \ 'Horsepower of the farmer\\'s irrigation pump set, where applicable.',\n  `kcc_bank` STRING COMMENT 'Bank that issued\
-  \ the farmer\\'s Kisan Credit Card.',\n  `kcc_account_no` STRING COMMENT 'Kisan Credit Card account number.',\n  `kcc_limit`\
-  \ DECIMAL(12,2) COMMENT 'Sanctioned credit limit on the Kisan Credit Card, in INR.',\n  `pm_kisan_beneficiary` BOOLEAN COMMENT\
-  \ 'True if enrolled in the PM-KISAN income-support scheme.',\n  `rythu_bharosa_beneficiary` BOOLEAN COMMENT 'True if enrolled\
-  \ in the AP Rythu Bharosa farmer-support scheme.',\n  `pmfby_enrolled` BOOLEAN COMMENT 'True if enrolled in the Pradhan\
-  \ Mantri Fasal Bima Yojana crop insurance scheme.',\n  `market_linkage` STRING COMMENT 'Market/procurement channel the farmer\
-  \ is linked to, e.g. a specific mandi or FPO marketing tie-up.',\n  `fpo_name` STRING COMMENT 'Name of the Farmer Producer\
-  \ Organisation the farmer belongs to, if any.',\n  `last_yield_qtl_acre` DOUBLE COMMENT 'Most recent recorded yield, in\
-  \ quintals per acre.',\n  `department_id` STRING COMMENT 'Foreign key to dim_department.department_id — the Agriculture\
-  \ department record owner.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this agriculture profile was last updated.',\n\
-  \  `aadhaar_mapped` STRING COMMENT 'Whether the farmer profile is Aadhaar-mapped (Y/N).'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_agriculture_profile'"
+raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_agriculture_profile`(\n  `person_id`
+  STRING COMMENT 'Foreign key to dim_person.person_id.',\n  `farmer_id` STRING COMMENT
+  'Department-issued farmer registration ID.',\n  `farmer_type` STRING COMMENT 'Landholding-size
+  classification, e.g. \\'Small\\', \\'Semi-medium\\', \\'Medium\\', \\'Large\\'.',\n\
+  \  `total_land_acres` DOUBLE COMMENT 'Total land held by the farmer, in acres (across
+  all parcels).',\n  `irrigated_land_acres` DOUBLE COMMENT 'Portion of total land
+  that is irrigated, in acres.',\n  `dry_land_acres` DOUBLE COMMENT 'Portion of total
+  land that is unirrigated (dry), in acres.',\n  `primary_crop` STRING COMMENT 'Primary
+  crop grown.',\n  `secondary_crop` STRING COMMENT 'Secondary crop grown, where applicable.',\n\
+  \  `crop_season` STRING COMMENT 'Cropping season this record reflects, e.g. \\'Kharif\\\
+  ', \\'Rabi\\'.',\n  `soil_health_card_no` STRING COMMENT 'Soil Health Card scheme
+  registration number.',\n  `irrigation_source` STRING COMMENT 'Primary irrigation
+  source, e.g. \\'Borewell\\', \\'Canal\\', \\'Drip\\'.',\n  `pump_set_hp` DOUBLE
+  COMMENT 'Horsepower of the farmer\\'s irrigation pump set, where applicable.',\n\
+  \  `kcc_bank` STRING COMMENT 'Bank that issued the farmer\\'s Kisan Credit Card.',\n\
+  \  `kcc_account_no` STRING COMMENT 'Kisan Credit Card account number.',\n  `kcc_limit`
+  DECIMAL(12,2) COMMENT 'Sanctioned credit limit on the Kisan Credit Card, in INR.',\n\
+  \  `pm_kisan_beneficiary` BOOLEAN COMMENT 'True if enrolled in the PM-KISAN income-support
+  scheme.',\n  `rythu_bharosa_beneficiary` BOOLEAN COMMENT 'True if enrolled in the
+  AP Rythu Bharosa farmer-support scheme.',\n  `pmfby_enrolled` BOOLEAN COMMENT 'True
+  if enrolled in the Pradhan Mantri Fasal Bima Yojana crop insurance scheme.',\n \
+  \ `market_linkage` STRING COMMENT 'Market/procurement channel the farmer is linked
+  to, e.g. a specific mandi or FPO marketing tie-up.',\n  `fpo_name` STRING COMMENT
+  'Name of the Farmer Producer Organisation the farmer belongs to, if any.',\n  `last_yield_qtl_acre`
+  DOUBLE COMMENT 'Most recent recorded yield, in quintals per acre.',\n  `department_id`
+  STRING COMMENT 'Foreign key to dim_department.department_id — the Agriculture department
+  record owner.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this agriculture profile
+  was last updated.',\n  `aadhaar_mapped` STRING COMMENT 'Whether the farmer profile
+  is Aadhaar-mapped (Y/N).'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
+  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
+  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_agriculture_profile'"
 columns:
 - name: person_id
   type: STRING
@@ -49,7 +60,14 @@ columns:
 - name: farmer_type
   type: STRING
   nullable: true
-  description: Landholding-size classification, e.g. 'Small', 'Semi-medium', 'Medium', 'Large'.
+  description: "Landholding-size classification, e.g. 'Small', 'Semi-medium', 'Medium',
+    'Large'. [Value Examples: 'Medium', 'Semi-medium', 'Marginal', 'Large', 'Small']"
+  distinct:
+  - Medium
+  - Semi-medium
+  - Marginal
+  - Large
+  - Small
 - name: total_land_acres
   type: DOUBLE
   nullable: true
@@ -65,11 +83,13 @@ columns:
 - name: primary_crop
   type: STRING
   nullable: true
-  description: Primary crop grown.
+  description: "Primary crop grown. [Value Examples: 'Paddy', 'NA', 'Red gram', 'Cotton',
+    'Mango', 'Coconut']"
 - name: secondary_crop
   type: STRING
   nullable: true
-  description: Secondary crop grown, where applicable.
+  description: "Secondary crop grown, where applicable. [Value Examples: 'Paddy',
+    'NA', 'Red gram', 'Cotton', 'Mango', 'Coconut']"
 - name: crop_season
   type: STRING
   nullable: true
@@ -81,7 +101,15 @@ columns:
 - name: irrigation_source
   type: STRING
   nullable: true
-  description: Primary irrigation source, e.g. 'Borewell', 'Canal', 'Drip'.
+  description: "Primary irrigation source, e.g. 'Borewell', 'Canal', 'Drip'. [Value
+    Examples: 'Conventional/ Flooding', 'Rainfed', 'NA', 'Drip System', 'Sprinkler
+    System']"
+  distinct:
+  - Conventional/ Flooding
+  - Rainfed
+  - NA
+  - Drip System
+  - Sprinkler System
 - name: pump_set_hp
   type: DOUBLE
   nullable: true
@@ -101,23 +129,36 @@ columns:
 - name: pm_kisan_beneficiary
   type: BOOLEAN
   nullable: true
-  description: True if enrolled in the PM-KISAN income-support scheme.
+  description: "True if enrolled in the PM-KISAN income-support scheme. [Value Examples:
+    'True', 'False']"
+  distinct:
+  - 'True'
+  - 'False'
 - name: rythu_bharosa_beneficiary
   type: BOOLEAN
   nullable: true
-  description: True if enrolled in the AP Rythu Bharosa farmer-support scheme.
+  description: "True if enrolled in the AP Rythu Bharosa farmer-support scheme. [Value
+    Examples: 'True', 'False']"
+  distinct:
+  - 'True'
+  - 'False'
 - name: pmfby_enrolled
   type: BOOLEAN
   nullable: true
-  description: True if enrolled in the Pradhan Mantri Fasal Bima Yojana crop insurance scheme.
+  description: "True if enrolled in the Pradhan Mantri Fasal Bima Yojana crop insurance
+    scheme. [Value Examples: 'False']"
+  distinct:
+  - 'False'
 - name: market_linkage
   type: STRING
   nullable: true
-  description: Market/procurement channel the farmer is linked to, e.g. a specific mandi or FPO marketing tie-up.
+  description: Market/procurement channel the farmer is linked to, e.g. a 
+    specific mandi or FPO marketing tie-up.
 - name: fpo_name
   type: STRING
   nullable: true
-  description: Name of the Farmer Producer Organisation the farmer belongs to, if any.
+  description: Name of the Farmer Producer Organisation the farmer belongs to, 
+    if any.
 - name: last_yield_qtl_acre
   type: DOUBLE
   nullable: true
@@ -125,7 +166,10 @@ columns:
 - name: department_id
   type: STRING
   nullable: true
-  description: Foreign key to dim_department.department_id — the Agriculture department record owner.
+  description: "Foreign key to dim_department.department_id — the Agriculture department
+    record owner. [Value Examples: 'DEPT-AGRI']"
+  distinct:
+  - DEPT-AGRI
 - name: updated_at
   type: TIMESTAMP
   nullable: true
@@ -133,12 +177,17 @@ columns:
 - name: aadhaar_mapped
   type: STRING
   nullable: true
-  description: Whether the farmer profile is Aadhaar-mapped (Y/N).
+  description: "Whether the farmer profile is Aadhaar-mapped (Y/N). [Value Examples:
+    'Y', 'N']"
+  distinct:
+  - Y
+  - N
 primary_key:
 - person_id
 relationships:
 - dim_agriculture_profile.person_id is a foreign key to dim_person.person_id.
-- dim_agriculture_profile.department_id is a foreign key to dim_department.department_id.
+- dim_agriculture_profile.department_id is a foreign key to 
+  dim_department.department_id.
 business_terms:
 - ap_citizen360
 - agriculture
