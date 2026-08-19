@@ -592,9 +592,9 @@ def search_exact_fewshot(query: str, threshold: float = 0.95) -> str:
         if res and res[0]:
             hit = res[0][0]
             dist = float(hit["distance"])
-            # Milvus with COSINE metric returns Cosine Distance (1.0 - Cosine Similarity),
-            # where 0.0 = identical (similarity 1.0). Convert to similarity in [0, 1].
-            score = (1.0 - dist) if (0.0 <= dist <= 1.0) else dist
+            # Milvus with COSINE metric returns exact cosine similarity in [-1.0, 1.0].
+            # Normalize to [0.0, 1.0] range.
+            score = (dist + 1.0) / 2.0
             logger.info(f"search_exact_fewshot top match score: {score:.4f} (distance: {dist:.4f})")
             
             if score >= threshold:

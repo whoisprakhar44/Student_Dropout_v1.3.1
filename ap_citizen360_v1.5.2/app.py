@@ -15,8 +15,16 @@ import sqlite3
 import threading
 import traceback
 import uuid
+import logging
 from datetime import datetime
 import time
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    force=True
+)
+logger = logging.getLogger("app")
 
 from dotenv import load_dotenv
 
@@ -694,6 +702,13 @@ async def ask(payload: AskRequest):
         session_id = payload.session_id or payload.thread_id or str(uuid.uuid4())
         history_messages = get_session_messages(session_id)
 
+        logger.info("=" * 60)
+        logger.info("📥 [NEW QUERY RECEIVED]")
+        logger.info("   User:     %s", username)
+        logger.info("   Session:  %s", session_id)
+        logger.info("   Question: %s", payload.question)
+        logger.info("=" * 60)
+
         async def _stream():
             graph_task: asyncio.Task | None = None
             try:
@@ -762,7 +777,12 @@ async def ask(payload: AskRequest):
                     "total_exec_time": round(exec_time, 2),
                     "total_time": round(total_time, 2)
                 }
-                print(f"[TIMING] Total Gen Time: {gen_time:.2f}s | Total Exec Time: {exec_time:.2f}s | Total Time: {total_time:.2f}s")
+                logger.info("=" * 60)
+                logger.info("📤 [QUERY COMPLETED]")
+                logger.info("   SQL:     %s", response_obj.sql or "None")
+                logger.info("   Results: %d rows", len(response_obj.result) if response_obj.result else 0)
+                logger.info("   Timings: Gen: %.2fs | Exec: %.2fs | Total: %.2fs", gen_time, exec_time, total_time)
+                logger.info("=" * 60)
 
                 # Extract response text (the final assistant verbal summary)
                 response_text = ""
@@ -786,7 +806,7 @@ async def ask(payload: AskRequest):
                     save_chat_turn(
                         session_id=session_id,
                         question=payload.question,
-                        response_text="",
+                        response_text=response_text,
                         sql=response_obj.sql,
                         result=response_obj.result,
                         username=username
@@ -949,6 +969,7 @@ async def get_ui():
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚡ Curated Datamodels Chat App</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -1404,7 +1425,7 @@ async def get_ui():
             }
         }
 
-        async function loadHistory() {
+        async function loadHistory(autoSelect = true) {
             const usernameInput = document.getElementById('usernameInput');
             currentUsername = usernameInput.value.trim();
             if (!currentUsername) {
@@ -1452,38 +1473,64 @@ async def get_ui():
                     listContainer.appendChild(item);
                 });
                 
-                if (currentSessionId && sessionsMap.has(currentSessionId)) {
-                    selectSession(currentSessionId);
-                } else if (sessions.length > 0) {
-                    selectSession(sessions[0].id);
-                } else {
-                    startNewSession();
+                if (autoSelect) {
+                    if (currentSessionId && sessionsMap.has(currentSessionId)) {
+                        await selectSession(currentSessionId);
+                    } else if (sessions.length > 0) {
+                        await selectSession(sessions[0].id);
+                    } else {
+                        startNewSession();
+                    }
                 }
             } catch (err) {
-                console.error(err);
-                alert("Error retrieving history.");
+                console.error("Error retrieving history:", err);
+                if (autoSelect) {
+                    startNewSession();
+                }
             }
         }
 
-        function selectSession(sessionId) {
+        async function selectSession(sessionId) {
             currentSessionId = sessionId;
             document.querySelectorAll('.session-item').forEach(el => el.classList.remove('active'));
             const activeEl = document.getElementById(`session-${sessionId}`);
             if (activeEl) activeEl.classList.add('active');
             
-            const session = sessionsMap.get(sessionId);
-            if (session) {
-                document.getElementById('chatTitle').innerText = session.title;
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'history_session',
+                        username: currentUsername,
+                        session_id: sessionId
+                    })
+                });
+                if (!response.ok) throw new Error("Failed to fetch session messages");
+                const session = await response.json();
+                
+                document.getElementById('chatTitle').innerText = session.title || "Chat Session";
                 document.getElementById('chatSubtitle').innerText = `Session ID: ${session.id}`;
                 
                 // Render session messages
                 const container = document.getElementById('messagesContainer');
                 container.innerHTML = '';
                 
-                session.messages.forEach(msg => {
-                    renderMessage(msg.role, msg.content, msg.sql, msg.result);
-                });
+                if (session.messages && session.messages.length > 0) {
+                    session.messages.forEach(msg => {
+                        renderMessage(msg.role, msg.content, msg.sql, msg.result);
+                    });
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-chat">
+                            <div class="empty-icon">💬</div>
+                            <div>No messages in this session yet.</div>
+                        </div>
+                    `;
+                }
                 scrollToBottom();
+            } catch (err) {
+                console.error("Error loading session:", err);
             }
         }
 
@@ -1681,6 +1728,10 @@ async def get_ui():
             
             inputEl.value = '';
             
+            if (!currentSessionId) {
+                currentSessionId = generateUUID();
+            }
+            
             // Render user query bubble immediately
             renderMessage('user', question);
             
@@ -1734,8 +1785,8 @@ async def get_ui():
                 buffer = buffer.trim();
                 const data = JSON.parse(buffer);
                 
-                // Load details of the response text
-                let explanation = "Here is the result of your query.";
+                // Render assistant response directly into the conversation
+                let explanation = data.summary || "Here is the result of your query.";
                 if (data.result && data.result.length > 0) {
                     if (data.result[0].status === 'failed') {
                         explanation = data.result[0].error || "The query execution failed.";
@@ -1743,14 +1794,10 @@ async def get_ui():
                         explanation = "The request was cancelled.";
                     }
                 }
+                renderMessage('assistant', explanation, data.sql, data.result);
                 
-                // If it was cancelled, render the cancelled response directly
-                if (data.result && data.result.length > 0 && data.result[0].status === 'cancelled') {
-                    renderMessage('assistant', "Request cancelled by user.", data.sql, data.result);
-                }
-                
-                // Re-fetch history to update sidebar with the new turn details
-                await loadHistory();
+                // Refresh sidebar session list without wiping the active chat view
+                await loadHistory(false);
                 
             } catch (err) {
                 console.error(err);
