@@ -21,15 +21,14 @@ uv venv
 source .venv/bin/activate
 uv pip install -r requirements.txt
 
-# 2. Build empty mock SQLite database (Required for syntax verification)
-# This uses the new schema tables (ap_citizen360 and ap_community360)
-python create_empty_schema.py
+# 2. Build SQLite schema database (Required for local development and syntax verification)
+python create_schema.py
 
-# 3. Vectorize the Schema and Join Relations (into schema_store partition)
-python MCP/build_milvus_index.py
+# 3. Vectorize Curated Schemas (into schema_store partition)
+python pipeline.py --config config.yaml --yaml_dir ./schema/curated_datamodels/tables
 
-# 4. Vectorize the Few-Shot NL→SQL exemplars (into few_shot_store partition)
-python pipeline.py --config config.yaml --fewshots fewshots_combined.json
+# 4. Vectorize Few-Shot NL→SQL exemplars (into few_shot_store partition)
+python pipeline.py --config config.yaml --fewshots new_fewshots.json
 
 # 5. Start the FastAPI backend
 python -m uvicorn app:app --host 0.0.0.0 --port 8000

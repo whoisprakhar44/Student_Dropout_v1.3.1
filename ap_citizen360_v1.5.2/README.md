@@ -27,25 +27,35 @@ The AP Citizen 360 NL2SQL platform is a multi-layered AI system that makes the `
 └─────────────────────────┬───────────────────────────────────────┘
                           │
 ┌─────────────────────────▼───────────────────────────────────────┐
-│                   FastAPI Application (app.py)                   │
-│  Session management · Request streaming · Chart generation       │
-│  SQLite conversation history · Excel query log · CORS            │
-└─────────────────────────┬───────────────────────────────────────┘
-                          │
-┌─────────────────────────▼───────────────────────────────────────┐
 │              LangGraph Agent  (my_agent/)                        │
 │                                                                  │
-│   START → intent_node → route_node                               │
-│                │                  │                              │
-│           (document)           (data)                            │
-│                │                  │                              │
-│        doc_search_node    initialize_node                        │
-│                │                  │                              │
-│           tool_node ◄────────► llm_node                         │
-│                │                  │                              │
-│        synthesize_node      verify_node ──(retry)──► llm_node   │
-│                │                  │                              │
-│               END ◄──────────────┘                              │
+│   START → intent_node ──(greeting)──► greeting_node ──► END      │
+│                │                                                 │
+│       (data / hybrid)                                            │
+│                │                                                 │
+│   deterministic_search_node ──► tool_node (search_exact_fewshot) │
+│                                      │                           │
+│                             eval_fast_path_node                  │
+│                           ┌──────────┴──────────┐                │
+│             (score >= 0.99)                   (score < 0.99)     │
+│                   │                                 │            │
+│               tool_node (execute_sql)        initialize_node     │
+│                   │                                 │            │
+│                   │                           tool_node (RAG)    │
+│                   │                                 │            │
+│                   │                              llm_node        │
+│                   │                                 │            │
+│                   │                            tool_node (SQL)   │
+│                   │                                 │            │
+│                   │                    ┌────────────┴──────────┐ │
+│                   │                (success)                (error)
+│                   │                    │                       │ │
+│                   ▼                    ▼                       ▼ │
+│           summarization_node ◄── (verified) ◄────── verify_node  │
+│                   │                                    │         │
+│                   │                                 (retry)      │
+│                   │                                    ▼         │
+│                  END                                llm_node     │
 └──────────┬──────────────────────┬───────────────────────────────┘
            │                      │
 ┌──────────▼──────────┐  ┌────────▼────────────────────────────┐
@@ -54,11 +64,14 @@ The AP Citizen 360 NL2SQL platform is a multi-layered AI system that makes the `
 │                     │  │  mcp_hive_execution.py (Impala)      │
 │  retrive_schema_rag │  │  execute_sql (read-only SELECT)      │
 │  search_documents   │  └──────────────┬──────────────────────┘
-└──────────┬──────────┘                 │
-           │                 ┌──────────▼──────────────┐
-┌──────────▼──────────┐      │  SQLite  /  Impala CDP  │
-│   Milvus Lite       │      │  ap_citizen360 schema   │
-│  schema_store       │      └─────────────────────────┘
+│  search_exact_fewshot                 │
+│  get_column_values  │  ┌──────────────▼─────────────┐
+│  get_current_date   │  │   SQLite  /  Impala CDP    │
+└──────────┬──────────┘  │   ap_citizen360 schema     │
+           │             └────────────────────────────┘
+┌──────────▼──────────┐
+│   Milvus Lite       │
+│  schema_store       │
 │  few_shot_store     │
 │  document_store     │
 └─────────────────────┘
@@ -68,23 +81,23 @@ The AP Citizen 360 NL2SQL platform is a multi-layered AI system that makes the `
 
 ## Data Model
 
-The AP Citizen 360 curated data warehouse covers **26 tables** across the following domains:
+The AP Citizen 360 curated data warehouse covers **38 tables** across the following domains:
 
 | Domain | Key Tables |
 |---|---|
-| **Citizen Identity** | `dim_person`, `dim_citizen_identifier`, `dim_family_member` |
+| **Citizen Identity** | `dim_person`, `dim_citizen_identifier`, `dim_driving_licence`, `dim_family_member` |
 | **Health** | `dim_health_profile` |
 | **Education** | `dim_student` |
 | **Household** | `dim_household` |
 | **Land & Agriculture** | `dim_land`, `dim_agriculture_profile`, `dim_crop_sale` |
 | **Property & Tax** | `dim_property`, `dim_property_tax` |
 | **Vehicle** | `dim_vehicle`, `dim_vehicle_compliance` |
-| **Social Welfare** | `dim_social_welfare`, `dim_scheme`, `dim_consent` |
+| **Social Welfare** | `dim_social_welfare`, `dim_scheme`, `dim_scheme_main_mapping`, `dim_consent` |
 | **Employment & Finance** | `dim_occupation`, `dim_epfo_contribution`, `dim_tax_profile` |
 | **Utilities** | `dim_utility_connection` |
-| **Geography** | `dim_district`, `dim_mandal`, `dim_village`, `dim_state` |
+| **Geography & Admin** | `dim_district`, `dim_mandal`, `dim_village`, `dim_state`, `dim_secretariat` |
 | **Departments** | `dim_department`, `dim_department_client` |
-| **Fact Tables** | `fact_benefit_transaction`, `fact_entitlement`, `fact_scheme_disbursement`, `fact_population_hierarchy` |
+| **Fact Tables** | `fact_benefit_transaction`, `fact_entitlement`, `fact_scheme_disbursement`, `fact_population_hierarchy`, `fact_event_details`, `fact_event_request_registry`, `fact_event_index`, `fact_event_acknowledgement`, `fact_event_status_update` |
 
 A canonical JSON schema (`citizen360_canonical_schema.json`) and curated YAML join metadata (`schema/curated_datamodels/joins/`) drive both RAG retrieval and SQL correctness.
 
@@ -100,12 +113,14 @@ A canonical JSON schema (`citizen360_canonical_schema.json`) and curated YAML jo
 | **Embedding Model** | Ollama `nomic-embed-text` (768-d) | Schema and document vectorization |
 | **Chat Model** | Ollama (configurable — `qwen3.5` / `llama3.2` / others) | SQL generation and answer synthesis |
 | **Vector Store** | Milvus Lite 3.1.1 / Milvus Standalone | Schema, few-shot, and document index |
-| **Schema Retrieval** | `mcp_rag.py` → `retrive_schema_rag` tool | COSINE similarity search over `schema_store` |
+| **Schema Retrieval** | `mcp_rag.py` → `retrive_schema_rag` tool | COSINE similarity search over `schema_store` (DDLs + fewshot exemplars) |
+| **Fast-Path Lookup** | `mcp_rag.py` → `search_exact_fewshot` tool | Dedicated golden question search in `few_shot_store` (>= 0.99 match) |
+| **Distinct Values** | `mcp_rag.py` → `get_column_values` tool | Distinct categorical column lookup for precise SQL filtering |
+| **Date Resolution** | `mcp_rag.py` → `get_current_date` tool | Academic and financial year date calculation |
 | **Document RAG** | `mcp_rag.py` → `search_documents` tool | COSINE similarity search over `document_store` |
 | **SQL Execution (Dev)** | `mcp_sql_execution.py` → SQLite | Read-only, validated SELECT execution |
 | **SQL Execution (Prod)** | `mcp_hive_execution.py` → Impala via Impyla | Kerberos-authenticated Impala/HiveServer2 queries |
-| **Schema Indexer** | `MCP/build_milvus_index.py` | Builds `schema_store` from YAML tables + joins |
-| **Few-Shot Indexer** | `pipeline.py` | Embeds NL→SQL exemplars into `few_shot_store` |
+| **Unified Pipeline** | `pipeline.py` | Indexes schema YAMLs (`schema_store`) and NL→SQL exemplars (`few_shot_store`) |
 | **Document Ingester** | `MCP/ingest_documents.py` | Parses PDF/DOCX/TXT into `document_store` (with OCR) |
 | **Speech-to-Text** | `speech_to_text/` — Faster-Whisper | Live WebSocket PCM transcription |
 | **Chart Generation** | `chart_generator.py` — Vega-Lite + vl-convert | LLM-assisted SVG chart rendering |
@@ -120,8 +135,8 @@ One Milvus collection (`schema_chunks`) with **three named partitions**:
 
 | Partition | Contents | `embedding_text` | `raw_ddl` |
 |---|---|---|---|
-| `schema_store` | One document per YAML table + joins | Schema prose description | DDL string |
-| `few_shot_store` | NL→SQL exemplars from `fewshots_combined.json` | Natural-language question | Gold SQL query |
+| `schema_store` | One document per YAML table | Schema prose + columns + relationships | DDL string |
+| `few_shot_store` | NL→SQL exemplars from `new_fewshots.json` | Natural-language question | Gold SQL query + tables |
 | `document_store` | Chunked PDF / DOCX / TXT passages | Plain chunk text | Header-prefixed chunk |
 
 ---
@@ -160,12 +175,12 @@ uv pip install -r requirements.txt
 # 3. Build empty SQLite schema database (required for SQL syntax verification)
 python create_schema.py
 
-# 4. Build schema + join-relations index (into schema_store partition)
+# 4. Ingest curated table schemas into Milvus schema_store partition
 #    Ensure uvicorn is stopped before running this
-python MCP/build_milvus_index.py
+python pipeline.py --config config.yaml --yaml_dir ./schema/curated_datamodels/tables
 
-# 5. Inject few-shot NL→SQL exemplars (into few_shot_store partition)
-python pipeline.py --config config.yaml --fewshots fewshots_combined.json
+# 5. Inject few-shot NL→SQL exemplars into Milvus few_shot_store partition
+python pipeline.py --config config.yaml --fewshots new_fewshots.json
 
 # 6. (Optional) Ingest unstructured documents (PDF, DOCX, TXT)
 python MCP/ingest_documents.py
@@ -221,8 +236,8 @@ HIVE_MCP_ENABLED=true
 
 ```bash
 # Ensure uvicorn is stopped, then build the index
-python MCP/build_milvus_index.py
-python pipeline.py --config config.yaml --fewshots fewshots_combined.json
+python pipeline.py --config config.yaml --yaml_dir ./schema/curated_datamodels/tables
+python pipeline.py --config config.yaml --fewshots new_fewshots.json
 
 # Start the server
 python -m uvicorn app:app --host 0.0.0.0 --port 8000
@@ -296,47 +311,63 @@ Supported embedding providers and their dimensions:
 
 ## Agent Flow & Self-Correction
 
-The LangGraph agent implements a stateful, multi-node graph with built-in self-correction:
+The LangGraph agent implements a stateful, multi-node graph with fast-path execution and error-only self-correction:
 
 ```
 START
   │
   ▼
-intent_node         — Classifies intent: data query or document query
+intent_node
+  ├──(greeting)──────► greeting_node ──► END
   │
-  ▼
-route_node
-  ├──(document_query)──► doc_search_node ──► tool_node ──► synthesize_node ──► END
+  ├──(document_query)► doc_search_node ──► tool_node ──► synthesize_node ──► END
   │
-  └──(data_query)──► initialize_node ──► llm_node ──► tool_node ──► verify_node
-                                              ▲                           │
-                                              └─────────(retry)───────────┘
-                                                                          │
-                                                                         END
+  └──(data_query)────► deterministic_search_node ──► tool_node (search_exact_fewshot)
+                                                           │
+                                                  eval_fast_path_node
+                                                ┌──────────┴──────────┐
+                                  (match >= 0.99)                   (match < 0.99)
+                                        │                                 │
+                                    tool_node (execute_sql)        initialize_node
+                                        │                                 │
+                                        │                           tool_node (retrive_schema_rag)
+                                        │                                 │
+                                        │                              llm_node
+                                        │                                 │
+                                        │                            tool_node (execute_sql)
+                                        │                                 │
+                                        │                    ┌────────────┴──────────┐
+                                        │                (success)                (error)
+                                        │                    │                       │
+                                        ▼                    ▼                       ▼
+                                summarization_node ◄── (verified) ◄────── verify_node
+                                        │                                    │
+                                        │                                 (retry)
+                                        │                                    ▼
+                                       END                                llm_node
 ```
 
 ### Node Responsibilities
 
 | Node | Responsibility |
 |---|---|
-| `intent_node` | Classifies user intent (data query vs. document/policy query) |
-| `route_node` | Dispatches to the appropriate sub-graph branch |
-| `initialize_node` | Primes agent state; applies nudge logic for small models |
-| `llm_node` | Calls the LLM with schema context to generate SQL |
-| `tool_node` | Executes MCP tools (`retrive_schema_rag`, `execute_sql`, `search_documents`) |
-| `verify_node` | Checks SQL execution outcome; loops back on error with corrective message |
-| `synthesize_node` | Summarizes retrieved document passages into a natural-language answer |
-| `eval_fast_path_node` | Short-circuits greeting/trivial queries to avoid unnecessary tool calls |
-| `summarization_node` | Compresses long conversation context to fit the model's context window |
-| `deterministic_search_node` | Attempts keyword/deterministic schema lookup before invoking the LLM |
-| `doc_search_node` | Triggers document vector search for policy/guideline queries |
+| `intent_node` | Classifies user intent (`data_query`, `document_query`, `greeting`) and extracts entities/scope |
+| `greeting_node` | Returns friendly welcome response for conversational inputs without tool execution |
+| `deterministic_search_node` | Triggers exact golden question vector search (`search_exact_fewshot`) against `few_shot_store` |
+| `eval_fast_path_node` | Evaluates fewshot similarity; routes $\ge 0.99$ directly to `execute_sql` and $< 0.99$ to `initialize_node` |
+| `initialize_node` | Forces schema retrieval tool call (`retrive_schema_rag`) when novel SQL generation is required |
+| `llm_node` | Generates SQL query using the retrieved schema DDLs, foreign key relationships, and fewshot exemplars |
+| `tool_node` | Executes MCP tools (`retrive_schema_rag`, `search_exact_fewshot`, `execute_sql`, `search_documents`, etc.) |
+| `verify_node` | Error-recovery node; inspects failed SQL execution and initiates targeted RAG re-retrieval / retry |
+| `summarization_node` | Translates raw database rows into a clear, user-facing natural language response |
+| `doc_search_node` | Triggers document vector search (`search_documents`) for policy and guideline queries |
+| `synthesize_node` | Summarizes retrieved document passages into an attributed natural language answer |
 
-### Self-Correction Loop
+### Execution & Self-Correction Flow
 
-1. `verify_node` inspects the `execute_sql` tool response for `"status": "error"`
-2. On error, it formats the failed SQL and error message into a corrective `HumanMessage`
-3. The agent loops back to `llm_node`, which reads the error and attempts a corrected query
-4. The loop continues until execution succeeds or the retry limit is reached
+1. **Exact-Match Fast Path:** If `eval_fast_path_node` finds a match $\ge 0.99$, it extracts the golden SQL, executes it via `execute_sql`, and skips directly to `summarization_node` (0 LLM generation calls).
+2. **Success Bypass:** If `llm_node` generated a query and `execute_sql` succeeded (`status != "error"`), `after_tool_node` immediately routes to `summarization_node`, avoiding unnecessary verification loops.
+3. **Self-Correction on Error:** If SQL execution fails (`status == "error"`), `verify_node` formats the error and failed SQL into a corrective prompt (or triggers forced re-retrieval), looping back to `llm_node` to heal the query.
 
 ---
 

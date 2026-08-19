@@ -12,7 +12,7 @@
 
 ## What Is This?
 
-AP Citizen 360 v1.5.2 is the **first production release** of a conversational natural-language-to-SQL intelligence platform built for the **Andhra Pradesh Citizen 360** unified data warehouse. It enables government analysts, administrators, and domain experts to query a comprehensive 26-table citizen data model using plain English — without writing a single line of SQL.
+AP Citizen 360 v1.5.2 is the **first production release** of a conversational natural-language-to-SQL intelligence platform built for the **Andhra Pradesh Citizen 360** unified data warehouse. It enables government analysts, administrators, and domain experts to query a comprehensive 38-table citizen data model using plain English — without writing a single line of SQL.
 
 This release represents the culmination of work across four major phases:
 
@@ -27,7 +27,7 @@ This release represents the culmination of work across four major phases:
 
 The platform was originally scoped as a **Student Dropout Risk Monitoring System** — a full-stack analytics dashboard combining student-level academic and attendance data with risk scoring and AI-assisted querying. Over its development lifecycle it expanded into a general-purpose citizen intelligence layer:
 
-- The active database grew from a school-specific prototype to a **26-table curated citizen data model** (`ap_citizen360`) spanning education, health, land, property, agriculture, vehicles, welfare, finance, and demographics.
+- The active database grew from a school-specific prototype to a **38-table curated citizen data model** (`ap_citizen360`) spanning education, health, land, property, agriculture, vehicles, welfare, finance, demographics, and event infrastructure.
 - The backend evolved from a simple SQLite-backed query interface into a **dual-mode system** supporting both local SQLite development and enterprise Kerberos-authenticated Impala/HiveServer2 production execution.
 - The NL2SQL agent evolved from a basic prompt-to-query pipeline into a **multi-node LangGraph agentic system** with intent classification, RAG-assisted schema retrieval, self-correcting SQL generation, and unstructured document retrieval.
 
@@ -39,12 +39,12 @@ The platform was originally scoped as a **Student Dropout Risk Monitoring System
 
 The core capability of this release. Ask any data question in plain English and receive verified SQL results.
 
-- **Intent Classification**: The agent automatically classifies incoming queries as either a structured data query (SQL generation path) or a policy/document query (document RAG path). Greetings and trivial queries are handled by an eval fast-path that skips unnecessary tool calls.
-- **Semantic Schema Retrieval**: Before generating SQL, the agent retrieves the most relevant table schemas and join relationships using vector similarity search over Milvus. Only the schemas needed for the query are injected into the LLM context.
+- **Intent Classification**: The agent automatically classifies incoming queries as either a structured data query (SQL generation path), a policy/document query (document RAG path), or a conversational greeting (handled directly without tool execution).
+- **Exact-Match Fast-Path**: Incoming data queries query the `few_shot_store` partition via `search_exact_fewshot`. If a golden question match is found (similarity $\ge 0.99$), the agent directly executes the vetted SQL and routes straight to summarization, eliminating unnecessary LLM generation rounds.
+- **Semantic Schema Retrieval**: When a query requires novel generation, the agent retrieves the most relevant table schemas and join relationships using vector similarity search over Milvus. Only the schemas needed for the query are injected into the LLM context.
 - **Few-Shot Augmented Generation**: The agent retrieves semantically similar NL→SQL exemplars from the `few_shot_store` partition to guide the LLM toward correct SQL patterns, especially for complex aggregations and joins.
-- **Self-Correcting SQL Loop**: If SQL execution fails, the agent captures the exact error, formats it into a corrective message, and loops back to the LLM. The LLM attempts a dialect-correct fix, preventing premature API failures.
+- **Self-Correcting SQL Loop**: Successful SQL executions bypass verification and proceed straight to summarization. If execution fails, `verify_node` captures the error, formats a corrective prompt, and triggers re-retrieval or targeted rewriting.
 - **Nudge Logic**: Prevents smaller Ollama models from bypassing tool calls and responding with plain text instead of executing SQL.
-- **Deterministic Fast-Path**: For common queries, a keyword-based schema lookup runs first, reducing LLM latency by resolving relevant tables without a full generation cycle.
 
 ### 2. Dual Database Backend — SQLite & Impala/HiveServer2
 
@@ -59,8 +59,11 @@ When switching to Hive mode, the LLM system prompt, DDL preprocessing, and SQL d
 
 All agent–database interactions use MCP as the transport layer:
 
-- **`retrive_schema_rag`** (`mcp_rag.py`): Vector search over `schema_store`. Returns the most relevant table schemas and DDLs for the current query.
+- **`retrive_schema_rag`** (`mcp_rag.py`): Vector search over `schema_store`. Returns the most relevant table schemas, foreign key joins, and reference exemplars.
 - **`search_documents`** (`mcp_rag.py`): Vector search over `document_store`. Returns relevant passages from indexed PDF, DOCX, and TXT policy documents.
+- **`search_exact_fewshot`** (`mcp_rag.py`): Dedicated fast-path lookup in `few_shot_store` to retrieve exact golden SQL queries.
+- **`get_column_values`** (`mcp_rag.py`): Looks up distinct column values from curated metadata or table samples.
+- **`get_current_date`** (`mcp_rag.py`): Resolves current timestamps, academic years (e.g. 2025-26), and financial years.
 - **`execute_sql`** (`mcp_sql_execution.py` or `mcp_hive_execution.py`): Executes validated, read-only SELECT queries against SQLite or Impala and returns JSON-formatted rows.
 
 MCP's stdio transport keeps execution servers isolated as separate processes — the agent never directly imports database drivers. Backend swapping is seamless and each execution layer is independently testable.
@@ -72,19 +75,20 @@ The Milvus collection (`schema_chunks`) uses three named partitions for clean re
 | Partition | Contents | Use |
 |---|---|---|
 | `schema_store` | Per-table YAML schemas + join relations | Schema RAG for SQL generation |
-| `few_shot_store` | NL→SQL exemplar pairs | Few-shot-augmented generation |
+| `few_shot_store` | NL→SQL exemplar pairs | Few-shot-augmented generation & fast-path |
 | `document_store` | Chunked PDF/DOCX/TXT passages | Policy and guideline RAG |
 
-Each partition is independently buildable. The schema indexer and few-shot pipeline can be re-run independently whenever schemas or exemplars change.
+Each partition is independently buildable. The unified ingestion pipeline (`pipeline.py`) can be re-run whenever schemas or exemplars change.
 
-### 5. AP Citizen 360 Curated Data Model — 26 Tables
+### 5. AP Citizen 360 Curated Data Model — 38 Tables
 
-The first release ships with a complete curated schema for the AP Citizen 360 unified data warehouse.
+The release ships with a complete curated schema for the AP Citizen 360 unified data warehouse.
 
-**Dimension Tables (22)**
+**Dimension Tables (25)**
 
 - `dim_person` — Core citizen identity (name, gender, age, caste, religion, ration card, BPL status, constituency)
 - `dim_citizen_identifier` — Aadhaar, PAN, EPFO, driving licence, voter ID tracking
+- `dim_driving_licence` — Driving licence details, vehicle categories, and validity dates
 - `dim_family_member` — Household family composition and relationships
 - `dim_household` — Household attributes (dwelling type, income category, head of household)
 - `dim_health_profile` — Health data (Aarogyasri, ABHA ID, blood group, disability, ANC registrations)
@@ -98,6 +102,7 @@ The first release ships with a complete curated schema for the AP Citizen 360 un
 - `dim_vehicle_compliance` — Insurance, fitness, pollution, HSRP, challan, and green tax status
 - `dim_social_welfare` — Welfare scheme membership (BPL, disability, Deepam, Indiramma, PMAY)
 - `dim_scheme` — Government scheme registry
+- `dim_scheme_main_mapping` — Mapping of scheme aliases and department hierarchies
 - `dim_department` — Government department registry
 - `dim_department_client` — Department API client credentials and data access scopes
 - `dim_occupation` — Employment history (sector, employer, designation, employment status)
@@ -105,6 +110,7 @@ The first release ships with a complete curated schema for the AP Citizen 360 un
 - `dim_tax_profile` — Tax records (GST, income tax, IT return status)
 - `dim_utility_connection` — Electricity (SC number, DISCOM, monthly units) and gas connections
 - `dim_consent` — Data sharing consent records (purposes, validity, revocation)
+- `dim_secretariat` — Village and ward secretariat administration units
 
 **Geography Dimensions (4)**
 
@@ -113,12 +119,17 @@ The first release ships with a complete curated schema for the AP Citizen 360 un
 - `dim_mandal` — Mandal-level geo hierarchy
 - `dim_village` — Village-level geo hierarchy
 
-**Fact Tables (4)**
+**Fact Tables (9)**
 
 - `fact_benefit_transaction` — Government benefit disbursement records (scheme, amount, date)
 - `fact_entitlement` — Citizen entitlement enrollment records
 - `fact_scheme_disbursement` — Scheme-level disbursement aggregates by caste and beneficiary count
 - `fact_population_hierarchy` — Population rollup by geo level, gender, and social category
+- `fact_event_details` — Detected citizen lifecycle events and resolution tracking
+- `fact_event_request_registry` — Outbound department notification requests
+- `fact_event_index` — Event correlation and processing status index
+- `fact_event_acknowledgement` — Department receipt and acknowledgement records
+- `fact_event_status_update` — Event status update audit trail
 
 ### 6. Unstructured Document RAG
 
@@ -277,8 +288,8 @@ Multiplexing all operations through a single endpoint with an `action` discrimin
 - [ ] Ollama running with `nomic-embed-text` and chat model pulled
 - [ ] `uv venv && source .venv/bin/activate && uv pip install -r requirements.txt`
 - [ ] `python create_schema.py` (SQLite schema + sample data)
-- [ ] `python MCP/build_milvus_index.py` (schema → Milvus)
-- [ ] `python pipeline.py --config config.yaml --fewshots fewshots_combined.json` (few-shots → Milvus)
+- [ ] `python pipeline.py --config config.yaml --yaml_dir ./schema/curated_datamodels/tables` (schema → Milvus)
+- [ ] `python pipeline.py --config config.yaml --fewshots new_fewshots.json` (few-shots → Milvus)
 - [ ] `HIVE_MCP_ENABLED=false` in `.env`
 - [ ] `python -m uvicorn app:app --host 0.0.0.0 --port 8000`
 
@@ -288,8 +299,8 @@ Multiplexing all operations through a single endpoint with an `action` discrimin
 - [ ] Valid Kerberos ticket obtained (`kinit`)
 - [ ] `python MCP/hive_startup_check.py` passes all 7 checks
 - [ ] Ollama running on production host with required models
-- [ ] `python MCP/build_milvus_index.py` (uvicorn stopped)
-- [ ] `python pipeline.py --config config.yaml --fewshots fewshots_combined.json` (uvicorn stopped)
+- [ ] `python pipeline.py --config config.yaml --yaml_dir ./schema/curated_datamodels/tables` (uvicorn stopped)
+- [ ] `python pipeline.py --config config.yaml --fewshots new_fewshots.json` (uvicorn stopped)
 - [ ] `HIVE_MCP_ENABLED=true` in `.env`
 - [ ] `python -m uvicorn app:app --host 0.0.0.0 --port 8000`
 
