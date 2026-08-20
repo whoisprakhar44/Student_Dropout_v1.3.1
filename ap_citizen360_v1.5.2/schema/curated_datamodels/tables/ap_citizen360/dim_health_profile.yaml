@@ -1,10 +1,9 @@
 database: ap_citizen360
 table: dim_health_profile
 department: ap_citizen360
-description: One row per person summarizing their health-system identifiers, 
-  chronic conditions, maternal-health status, and government health-scheme 
-  coverage. The aggregation point for everything the Health department tracks 
-  about a citizen.
+description: One row per person summarizing their health-system identifiers, chronic
+  conditions, maternal-health status, and government health-scheme coverage. The aggregation
+  point for everything the Health department tracks about a citizen.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_health_profile
 tblproperties:
@@ -17,51 +16,42 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_health_profile`(\n  `person_id`
-  STRING COMMENT 'Foreign key to dim_person.person_id.',\n  `abdm_id` STRING COMMENT
-  'Ayushman Bharat Digital Mission health ID.',\n  `abha_address` STRING COMMENT 'Ayushman
-  Bharat Health Account address (the ABDM health-ID\\'s human-readable handle).',\n\
-  \  `aarogyasri_card_no` STRING COMMENT 'NTR Vaidya Seva (Aarogyasri) health insurance
-  card number.',\n  `aarogyasri_status` STRING COMMENT 'Enrollment status under Aarogyasri,
-  e.g. \\'Active\\', \\'Not Enrolled\\'.',\n  `pmjay_beneficiary_id` STRING COMMENT
-  'Ayushman Bharat PM-JAY beneficiary ID.',\n  `pmjay_family_id` STRING COMMENT 'Ayushman
-  Bharat PM-JAY family unit ID.',\n  `blood_group` STRING COMMENT 'Blood group, e.g.
-  \\'O+\\', \\'AB-\\'. [Value Examples: \\'O+\\', \\'B+\\', \\'A+\\', \\'O-\\', \\\
-  'AB+\\', \\'A-\\', \\'B-\\', \\'AB-\\', \\'-1\\']',\n  `height_cm` INT COMMENT 'Height
-  in centimetres, from the most recent recorded measurement.',\n  `weight_kg` DOUBLE
-  COMMENT 'Weight in kilograms, from the most recent recorded measurement.',\n  `bmi`
-  DOUBLE COMMENT 'Body mass index, computed from the most recent height/weight.',\n\
-  \  `has_diabetes` BOOLEAN COMMENT 'True if diagnosed with diabetes. [Value Examples:
-  \\'True\\']',\n  `has_hypertension` BOOLEAN COMMENT 'True if diagnosed with hypertension.
-  [Value Examples: \\'True\\']',\n  `has_tuberculosis` BOOLEAN COMMENT 'True if diagnosed
-  with active or treated tuberculosis.',\n  `has_hiv` BOOLEAN COMMENT 'True if HIV-positive
-  per health records.',\n  `has_cancer` BOOLEAN COMMENT 'True if diagnosed with cancer
-  (any type).',\n  `registered_phc` STRING COMMENT 'Primary Health Centre the person
-  is registered with.',\n  `assigned_asha_worker` STRING COMMENT 'Name/ID of the assigned
-  ASHA (community health) worker.',\n  `is_pregnant` BOOLEAN COMMENT 'True if currently
-  pregnant per the latest ANC record. [Value Examples: \\'True\\']',\n  `lmp_date`
-  DATE COMMENT 'Last menstrual period date, for current/recent pregnancies.',\n  `edd_date`
-  DATE COMMENT 'Expected date of delivery, for current pregnancies.',\n  `anc_registrations`
-  INT COMMENT 'Count of antenatal care check-up registrations for the current/most
-  recent pregnancy. [Value Examples: \\'4\\', \\'5\\', \\'2\\', \\'6\\', \\'3\\',
-  \\'7\\', \\'1\\', \\'8\\']',\n  `institutional_delivery` BOOLEAN COMMENT 'True if
-  the most recent delivery took place in a healthcare institution rather than at home.',\n\
-  \  `covid_vaccinated` BOOLEAN COMMENT 'True if the person has received at least
-  one COVID-19 vaccine dose.',\n  `covid_doses` INT COMMENT 'Total number of COVID-19
-  vaccine doses received.',\n  `esi_covered` BOOLEAN COMMENT 'True if covered under
-  Employee State Insurance. [Value Examples: \\'False\\']',\n  `cghs_covered` BOOLEAN
-  COMMENT 'True if covered under the Central Government Health Scheme. [Value Examples:
-  \\'False\\']',\n  `rsby_covered` BOOLEAN COMMENT 'True if covered under the Rashtriya
-  Swasthya Bima Yojana. [Value Examples: \\'False\\']',\n  `has_mental_health_condition`
-  BOOLEAN COMMENT 'True if a mental health condition is on file. [Value Examples:
-  \\'False\\']',\n  `mental_health_type` STRING COMMENT 'Type of mental health condition,
-  where has_mental_health_condition is true.',\n  `last_encounter_date` DATE COMMENT
-  'Date of the most recent recorded healthcare encounter of any kind.',\n  `department_id`
-  STRING COMMENT 'Foreign key to dim_department.department_id — the Health department
-  record owner.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this health profile
-  was last updated.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_health_profile'"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_health_profile`(
+    `person_id` STRING,
+    `abdm_id` STRING,
+    `abha_address` STRING,
+    `aarogyasri_card_no` STRING,
+    `aarogyasri_status` STRING,
+    `pmjay_beneficiary_id` STRING,
+    `pmjay_family_id` STRING,
+    `blood_group` STRING,
+    `height_cm` INT,
+    `weight_kg` DOUBLE,
+    `bmi` DOUBLE,
+    `has_diabetes` BOOLEAN,
+    `has_hypertension` BOOLEAN,
+    `has_tuberculosis` BOOLEAN,
+    `has_hiv` BOOLEAN,
+    `has_cancer` BOOLEAN,
+    `registered_phc` STRING,
+    `assigned_asha_worker` STRING,
+    `is_pregnant` BOOLEAN,
+    `lmp_date` DATE,
+    `edd_date` DATE,
+    `anc_registrations` INT,
+    `institutional_delivery` BOOLEAN,
+    `covid_vaccinated` BOOLEAN,
+    `covid_doses` INT,
+    `esi_covered` BOOLEAN,
+    `cghs_covered` BOOLEAN,
+    `rsby_covered` BOOLEAN,
+    `has_mental_health_condition` BOOLEAN,
+    `mental_health_type` STRING,
+    `last_encounter_date` DATE,
+    `department_id` STRING,
+    `updated_at` TIMESTAMP
+  )
 columns:
 - name: person_id
   type: STRING
@@ -74,8 +64,8 @@ columns:
 - name: abha_address
   type: STRING
   nullable: true
-  description: Ayushman Bharat Health Account address (the ABDM health-ID's 
-    human-readable handle).
+  description: Ayushman Bharat Health Account address (the ABDM health-ID's human-readable
+    handle).
 - name: aarogyasri_card_no
   type: STRING
   nullable: true
@@ -83,8 +73,7 @@ columns:
 - name: aarogyasri_status
   type: STRING
   nullable: true
-  description: Enrollment status under Aarogyasri, e.g. 'Active', 'Not 
-    Enrolled'.
+  description: Enrollment status under Aarogyasri, e.g. 'Active', 'Not Enrolled'.
 - name: pmjay_beneficiary_id
   type: STRING
   nullable: true
@@ -107,7 +96,6 @@ columns:
   - A-
   - B-
   - AB-
-  - '-1'
 - name: height_cm
   type: INT
   nullable: true
@@ -172,25 +160,15 @@ columns:
   nullable: true
   description: 'Count of antenatal care check-up registrations for the current/most
     recent pregnancy. [Value Examples: ''4'', ''5'', ''2'', ''6'', ''3'', ''7'']'
-  distinct:
-  - '4'
-  - '5'
-  - '2'
-  - '6'
-  - '3'
-  - '7'
-  - '1'
-  - '8'
 - name: institutional_delivery
   type: BOOLEAN
   nullable: true
-  description: True if the most recent delivery took place in a healthcare 
-    institution rather than at home.
+  description: True if the most recent delivery took place in a healthcare institution
+    rather than at home.
 - name: covid_vaccinated
   type: BOOLEAN
   nullable: true
-  description: True if the person has received at least one COVID-19 vaccine 
-    dose.
+  description: True if the person has received at least one COVID-19 vaccine dose.
 - name: covid_doses
   type: INT
   nullable: true
@@ -224,18 +202,17 @@ columns:
 - name: mental_health_type
   type: STRING
   nullable: true
-  description: Type of mental health condition, where 
-    has_mental_health_condition is true.
+  description: Type of mental health condition, where has_mental_health_condition
+    is true.
 - name: last_encounter_date
   type: DATE
   nullable: true
-  description: Date of the most recent recorded healthcare encounter of any 
-    kind.
+  description: Date of the most recent recorded healthcare encounter of any kind.
 - name: department_id
   type: STRING
   nullable: true
-  description: "Foreign key to dim_department.department_id — the Health department
-    record owner. [Value Examples: 'DEPT-HEALTH']"
+  description: 'Foreign key to dim_department.department_id — the Health department
+    record owner. [Value Examples: ''DEPT-HEALTH'']'
   distinct:
   - DEPT-HEALTH
 - name: updated_at
@@ -246,8 +223,7 @@ primary_key:
 - person_id
 relationships:
 - dim_health_profile.person_id is a foreign key to dim_person.person_id.
-- dim_health_profile.department_id is a foreign key to 
-  dim_department.department_id.
+- dim_health_profile.department_id is a foreign key to dim_department.department_id.
 business_terms:
 - ap_citizen360
 - health

@@ -1,9 +1,9 @@
 database: ap_citizen360
 table: dim_crop_sale
 department: ap_citizen360
-description: One row per farmer per financial year — total value of crop sales 
-  through tracked procurement/market channels, split paddy vs non-paddy. Used 
-  for agricultural income verification.
+description: One row per farmer per financial year — total value of crop sales through
+  tracked procurement/market channels, split paddy vs non-paddy. Used for agricultural
+  income verification.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_crop_sale
 tblproperties:
@@ -16,17 +16,15 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_crop_sale`(\n  `person_id` STRING
-  COMMENT 'Foreign key to dim_person.person_id.',\n  `financial_year` STRING COMMENT
-  'Financial year this sales total covers, e.g. \\'2025-26\\'. [Value Examples: \\\
-  '2025-26\\']',\n  `amt_paddy` DECIMAL(14,2) COMMENT 'Total sale value of paddy in
-  this financial year, in INR.',\n  `amt_nonpaddy` DECIMAL(14,2) COMMENT 'Total sale
-  value of all non-paddy crops in this financial year, in INR. [Value Examples: \\\
-  '0.00\\']',\n  `amt_total` DECIMAL(14,2) COMMENT 'Total crop sale value across all
-  crops in this financial year, in INR.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp
-  this record was last updated.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_crop_sale'"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_crop_sale`(
+    `person_id` STRING,
+    `financial_year` STRING,
+    `amt_paddy` DECIMAL(14,2),
+    `amt_nonpaddy` DECIMAL(14,2),
+    `amt_total` DECIMAL(14,2),
+    `updated_at` TIMESTAMP
+  )
 columns:
 - name: person_id
   type: STRING
@@ -46,13 +44,12 @@ columns:
 - name: amt_nonpaddy
   type: DECIMAL(14,2)
   nullable: true
-  description: 'Total sale value of all non-paddy crops in this financial year, in
-    INR.'
+  description: Total sale value of all non-paddy crops in this financial year, in
+    INR.
 - name: amt_total
   type: DECIMAL(14,2)
   nullable: true
-  description: Total crop sale value across all crops in this financial year, in
-    INR.
+  description: Total crop sale value across all crops in this financial year, in INR.
 - name: updated_at
   type: TIMESTAMP
   nullable: true

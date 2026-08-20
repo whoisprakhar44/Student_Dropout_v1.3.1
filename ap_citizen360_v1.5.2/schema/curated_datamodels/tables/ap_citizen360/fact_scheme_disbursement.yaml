@@ -1,10 +1,10 @@
 database: ap_citizen360
 table: fact_scheme_disbursement
 department: ap_citizen360
-description: Pre-aggregated scheme disbursement totals per geography per fiscal 
-  year, broken down by social category — backs the Budget Integrity / 
-  disbursement dashboards without having to aggregate fact_benefit_transaction 
-  at query time. Partitioned by geo_level and fiscal_year.
+description: Pre-aggregated scheme disbursement totals per geography per fiscal year,
+  broken down by social category — backs the Budget Integrity / disbursement dashboards
+  without having to aggregate fact_benefit_transaction at query time. Partitioned
+  by geo_level and fiscal_year.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_scheme_disbursement
 partitioned_by: geo_level, fiscal_year
@@ -18,27 +18,22 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_scheme_disbursement`(\n  `disbursement_id`
-  STRING COMMENT 'Canonical disbursement-aggregate identifier.',\n  `scheme_id` STRING
-  COMMENT 'Foreign key to dim_scheme.scheme_id.',\n  `department_id` STRING COMMENT
-  'Foreign key to dim_department.department_id.',\n  `geo_level` STRING COMMENT 'Geography
-  level this aggregate is rolled up to, e.g. \\'state\\', \\'district\\', \\'mandal\\\
-  '. [Value Examples: \\'VILLAGE\\', \\'MANDAL\\', \\'DISTRICT\\', \\'STATE\\']',\n\
-  \  `geo_id` STRING COMMENT 'Identifier of the specific geography at geo_level (e.g.
-  a district_id when geo_level=\\'district\\').',\n  `fiscal_year` STRING COMMENT
-  'Fiscal year this aggregate covers.',\n  `total_crores` DECIMAL(12,2) COMMENT 'Total
-  disbursement amount, in INR crores.',\n  `beneficiaries` BIGINT COMMENT 'Total count
-  of beneficiaries covered by this aggregate.',\n  `amount_oc` DECIMAL(12,2) COMMENT
-  'Disbursement amount attributable to OC-category beneficiaries, in INR crores.',\n\
-  \  `amount_bc` DECIMAL(12,2) COMMENT 'Disbursement amount attributable to BC-category
-  beneficiaries, in INR crores.',\n  `amount_sc` DECIMAL(12,2) COMMENT 'Disbursement
-  amount attributable to SC-category beneficiaries, in INR crores.',\n  `amount_st`
-  DECIMAL(12,2) COMMENT 'Disbursement amount attributable to ST-category beneficiaries,
-  in INR crores.',\n  `amount_others` DECIMAL(12,2) COMMENT 'Disbursement amount attributable
-  to beneficiaries outside the OC/BC/SC/ST categories, in INR crores.'\n)\nROW FORMAT
-  SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
-  LOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_scheme_disbursement'\n\
-  PARTITIONED BY (geo_level, fiscal_year)"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`fact_scheme_disbursement`(
+    `disbursement_id` STRING,
+    `scheme_id` STRING,
+    `department_id` STRING,
+    `geo_level` STRING,
+    `geo_id` STRING,
+    `fiscal_year` STRING,
+    `total_crores` DECIMAL(12,2),
+    `beneficiaries` BIGINT,
+    `amount_oc` DECIMAL(12,2),
+    `amount_bc` DECIMAL(12,2),
+    `amount_sc` DECIMAL(12,2),
+    `amount_st` DECIMAL(12,2),
+    `amount_others` DECIMAL(12,2)
+  )
 columns:
 - name: disbursement_id
   type: STRING
@@ -47,13 +42,47 @@ columns:
 - name: scheme_id
   type: STRING
   nullable: true
-  description: "Foreign key to dim_scheme.scheme_id. [Value Examples: 'SCH-008', 'SCH-061',
-    'SCH-067', 'SCH-063', 'SCH-064', 'SCH-066']"
+  description: 'Foreign key to dim_scheme.scheme_id. [Value Examples: ''SCH-008'',
+    ''SCH-061'', ''SCH-067'', ''SCH-063'', ''SCH-064'', ''SCH-066'']'
+  distinct:
+  - SCH-008
+  - SCH-061
+  - SCH-067
+  - SCH-063
+  - SCH-064
+  - SCH-066
+  - SCH-068
+  - SCH-025
+  - SCH-023
+  - SCH-024
+  - SCH-046
+  - SCH-058
+  - SCH-013
+  - SCH-051
+  - SCH-065
+  - SCH-047
+  - SCH-032
+  - SCH-057
+  - SCH-045
+  - SCH-003
+  - SCH-055
+  - SCH-053
+  - SCH-054
+  - SCH-052
+  - SCH-021
+  - SCH-059
+  - SCH-027
+  - SCH-037
+  - SCH-026
+  - SCH-050
+  - SCH-048
+  - SCH-049
+  - SCH-056
 - name: department_id
   type: STRING
   nullable: true
-  description: "Foreign key to dim_department.department_id. [Value Examples: 'DEPT-EDU',
-    'DEPT-SW', 'DEPT-HEALTH', 'DEPT-ENE', 'DEPT-WCD', 'DEPT-PG']"
+  description: 'Foreign key to dim_department.department_id. [Value Examples: ''DEPT-EDU'',
+    ''DEPT-SW'', ''DEPT-HEALTH'', ''DEPT-ENE'', ''DEPT-WCD'', ''DEPT-PG'']'
   distinct:
   - DEPT-EDU
   - DEPT-SW
@@ -77,13 +106,41 @@ columns:
 - name: geo_id
   type: STRING
   nullable: true
-  description: Identifier of the specific geography at geo_level (e.g. a 
-    district_id when geo_level='district').
+  description: Identifier of the specific geography at geo_level (e.g. a district_id
+    when geo_level='district').
 - name: fiscal_year
   type: STRING
   nullable: true
-  description: "Fiscal year this aggregate covers. [Value Examples: '2026-2027', '2025-2026',
-    '2023-2024', '2024-2025', '2022-2023', '2021-2022']"
+  description: 'Fiscal year this aggregate covers. [Value Examples: ''2026-2027'',
+    ''2025-2026'', ''2023-2024'', ''2024-2025'', ''2022-2023'', ''2021-2022'']'
+  distinct:
+  - 2026-2027
+  - 2025-2026
+  - 2023-2024
+  - 2024-2025
+  - 2022-2023
+  - 2021-2022
+  - 2019-2020
+  - 2020-2021
+  - 2018-2019
+  - 2017-2018
+  - 2016-2017
+  - 2015-2016
+  - 2014-2015
+  - 2013-2014
+  - 2012-2013
+  - 2011-2012
+  - 2010-2011
+  - 2009-2010
+  - 2008-2009
+  - 1899-1900
+  - 2000-2001
+  - 1954-1955
+  - 2005-2006
+  - 2007-2008
+  - 2001-2002
+  - 2006-2007
+  - 2003-2004
 - name: total_crores
   type: DECIMAL(12,2)
   nullable: true
@@ -95,34 +152,33 @@ columns:
 - name: amount_oc
   type: DECIMAL(12,2)
   nullable: true
-  description: Disbursement amount attributable to OC-category beneficiaries, in
-    INR crores.
+  description: Disbursement amount attributable to OC-category beneficiaries, in INR
+    crores.
 - name: amount_bc
   type: DECIMAL(12,2)
   nullable: true
-  description: Disbursement amount attributable to BC-category beneficiaries, in
-    INR crores.
+  description: Disbursement amount attributable to BC-category beneficiaries, in INR
+    crores.
 - name: amount_sc
   type: DECIMAL(12,2)
   nullable: true
-  description: Disbursement amount attributable to SC-category beneficiaries, in
-    INR crores.
+  description: Disbursement amount attributable to SC-category beneficiaries, in INR
+    crores.
 - name: amount_st
   type: DECIMAL(12,2)
   nullable: true
-  description: Disbursement amount attributable to ST-category beneficiaries, in
-    INR crores.
+  description: Disbursement amount attributable to ST-category beneficiaries, in INR
+    crores.
 - name: amount_others
   type: DECIMAL(12,2)
   nullable: true
-  description: Disbursement amount attributable to beneficiaries outside the 
-    OC/BC/SC/ST categories, in INR crores.
+  description: Disbursement amount attributable to beneficiaries outside the OC/BC/SC/ST
+    categories, in INR crores.
 primary_key:
 - disbursement_id
 relationships:
 - fact_scheme_disbursement.scheme_id is a foreign key to dim_scheme.scheme_id.
-- fact_scheme_disbursement.department_id is a foreign key to 
-  dim_department.department_id.
+- fact_scheme_disbursement.department_id is a foreign key to dim_department.department_id.
 business_terms:
 - ap_citizen360
 - data_transfer_api_—_entitlements,_transactions,_disbursements
@@ -132,6 +188,5 @@ business_terms:
 - ICEBERG
 common_operations:
 - aggregate measures in fact_scheme_disbursement by geography and time period
-- join fact_scheme_disbursement with dimension tables via facility_id or 
-  person_id
+- join fact_scheme_disbursement with dimension tables via facility_id or person_id
 - filter fact_scheme_disbursement by district_id or period_date

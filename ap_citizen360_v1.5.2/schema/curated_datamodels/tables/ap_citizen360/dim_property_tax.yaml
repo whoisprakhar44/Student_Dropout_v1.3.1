@@ -1,8 +1,8 @@
 database: ap_citizen360
 table: dim_property_tax
 department: ap_citizen360
-description: One row per property per assessment year — municipal property tax 
-  demand, dues, and payment status. Joins back to dim_property via ptin.
+description: One row per property per assessment year — municipal property tax demand,
+  dues, and payment status. Joins back to dim_property via ptin.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_property_tax
 tblproperties:
@@ -15,32 +15,29 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_property_tax`(\n  `person_id`
-  STRING COMMENT 'Foreign key to dim_person.person_id — the property owner liable
-  for the tax.',\n  `ptin` STRING COMMENT 'Property Tax Identification Number — joins
-  to dim_property.ptin.',\n  `assessment_year` STRING COMMENT 'Financial/assessment
-  year this tax record covers.',\n  `annual_demand_rs` DECIMAL(12,2) COMMENT 'Annual
-  property tax demand for this assessment year, in INR.',\n  `arrears_rs` DECIMAL(12,2)
-  COMMENT 'Arrears carried over from prior assessment years, in INR.',\n  `total_due_rs`
-  DECIMAL(12,2) COMMENT 'Total amount currently due (demand + arrears − paid), in
-  INR.',\n  `amount_paid_rs` DECIMAL(12,2) COMMENT 'Amount paid against this assessment
-  year\\'s demand, in INR.',\n  `tax_status` STRING COMMENT 'Current payment status,
-  e.g. \\'Up-to-date\\', \\'Due\\'.',\n  `last_paid_date` DATE COMMENT 'Date of the
-  most recent payment.',\n  `payment_mode` STRING COMMENT 'Mode of the most recent
-  payment, e.g. \\'Online\\', \\'Counter\\'.',\n  `exemption_category` STRING COMMENT
-  'Exemption category applied, if the property qualifies for a tax exemption/concession.',\n\
-  \  `municipal_body` STRING COMMENT 'Municipal body that raised this assessment.',\n\
-  \  `department_id` STRING COMMENT 'Foreign key to dim_department.department_id —
-  the municipal/revenue department owning this tax record.',\n  `updated_at` TIMESTAMP
-  COMMENT 'Timestamp this tax record was last updated.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_property_tax'"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_property_tax`(
+    `person_id` STRING,
+    `ptin` STRING,
+    `assessment_year` STRING,
+    `annual_demand_rs` DECIMAL(12,2),
+    `arrears_rs` DECIMAL(12,2),
+    `total_due_rs` DECIMAL(12,2),
+    `amount_paid_rs` DECIMAL(12,2),
+    `tax_status` STRING,
+    `last_paid_date` DATE,
+    `payment_mode` STRING,
+    `exemption_category` STRING,
+    `municipal_body` STRING,
+    `department_id` STRING,
+    `updated_at` TIMESTAMP
+  )
 columns:
 - name: person_id
   type: STRING
   nullable: true
-  description: Foreign key to dim_person.person_id — the property owner liable 
-    for the tax.
+  description: Foreign key to dim_person.person_id — the property owner liable for
+    the tax.
 - name: ptin
   type: STRING
   nullable: true
@@ -77,11 +74,25 @@ columns:
   type: STRING
   nullable: true
   description: Mode of the most recent payment, e.g. 'Online', 'Counter'.
+  distinct:
+  - Online
+  - Counter
+  - UPI
+  - Net Banking
+  - Cheque/DD
+  - Cash
+  - Secretariat
 - name: exemption_category
   type: STRING
   nullable: true
-  description: Exemption category applied, if the property qualifies for a tax 
-    exemption/concession.
+  description: Exemption category applied, if the property qualifies for a tax exemption/concession.
+  distinct:
+  - Ex-Servicemen
+  - Religious/Charitable
+  - Educational
+  - Government
+  - Senior Citizen
+  - None
 - name: municipal_body
   type: STRING
   nullable: true
@@ -89,8 +100,8 @@ columns:
 - name: department_id
   type: STRING
   nullable: true
-  description: Foreign key to dim_department.department_id — the 
-    municipal/revenue department owning this tax record.
+  description: Foreign key to dim_department.department_id — the municipal/revenue
+    department owning this tax record.
 - name: updated_at
   type: TIMESTAMP
   nullable: true
@@ -100,8 +111,7 @@ primary_key:
 relationships:
 - dim_property_tax.person_id is a foreign key to dim_person.person_id.
 - dim_property_tax.ptin joins to dim_property.ptin.
-- dim_property_tax.department_id is a foreign key to 
-  dim_department.department_id.
+- dim_property_tax.department_id is a foreign key to dim_department.department_id.
 business_terms:
 - ap_citizen360
 - assets_—_land_and_property

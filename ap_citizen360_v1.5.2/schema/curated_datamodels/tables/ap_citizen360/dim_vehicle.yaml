@@ -1,10 +1,9 @@
 database: ap_citizen360
 table: dim_vehicle
 department: ap_citizen360
-description: One row per vehicle owned — identity/registration details. 
-  Compliance/regulatory status (insurance, fitness, permits, challans) is split 
-  out into dim_vehicle_compliance to keep slow-changing compliance data separate
-  from largely-static identity data.
+description: One row per vehicle owned — identity/registration details. Compliance/regulatory
+  status (insurance, fitness, permits, challans) is split out into dim_vehicle_compliance
+  to keep slow-changing compliance data separate from largely-static identity data.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_vehicle
 tblproperties:
@@ -17,36 +16,30 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_vehicle`(\n  `vehicle_id` STRING
-  COMMENT 'Canonical vehicle identifier.',\n  `person_id` STRING COMMENT 'Foreign
-  key to dim_person.person_id — the registered owner.',\n  `vehicle_type` STRING COMMENT
-  'Type of vehicle, e.g. \\'Car\\', \\'Motorcycle\\', \\'Tractor\\'.',\n  `vehicle_class`
-  STRING COMMENT 'RTO vehicle class, e.g. \\'Light Motor Vehicle\\', \\'Motor Cycle\\\
-  ', \\'Non Transport\\'. [Value Examples: \\'TWO WHEELER(NT)\\', \\'LIGHT MOTOR VEHICLE\\\
-  ', \\'THREE WHEELER(NT)\\', \\'THREE WHEELER(T)\\', \\'LIGHT\\', \\'LIGHT PASSENGER
-  VEHICLE\\', \\'HEAVY PASSENGER VEHICLE\\', \\'MEDIUM MOTOR VEHICLE\\', \\'MEDIUM
-  PASSENGER VEHICLE\\', \\'HEAVY MOTOR VEHICLE\\']',\n  `reg_no` STRING COMMENT 'Vehicle
-  registration number plate.',\n  `make` STRING COMMENT 'Vehicle manufacturer/make.',\n\
-  \  `model` STRING COMMENT 'Vehicle model name.',\n  `year_of_manufacture` INT COMMENT
-  'Year the vehicle was manufactured.',\n  `fuel_type` STRING COMMENT 'Fuel type,
-  e.g. \\'Petrol\\', \\'Diesel\\'. [Value Examples: \\'PETROL\\', \\'DIESEL\\', \\\
-  'NOT APPLICABLE\\', \\'ELECTRIC(BOV)\\', \\'PETROL(E20)\\', \\'PETROL/LPG\\', \\\
-  'PETROL/CNG\\', \\'PURE EV\\', \\'PETROL/HYBRID\\', \\'CNG ONLY\\']',\n  `chassis_no`
-  STRING COMMENT 'Vehicle chassis (VIN) number.',\n  `engine_no` STRING COMMENT 'Vehicle
-  engine number.',\n  `color` STRING COMMENT 'Vehicle color as registered.',\n  `seating_capacity`
-  INT COMMENT 'Number of seats.',\n  `unladen_weight_kg` INT COMMENT 'Unladen (kerb)
-  weight of the vehicle, in kilograms.',\n  `laden_weight_kg` INT COMMENT 'Gross/loaded
-  weight of the vehicle, in kilograms — the counterpart to unladen_weight_kg (empty
-  weight).',\n  `registration_date` DATE COMMENT 'Date the vehicle was first registered.',\n\
-  \  `rto_office` STRING COMMENT 'Regional Transport Office that registered the vehicle.',\n\
-  \  `owner_name` STRING COMMENT 'Registered owner\\'s name (denormalized for display
-  without a join to dim_person).',\n  `owner_mobile_number` STRING COMMENT 'Registered
-  owner\\'s contact mobile number on file with the RTO.',\n  `data_source` STRING
-  COMMENT 'Source system this vehicle record was sourced from, e.g. \\'VAHAN\\'. [Value
-  Examples: \\'Vahan\\']',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this vehicle
-  record was last updated.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_vehicle'"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_vehicle`(
+    `vehicle_id` STRING,
+    `person_id` STRING,
+    `vehicle_type` STRING,
+    `vehicle_class` STRING,
+    `reg_no` STRING,
+    `make` STRING,
+    `model` STRING,
+    `year_of_manufacture` INT,
+    `fuel_type` STRING,
+    `chassis_no` STRING,
+    `engine_no` STRING,
+    `color` STRING,
+    `seating_capacity` INT,
+    `unladen_weight_kg` INT,
+    `laden_weight_kg` INT,
+    `registration_date` DATE,
+    `rto_office` STRING,
+    `owner_name` STRING,
+    `owner_mobile_number` STRING,
+    `data_source` STRING,
+    `updated_at` TIMESTAMP
+  )
 columns:
 - name: vehicle_id
   type: STRING
@@ -59,9 +52,66 @@ columns:
 - name: vehicle_type
   type: STRING
   nullable: true
-  description: "Type of vehicle, e.g. 'Car', 'Motorcycle', 'Tractor'. [Value Examples:
-    'Motor Car', 'Three Wheeler (Passenger)', 'Goods Carrier', 'Agricultural Tractor',
-    'Trailer (Commercial)', 'Tractor (Commercial)']"
+  description: 'Type of vehicle, e.g. ''Car'', ''Motorcycle'', ''Tractor''. [Value
+    Examples: ''Motor Car'', ''Three Wheeler (Passenger)'', ''Goods Carrier'', ''Agricultural
+    Tractor'', ''Trailer (Commercial)'', ''Tractor (Commercial)'']'
+  distinct:
+  - Motor Car
+  - Three Wheeler (Passenger)
+  - Goods Carrier
+  - Agricultural Tractor
+  - Trailer (Commercial)
+  - Tractor (Commercial)
+  - Trailer (Agricultural)
+  - Three Wheeler (Goods)
+  - Omni Bus (Private Use)
+  - Construction Equipment Vehicle
+  - Mobile Canteen
+  - Ambulance
+  - Adapted Vehicle
+  - Harvester
+  - Private Service Vehicle
+  - Motor Cycle/Scooter-Used For Hire
+  - Excavator (Commercial)
+  - Omni Bus
+  - Road Roller
+  - Vehicle Fitted With Rig
+  - Fork Lift
+  - e-Rickshaw(P)
+  - Crane Mounted Vehicle
+  - e-Rickshaw with Cart (G)
+  - Three Wheeler (Personal)
+  - Mobile Clinic
+  - Dumper
+  - Cash Van
+  - Fire Tenders
+  - Recovery Vehicle
+  - Power Tiller (Commercial)
+  - Hearses
+  - Vehicle Fitted With Compressor
+  - Motor Cycle/Scooter-SideCar(T)
+  - Animal Ambulance
+  - Library Van
+  - Trailer For Personal Use
+  - Fire Fighting Vehicle
+  - Excavator (NT)
+  - Tree Trimming Vehicle
+  - Camper Van / Trailer
+  - Vehicle Fitted With Generator
+  - Breakdown Van
+  - Power Tiller
+  - Mobile Workshop
+  - Tow Truck
+  - Modular Hydraulic Trailer
+  - Quadricycle (Private)
+  - Auxiliary Trailer
+  - Tower Wagon
+  - Private Service Vehicle (Individual Use)
+  - X-Ray Van
+  - Snorked Ladders
+  - Motor Cycle/Scooter-With Trailer
+  - Earth Moving Equipment
+  - Bulldozer
 - name: vehicle_class
   type: STRING
   nullable: true
@@ -131,6 +181,204 @@ columns:
   type: STRING
   nullable: true
   description: Vehicle color as registered.
+  distinct:
+  - BLACK
+  - RED
+  - GREEN
+  - INA
+  - SBK
+  - BLUE
+  - MOSS GREEN
+  - WHITE
+  - GRAY
+  - GOLDEN YELLOW
+  - GREY
+  - G YELLOW
+  - PEARL IGNEOUS BLACK
+  - YELLOW
+  - PBK
+  - EBONY BLK RED DKL
+  - TBK
+  - RBK
+  - VBK
+  - BHG
+  - SILVER
+  - G.YELLOW
+  - GENY GREY METALLIC
+  - EBONY BLK BLUE DKL
+  - GBK
+  - DECENT BLUE METALLIC
+  - FBK
+  - PURPLE
+  - Red Black
+  - MATT BLACK
+  - PEARL AMAZING WHITE
+  - EBONY BLACK WITH SIL
+  - M GREEN
+  - PEARL SIREN BLUE-A
+  - SPORTS RED BLACK
+  - BLK
+  - PEARL PRECIOUS WHITE
+  - PEARL MIRAGE WHITE
+  - PEARL ARCTIC WHITE
+  - CRD
+  - TRANCE BLUE METALLIC
+  - PANTHER BLACK
+  - GREENISH BLUE
+  - SPARKLING MET BL RED
+  - MET MAT STELLAR BLUE
+  - REBEL RED METALLIC 2
+  - EBONY BLACK SOLAR RE
+  - DARK BLUE
+  - SILKY SILVER
+  - '-'
+  - TITANIUM GREY
+  - BRD
+  - KHI EBONY BLACK
+  - DELIGHT BLUE
+  - IMPERIAL RED METALLI
+  - BLACK NEXUS BLUE
+  - MATTE BLUE
+  - EBONY BLACK MET
+  - P BLACK
+  - MAJESTIC BROWN METAL
+  - NP
+  - SPORTS BLACK
+  - BLACK DECAL BLUE
+  - TECHNO BLU MET BLK
+  - SPRAKLING MET BKL BL
+  - BEAVER BROWN
+  - Black Heavy Grey
+  - GOLDEN  YELLOW
+  - STARLIGHT BLUE
+  - ECO GREEN
+  - MAT DARK PURPLISH BL
+  - P S WHITE
+  - COCKTAIL WINE RED
+  - MIDNIGHT BLACK
+  - IRISH_CREAM
+  - MF 50 RED
+  - BLACK PURPLE
+  - IRISH CREAM
+  - BLUE BLACK
+  - MAROON
+  - BLACK-SILVER STR
+  - ICE GREEN+WHITE
+  - EBONY BLACK WITH CHR
+  - MAGMA GRAY
+  - CANDY BLAZING RED
+  - BBK
+  - SUPERIOR WHITE
+  - MET BLUE
+  - MAT BLACK 2
+  - PURPLE BLACK
+  - JET BLACK
+  - BLACK+RED
+  - BLACK CHROME
+  - BLACK WITH RED
+  - MET ROYAL BRONZE
+  - BLACK METTALIC X
+  - BLACK AND ACCENT
+  - BLACK GREY STRIPE
+  - M.GREEN
+  - ATHLETIC BLUE METALL
+  - E BLACK WITH PLATINU
+  - Grey Black
+  - BLACK RED
+  - HEAVY GREY
+  - POLAR WHITE 2
+  - PEARL BLUE
+  - MAT SELENE SILVER ME
+  - SRD
+  - BROWN
+  - MAT RED
+  - SPORT RED
+  - PEARL SPARTAN RED
+  - S SILVER
+  - FWT
+  - P A WHITE
+  - CYAN METALLIC 6
+  - GUN METAL GREY
+  - MATFIB GREY
+  - DIAMOND WHITE
+  - MIDNIGHT BLUE METALL
+  - GRAPHITE
+  - PEARL WHITE
+  - JOHN DEERE GREEN & Y
+  - ARCTIC_WHITE
+  - MERCURY GREY
+  - COSMIC
+  - PEARL METALLIC WHITE
+  - CANDY RED
+  - FLAME RED
+  - ORANGE
+  - BLACK/RED
+  - EBONY BLACK
+  - RC PINK
+  - GL. SPARKLE BLACK
+  - STALLION BROWN
+  - POLAR WHITE
+  - BLACK WITH SPORTS RE
+  - AP RED
+  - TECHNO BLUE BLACK
+  - BLACK BLUE
+  - BLACK WITH HEAVY GRE
+  - HBU
+  - HEAVY GRAY METALLIC
+  - GRANITE GREY
+  - REDDITCH RED
+  - BLACK PURPLE STR
+  - PEARL SPARTAN RED 2
+  - MAT PLATINA SILVER
+  - BLK+BLUE
+  - MATT VERNIER GREY
+  - BLACK HEAVY GREY
+  - B RED
+  - GOLD YELLOW
+  - STEALTH BLACK
+  - DAZZLE YELLOW METALL
+  - C WHITE
+  - VIOLET BLACK
+  - MATT SPARKLE BLACK
+  - RED AND YELLOW
+  - TECHNO BLUE METALLIC
+  - GY
+  - DARK STEALTH BLACK
+  - METALLIC NEXUS BLUE
+  - ARCTIC WHITE
+  - TBU
+  - BLACK.
+  - FIERY RED
+  - BLACK-SPORTS RED
+  - BLK+RED
+  - SPORTS RED
+  - WINE RED
+  - Blue
+  - S WHITE
+  - MIDNIGHT BLUE
+  - G/Y
+  - VOL RED
+  - OBK
+  - C1DMNDWHIT
+  - ATLAS WHITE
+  - VIVID RED COCKTAIL1
+  - REBEL RED METALLIC
+  - DEEP PURPLISH BLUE
+  - FROST BLUE BLACK
+  - GOLDEN BROWN
+  - MNM3
+  - MAT MARVEL BLUE META
+  - PINK
+  - DRN PBK
+  - CANDY WHITE
+  - STAR DUST
+  - SHEETMETAL- BLUE ;CH
+  - T GREY
+  - B BLUE
+  - EBONY BLACK CHROME D
+  - EBONY BLK SILVER DKL
+  - BLACK WITH GREY
+  - WALNUT BROWN
 - name: seating_capacity
   type: INT
   nullable: true
@@ -142,8 +390,8 @@ columns:
 - name: laden_weight_kg
   type: INT
   nullable: true
-  description: Gross/loaded weight of the vehicle, in kilograms — the 
-    counterpart to unladen_weight_kg (empty weight).
+  description: Gross/loaded weight of the vehicle, in kilograms — the counterpart
+    to unladen_weight_kg (empty weight).
 - name: registration_date
   type: DATE
   nullable: true
@@ -155,8 +403,8 @@ columns:
 - name: owner_name
   type: STRING
   nullable: true
-  description: Registered owner's name (denormalized for display without a join 
-    to dim_person).
+  description: Registered owner's name (denormalized for display without a join to
+    dim_person).
 - name: owner_mobile_number
   type: STRING
   nullable: true
@@ -188,7 +436,3 @@ common_operations:
 - profile records in dim_vehicle
 - join dim_vehicle to dim_person via person_id
 - filter dim_vehicle by district_id or mandal_id
-- name: laden_weight_kg
-  type: STRING
-  nullable: true
-  description: Added from metadata.

@@ -10,10 +10,8 @@ Graph flow:
 
 intent_node classifies the user query and enriches state with:
   - intent: classified label (e.g. "student_risk_list")
-  - department_scope: relevant YAML departments (e.g. ["school", "canonicalmodel"])
-  - entities: extracted district, year, grade, social_category
-
-initialize_node uses intent + entities to build an enriched RAG query.
+  - department_scope: relevant YAML departments (e.g. ["ap_citizen360"])
+  - query_type: "data_query" | "document_query" | "hybrid" | "greeting"
 """
 import asyncio
 from typing import Literal

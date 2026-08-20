@@ -1,8 +1,8 @@
 database: ap_citizen360
 table: dim_utility_connection
 department: ap_citizen360
-description: One row per person summarizing their domestic gas, electricity, and
-  water connection status.
+description: One row per person summarizing their domestic gas, electricity, and water
+  connection status.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_utility_connection
 tblproperties:
@@ -15,25 +15,19 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_utility_connection`(\n  `person_id`
-  STRING COMMENT 'Foreign key to dim_person.person_id.',\n  `gas_connection_status`
-  STRING COMMENT 'Status of the domestic LPG connection, e.g. \\'Active\\', \\'Inactive\\\
-  '. [Value Examples: \\'Active_gsws\\', \\'Active\\', \\'Inactive\\']',\n  `electricity_status`
-  STRING COMMENT 'Status of the electricity connection, e.g. \\'Active\\', \\'Inactive\\\
-  '. [Value Examples: \\'Inactive\\', \\'Active\\']',\n  `avg_monthly_kwh` INT COMMENT
-  'Average monthly electricity consumption, in kWh.',\n  `water_connection_status`
-  STRING COMMENT 'Status of the piped water connection, e.g. \\'Active\\', \\'Inactive\\\
-  '. [Value Examples: \\'Active\\', \\'Inactive\\']',\n  `electricity_sc_no` STRING
-  COMMENT 'DISCOM service connection (SC) number for the electricity connection.',\n\
-  \  `discom_name` STRING COMMENT 'Name of the electricity distribution company (DISCOM)
-  serving this connection. [Value Examples: \\'SPDCL\\', \\'EPDCL\\', \\'CPDCL\\']',\n\
-  \  `electricity_status_updated_on` DATE COMMENT 'Date the electricity connection
-  status was last confirmed/updated by the DISCOM. [Value Examples: \\'2026-07-01\\\
-  ']',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp this utility record was last updated.',\n\
-  \  `lpg_consumer_id` STRING COMMENT 'LPG consumer identifier for the household gas
-  connection.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_utility_connection'"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_utility_connection`(
+    `person_id` STRING,
+    `gas_connection_status` STRING,
+    `electricity_status` STRING,
+    `avg_monthly_kwh` INT,
+    `water_connection_status` STRING,
+    `electricity_sc_no` STRING,
+    `discom_name` STRING,
+    `electricity_status_updated_on` DATE,
+    `updated_at` TIMESTAMP,
+    `lpg_consumer_id` STRING
+  )
 columns:
 - name: person_id
   type: STRING
@@ -71,8 +65,7 @@ columns:
 - name: electricity_sc_no
   type: STRING
   nullable: true
-  description: DISCOM service connection (SC) number for the electricity 
-    connection.
+  description: DISCOM service connection (SC) number for the electricity connection.
 - name: discom_name
   type: STRING
   nullable: true
@@ -85,8 +78,8 @@ columns:
 - name: electricity_status_updated_on
   type: DATE
   nullable: true
-  description: 'Date the electricity connection status was last confirmed/updated
-    by the DISCOM.'
+  description: Date the electricity connection status was last confirmed/updated by
+    the DISCOM.
 - name: updated_at
   type: TIMESTAMP
   nullable: true
@@ -110,7 +103,3 @@ common_operations:
 - profile records in dim_utility_connection
 - join dim_utility_connection to dim_person via person_id
 - filter dim_utility_connection by district_id or mandal_id
-- name: lpg_consumer_id
-  type: STRING
-  nullable: true
-  description: Added from metadata.

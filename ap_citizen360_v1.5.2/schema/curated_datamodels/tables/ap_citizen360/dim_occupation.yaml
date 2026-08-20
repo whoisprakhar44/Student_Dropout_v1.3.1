@@ -1,10 +1,10 @@
 database: ap_citizen360
 table: dim_occupation
 department: ap_citizen360
-description: Occupation history and current occupation — one row per person per 
-  occupation, since a citizen can hold more than one concurrently (e.g. farmer +
-  seasonal MGNREGA labourer). Source of truth for occupation_type (including 
-  current via is_current); not denormalized onto dim_person.
+description: Occupation history and current occupation — one row per person per occupation,
+  since a citizen can hold more than one concurrently (e.g. farmer + seasonal MGNREGA
+  labourer). Source of truth for occupation_type (including current via is_current);
+  not denormalized onto dim_person.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_occupation
 tblproperties:
@@ -17,26 +17,20 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_occupation`(\n  `occupation_record_id`
-  STRING COMMENT 'Canonical identifier for this occupation record.',\n  `person_id`
-  STRING COMMENT 'Foreign key to dim_person.person_id.',\n  `occupation_type` STRING
-  COMMENT 'Type of occupation, e.g. \\'Farmer\\', \\'Teacher\\', \\'MGNREGA Worker\\\
-  '.',\n  `occupation_sector` STRING COMMENT 'Sector this occupation falls under,
-  e.g. \\'Agriculture\\', \\'Government\\', \\'Private\\', \\'Informal\\'. [Value
-  Examples: \\'Public\\', \\'Private\\']',\n  `employer_name` STRING COMMENT 'Employer
-  name for this occupation record, where applicable.',\n  `designation` STRING COMMENT
-  'Job title/designation for this occupation record.',\n  `employment_status` STRING
-  COMMENT 'Status of this occupation record, e.g. \\'Active\\', \\'Seasonal\\', \\\
-  'Ended\\'. [Value Examples: \\'Working\\', \\'1\\', \\'0\\', \\'Leave\\', \\'Suspension\\\
-  ']',\n  `source` STRING COMMENT 'System/department that reported this occupation
-  record. [Value Examples: \\'UFS\\', \\'DEPT-EDU\\', \\'SERP\\', \\'Open\\', \\'DBT
-  Schemes\\', \\'MEPMA\\', \\'HRMS\\', \\'APCOS\\']',\n  `occupation_year` STRING
-  COMMENT 'Year (or year range) this occupation record pertains to.',\n  `is_current`
-  BOOLEAN COMMENT 'True if this is the person\\'s currently active occupation among
-  possibly several historical/concurrent records. [Value Examples: \\'True\\']',\n\
-  \  `updated_at` TIMESTAMP COMMENT 'Timestamp this occupation record was last updated.'\n\
-  )\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n\
-  \  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_occupation'"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_occupation`(
+    `occupation_record_id` STRING,
+    `person_id` STRING,
+    `occupation_type` STRING,
+    `occupation_sector` STRING,
+    `employer_name` STRING,
+    `designation` STRING,
+    `employment_status` STRING,
+    `source` STRING,
+    `occupation_year` STRING,
+    `is_current` BOOLEAN,
+    `updated_at` TIMESTAMP
+  )
 columns:
 - name: occupation_record_id
   type: STRING
@@ -49,9 +43,56 @@ columns:
 - name: occupation_type
   type: STRING
   nullable: true
-  description: "Type of occupation, e.g. 'Farmer', 'Teacher', 'MGNREGA Worker'. [Value
-    Examples: 'Student', 'Unemployed', 'SHG member Rural', 'Farmer', 'Agriculture
-    & Allied Activities', 'Senior Citizen']"
+  description: 'Type of occupation, e.g. ''Farmer'', ''Teacher'', ''MGNREGA Worker''.
+    [Value Examples: ''Student'', ''Unemployed'', ''SHG member Rural'', ''Farmer'',
+    ''Agriculture & Allied Activities'', ''Senior Citizen'']'
+  distinct:
+  - Student
+  - Unemployed
+  - SHG member Rural
+  - Farmer
+  - Agriculture & Allied Activities
+  - Senior Citizen
+  - Homemaker
+  - Minor
+  - Pensioner / Retired
+  - SHG member Urban
+  - Regular- Employee
+  - Pensioner
+  - Driver
+  - Auto Driver
+  - Professional
+  - Business / Retail
+  - Skilled Worker
+  - Weaver
+  - Contract- Employee
+  - Service Worker
+  - Tailor
+  - Fisherman
+  - Healthcare
+  - Education
+  - Electrician
+  - Central Government Employee
+  - Fishermen
+  - Carpenter
+  - Dappu Artist
+  - Manufacturing Worker
+  - Traditional Cobblers
+  - Teacher
+  - Artisan / Craft Worker
+  - Goldsmith
+  - Pujari
+  - Transport & Logistics
+  - Pastor
+  - Plumber
+  - Armed Forces
+  - Paramilitary
+  - Toddy Tapper
+  - Professor
+  - Painter
+  - Imam
+  - Blacksmith
+  - Cobbler
 - name: occupation_sector
   type: STRING
   nullable: true
@@ -68,6 +109,205 @@ columns:
   type: STRING
   nullable: true
   description: Job title/designation for this occupation record.
+  distinct:
+  - Student
+  - SHG member Rural
+  - Farmer
+  - Senior Citizen
+  - Minor
+  - SHG member Urban
+  - Pensioner
+  - Auto Driver
+  - Weaver
+  - Fishermen
+  - Secondary Grade Teacher (Telugu)
+  - Dappu Artist
+  - Traditional Cobblers
+  - Police Constable
+  - Conductor Grade Ii
+  - Driver Grade Ii (Heavy Vehicle)
+  - Junior Assistant
+  - Office Subordinate
+  - School Assistant (Mathematics)
+  - Head Constable
+  - School Assistant (English)
+  - Welfare and Education Assistant
+  - School Assistant (Telugu)
+  - Survey Assistant
+  - Senior Assistant
+  - Mahila Police and W&Cd Welfare Assistant
+  - Village Revenue Officer
+  - Engineering Assistant
+  - Digital Assistant Gr. VI
+  - Model primary School Head Master/School Assistant (MPS HM/SA)
+  - School Assistant (Physical Science)
+  - School Assistant (Biological Science)
+  - School Assistant (Social Science)
+  - Agriculture/Horticulture/Sericulture Mpe
+  - School Assistant (Hindi)
+  - Auxilary Nursing Mid-Wife
+  - Police Constable (Armed Reserve)
+  - '0'
+  - Multipurpose Health Assistant (Female)
+  - Panchayat Secretary, Grade-V
+  - Public Health Worker
+  - Gazetted Head Master / Head Mistress Grade-II
+  - Veterinary/Fisheries Assistant
+  - School Assistant (Physical Education)
+  - Record Assistant
+  - Ward Women & Weaker Sect Protection Sec
+  - Ward Welfare & Development Secretary
+  - Panchayat Secretary, Grade Iv
+  - Ward Education Secretary
+  - Ward Planning & Regulation Secretary
+  - Ward Sanitation & Environment Secretary
+  - Ward Amenities Secretary
+  - Driver Grade I (Heavy Vehicle)
+  - Ward Health Secretary
+  - Assistant Sub Inspector of Police
+  - Head Constable (Armed Reserve)
+  - Ward Administrative Secretary
+  - Staff Nurse
+  - Assistant Executive Engineer / Assistant Engineer
+  - Superintendent
+  - Ward Revenue Secretary
+  - Sub Inspector of Police
+  - Secondary Grade Teacher (Urdu)
+  - Typist
+  - Constable
+  - Secondary Grade Teacher
+  - Panchayat Secretary, Grade Iii
+  - '03070020'
+  - Deputy Executive Engineer
+  - Prohibition and Excise Constable
+  - Post Graduate Teacher
+  - Assistant Depot Clerk/Controller/Assistant Depot Clerk (Tech)
+  - Lecturer
+  - Medical Officer/Civil Assistant Surgeon
+  - Warden Grade Ii /Matron Grade Ii (Hostel Welfare officer Grade Ii)
+  - Mechanic Grade-Ii
+  - Senior Accountant
+  - Veterinary Assistant Surgeon
+  - Assistant Reserve Sub Inspector of Police
+  - Junior Lecturer
+  - Assistant Executive Engineer
+  - Administrative Officer
+  - Senior Assistant /UDRI
+  - Conductor Grade I
+  - Agriculture Officer
+  - Multipurpose Health Supervisor (Female)
+  - Lecturer (Polytechnic/State Wide Institutions)
+  - Process Server
+  - Multipurpose Health Supervisor (Male)
+  - Watchman
+  - Agricultural Extension Officer Gr-Ii
+  - Police Constable (Civil) (Including Police Women  Constable)
+  - School Assistant
+  - 09030160
+  - Deputy Mechanic/Helper
+  - Head Nurse
+  - Fireman
+  - Forest Beat Officer
+  - Inspector of Police
+  - Cook
+  - Panchayat Secretary, Grade I
+  - Deputy Tahsildar
+  - Assistant Mechnic/ Assistant Mechanic (Vul)/ Stores Attendant/Shramik/Khalasi/Mali
+  - Trained Graduate Teacher
+  - Live Stock Assistant
+  - Sweeper
+  - Warder / Bugler
+  - Multipurpose Health Extension Officer
+  - Supervisor Grade I
+  - Kamati
+  - Prohibition and Excise Head Constable
+  - Assistant Director
+  - School Assistant (Special Education)
+  - Field Assistant (formerly known as Amins and Baliffs)
+  - MECHANIC GR-I
+  - RTC Constable/Security Constable
+  - Associate Professor
+  - Goods and Service Tax Officer
+  - Principal
+  - Veterinary Assistant
+  - Tahsildar
+  - Leading Fireman
+  - 09030117
+  - Extension Officer (PR & RD)
+  - Mandal Revenue Inspector
+  - Assistant Professor
+  - Mandal Educational Officer
+  - Senior Auditor
+  - Mandal Parishad Development Officer
+  - Reserve Sub Inspector of Police
+  - Assistant Statistical Officer
+  - Deputy Tahsildar (Re-Survey)
+  - Junior Commando
+  - Nursing Orderly (MNO/FNO/WMO)
+  - Community Health Officer
+  - Junior Veterinary Officer
+  - Depot Clerk/ Travelling Ticket Inspector / Traffic Inspector Grade Iii
+  - Junior Office Assistant
+  - Pharmacy Officer
+  - Driver
+  - Senior Office Assistant
+  - Mandal GSWS Officer
+  - Section Officer
+  - Prohibition and Excise Sub-Inspector
+  - Laboratory Assistant
+  - Driver Operator
+  - Lab Technician Grade Ii
+  - Panchayat Secretary, Grade Ii
+  - Assistant Registrar
+  - 09030281
+  - Senior Inspector
+  - Mandal Educational Officer / Extension Officer (Education)
+  - Technical Assistant
+  - Technical Officer
+  - Assistant Section Officer
+  - Public Health Nurse
+  - Junior Accounts Officer/Sub-Treasury Officer
+  - Deputy Tahsildar/ Superintendent
+  - Assistant Engineer
+  - Surveyor
+  - 09030384
+  - Prohibition and Excise Inspector
+  - Forest Section Officer
+  - '15020044'
+  - Mazdoor
+  - Head Warder / Assistant Armourer
+  - Leading Hand
+  - Professor (Clinical)/ Civil Surgeon
+  - Civil Assistant Surgeon
+  - Deputy Assistant Commissioner of State Tax
+  - Bill Collector
+  - Bill Collector (G.P)
+  - '24030112'
+  - Junior Accountant
+  - Senior Commando
+  - Electrician (Ac/Dc) Grade I (Artisan Grade I)
+  - Sanitary Maistry
+  - Head Master Gr-II (PGHM))
+  - Reserve Inspector of Police
+  - Veterinary Livestock Officer
+  - Executive Engineer
+  - Mandal Engineering Officer
+  - Sweeper / Labourer
+  - Assistant Director of Agriculture
+  - '03040011'
+  - 09030143
+  - 09030145
+  - Agricultural Extension Officer Gr.I
+  - Senior Lecturer
+  - School Assistant (Urdu)
+  - Head Constable (Communication)
+  - Sub Registrar Grade-Ii
+  - Junior Assistant-cum-Computer Assistant
+  - 09030287
+  - '03070022'
+  - Assistant Professor / Tutor  (Includes Dental)
+  - Public Health Nurse (Fw)
+  - Deputy Statistical Officer
 - name: employment_status
   type: STRING
   nullable: true
@@ -97,6 +337,107 @@ columns:
   type: STRING
   nullable: true
   description: Year (or year range) this occupation record pertains to.
+  distinct:
+  - '2026'
+  - '2025'
+  - '2019'
+  - '2023'
+  - '2020'
+  - '2010'
+  - '2002'
+  - '2012'
+  - '2009'
+  - '2013'
+  - '1998'
+  - '1995'
+  - '2008'
+  - '2000'
+  - '1996'
+  - '2016'
+  - '2011'
+  - '2014'
+  - '2005'
+  - '1997'
+  - '2018'
+  - '1999'
+  - '2007'
+  - '1989'
+  - '1992'
+  - '2003'
+  - '2021'
+  - '1993'
+  - '1990'
+  - '2001'
+  - '1991'
+  - '2017'
+  - '2022'
+  - '2006'
+  - '2015'
+  - '1994'
+  - '2004'
+  - '1988'
+  - '1987'
+  - '1986'
+  - '1985'
+  - '1984'
+  - '1983'
+  - '2024'
+  - '1982'
+  - '9999'
+  - '1981'
+  - '1980'
+  - '1977'
+  - '1907'
+  - '1979'
+  - '1975'
+  - '1966'
+  - '1965'
+  - '1978'
+  - '1902'
+  - '1955'
+  - '1970'
+  - '1976'
+  - '1971'
+  - '1967'
+  - '1972'
+  - '1968'
+  - '1974'
+  - '1969'
+  - '0200'
+  - '1906'
+  - '1905'
+  - '1900'
+  - '2202'
+  - '1904'
+  - '1911'
+  - '1903'
+  - '1908'
+  - 0199
+  - 0997
+  - 0999
+  - '0202'
+  - 0989
+  - '1933'
+  - '0204'
+  - 0994
+  - '1873'
+  - '2089'
+  - '1909'
+  - '1901'
+  - '1964'
+  - '1960'
+  - '1953'
+  - '1956'
+  - '1963'
+  - 0996
+  - '1192'
+  - '2041'
+  - 0198
+  - '1973'
+  - '2208'
+  - '1919'
+  - 0998
+  - '1962'
 - name: is_current
   type: BOOLEAN
   nullable: true

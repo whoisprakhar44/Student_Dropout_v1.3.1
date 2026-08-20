@@ -1,14 +1,13 @@
 database: ap_citizen360
 table: fact_event_details
 department: ap_citizen360
-description: The single unified events table — every row is either a 
-  LIFECYCLE_EVENT (e.g. BirthRegistered, DeathRegistered, SchemeEnrolled) or an 
-  ANOMALY_EVENT (e.g. DualLoanHousehold, PregnancyMismatch), distinguished by 
-  event_type with the specific sub-type in sub_event_type. Backs POST 
-  /datatransfer/request and GET /api/v1/events/*, and is department_id-scoped so
-  each department only ever sees events routed to it. Replaces the older 
-  fact_lifecycle_event/fact_anomaly_event tables, which are no longer queried 
-  anywhere. Partitioned by month and district.
+description: The single unified events table — every row is either a LIFECYCLE_EVENT
+  (e.g. BirthRegistered, DeathRegistered, SchemeEnrolled) or an ANOMALY_EVENT (e.g.
+  DualLoanHousehold, PregnancyMismatch), distinguished by event_type with the specific
+  sub-type in sub_event_type. Backs POST /datatransfer/request and GET /api/v1/events/*,
+  and is department_id-scoped so each department only ever sees events routed to it.
+  Replaces the older fact_lifecycle_event/fact_anomaly_event tables, which are no
+  longer queried anywhere. Partitioned by month and district.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_event_details
 tblproperties:
@@ -21,34 +20,25 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_event_details`(\n  `event_id`
-  STRING COMMENT 'Canonical event identifier.',\n  `person_id` STRING COMMENT 'Foreign
-  key to dim_person.person_id — the citizen this event concerns.',\n  `citizen_name`
-  STRING COMMENT 'Citizen\\'s name, denormalized for display without a join.',\n \
-  \ `event_type` STRING COMMENT 'Broad event category — \\'LIFECYCLE_EVENT\\' or \\\
-  'ANOMALY_EVENT\\'.',\n  `sub_event_type` STRING COMMENT 'Specific event type within
-  the category, e.g. \\'DeathRegistered\\' (lifecycle) or \\'DualLoanHousehold\\'
-  (anomaly).',\n  `severity` STRING COMMENT 'Severity rating for anomaly events (\\\
-  'High\\'/\\'Medium\\'/\\'Low\\'); null for lifecycle events, which don\\'t carry
-  a severity dimension.',\n  `detected_at` TIMESTAMP COMMENT 'Timestamp the event
-  was detected/occurred — partition key (by month).',\n  `district_id` STRING COMMENT
-  'Foreign key to dim_district.district_id — partition key.',\n  `mandal_id` STRING
-  COMMENT 'Foreign key to dim_mandal.mandal_id.',\n  `village_name` STRING COMMENT
-  'Village associated with the event.',\n  `summary` STRING COMMENT 'Human-readable
-  one-line summary of the event.',\n  `resolution_status` STRING COMMENT 'Current
-  status — lifecycle events use \\'Published\\'/\\'Processing\\'/\\'Failed\\'; anomaly
-  events use \\'Open\\'/\\'Under Review\\'/\\'Resolved\\'.',\n  `household_id` STRING
-  COMMENT 'Foreign key to dim_household.household_id, where the event is household-scoped
-  (e.g. DualLoanHousehold anomalies).',\n  `department_id` STRING COMMENT 'Foreign
-  key to dim_department_client.department_id — the department this event is routed
-  to/owned by.',\n  `eventdata` STRING COMMENT 'Base64-encoded JSON blob of event-type-specific
-  structured detail — e.g. for DualLoanHousehold/PregnancyMismatch anomalies, the
-  per-event loans[]/pregnancyRecords[] arrays are folded in here rather than joined
-  from separate tables.',\n  `linked_scheme_ids` STRING COMMENT 'Comma-separated dim_scheme.scheme_id
-  values linked to this event (e.g. schemes affected by a DeathRegistered event\\\
-  's entitlement closure).'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_event_details'"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`fact_event_details`(
+    `event_id` STRING,
+    `person_id` STRING,
+    `citizen_name` STRING,
+    `event_type` STRING,
+    `sub_event_type` STRING,
+    `severity` STRING,
+    `detected_at` TIMESTAMP,
+    `district_id` STRING,
+    `mandal_id` STRING,
+    `village_name` STRING,
+    `summary` STRING,
+    `resolution_status` STRING,
+    `household_id` STRING,
+    `department_id` STRING,
+    `eventdata` STRING,
+    `linked_scheme_ids` STRING
+  )
 columns:
 - name: event_id
   type: STRING
@@ -57,8 +47,7 @@ columns:
 - name: person_id
   type: STRING
   nullable: true
-  description: Foreign key to dim_person.person_id — the citizen this event 
-    concerns.
+  description: Foreign key to dim_person.person_id — the citizen this event concerns.
 - name: citizen_name
   type: STRING
   nullable: true
@@ -81,6 +70,92 @@ columns:
     ''biometric_aadhar_response'', ''sustainable_dev_goals_pregnantsperiodicaldata'',
     ''consistent_rythms_v2_gereducationsurveystudents'', ''consistent_rythms_v2_gereducationsurvey'',
     ''birth_data_final_upd'']'
+  distinct:
+  - dc_wagepayorder_info
+  - biometric_aadhar_response
+  - sustainable_dev_goals_pregnantsperiodicaldata
+  - consistent_rythms_v2_gereducationsurveystudents
+  - consistent_rythms_v2_gereducationsurvey
+  - birth_data_final_upd
+  - t_person_info
+  - admission_profile
+  - Class1Enrollment
+  - TallikiVandanamEligible
+  - sustainable_dev_goals_adolescentsdata
+  - sp_bene_dtls_tab
+  - sp_gm_details_tab
+  - analyticstable2
+  - student_profile
+  - Death
+  - rtgs_fir_data
+  - consistent_rythms_v2_middaymealsurvey
+  - edu_studentwise_status_data
+  - ehf_discharge_summary
+  - adole_anaemic_bottom_20_per_sec
+  - Validation of New Housing Sanction List Against Existing Records (Housing)
+  - Identification of out-of-school Children aged 5-14 years not enrolled in any School
+  - adole_girls_oct_20_per_whole
+  - Identifying Anomalies in Revenue 22A (A/B/C/D/E)
+  - Identification of Caste Anomalies
+  - sp_adolescent_getting_tab
+  - Identification of Children of age 5+ years but not enrolled in Class I (Govt and
+    Pvt Schools)
+  - Multiple Members of same Family receiving NPI House site Pattas
+  - deg_application_details
+  - Multiple Members of same Family receiving Housing Scheme
+  - nic_data
+  - Proactive Inclusion of Children in Rice Card
+  - sp_adolescent_snp_thr_dtls_tab
+  - Proactive Exclusion of Deceased Beneficiaries in Rice Card
+  - consistent_rythms_attendanceandenrollment
+  - Exclusion of non-SC/ST families availing Jagjeevan Jyothi Scheme
+  - Validation of NPI New Housing Sanction List Against Existing Records
+  - sustainable_dev_goals_pregnantwomensurvey
+  - inter_student_details_2223
+  - consistent_rythms_v2_mpsecretariatlevelsurvey
+  - Inclusion of Eligible SC/ST members in Jagjeevan Jyothi Scheme
+  - inter_student_details_2324
+  - inter_student_details_2021
+  - consistent_rythms_v2_dropoutchildrenhouseholdvisit
+  - industry_power_connection_details
+  - inter_student_details_1920
+  - consistent_rythms_dropoutchildrenhouseholdvisit
+  - inter_student_details_2425
+  - inter_student_details_2122
+  - inter_student_details_1819
+  - consistent_rythms_v2_dropoutstudents
+  - school_facility_info
+  - consistent_rythms_v2_anganwadiaudit
+  - consistent_rythms_v2_naduneduschoolinfrastructuresurvey
+  - consistent_rythms_v2_sankalpdropoutsurvey
+  - Identification of Pension Anomalies
+  - consistent_rythms_childmarraiges
+  - ado_data_oct
+  - sp_adolescent_report_details
+  - PVTG Tribes to be included in Rice Card
+  - RiceCardEnrollmentAtAge6
+  - Proactive Inclusion of new born children to Be Registred in Poshan
+  - consistent_rythms_v2_missingincidents
+  - Duplicate Members in SERP and MEPMA
+  - consistent_rythms_v2_childwelfarecommittee
+  - consistent_rythms_v2_harassmenttraffickingincidents
+  - Proactive Identification of Pension Eligility
+  - consistent_rythms_v2_hostelsnadunedu
+  - consistent_rythms_v2_eahostelsinfrastructure
+  - Age60PensionEligible
+  - WidowPensionEligible
+  - consistent_rythms_v2_awarenessprogram
+  - laptop_applications
+  - admit_status_data_phase1
+  - bkp_rchhlth
+  - dept_meternal_deaths
+  - AadhaarEnrollmentDue
+  - Age50STPensionEligible
+  - braille_text_books
+  - RCH_SYNC_PW_MATERNAL_DEATHS
+  - tbl_spot_allotment
+  - t_age_group_missing_person
+  - ASRIFT_VER_DEATH_CASE
 - name: severity
   type: STRING
   nullable: true
@@ -90,18 +165,17 @@ columns:
 - name: detected_at
   type: TIMESTAMP
   nullable: true
-  description: Timestamp the event was detected/occurred — partition key (by 
-    month).
+  description: Timestamp the event was detected/occurred — partition key (by month).
 - name: district_id
   type: STRING
   nullable: true
-  description: "Foreign key to dim_district.district_id — partition key. [Value Examples:
-    '511', '502', '504', '755', '515', '746']"
+  description: 'Foreign key to dim_district.district_id — partition key. [Value Examples:
+    ''511'', ''502'', ''504'', ''755'', ''515'', ''746'']'
 - name: mandal_id
   type: STRING
   nullable: true
-  description: "Foreign key to dim_mandal.mandal_id. [Value Examples: '1086', '1073',
-    '1021', '1016', '1031', '1013']"
+  description: 'Foreign key to dim_mandal.mandal_id. [Value Examples: ''1086'', ''1073'',
+    ''1021'', ''1016'', ''1031'', ''1013'']'
 - name: village_name
   type: STRING
   nullable: true
@@ -123,14 +197,14 @@ columns:
 - name: household_id
   type: STRING
   nullable: true
-  description: Foreign key to dim_household.household_id, where the event is 
-    household-scoped (e.g. DualLoanHousehold anomalies).
+  description: Foreign key to dim_household.household_id, where the event is household-scoped
+    (e.g. DualLoanHousehold anomalies).
 - name: department_id
   type: STRING
   nullable: true
-  description: "Foreign key to dim_department_client.department_id — the department
-    this event is routed to/owned by. [Value Examples: 'DEPT-RTGS', 'DEPT-EDU', 'DEPT-HEALTH',
-    'DEPT-REV', 'DEPT-HUD', 'DEPT-FCS']"
+  description: 'Foreign key to dim_department_client.department_id — the department
+    this event is routed to/owned by. [Value Examples: ''DEPT-RTGS'', ''DEPT-EDU'',
+    ''DEPT-HEALTH'', ''DEPT-REV'', ''DEPT-HUD'', ''DEPT-FCS'']'
   distinct:
   - DEPT-RTGS
   - DEPT-EDU
@@ -150,25 +224,22 @@ columns:
 - name: eventdata
   type: STRING
   nullable: true
-  description: Base64-encoded JSON blob of event-type-specific structured detail
-    — e.g. for DualLoanHousehold/PregnancyMismatch anomalies, the per-event 
-    loans[]/pregnancyRecords[] arrays are folded in here rather than joined from
-    separate tables.
+  description: Base64-encoded JSON blob of event-type-specific structured detail —
+    e.g. for DualLoanHousehold/PregnancyMismatch anomalies, the per-event loans[]/pregnancyRecords[]
+    arrays are folded in here rather than joined from separate tables.
 - name: linked_scheme_ids
   type: STRING
   nullable: true
-  description: Comma-separated dim_scheme.scheme_id values linked to this event 
-    (e.g. schemes affected by a DeathRegistered event's entitlement closure).
+  description: Comma-separated dim_scheme.scheme_id values linked to this event (e.g.
+    schemes affected by a DeathRegistered event's entitlement closure).
 primary_key:
 - event_id
 relationships:
 - fact_event_details.person_id is a foreign key to dim_person.person_id.
 - fact_event_details.district_id is a foreign key to dim_district.district_id.
 - fact_event_details.mandal_id is a foreign key to dim_mandal.mandal_id.
-- fact_event_details.household_id is a foreign key to 
-  dim_household.household_id.
-- fact_event_details.department_id is a foreign key to 
-  dim_department.department_id.
+- fact_event_details.household_id is a foreign key to dim_household.household_id.
+- fact_event_details.department_id is a foreign key to dim_department.department_id.
 business_terms:
 - ap_citizen360
 - data_transfer_api___unified_events

@@ -1,9 +1,9 @@
 database: ap_citizen360
 table: dim_property
 department: ap_citizen360
-description: One row per built property owned — residential, commercial, or 
-  apartment units. Municipal tax status for each property lives separately in 
-  dim_property_tax, joined via ptin.
+description: One row per built property owned — residential, commercial, or apartment
+  units. Municipal tax status for each property lives separately in dim_property_tax,
+  joined via ptin.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_property
 tblproperties:
@@ -16,46 +16,44 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_property`(\n  `property_id` STRING
-  COMMENT 'Canonical property identifier.',\n  `person_id` STRING COMMENT 'Foreign
-  key to dim_person.person_id — the owner.',\n  `property_type` STRING COMMENT 'Residential
-  / Commercial / Apartment classification. [Value Examples: \\'Individual\\', \\'Joint
-  Property\\', \\'Government\\']',\n  `property_sub_type` STRING COMMENT 'Finer classification,
-  e.g. \\'Independent House\\', \\'Flat\\', \\'Shop\\', \\'Commercial Complex\\'.',\n\
-  \  `door_no` STRING COMMENT 'Door number of the property.',\n  `ward_no` STRING
-  COMMENT 'Municipal ward number the property falls under.',\n  `block_no` STRING
-  COMMENT 'Block number, in layouts organized by block.',\n  `plot_no` STRING COMMENT
-  'Plot number within the layout/survey.',\n  `street_name` STRING COMMENT 'Street
-  name of the property\\'s address.',\n  `locality` STRING COMMENT 'Locality/neighbourhood
-  name.',\n  `location` STRING COMMENT 'Free-text location description.',\n  `pincode`
-  STRING COMMENT 'Postal PIN code.',\n  `district_id` STRING COMMENT 'Foreign key
-  to dim_district.district_id.',\n  `area_sq_ft` INT COMMENT 'Total area of the property,
-  in square feet. [Value Examples: \\'0\\']',\n  `built_up_area_sq_ft` INT COMMENT
-  'Built-up (constructed) area, in square feet.',\n  `site_area_sq_ft` INT COMMENT
-  'Underlying site/plot area, in square feet.',\n  `construction_type` STRING COMMENT
-  'Construction method, e.g. \\'RCC\\', \\'Load Bearing\\'.',\n  `roof_type` STRING
-  COMMENT 'Type of roofing.',\n  `usage_type` STRING COMMENT 'Residential / Commercial
-  usage classification for tax/zoning purposes.',\n  `registration_no` STRING COMMENT
-  'Deed registration number for the property.',\n  `registration_date` DATE COMMENT
-  'Date the property deed was registered.',\n  `market_value` DECIMAL(12,2) COMMENT
-  'Estimated market value of the property, in INR.',\n  `guideline_value` DECIMAL(12,2)
-  COMMENT 'Government guideline (registration) value of the property, in INR.',\n\
-  \  `ptin` STRING COMMENT 'Property Tax Identification Number — joins to dim_property_tax.ptin.',\n\
-  \  `municipal_no` STRING COMMENT 'Municipal assessment/door number assigned by the
-  local body.',\n  `municipal_body` STRING COMMENT 'Name of the municipal corporation/council/panchayat
-  administering the property.',\n  `sro_office` STRING COMMENT 'Sub-Registrar Office
-  where the property deed is registered.',\n  `construction_year` INT COMMENT 'Year
-  the property was constructed.',\n  `floor_count` INT COMMENT 'Number of floors.',\n\
-  \  `assessment_no` STRING COMMENT 'Municipal tax assessment number.',\n  `owner_name`
-  STRING COMMENT 'Registered owner\\'s name (denormalized for display without a join
-  to dim_person).',\n  `plinth_area_units` STRING COMMENT 'Unit of measure used for
-  plinth area in source records, e.g. \\'sq.ft\\', \\'sq.m\\'.',\n  `site_extent_units`
-  STRING COMMENT 'Unit of measure used for site extent in source records.',\n  `updated_at`
-  TIMESTAMP COMMENT 'Timestamp this property record was last updated.',\n  `aadhaar_mapped`
-  STRING COMMENT 'Whether the property record is Aadhaar-mapped (Y/N). [Value Examples:
-  \\'N\\', \\'Y\\']'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_property'"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_property`(
+    `property_id` STRING,
+    `person_id` STRING,
+    `property_type` STRING,
+    `property_sub_type` STRING,
+    `door_no` STRING,
+    `ward_no` STRING,
+    `block_no` STRING,
+    `plot_no` STRING,
+    `street_name` STRING,
+    `locality` STRING,
+    `location` STRING,
+    `pincode` STRING,
+    `district_id` STRING,
+    `area_sq_ft` INT,
+    `built_up_area_sq_ft` INT,
+    `site_area_sq_ft` INT,
+    `construction_type` STRING,
+    `roof_type` STRING,
+    `usage_type` STRING,
+    `registration_no` STRING,
+    `registration_date` DATE,
+    `market_value` DECIMAL(12,2),
+    `guideline_value` DECIMAL(12,2),
+    `ptin` STRING,
+    `municipal_no` STRING,
+    `municipal_body` STRING,
+    `sro_office` STRING,
+    `construction_year` INT,
+    `floor_count` INT,
+    `assessment_no` STRING,
+    `owner_name` STRING,
+    `plinth_area_units` STRING,
+    `site_extent_units` STRING,
+    `updated_at` TIMESTAMP,
+    `aadhaar_mapped` STRING
+  )
 columns:
 - name: property_id
   type: STRING
@@ -68,17 +66,26 @@ columns:
 - name: property_type
   type: STRING
   nullable: true
-  description: 'Residential / Commercial / Apartment classification. [Value Examples:
-    ''Individual'', ''Joint Property'', ''Government'']'
+  description: Residential / Commercial / Apartment classification.
   distinct:
   - Individual
   - Joint Property
   - Government
+  - Commercial
+  - Residential
+  - Apartment
 - name: property_sub_type
   type: STRING
   nullable: true
-  description: Finer classification, e.g. 'Independent House', 'Flat', 'Shop', 
-    'Commercial Complex'.
+  description: Finer classification, e.g. 'Independent House', 'Flat', 'Shop', 'Commercial
+    Complex'.
+  distinct:
+  - Independent House
+  - Flat/Apartment
+  - Shop/Commercial Unit
+  - Commercial Complex
+  - Open Plot
+  - Industrial Shed
 - name: door_no
   type: STRING
   nullable: true
@@ -118,7 +125,7 @@ columns:
 - name: area_sq_ft
   type: INT
   nullable: true
-  description: 'Total area of the property, in square feet.'
+  description: Total area of the property, in square feet.
 - name: built_up_area_sq_ft
   type: INT
   nullable: true
@@ -131,15 +138,34 @@ columns:
   type: STRING
   nullable: true
   description: Construction method, e.g. 'RCC', 'Load Bearing'.
+  distinct:
+  - RCC
+  - Load Bearing
+  - Framed Structure
+  - Thatched
+  - Tin/Asbestos Sheet
+  - Semi-Pucca
 - name: roof_type
   type: STRING
   nullable: true
   description: Type of roofing.
+  distinct:
+  - RCC Slab
+  - Tiled
+  - Asbestos Sheet
+  - Tin/GI Sheet
+  - Thatch
 - name: usage_type
   type: STRING
   nullable: true
-  description: Residential / Commercial usage classification for tax/zoning 
-    purposes.
+  description: Residential / Commercial usage classification for tax/zoning purposes.
+  distinct:
+  - Residential
+  - Commercial
+  - Mixed
+  - Industrial
+  - Institutional
+  - Vacant
 - name: registration_no
   type: STRING
   nullable: true
@@ -155,13 +181,11 @@ columns:
 - name: guideline_value
   type: DECIMAL(12,2)
   nullable: true
-  description: Government guideline (registration) value of the property, in 
-    INR.
+  description: Government guideline (registration) value of the property, in INR.
 - name: ptin
   type: STRING
   nullable: true
-  description: Property Tax Identification Number — joins to 
-    dim_property_tax.ptin.
+  description: Property Tax Identification Number — joins to dim_property_tax.ptin.
 - name: municipal_no
   type: STRING
   nullable: true
@@ -169,8 +193,8 @@ columns:
 - name: municipal_body
   type: STRING
   nullable: true
-  description: Name of the municipal corporation/council/panchayat administering
-    the property.
+  description: Name of the municipal corporation/council/panchayat administering the
+    property.
 - name: sro_office
   type: STRING
   nullable: true
@@ -190,17 +214,27 @@ columns:
 - name: owner_name
   type: STRING
   nullable: true
-  description: Registered owner's name (denormalized for display without a join 
-    to dim_person).
+  description: Registered owner's name (denormalized for display without a join to
+    dim_person).
 - name: plinth_area_units
   type: STRING
   nullable: true
-  description: Unit of measure used for plinth area in source records, e.g. 
-    'sq.ft', 'sq.m'.
+  description: Unit of measure used for plinth area in source records, e.g. 'sq.ft',
+    'sq.m'.
+  distinct:
+  - sq.ft
+  - sq.m
+  - sq.yards
 - name: site_extent_units
   type: STRING
   nullable: true
   description: Unit of measure used for site extent in source records.
+  distinct:
+  - sq.ft
+  - sq.yards
+  - sq.m
+  - cents
+  - acres
 - name: updated_at
   type: TIMESTAMP
   nullable: true
@@ -208,8 +242,7 @@ columns:
 - name: aadhaar_mapped
   type: STRING
   nullable: true
-  description: 'Whether the property record is Aadhaar-mapped (Y/N). [Value Examples:
-    ''N'', ''Y'']'
+  description: Whether the property record is Aadhaar-mapped (Y/N).
   distinct:
   - N
   - Y
@@ -231,7 +264,3 @@ common_operations:
 - profile records in dim_property
 - join dim_property to dim_person via person_id
 - filter dim_property by district_id or mandal_id
-- name: aadhaar_mapped
-  type: STRING
-  nullable: true
-  description: Added from metadata.

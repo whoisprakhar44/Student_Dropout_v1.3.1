@@ -1,12 +1,11 @@
 database: ap_citizen360
 table: dim_department_client
 department: ap_citizen360
-description: Registered Data Transfer API clients — backs the OAuth2 
-  client-credentials grant at POST /auth/token and verify_bearer_token's 
-  suspension check. department_id here is a separate registry-style namespace 
-  (e.g. 'DEPT-SWD-001') from dim_department's canonical codes, and has no 
-  department_name column — readable names for these specific IDs are maintained 
-  as a small static lookup in app code, not in the warehouse.
+description: Registered Data Transfer API clients — backs the OAuth2 client-credentials
+  grant at POST /auth/token and verify_bearer_token's suspension check. department_id
+  here is a separate registry-style namespace (e.g. 'DEPT-SWD-001') from dim_department's
+  canonical codes, and has no department_name column — readable names for these specific
+  IDs are maintained as a small static lookup in app code, not in the warehouse.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_department_client
 partitioned_by: district_id
@@ -20,30 +19,54 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_department_client`(\n  `department_id`
-  STRING COMMENT 'Registered client identifier, e.g. \\'DEPT-SWD-001\\' — presented
-  as the OAuth2 client_id.',\n  `client_secret_hash` STRING COMMENT 'Salted hash of
-  the client\\'s secret credential — the secret itself is never stored.',\n  `is_active`
-  BOOLEAN COMMENT 'True if this client\\'s credentials are currently active; false
-  suspends/revokes API access immediately. [Value Examples: \\'True\\']',\n  `created_at`
-  TIMESTAMP COMMENT 'Timestamp this client registration was created.',\n  `updated_at`
-  TIMESTAMP COMMENT 'Timestamp this client registration was last updated (e.g. on
-  scope change or suspension).'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_department_client'\nPARTITIONED
-  BY (district_id)"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_department_client`(
+    `department_id` STRING,
+    `client_secret_hash` STRING,
+    `is_active` BOOLEAN,
+    `created_at` TIMESTAMP,
+    `updated_at` TIMESTAMP
+  )
 columns:
 - name: department_id
   type: STRING
   nullable: true
-  description: "Registered client identifier, e.g. 'DEPT-SWD-001' — presented as the
-    OAuth2 client_id. [Value Examples: 'DEPT-AGRI', 'DEPT-GOI', 'DEPT-SW', 'DEPT-PG',
-    'DEPT-HUD', 'DEPT-APMB']"
+  description: 'Registered client identifier, e.g. ''DEPT-SWD-001'' — presented as
+    the OAuth2 client_id. [Value Examples: ''DEPT-AGRI'', ''DEPT-GOI'', ''DEPT-SW'',
+    ''DEPT-PG'', ''DEPT-HUD'', ''DEPT-APMB'']'
+  distinct:
+  - DEPT-AGRI
+  - DEPT-GOI
+  - DEPT-SW
+  - DEPT-PG
+  - DEPT-HUD
+  - DEPT-APMB
+  - DEPT-RTA
+  - DEPT-FISH
+  - DEPT-REV
+  - DEPT-EDU
+  - DEPT-LABOUR
+  - DEPT-IND
+  - DEPT-SDMA
+  - DEPT-HE
+  - DEPT-SERP
+  - DEPT-MEPMA
+  - DEPT-FCS
+  - DEPT-MIN
+  - DEPT-RD
+  - DEPT-SASA
+  - DEPT-WCD
+  - DEPT-RTGS
+  - DEPT-HEALTH
+  - DEPT-BC
+  - DEPT-FIN
+  - DEPT-AILABS
+  - DEPT-ENE
 - name: client_secret_hash
   type: STRING
   nullable: true
-  description: Salted hash of the client's secret credential — the secret itself
-    is never stored.
+  description: Salted hash of the client's secret credential — the secret itself is
+    never stored.
 - name: is_active
   type: BOOLEAN
   nullable: true
@@ -58,13 +81,12 @@ columns:
 - name: updated_at
   type: TIMESTAMP
   nullable: true
-  description: Timestamp this client registration was last updated (e.g. on 
-    scope change or suspension).
+  description: Timestamp this client registration was last updated (e.g. on scope
+    change or suspension).
 primary_key:
 - department_id
 relationships:
-- dim_department_client.department_id is a foreign key to 
-  dim_department.department_id.
+- dim_department_client.department_id is a foreign key to dim_department.department_id.
 business_terms:
 - ap_citizen360
 - security_—_data_transfer_api_department_client_registry

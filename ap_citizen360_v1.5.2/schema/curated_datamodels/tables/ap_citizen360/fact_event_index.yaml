@@ -1,11 +1,10 @@
 database: ap_citizen360
 table: fact_event_index
 department: ap_citizen360
-description: One row per delivered event correlation ID, recording which 
-  department it was actually sent to — lets on_request/event_status reject an 
-  acknowledgement or status update for an event that was never sent to the 
-  calling department (404/403), independent of fact_event_details' own 
-  department_id routing.
+description: One row per delivered event correlation ID, recording which department
+  it was actually sent to — lets on_request/event_status reject an acknowledgement
+  or status update for an event that was never sent to the calling department (404/403),
+  independent of fact_event_details' own department_id routing.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_event_index
 tblproperties:
@@ -18,15 +17,13 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_event_index`(\n  `event_correlation_id`
-  STRING COMMENT 'Canonical correlation ID assigned to a delivered event.',\n  `request_id`
-  STRING COMMENT 'Foreign key to fact_event_request_registry.request_id — the request
-  this event was delivered in response to.',\n  `created_at` TIMESTAMP COMMENT 'Timestamp
-  this delivery record was created.',\n  `department_id` STRING COMMENT 'Foreign key
-  to dim_department_client.department_id — the department this event\\'s correlation
-  ID was actually delivered to.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_event_index'"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`fact_event_index`(
+    `event_correlation_id` STRING,
+    `request_id` STRING,
+    `created_at` TIMESTAMP,
+    `department_id` STRING
+  )
 columns:
 - name: event_correlation_id
   type: STRING
@@ -35,8 +32,8 @@ columns:
 - name: request_id
   type: STRING
   nullable: true
-  description: Foreign key to fact_event_request_registry.request_id — the 
-    request this event was delivered in response to.
+  description: Foreign key to fact_event_request_registry.request_id — the request
+    this event was delivered in response to.
 - name: created_at
   type: TIMESTAMP
   nullable: true
@@ -44,9 +41,9 @@ columns:
 - name: department_id
   type: STRING
   nullable: true
-  description: "Foreign key to dim_department_client.department_id — the department
-    this event's correlation ID was actually delivered to. [Value Examples: 'DEPT-RTGS',
-    'DEPT-FCS', 'DEPT-WCD', 'DEPT-RD', 'DEPT-HUD', 'DEPT-REV']"
+  description: 'Foreign key to dim_department_client.department_id — the department
+    this event''s correlation ID was actually delivered to. [Value Examples: ''DEPT-RTGS'',
+    ''DEPT-FCS'', ''DEPT-WCD'', ''DEPT-RD'', ''DEPT-HUD'', ''DEPT-REV'']'
   distinct:
   - DEPT-RTGS
   - DEPT-FCS
@@ -59,8 +56,7 @@ columns:
 primary_key:
 - event_correlation_id
 relationships:
-- fact_event_index.department_id is a foreign key to 
-  dim_department.department_id.
+- fact_event_index.department_id is a foreign key to dim_department.department_id.
 business_terms:
 - ap_citizen360
 - data_transfer_api___request_idempotency,_event-delivery_index,_ack/status_persistence

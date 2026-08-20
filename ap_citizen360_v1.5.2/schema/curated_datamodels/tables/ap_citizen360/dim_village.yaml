@@ -1,9 +1,9 @@
 database: ap_citizen360
 table: dim_village
 department: ap_citizen360
-description: One row per village/habitation, nested under dim_mandal via 
-  mandal_id. Like dim_mandal, a thin lookup table — village-level metrics are 
-  computed on the fly from records carrying village_name.
+description: One row per village/habitation, nested under dim_mandal via mandal_id.
+  Like dim_mandal, a thin lookup table — village-level metrics are computed on the
+  fly from records carrying village_name.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_village
 partitioned_by: mandal_id
@@ -17,14 +17,12 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_village`(\n  `village_id` STRING
-  COMMENT 'Canonical village code.',\n  `village_name` STRING COMMENT 'Display name
-  of the village — the value other tables (dim_person, dim_household, ...) actually
-  join on, since they denormalize village_name directly rather than village_id.',\n\
-  \  `mandal_id` STRING COMMENT 'Foreign key to dim_mandal.mandal_id.'\n)\nROW FORMAT
-  SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
-  LOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_village'\nPARTITIONED
-  BY (mandal_id)"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_village`(
+    `village_id` STRING,
+    `village_name` STRING,
+    `mandal_id` STRING
+  )
 columns:
 - name: village_id
   type: STRING
@@ -33,9 +31,9 @@ columns:
 - name: village_name
   type: STRING
   nullable: true
-  description: Display name of the village — the value other tables (dim_person,
-    dim_household, ...) actually join on, since they denormalize village_name 
-    directly rather than village_id.
+  description: Display name of the village — the value other tables (dim_person, dim_household,
+    ...) actually join on, since they denormalize village_name directly rather than
+    village_id.
 - name: mandal_id
   type: STRING
   nullable: true

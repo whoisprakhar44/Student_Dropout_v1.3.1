@@ -1,12 +1,11 @@
 database: ap_citizen360
 table: dim_person
 department: ap_citizen360
-description: The core citizen record — one row per person. Every other 
-  dim_*/fact_* table that describes an individual (vehicles, land, health, 
-  education, ...) joins back to this table via person_id. Backs the Citizen 360 
-  profile view and is the default-join target for every Citizen Dimension Data 
-  API lookup. Occupation type and sector live in dim_occupation (not 
-  denormalized here).
+description: The core citizen record — one row per person. Every other dim_*/fact_*
+  table that describes an individual (vehicles, land, health, education, ...) joins
+  back to this table via person_id. Backs the Citizen 360 profile view and is the
+  default-join target for every Citizen Dimension Data API lookup. Occupation type
+  and sector live in dim_occupation (not denormalized here).
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_person
 partitioned_by: district_id
@@ -20,81 +19,48 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`dim_person`(\n  `person_id` STRING
-  COMMENT 'Canonical citizen identifier, persistent across all source updates. Primary
-  source: Citizen Register of Andhra Pradesh (CR-AP); falls back to UIDAI Aadhaar
-  seeding records when no CR-AP record exists.',\n  `person_name` STRING COMMENT 'Full
-  legal name. Primary source: CR-AP; falls back to UIDAI Aadhaar authentication response,
-  then EPDS ration card beneficiary name.',\n  `age` INT COMMENT 'Current age in years
-  — derived from date_of_birth at query time, not stored as a static value.',\n  `date_of_birth`
-  DATE COMMENT 'Date of birth, as registered in the birth certificate or Aadhaar record.',\n\
-  \  `gender` STRING COMMENT 'Male / Female / Others. [Value Examples: \\'Female\\\
-  ', \\'Male\\', \\'Transgender\\', \\'Others\\']',\n  `social_category` STRING COMMENT
-  'Social category for reservation/welfare purposes — OC / BC / SC / ST / Others.
-  [Value Examples: \\'BC\\', \\'OC\\', \\'SC\\', \\'ST\\']',\n  `phone` STRING COMMENT
-  'Primary contact mobile number.',\n  `income_band` STRING COMMENT 'Household income
-  bracket the person falls into (e.g. \\'Below ₹1.5L\\', \\'₹1.5L – ₹3L\\') — used
-  for scheme eligibility filtering. [Value Examples: \\'0–1L\\', \\'>?5L\\', \\'?1L–?3L\\\
-  ', \\'?3L–?5L\\', \\'1L–3L\\', \\'?0–?1L\\', \\'3L–5L\\', \\'>5L\\']',\n  `dwelling_type`
-  STRING COMMENT 'Housing tenure and construction quality, e.g. \\'Own House – Pucca\\\
-  ', \\'Rented Apartment\\'. [Value Examples: \\'Puccahouse-Daba\\', \\'RCChouse\\\
-  ', \\'Pakkahouse\\', \\'Foilhouse\\', \\'Kacchahouse\\', \\'Shells\\', \\'Flat\\\
-  ', \\'Duplexhouse\\']',\n  `address` STRING COMMENT 'Free-text postal address.',\n\
-  \  `district_id` STRING COMMENT 'Foreign key to dim_district.district_id — the person\\\
-  's current district of residence.',\n  `mandal_id` STRING COMMENT 'Foreign key to
-  dim_mandal.mandal_id — the person\\'s current mandal of residence.',\n  `village_name`
-  STRING COMMENT 'The person\\'s current village/habitation of residence (denormalized
-  text, not a village_id FK).',\n  `household_id` STRING COMMENT 'Foreign key to dim_household.household_id
-  — the household this person belongs to.',\n  `created_at` TIMESTAMP COMMENT 'Timestamp
-  the canonical row was first created.',\n  `updated_at` TIMESTAMP COMMENT 'Timestamp
-  the canonical row was last updated by any source — used for asOf incremental-sync
-  filters.',\n  `religion` STRING COMMENT 'Religion as self-declared/registered. [Value
-  Examples: \\'Hindu\\', \\'Islam\\', \\'Christian\\', \\'Muslim\\', \\'No Religion\\\
-  ', \\'Other Religion\\', \\'Jain\\', \\'Others\\', \\'Sikh\\', \\'Buddhist\\']',\n\
-  \  `caste_name` STRING COMMENT 'Specific caste/sub-caste detail, complementing the
-  broader social_category (OC/BC/SC/ST) classification.',\n  `caste_derived_flag`
-  BOOLEAN COMMENT 'True if caste_name was derived/inferred rather than directly certified.
-  [Value Examples: \\'False\\', \\'True\\']',\n  `caste_base_certificate_no` STRING
-  COMMENT 'Certificate number of the underlying caste certificate this record is based
-  on.',\n  `door_no` STRING COMMENT 'Door/house number component of the residential
-  address.',\n  `secretariat_code` STRING COMMENT 'Gram/Ward Sachivalayam administrative
-  unit code — sits between mandal and village/habitation in AP\\'s local-governance
-  hierarchy.',\n  `constituency_code` STRING COMMENT 'Electoral assembly constituency
-  code covering the person\\'s residence.',\n  `rural_urban_flag` STRING COMMENT 'Whether
-  the residence is classified Rural or Urban. [Value Examples: \\'R\\', \\'U\\']',\n\
-  \  `cluster_id` STRING COMMENT 'Local administrative cluster grouping (sub-mandal),
-  used for some welfare-scheme targeting.',\n  `domicile_status` BOOLEAN COMMENT 'True
-  if the person holds confirmed AP domicile status. [Value Examples: \\'True\\']',\n\
-  \  `marital_status` STRING COMMENT 'Current marital status. Resolved by latest status_date
-  across sources, with source priority as the tie-breaker on equal dates. [Value Examples:
-  \\'Married\\', \\'Single\\', \\'Unmarried\\', \\'Widowed\\', \\'Widow\\', \\'Widower\\\
-  ', \\'Divorced\\', \\'Separated\\', \\'Single woman\\']',\n  `govt_employment_type`
-  STRING COMMENT 'None | Active Govt Employee | Pensioner | Contractual — distinct
-  from the broader employment_status field, specifically tracking government-sector
-  employment for pension/benefit eligibility. [Value Examples: \\'None\\', \\'Regular\\\
-  ', \\'Pensioner\\', \\'Contract\\']',\n  `is_deceased` STRING COMMENT 'Deceased
-  flag as stored in production (STRING). Typical values: true/false or Y/N. [Value
-  Examples: \\'False\\', \\'True\\']',\n  `father_name` STRING COMMENT 'Father\\'s
-  name, as registered.',\n  `father_person_id` STRING COMMENT 'Foreign key to dim_person.person_id
-  for the father, when the father is also a known canonical citizen.',\n  `mother_name`
-  STRING COMMENT 'Mother\\'s name, as registered.',\n  `mother_person_id` STRING COMMENT
-  'Foreign key to dim_person.person_id for the mother, when the mother is also a known
-  canonical citizen.',\n  `husband_name` STRING COMMENT 'Husband\\'s name, where applicable
-  (e.g. for widow-pension eligibility checks).',\n  `husband_person_id` STRING COMMENT
-  'Foreign key to dim_person.person_id for the husband, when the husband is also a
-  known canonical citizen.',\n  `ration_card_no` BIGINT COMMENT 'NFSA ration card
-  number on dim_person (BIGINT). App reads ration card from dim_person.ration_card_no
-  only — not dim_household.',\n  `disability_type` STRING COMMENT 'Disability type
-  on the person record (also mirrored on dim_social_welfare where applicable). [Value
-  Examples: \\'Locomotor\\', \\'Visual Impairment\\', \\'Mental Retardness\\', \\\
-  'Hearing\\', \\'Mental Illness\\', \\'Multiple Illness\\']',\n  `disability_percentage`
-  INT COMMENT 'Certified disability percentage (0–100).',\n  `disability_status` STRING
-  COMMENT 'Disability certification status, e.g. Certified / Self-declared. [Value
-  Examples: \\'Permanent\\', \\'Temporary for 2\\', \\'Temporary for 1\\', \\'Temporary
-  for 5\\', \\'Temporary for 3\\', \\'Temporary for 4\\']'\n)\nROW FORMAT SERDE\n\
-  \  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
-  LOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/dim_person'\nPARTITIONED BY
-  (district_id)"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_person`(
+    `person_id` STRING,
+    `person_name` STRING,
+    `age` INT,
+    `date_of_birth` DATE,
+    `gender` STRING,
+    `social_category` STRING,
+    `phone` STRING,
+    `income_band` STRING,
+    `dwelling_type` STRING,
+    `address` STRING,
+    `district_id` STRING,
+    `mandal_id` STRING,
+    `village_name` STRING,
+    `household_id` STRING,
+    `created_at` TIMESTAMP,
+    `updated_at` TIMESTAMP,
+    `religion` STRING,
+    `caste_name` STRING,
+    `caste_derived_flag` BOOLEAN,
+    `caste_base_certificate_no` STRING,
+    `door_no` STRING,
+    `secretariat_code` STRING,
+    `constituency_code` STRING,
+    `rural_urban_flag` STRING,
+    `cluster_id` STRING,
+    `domicile_status` BOOLEAN,
+    `marital_status` STRING,
+    `govt_employment_type` STRING,
+    `is_deceased` STRING,
+    `father_name` STRING,
+    `father_person_id` STRING,
+    `mother_name` STRING,
+    `mother_person_id` STRING,
+    `husband_name` STRING,
+    `husband_person_id` STRING,
+    `ration_card_no` BIGINT,
+    `disability_type` STRING,
+    `disability_percentage` INT,
+    `disability_status` STRING
+  )
 columns:
 - name: person_id
   type: STRING
@@ -110,13 +76,12 @@ columns:
 - name: age
   type: INT
   nullable: true
-  description: Current age in years — derived from date_of_birth at query time, 
-    not stored as a static value.
+  description: Current age in years — derived from date_of_birth at query time, not
+    stored as a static value.
 - name: date_of_birth
   type: DATE
   nullable: true
-  description: Date of birth, as registered in the birth certificate or Aadhaar 
-    record.
+  description: Date of birth, as registered in the birth certificate or Aadhaar record.
 - name: gender
   type: STRING
   nullable: true
@@ -169,23 +134,23 @@ columns:
 - name: district_id
   type: STRING
   nullable: true
-  description: Foreign key to dim_district.district_id — the person's current 
-    district of residence.
+  description: Foreign key to dim_district.district_id — the person's current district
+    of residence.
 - name: mandal_id
   type: STRING
   nullable: true
-  description: Foreign key to dim_mandal.mandal_id — the person's current mandal
-    of residence.
+  description: Foreign key to dim_mandal.mandal_id — the person's current mandal of
+    residence.
 - name: village_name
   type: STRING
   nullable: true
-  description: The person's current village/habitation of residence 
-    (denormalized text, not a village_id FK).
+  description: The person's current village/habitation of residence (denormalized
+    text, not a village_id FK).
 - name: household_id
   type: STRING
   nullable: true
-  description: Foreign key to dim_household.household_id — the household this 
-    person belongs to.
+  description: Foreign key to dim_household.household_id — the household this person
+    belongs to.
 - name: created_at
   type: TIMESTAMP
   nullable: true
@@ -193,8 +158,8 @@ columns:
 - name: updated_at
   type: TIMESTAMP
   nullable: true
-  description: Timestamp the canonical row was last updated by any source — used
-    for asOf incremental-sync filters.
+  description: Timestamp the canonical row was last updated by any source — used for
+    asOf incremental-sync filters.
 - name: religion
   type: STRING
   nullable: true
@@ -216,8 +181,207 @@ columns:
 - name: caste_name
   type: STRING
   nullable: true
-  description: Specific caste/sub-caste detail, complementing the broader 
-    social_category (OC/BC/SC/ST) classification.
+  description: Specific caste/sub-caste detail, complementing the broader social_category
+    (OC/BC/SC/ST) classification.
+  distinct:
+  - Mala
+  - Madiga
+  - Kapu
+  - Shaik / Sheikh
+  - Yadava (Golla)
+  - Reddy
+  - Kamma
+  - Balija
+  - Settibalija
+  - Turupukapus or Gajulakapus
+  - Rajaka (Chakali, Vannar)
+  - Vysya
+  - Koppulavelama
+  - Yadava
+  - Valmiki Boya (Boya, Bedar, Kirataka, Nishadi, Yellapi, Pedda Boya)
+  - Shaik
+  - Yenadis
+  - Telaga
+  - Kuruba or Kuruma
+  - Valmiki Boya (Boya, Bedar, Kirataka, Nishadi, Yellapi (Yellapu), Pedda Boya)
+  - Dudekula
+  - Odde (Oddilu, Vaddi, Vaddelu)
+  - Turupu kapu
+  - Thurupukapus or Gajulakapus
+  - Yerukulas
+  - Rajaka
+  - Vadabalija
+  - Sugalis
+  - Vaddera
+  - Agnikulakshatriya
+  - Koppulavelamas
+  - Adi Dravida
+  - Kalinga
+  - Kummara or Kulala
+  - Agnikula Kshatriya
+  - Gowda (Gamalla)
+  - Padmasali (Sali, Salivan, Pattusali, Senapathulu, Thogata Sali)
+  - Devanga
+  - Viswabrahmin (Ausula or Kamsali, Kammari, Kanchari, Vadla or Vadra or Vadrangi
+    and Silpis)
+  - Brahmin
+  - SAYED
+  - Goud [Ediga, Gowda (Gamalla), Kalalee, Goundla, Srisayana (Segidi)]
+  - Uppara or Sagara
+  - Thogata
+  - Gavara
+  - Koya
+  - Kshatriya
+  - Mutrasi
+  - Boya
+  - Patan
+  - Viswabrahmin [Ausula, Kamasali, Kammari, Kanchari, Vadla (Vadra, Vadrangi) and
+    Silpis]
+  - Padmasali (Sali,  Salivan, Pattusali, Senapathulu,  Thogata Sali)
+  - Padmasali
+  - Yadava(Golla)
+  - Shaik/Sheikh
+  - Kepmare or Reddika
+  - Konda Dhoras
+  - Bestha
+  - Polinativelamas
+  - Viswabrahmin
+  - Jatapus
+  - Nayi-Brahmin (Mangali)
+  - Mudiraj
+  - Relli
+  - Yata
+  - Kodhu
+  - Brahman
+  - Kuruba
+  - Nayi-brahmin
+  - Savaras
+  - Madiga-Sl.No.32-(SC Group-II)
+  - Mala-Sl.No.35-(SC Group-III)
+  - Kalinga Komati / Kalinga Vysya
+  - Vanyakulakshatriya (Vannekapu, Vannereddi, Pallikapu, Pallireddi)
+  - Odde
+  - Kondareddis
+  - Kummara
+  - Nayi-Brahmin (Mangali),
+  - Jangam  (whose traditional occupation is begging)
+  - Srisayana (Segidi)
+  - Telikula
+  - Scheduled Castes converts to Christianity and their progeny
+  - Rajaka(Chakali, Vannar)
+  - Gowda
+  - Gandla
+  - Bagata
+  - Valmiki, Boya
+  - Valmiki Boya(Boya, Bedar, Kirataka, Nishadi, Yellapi Pedda Boya)
+  - Vanyakulakshatriya ((Vannekapu, Vannereddi, Pallikapu, Pallireddi)
+  - Uppara
+  - Pattapu
+  - Vaddi
+  - Lambadis
+  - Goud
+  - Ediga
+  - Valmiki
+  - Palli
+  - Kondadora
+  - Dasari
+  - Golla
+  - Odde(Oddilu, Vaddi, Vaddelu, Vaddera, Vaddabhovi, Vadiyaraj, Waddera)
+  - Jalari
+  - Polinativelmas
+  - Reddika
+  - Nagavamsam (Nagavamsa)
+  - Goud[Ediga, Gowda(Gamalla, Kalalee, Goundla, Srisayana(Segidi)]
+  - Veerashaiva Lingayat / Lingabalija
+  - Chakali
+  - Chenchu
+  - Perika (Perike Balija, Puragiri Kshatriya)
+  - Pala-Ekari
+  - Muslim (Other than BC-E sub groups)
+  - Kammara
+  - Padmasali(Sali, Salivan, Pattusali, Senapathulu, Thogata Sali)
+  - Paidi
+  - Pinjari or Noorbash
+  - Nessi or Kurni
+  - Neyyala
+  - Viswabrahmin(Ausula, Kamsali, Kammari, Kanchari, Vadla(Vadra, Vadrangi) and Silpis)
+  - Sistakaranam
+  - Nagaralu
+  - Gadabas
+  - Jangam
+  - Nooka Dhora
+  - Patra
+  - Mangali
+  - Kunchiti Vakkaliga / Vakkaligara / Kunchitiga
+  - Scheduled Castes Converts to Christianity
+  - Bhatraju
+  - Medari or Mahendra
+  - Mangala
+  - Kotia
+  - Ekila
+  - Adi Andhra
+  - Porja
+  - Velama
+  - Karnabhakthulu
+  - Thoorpu Kapu
+  - Kapu Savaras
+  - Srisayana
+  - Naidu
+  - Goud (Setti Balija)
+  - Goud [Gowda (Gamalla)]
+  - Vanyakulakshatriya
+  - Other Castes  (Other than SC, ST, BC, Minority & Kapu) if any, those castes may
+    be treated as OC/EBC
+  - Valmiki (in the Agency tracks)
+  - Kamsali
+  - Nayi-brahmin(Mangali)
+  - Dommara
+  - Mangala and Bhajantri
+  - Chattadasrivaishnava
+  - Kummara orKulala
+  - Chowdary
+  - Muslim Katika
+  - Raju Kshatriya
+  - Pondara
+  - Budabukkala
+  - Setty Balija
+  - Mudaliar [Aghamudian, Aghamudiar, Agamudivellalar and Agamudimudaliar (including
+    Thuluva Vellalas)]
+  - Perika (Perika Balija,  Puragiri kshatriya)
+  - Dasari  (formerly engaged in Bikshatana i.e., Beggary)
+  - Nagavamsam
+  - Kaikolan or Kaikala (Sengundam or Sengunther)
+  - Kurakula
+  - Surya Balija (Kalavanthula, Ganika)
+  - Veerashaiva Lingayat/Lingabalija
+  - Setti Balija
+  - Bhoomanchi Reddy
+  - Ayyaraka
+  - Mangala and Bajantri
+  - Gangiredlavaru
+  - Oriya Brahmin
+  - Gamalla
+  - Kaikolan or Kaikala  (Sengundam or Sengunther)
+  - Muslim Syed
+  - Kandra
+  - Sondi / Sundi
+  - Muslim Shaik
+  - Suryabalija
+  - Swakulasali
+  - Vannereddi
+  - Medari
+  - Bondili
+  - Qureshi
+  - Talayari
+  - Vanyakulakshatriya(Vannekapu, Vannereddi, Pallikapu, Pallireddi)
+  - Pamula
+  - Vakkaliga
+  - Manna Dhora
+  - Komati
+  - Katika
+  - Poosala
+  - Jogi
+  - Mala Dasu
 - name: caste_derived_flag
   type: BOOLEAN
   nullable: true
@@ -229,8 +393,8 @@ columns:
 - name: caste_base_certificate_no
   type: STRING
   nullable: true
-  description: Certificate number of the underlying caste certificate this 
-    record is based on.
+  description: Certificate number of the underlying caste certificate this record
+    is based on.
 - name: door_no
   type: STRING
   nullable: true
@@ -238,13 +402,12 @@ columns:
 - name: secretariat_code
   type: STRING
   nullable: true
-  description: Gram/Ward Sachivalayam administrative unit code — sits between 
-    mandal and village/habitation in AP's local-governance hierarchy.
+  description: Gram/Ward Sachivalayam administrative unit code — sits between mandal
+    and village/habitation in AP's local-governance hierarchy.
 - name: constituency_code
   type: STRING
   nullable: true
-  description: Electoral assembly constituency code covering the person's 
-    residence.
+  description: Electoral assembly constituency code covering the person's residence.
 - name: rural_urban_flag
   type: STRING
   nullable: true
@@ -256,8 +419,8 @@ columns:
 - name: cluster_id
   type: STRING
   nullable: true
-  description: Local administrative cluster grouping (sub-mandal), used for some
-    welfare-scheme targeting.
+  description: Local administrative cluster grouping (sub-mandal), used for some welfare-scheme
+    targeting.
 - name: domicile_status
   type: BOOLEAN
   nullable: true
@@ -307,8 +470,8 @@ columns:
 - name: father_person_id
   type: STRING
   nullable: true
-  description: Foreign key to dim_person.person_id for the father, when the 
-    father is also a known canonical citizen.
+  description: Foreign key to dim_person.person_id for the father, when the father
+    is also a known canonical citizen.
 - name: mother_name
   type: STRING
   nullable: true
@@ -316,23 +479,23 @@ columns:
 - name: mother_person_id
   type: STRING
   nullable: true
-  description: Foreign key to dim_person.person_id for the mother, when the 
-    mother is also a known canonical citizen.
+  description: Foreign key to dim_person.person_id for the mother, when the mother
+    is also a known canonical citizen.
 - name: husband_name
   type: STRING
   nullable: true
-  description: Husband's name, where applicable (e.g. for widow-pension 
-    eligibility checks).
+  description: Husband's name, where applicable (e.g. for widow-pension eligibility
+    checks).
 - name: husband_person_id
   type: STRING
   nullable: true
-  description: Foreign key to dim_person.person_id for the husband, when the 
-    husband is also a known canonical citizen.
+  description: Foreign key to dim_person.person_id for the husband, when the husband
+    is also a known canonical citizen.
 - name: ration_card_no
   type: BIGINT
   nullable: true
-  description: NFSA ration card number on dim_person (BIGINT). App reads ration 
-    card from dim_person.ration_card_no only — not dim_household.
+  description: NFSA ration card number on dim_person (BIGINT). App reads ration card
+    from dim_person.ration_card_no only — not dim_household.
 - name: disability_type
   type: STRING
   nullable: true
@@ -383,19 +546,3 @@ common_operations:
 - profile records in dim_person
 - join dim_person to dim_person via person_id
 - filter dim_person by district_id or mandal_id
-- name: disability_type
-  type: STRING
-  nullable: true
-  description: Added from metadata.
-- name: disability_status
-  type: STRING
-  nullable: true
-  description: Added from metadata.
-- name: disability_percentage
-  type: STRING
-  nullable: true
-  description: Added from metadata.
-- name: ration_card_no
-  type: STRING
-  nullable: true
-  description: Added from metadata.

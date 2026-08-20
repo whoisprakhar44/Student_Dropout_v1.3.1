@@ -724,10 +724,10 @@ _intent_model = ChatOllama(
     reasoning=False,
     base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
     num_ctx=int(os.getenv("OLLAMA_INTENT_NUM_CTX", "2048")),
-    num_predict=int(os.getenv("OLLAMA_INTENT_NUM_PREDICT", "256")),
+    num_predict=int(os.getenv("OLLAMA_INTENT_NUM_PREDICT", "64")),
 )
 
-_INTENT_SYSTEM_PROMPT = f"""You are an intent classifier for a school dropout monitoring system.
+_INTENT_SYSTEM_PROMPT = f"""You are an intent classifier for the ap_citizen360 data model.
 
 Given a user question, you must:
 1. Classify it into EXACTLY ONE of these intents:
@@ -739,14 +739,8 @@ Given a user question, you must:
    - "hybrid": needs BOTH data AND policy/document context
    - "greeting": conversational greeting or salutation (e.g. "hi", "hello", "good morning")
 
-3. Extract these entities if mentioned (leave blank string "" if not present):
-   - district_name: AP district (e.g. Guntur, Anantapur, Chittoor, Krishna, Kurnool, Srikakulam, Vizianagaram, Visakhapatnam, East Godavari, West Godavari, Prakasam, Nellore, Kadapa, YSR Kadapa)
-   - academic_year: e.g. "2025", "2024-25", "2024"
-   - current_grade: class/grade number e.g. "6", "8", "10"
-   - social_category: e.g. "SC", "ST", "OBC", "General"
-
 Respond with ONLY valid JSON — no explanation, no markdown, no extra text:
-{{"intent": "...", "query_type": "...", "entities": {{"district_name": "...", "academic_year": "...", "current_grade": "...", "social_category": "..."}}}}"""
+{{"intent": "...", "query_type": "..."}}"""
 
 
 def _clean_llm_response(text: str) -> str:
@@ -756,7 +750,7 @@ def _clean_llm_response(text: str) -> str:
     return text.strip()
 
 
-def _parse_intent_response(raw: str) -> tuple[str, str, dict[str, str]]:
+def _parse_intent_response(raw: str) -> tuple[str, str]:
     try:
         cleaned = _clean_llm_response(raw)
         data = json.loads(cleaned)
@@ -767,22 +761,20 @@ def _parse_intent_response(raw: str) -> tuple[str, str, dict[str, str]]:
             intent = "general_query"
         if query_type not in ("data_query", "document_query", "hybrid", "greeting"):
             query_type = "data_query"
-        entities = {k: str(v) for k, v in data.get("entities", {}).items() if v}
-        return intent, query_type, entities
+        return intent, query_type
     except (json.JSONDecodeError, AttributeError, TypeError) as e:
         logger.warning("intent_node: failed to parse LLM response (%s). Raw: %s", e, raw[:200])
-        return "general_query", "data_query", {}
+        return "general_query", "data_query"
 
 
 def intent_node(state: AgentState) -> dict:
     """
-    LangGraph node: classify intent, query_type, and extract entities from user_query.
+    LangGraph node: classify intent and query_type from user_query.
 
     Writes to state:
-        intent          – 1 of 13 domain intent labels
+        intent          – 1 of domain intent labels
         query_type      – "data_query" | "document_query" | "hybrid" | "greeting"
         department_scope – relevant database departments for RAG scoping
-        entities        – extracted district, year, grade, social_category
     """
     t0 = time.perf_counter()
     user_query = state.get("user_query", "")
@@ -794,7 +786,6 @@ def intent_node(state: AgentState) -> dict:
             "intent":           "greeting",
             "query_type":       "greeting",
             "department_scope": [],
-            "entities":         {},
         }
 
     try:
@@ -803,61 +794,43 @@ def intent_node(state: AgentState) -> dict:
             HumanMessage(content=f"User question: {user_query}"),
         ])
         raw_text = response.content or ""
-        intent, query_type, entities = _parse_intent_response(raw_text)
+        intent, query_type = _parse_intent_response(raw_text)
     except Exception as e:
         logger.error("intent_node: LLM call failed (%s). Defaulting to general_query.", e)
         intent      = "general_query"
         query_type  = "data_query"
-        entities    = {}
 
-    department_scope = INTENT_DEPARTMENT_MAP.get(intent, ["school", "canonicalmodel"])
+    department_scope = INTENT_DEPARTMENT_MAP.get(intent, ["ap_citizen360"])
 
     logger.info(
-        "intent_node: intent='%s' | query_type='%s' | scope=%s | entities=%s | %.2fs",
-        intent, query_type, department_scope, entities, time.perf_counter() - t0,
+        "intent_node: intent='%s' | query_type='%s' | scope=%s | %.2fs",
+        intent, query_type, department_scope, time.perf_counter() - t0,
     )
 
     return {
         "intent":           intent,
         "query_type":       query_type,
         "department_scope": department_scope,
-        "entities":         entities,
     }
 
 
 def initialize_node(state: AgentState) -> dict:
     """
     Graph entry point: force a retrieval RAG call on the user's raw query.
-
-    If intent_node has already classified the query (state has 'intent' and
-    'entities'), the RAG query is enriched with those signals so the vector
-    search returns more relevant table chunks and fewer false positives.
-
-    Enrichment strategy:
-      - Prepend the classified intent so the embedding leans toward matching
-        fewshot examples with the same intent label.
-      - Append extracted entities (district, year, grade) as context hints.
-      - Append department scope so embeddings for tables like citizen_school
-        and school_student_attendance_fact rank higher than unrelated tables.
     """
     import uuid
     tool_call_id = f"call_{uuid.uuid4().hex}"
 
     raw_query    = state["user_query"]
     intent       = state.get("intent")
-    entities     = state.get("entities") or {}
     dept_scope   = state.get("department_scope") or []
 
     # Use the RAW user query for vector search — not enriched.
-    # Enrichment with [intent:...][district:...] metadata brackets corrupts
-    # the embedding vector because the embedding model treats bracket tokens
-    # as semantic content, pushing the vector away from fewshot embeddings
-    # that were indexed with clean NL text only.
     rag_query = raw_query
 
     logger.info(
-        "initialize_node: RAG query = %s  (intent=%s, entities=%s)",
-        rag_query, intent, entities,
+        "initialize_node: RAG query = %s  (intent=%s, dept_scope=%s)",
+        rag_query, intent, dept_scope,
     )
 
     forced_tool_call_msg = AIMessage(

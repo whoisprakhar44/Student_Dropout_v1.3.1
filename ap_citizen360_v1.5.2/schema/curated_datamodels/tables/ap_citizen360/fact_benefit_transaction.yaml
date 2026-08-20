@@ -1,10 +1,9 @@
 database: ap_citizen360
 table: fact_benefit_transaction
 department: ap_citizen360
-description: One row per individual benefit disbursement transaction against an 
-  entitlement — the itemized payment history behind fact_entitlement's 
-  summarized last_disbursed_date. Partitioned by month and district for 
-  efficient time-range/geo queries.
+description: One row per individual benefit disbursement transaction against an entitlement
+  — the itemized payment history behind fact_entitlement's summarized last_disbursed_date.
+  Partitioned by month and district for efficient time-range/geo queries.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_benefit_transaction
 partitioned_by: months(transaction_date), district_id
@@ -18,17 +17,16 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_benefit_transaction`(\n  `transaction_id`
-  STRING COMMENT 'Canonical transaction identifier.',\n  `entitlement_id` STRING COMMENT
-  'Foreign key to fact_entitlement.entitlement_id.',\n  `person_id` STRING COMMENT
-  'Foreign key to dim_person.person_id.',\n  `scheme_id` STRING COMMENT 'Foreign key
-  to dim_scheme.scheme_id.',\n  `amount` DECIMAL(12,2) COMMENT 'Amount disbursed in
-  this transaction, in INR.',\n  `transaction_date` DATE COMMENT 'Date the transaction
-  was disbursed.',\n  `district_id` STRING COMMENT 'Foreign key to dim_district.district_id
-  — partition key.'\n)\nROW FORMAT SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\n\
-  STORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\nLOCATION\n\
-  \  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_benefit_transaction'\nPARTITIONED
-  BY (months(transaction_date), district_id)"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`fact_benefit_transaction`(
+    `transaction_id` STRING,
+    `entitlement_id` STRING,
+    `person_id` STRING,
+    `scheme_id` STRING,
+    `amount` DECIMAL(12,2),
+    `transaction_date` DATE,
+    `district_id` STRING
+  )
 columns:
 - name: transaction_id
   type: STRING
@@ -45,8 +43,42 @@ columns:
 - name: scheme_id
   type: STRING
   nullable: true
-  description: "Foreign key to dim_scheme.scheme_id. [Value Examples: 'SCH-061', 'SCH-023',
-    'SCH-032', 'SCH-024', 'SCH-003', 'SCH-013']"
+  description: 'Foreign key to dim_scheme.scheme_id. [Value Examples: ''SCH-061'',
+    ''SCH-023'', ''SCH-032'', ''SCH-024'', ''SCH-003'', ''SCH-013'']'
+  distinct:
+  - SCH-061
+  - SCH-023
+  - SCH-032
+  - SCH-024
+  - SCH-003
+  - SCH-013
+  - SCH-025
+  - SCH-067
+  - SCH-008
+  - SCH-058
+  - SCH-066
+  - SCH-064
+  - SCH-046
+  - SCH-063
+  - SCH-051
+  - SCH-068
+  - SCH-057
+  - SCH-065
+  - SCH-055
+  - SCH-059
+  - SCH-045
+  - SCH-054
+  - SCH-047
+  - SCH-037
+  - SCH-027
+  - SCH-049
+  - SCH-026
+  - SCH-053
+  - SCH-052
+  - SCH-021
+  - SCH-050
+  - SCH-048
+  - SCH-056
 - name: amount
   type: DECIMAL(12,2)
   nullable: true
@@ -58,17 +90,15 @@ columns:
 - name: district_id
   type: STRING
   nullable: true
-  description: "Foreign key to dim_district.district_id — partition key. [Value Examples:
-    '506', '515', '749', '752', '517', '510']"
+  description: 'Foreign key to dim_district.district_id — partition key. [Value Examples:
+    ''506'', ''515'', ''749'', ''752'', ''517'', ''510'']'
 primary_key:
 - transaction_id
 relationships:
-- fact_benefit_transaction.entitlement_id is a foreign key to 
-  fact_entitlement.entitlement_id.
+- fact_benefit_transaction.entitlement_id is a foreign key to fact_entitlement.entitlement_id.
 - fact_benefit_transaction.person_id is a foreign key to dim_person.person_id.
 - fact_benefit_transaction.scheme_id is a foreign key to dim_scheme.scheme_id.
-- fact_benefit_transaction.district_id is a foreign key to 
-  dim_district.district_id.
+- fact_benefit_transaction.district_id is a foreign key to dim_district.district_id.
 business_terms:
 - ap_citizen360
 - data_transfer_api_—_entitlements,_transactions,_disbursements
@@ -78,6 +108,5 @@ business_terms:
 - ICEBERG
 common_operations:
 - aggregate measures in fact_benefit_transaction by geography and time period
-- join fact_benefit_transaction with dimension tables via facility_id or 
-  person_id
+- join fact_benefit_transaction with dimension tables via facility_id or person_id
 - filter fact_benefit_transaction by district_id or period_date

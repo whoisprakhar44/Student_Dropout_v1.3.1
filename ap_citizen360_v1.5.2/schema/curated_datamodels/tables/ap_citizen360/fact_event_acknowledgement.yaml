@@ -1,9 +1,8 @@
 database: ap_citizen360
 table: fact_event_acknowledgement
 department: ap_citizen360
-description: One row per POST /datatransfer/on_request acknowledgement received 
-  from a department, confirming receipt of a previously delivered request/event 
-  batch.
+description: One row per POST /datatransfer/on_request acknowledgement received from
+  a department, confirming receipt of a previously delivered request/event batch.
 table_format: ICEBERG
 location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_event_acknowledgement
 tblproperties:
@@ -16,16 +15,15 @@ tblproperties:
   write.merge.mode: merge-on-read
   write.update.mode: merge-on-read
 source_file: citizen360_canonical_schema.json
-raw_ddl: "CREATE EXTERNAL TABLE `ap_citizen360`.`fact_event_acknowledgement`(\n  `acknowledgement_id`
-  STRING COMMENT 'Canonical acknowledgement-record identifier.',\n  `original_request_id`
-  STRING COMMENT 'Foreign key to fact_event_request_registry.request_id — the request
-  being acknowledged.',\n  `department_id` STRING COMMENT 'Foreign key to dim_department_client.department_id
-  — the acknowledging department.',\n  `acknowledged_at` TIMESTAMP COMMENT 'Timestamp
-  the department reported as having received the request.',\n  `payload_json` STRING
-  COMMENT 'The acknowledgement payload, stored verbatim for audit.',\n  `created_at`
-  TIMESTAMP COMMENT 'Timestamp this acknowledgement was recorded.'\n)\nROW FORMAT
-  SERDE\n  'org.apache.iceberg.mr.hive.HiveIcebergSerDe'\nSTORED BY\n  'org.apache.iceberg.mr.hive.HiveIcebergStorageHandler'\n\
-  LOCATION\n  'hdfs://ap-datalake/CURATED/ap_citizen360/fact_event_acknowledgement'"
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`fact_event_acknowledgement`(
+    `acknowledgement_id` STRING,
+    `original_request_id` STRING,
+    `department_id` STRING,
+    `acknowledged_at` TIMESTAMP,
+    `payload_json` STRING,
+    `created_at` TIMESTAMP
+  )
 columns:
 - name: acknowledgement_id
   type: STRING
@@ -34,13 +32,13 @@ columns:
 - name: original_request_id
   type: STRING
   nullable: true
-  description: Foreign key to fact_event_request_registry.request_id — the 
-    request being acknowledged.
+  description: Foreign key to fact_event_request_registry.request_id — the request
+    being acknowledged.
 - name: department_id
   type: STRING
   nullable: true
-  description: "Foreign key to dim_department_client.department_id — the acknowledging
-    department. [Value Examples: 'DEPT-FCS', 'DEPT-WCD', 'DEPT-REV']"
+  description: 'Foreign key to dim_department_client.department_id — the acknowledging
+    department. [Value Examples: ''DEPT-FCS'', ''DEPT-WCD'', ''DEPT-REV'']'
   distinct:
   - DEPT-FCS
   - DEPT-WCD
@@ -60,8 +58,7 @@ columns:
 primary_key:
 - acknowledgement_id
 relationships:
-- fact_event_acknowledgement.department_id is a foreign key to 
-  dim_department.department_id.
+- fact_event_acknowledgement.department_id is a foreign key to dim_department.department_id.
 business_terms:
 - ap_citizen360
 - data_transfer_api___request_idempotency,_event-delivery_index,_ack/status_persistence
@@ -70,6 +67,5 @@ business_terms:
 - ICEBERG
 common_operations:
 - aggregate measures in fact_event_acknowledgement by geography and time period
-- join fact_event_acknowledgement with dimension tables via person_id or 
-  district_id
+- join fact_event_acknowledgement with dimension tables via person_id or district_id
 - filter fact_event_acknowledgement by district_id or date
