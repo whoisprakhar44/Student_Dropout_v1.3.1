@@ -1,0 +1,103 @@
+database: ap_citizen360
+table: dim_driving_licence
+department: ap_citizen360
+description: Driving licence identity and validity for a citizen — one row per person.
+  Holds the licence number, contact details recorded on the licence, vehicle categories
+  covered, and the transport-validity window. Distinct from dim_citizen_identifier
+  rows of type driving_licence, which only store the identifier value.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_driving_licence
+partitioned_by: updated_at
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_driving_licence`(
+    `person_id` STRING,
+    `dl_licno` STRING,
+    `bio_mobile_no` STRING,
+    `bio_phone_no` STRING,
+    `bio_alt_mobile_no` STRING,
+    `bio_full_name` STRING,
+    `dc_covcd` STRING,
+    `ve_catg` STRING,
+    `transport_validity_from` DATE,
+    `dl_tr_valdto_dt` DATE,
+    `updated_at` TIMESTAMP
+  )
+columns:
+- name: person_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_person.person_id — one licence record per citizen.
+- name: dl_licno
+  type: STRING
+  nullable: true
+  description: Driving licence number.
+- name: bio_mobile_no
+  type: STRING
+  nullable: true
+  description: Primary mobile number on file.
+- name: bio_phone_no
+  type: STRING
+  nullable: true
+  description: Landline/phone number on file.
+- name: bio_alt_mobile_no
+  type: STRING
+  nullable: true
+  description: Alternate mobile number on file.
+- name: bio_full_name
+  type: STRING
+  nullable: true
+  description: Licence holder's full name as recorded on the licence.
+- name: dc_covcd
+  type: STRING
+  nullable: true
+  description: 'Issuing country/document code (e.g. "IND"). [Value Examples: ''10'',
+    ''7'', ''16'', ''8'', ''15'', ''17'']'
+  distinct:
+  - '10'
+  - '7'
+  - '16'
+  - '8'
+  - '15'
+  - '17'
+- name: ve_catg
+  type: STRING
+  nullable: true
+  description: 'Comma-separated vehicle categories the licence covers (e.g. "LMV,MCWG").
+    [Value Examples: ''TR'']'
+  distinct:
+  - TR
+- name: transport_validity_from
+  type: DATE
+  nullable: true
+  description: Start date of the licence's validity period.
+- name: dl_tr_valdto_dt
+  type: DATE
+  nullable: true
+  description: End date of the licence's validity period.
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: When this driving licence record was last updated.
+primary_key:
+- person_id
+relationships:
+- dim_driving_licence.person_id is a foreign key to dim_person.person_id.
+business_terms:
+- ap_citizen360
+- person_/_household_/_identity
+- dimension
+- Iceberg
+- ICEBERG
+common_operations:
+- filter dim_driving_licence by person_id
+- join dim_driving_licence with other entities via person_id or district_id

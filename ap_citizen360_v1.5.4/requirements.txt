@@ -1,0 +1,29 @@
+langgraph==1.2.9
+langchain-core==1.5.1
+langchain-ollama
+langchain-mcp-adapters==0.3.1
+mcp==1.29.0
+python-dotenv
+fastapi
+uvicorn
+pydantic
+pymilvus[milvus_lite]
+milvus-lite
+pyyaml
+requests
+sqlalchemy
+# mcp pinned above with langchain-mcp-adapters
+mysql-connector-python
+pysqlite3-binary; sys_platform == 'linux'
+impyla                    # Impala Python DB-API 2 driver (replaces pyhive)
+thrift_sasl               # Kerberos SASL transport for Impyla GSSAPI auth
+faster-whisper
+pydantic-settings
+python-multipart
+openpyxl                  # Excel query log
+PyMuPDF                   # PDF text extraction (fitz)
+python-docx               # DOCX parsing
+rapidocr-onnxruntime      # OCR for images in documents
+Pillow                    # Image processing for OCR
+kerberos
+vl-convert-python

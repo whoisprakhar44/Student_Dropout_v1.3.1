@@ -1,0 +1,8 @@
+title: Combined AP 360 Canonical Schema
+description: Two-database combined schema for NL2SQL RAG indexing.
+databases:
+- database: ap_citizen360
+  department: ap_citizen360
+  source: citizen360_canonical_schema.json
+
+tables_dir: tables

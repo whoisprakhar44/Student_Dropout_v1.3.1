@@ -1,0 +1,69 @@
+database: ap_citizen360
+table: fact_event_index
+department: ap_citizen360
+description: One row per delivered event correlation ID, recording which department
+  it was actually sent to — lets on_request/event_status reject an acknowledgement
+  or status update for an event that was never sent to the calling department (404/403),
+  independent of fact_event_details' own department_id routing.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_event_index
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`fact_event_index`(
+    `event_correlation_id` STRING,
+    `request_id` STRING,
+    `created_at` TIMESTAMP,
+    `department_id` STRING
+  )
+columns:
+- name: event_correlation_id
+  type: STRING
+  nullable: true
+  description: Canonical correlation ID assigned to a delivered event.
+- name: request_id
+  type: STRING
+  nullable: true
+  description: Foreign key to fact_event_request_registry.request_id — the request
+    this event was delivered in response to.
+- name: created_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp this delivery record was created.
+- name: department_id
+  type: STRING
+  nullable: true
+  description: 'Foreign key to dim_department_client.department_id — the department
+    this event''s correlation ID was actually delivered to. [Value Examples: ''DEPT-RTGS'',
+    ''DEPT-FCS'', ''DEPT-WCD'', ''DEPT-RD'', ''DEPT-HUD'', ''DEPT-REV'']'
+  distinct:
+  - DEPT-RTGS
+  - DEPT-FCS
+  - DEPT-WCD
+  - DEPT-RD
+  - DEPT-HUD
+  - DEPT-REV
+  - DEPT-IND
+  - DEPT-ENE
+primary_key:
+- event_correlation_id
+relationships:
+- fact_event_index.department_id is a foreign key to dim_department.department_id.
+business_terms:
+- ap_citizen360
+- data_transfer_api___request_idempotency,_event-delivery_index,_ack/status_persistence
+- fact
+- Iceberg
+- ICEBERG
+common_operations:
+- aggregate measures in fact_event_index by geography and time period
+- join fact_event_index with dimension tables via person_id or district_id
+- filter fact_event_index by district_id or date

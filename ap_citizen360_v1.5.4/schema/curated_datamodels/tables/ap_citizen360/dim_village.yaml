@@ -1,0 +1,55 @@
+database: ap_citizen360
+table: dim_village
+department: ap_citizen360
+description: One row per village/habitation, nested under dim_mandal via mandal_id.
+  Like dim_mandal, a thin lookup table — village-level metrics are computed on the
+  fly from records carrying village_name.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_village
+partitioned_by: mandal_id
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_village`(
+    `village_id` STRING,
+    `village_name` STRING,
+    `mandal_id` STRING
+  )
+columns:
+- name: village_id
+  type: STRING
+  nullable: true
+  description: Canonical village code.
+- name: village_name
+  type: STRING
+  nullable: true
+  description: Display name of the village — the value other tables (dim_person, dim_household,
+    ...) actually join on, since they denormalize village_name directly rather than
+    village_id.
+- name: mandal_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_mandal.mandal_id.
+primary_key:
+- village_id
+relationships:
+- dim_village.mandal_id is a foreign key to dim_mandal.mandal_id.
+business_terms:
+- ap_citizen360
+- geography
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_village
+- join dim_village to dim_person via person_id
+- filter dim_village by district_id or mandal_id

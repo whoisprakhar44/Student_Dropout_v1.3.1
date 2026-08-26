@@ -1,0 +1,418 @@
+database: ap_citizen360
+table: dim_land
+department: ap_citizen360
+description: One row per land parcel owned — agricultural, residential, or commercial.
+  Carries revenue-record detail (survey numbers, registration, mutation) as well as
+  agronomic detail (soil, irrigation) for parcels used for farming.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_land
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_land`(
+    `land_id` STRING,
+    `person_id` STRING,
+    `land_type` STRING,
+    `land_classification` STRING,
+    `acres` DOUBLE,
+    `survey_no` STRING,
+    `sub_survey_no` STRING,
+    `hissa_no` STRING,
+    `khata_no` STRING,
+    `location` STRING,
+    `district_id` STRING,
+    `mandal_id` STRING,
+    `village_name` STRING,
+    `revenue_circle` STRING,
+    `sro_office` STRING,
+    `registration_no` STRING,
+    `pattadar_passbook_no` STRING,
+    `registration_date` DATE,
+    `mutation_date` DATE,
+    `market_value` DECIMAL(12,2),
+    `guideline_value` DECIMAL(12,2),
+    `stamp_duty_paid` DECIMAL(10,2),
+    `soil_type` STRING,
+    `irrigation_type` STRING,
+    `encumbrance_status` STRING,
+    `mortgage_bank` STRING,
+    `mortgage_amount` DECIMAL(12,2),
+    `is_assigned_land` BOOLEAN,
+    `extent_wet_land` DOUBLE,
+    `extent_dry_land` DOUBLE,
+    `updated_at` TIMESTAMP,
+    `aadhaar_mapped` STRING
+  )
+columns:
+- name: land_id
+  type: STRING
+  nullable: true
+  description: Canonical land-parcel identifier.
+- name: person_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_person.person_id — the owner.
+- name: land_type
+  type: STRING
+  nullable: true
+  description: Agricultural / Residential / Commercial classification of the parcel.
+  distinct:
+  - పట్టా
+  - జిరాయితి పట్టా
+  - జి.పట్టా
+  - జిరాయితి
+  - జిరాయితీ పట్టా
+  - Assigned Land Made Freehold in 2023
+  - ప్రభుత్వ భూమి
+  - ప్ర.భూమి
+  - ద.పట్టా
+  - ప్రభుత్వము
+  - '100'
+  - డిపట్టా
+  - unknown
+  - ఇనాం భూమి
+  - ఇనాం
+  - అతుకుబడిపట్టా
+  - '1'
+  - డి.పట్టా
+  - Village Service Inam made FreeHold in 2023
+  - మెట్ట
+  - పట్టా(PATTA LAND)
+  - ప్రభుత్వభూమి
+  - '0'
+  - ప్రభుత్వ భూమి (GOVT LAND)
+  - అతుకుబడి పట్టా
+  - ప్రభూమి
+  - డి ఫారం పట్టా
+  - పోరంబోకు
+  - '101'
+  - Assigned in the Year 2012
+  - Assigned in the Year 2005
+  - అ.పట్టా
+  - Assigned in the Year 2018
+  - అసైన్డ్ భూములు(ASSIGNED LAND)
+  - Assigned in the Year 2007
+  - Sharatugala patta made freehold
+  - డి
+  - ప్ర.త్వభూమి
+  - డిఫారంపట్టా
+  - Assigned in the Year 2013
+  - '99'
+  - Assigned in the Year 2008
+  - కాలువ
+  - పొరంబోకు
+  - A.W
+  - ఇనాం(INAM)
+  - Assigned in the Year 2006
+  - Assigned in the Year 2010
+  - ఇనాం పట్టా
+  - పుంజ
+  - రస్తా
+  - Assigned in the Year 2004
+  - Select
+  - Assigned in the Year 2009
+  - మాగాణి
+  - ష పట్టా
+  - అనాధీనము
+  - వాగు
+  - పట్టా,ప్ర.భూమి
+  - గ్రామకంఠం
+  - Assigned in the Year 2015
+  - గయాళు
+  - గయాలు
+  - ఇ .఩ం జ
+  - ఇండ్లు
+  - అ.పుంజ
+  - Assigned in the Year 2019
+  - యినాం భూమి
+  - అనాదీన పుంజ
+  - Y
+  - A W D
+  - Assigned in the Year 2014
+  - డొంక
+  - అనాధీనం
+  - ఇనాము
+  - డి.ఫారం
+  - ఎసైన్ మెంట్ పట్టా
+  - 1,జి.పట్టా
+  - Assigned in the Year 2011
+  - 100,పట్టా
+  - పుంత
+  - రోడ్డు
+  - అనాదీనం
+  - చేపలచెర్వు
+  - చెరువు
+  - -- దరకాస్తు
+  - పట్టా,ప్రభుత్వము
+  - L.D పట్టా
+  - Assigned in the Year 2016
+  - Unknown
+  - జిరాయితి,పట్టా
+  - unknown,పట్టా
+  - అ . నంజా
+  - ',పట్టా'
+  - Assigned in the Year 2020
+  - ఇనాం భూమి,జిరాయితి పట్టా
+  - బండిదారి
+  - సర్కారు పుంజ
+  - సర్కారు నంజ
+  - రో.పొరంబో
+  - NSP కాలువ
+  - కాలవ
+  - కా.పొరంబో
+  - ద.పట్టా,పట్టా
+  - గ్రాంటు పట్టా
+  - ఇనాం,పట్టా
+  - 100,జిరాయితి పట్టా
+  - సి.భూమి
+  - ఎల్.సి. పట్టా
+  - Assigned in the Year 2017
+  - గుట్ట
+  - P W D
+  - దేవాలయ భూములు(ENDOWMENT LAND)
+  - రి.పారెష్ట్
+  - పట్టా,పట్టా(PATTA LAND)
+  - రాళ్ళ గుట్ట
+  - బండి.పొరం
+  - బావి
+  - ఇనాం,జిరాయితి
+  - A.W.D
+  - బోది
+  - జిరాయితీ పట్టా,పట్టా
+  - pwd కాల్వ
+  - పట్టా,మెట్ట
+  - చెఱువుపొరం
+  - 0,పట్టా
+  - పు ం జ
+  - అసైన్డ్ ల్యాండ్స్ (1954 ముందు )
+  - జిరాయితి,ప్రభుత్వ భూమి
+  - Assigned Land Made Free hold as per Act 35 of 2023
+  - అ.నంజ
+  - పి.డబ్యు.డి
+  - చెఱువు
+  - పట్టా,ప్రభుత్వ భూమి
+  - మురుగుకాలువ
+  - జిరాయితీ పట్టా,ప్రభుత్వ భూమి
+  - కాలిబాట
+  - కుంట
+  - Other
+  - unknown,జి.పట్టా
+  - బీడు
+  - జి.పట్టా,ప్ర.భూమి
+  - Assigned in the Year 2021
+  - అధిగ్రహణభూమి
+  - అసైన్డ్ ల్యాండ్స్  పొలిటికల్ సఫరర్స్
+  - డి.పట్టా,పట్టా
+  - అగ్రహరం
+  - రైల్వే
+  - జి.పట్టా,పట్టా
+  - జి.పోరంబోకు
+  - పంటకాలువ
+  - రిజర్వుపారెస్టు
+  - శిస్తుకట్టినబంజ
+  - ఇనాం,జి.పట్టా
+  - 101,జిరాయితి
+  - 100,Select
+  - డిపట్టా,పట్టా
+  - ఇతరములు
+  - పట్టా,మాగాణి
+  - పచ్చికబయలు
+  - దేవాలయం
+  - వంక
+  - కొండ
+  - 10 దేవాలయం
+  - కాలిదారి
+  - షరతులు
+  - PWD పోరంబోకు
+  - Assigned in the Year 2023
+  - ప్ర.భూమి,పోరంబోకు
+  - యినాం
+  - 100,జిరాయితి
+  - ఎ ల్ సి లే ం డ్
+  - 101,పట్టా
+  - '-'
+  - '---'
+  - జి.పట్టా,పట్టా(PATTA LAND)
+  - pwd కాలువ
+  - ఇనాం పట్టా,పట్టా
+  - అతుకుబడిపట్టా,జిరాయితి పట్టా
+  - జిరాయితి పట్టా,పట్టా(PATTA LAND)
+  - పట్టా,పుంజ
+  - --
+  - unknown,జిరాయితీ పట్టా
+  - బండదారి
+  - డి.పట్టా,ప్ర.భూమి
+  - దేవాదాయం
+  - ఎమ్.ఆర్.ఒ
+  - జిరాయితి పట్టా,ప్రభుత్వభూమి
+  - గుడిమాన్యం
+  - P W D కాలువ
+  - వాగుపోరంబోకు
+  - డొంక పోరంబోకు
+  - పట్టా,పోరంబోకు
+  - '133'
+  - అనాదీన నంజ
+  - -సి-
+  - మిగులు భూమి -lcc
+  - తోపు
+  - వక్ఫ్ భూములు(WAKF)
+- name: land_classification
+  type: STRING
+  nullable: true
+  description: 'Revenue classification of the land, e.g. ''Wet'', ''Dry'', ''Garden''.
+    [Value Examples: ''Dry'', ''Wet'', ''Poramboke'', ''Irrigated Dry'']'
+  distinct:
+  - Dry
+  - Wet
+  - Poramboke
+  - Irrigated Dry
+- name: acres
+  type: DOUBLE
+  nullable: true
+  description: Total extent of the parcel, in acres.
+- name: survey_no
+  type: STRING
+  nullable: true
+  description: Revenue survey number of the parcel.
+- name: sub_survey_no
+  type: STRING
+  nullable: true
+  description: Sub-division of the survey number, where the parcel is a subdivided
+    plot.
+- name: hissa_no
+  type: STRING
+  nullable: true
+  description: Hissa (further subdivision) number, where applicable.
+- name: khata_no
+  type: STRING
+  nullable: true
+  description: Khata (revenue account) number the parcel is recorded under.
+- name: location
+  type: STRING
+  nullable: true
+  description: Free-text location description of the parcel.
+- name: district_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_district.district_id.
+- name: mandal_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_mandal.mandal_id.
+- name: village_name
+  type: STRING
+  nullable: true
+  description: Village the parcel is located in.
+- name: revenue_circle
+  type: STRING
+  nullable: true
+  description: Revenue administrative circle covering the parcel.
+- name: sro_office
+  type: STRING
+  nullable: true
+  description: Sub-Registrar Office where the parcel's deed is registered.
+- name: registration_no
+  type: STRING
+  nullable: true
+  description: Deed registration number.
+- name: pattadar_passbook_no
+  type: STRING
+  nullable: true
+  description: Pattadar passbook (title document) number for the parcel.
+- name: registration_date
+  type: DATE
+  nullable: true
+  description: Date the current deed was registered.
+- name: mutation_date
+  type: DATE
+  nullable: true
+  description: Date land-records mutation (ownership transfer reflected in revenue
+    records) was completed.
+- name: market_value
+  type: DECIMAL(12,2)
+  nullable: true
+  description: Estimated market value of the parcel, in INR.
+- name: guideline_value
+  type: DECIMAL(12,2)
+  nullable: true
+  description: Government guideline (registration) value of the parcel, in INR.
+- name: stamp_duty_paid
+  type: DECIMAL(10,2)
+  nullable: true
+  description: Stamp duty paid on the most recent registration, in INR.
+- name: soil_type
+  type: STRING
+  nullable: true
+  description: Soil type of the parcel, e.g. 'Black', 'Red', 'Alluvial' — relevant
+    for agricultural parcels.
+- name: irrigation_type
+  type: STRING
+  nullable: true
+  description: Irrigation source/type for the parcel, e.g. 'Canal', 'Borewell', 'Rain-fed'.
+- name: encumbrance_status
+  type: STRING
+  nullable: true
+  description: Whether the parcel is encumbered (e.g. under mortgage), per the Encumbrance
+    Certificate.
+- name: mortgage_bank
+  type: STRING
+  nullable: true
+  description: Bank holding a mortgage on the parcel, where encumbered.
+- name: mortgage_amount
+  type: DECIMAL(12,2)
+  nullable: true
+  description: Outstanding mortgage amount against the parcel, in INR.
+- name: is_assigned_land
+  type: BOOLEAN
+  nullable: true
+  description: 'True if this is government-assigned land (allotted under a land-assignment
+    scheme) rather than freehold. [Value Examples: ''False'']'
+  distinct:
+  - 'False'
+- name: extent_wet_land
+  type: DOUBLE
+  nullable: true
+  description: Portion of the parcel's extent classified as wet (irrigated) land,
+    in acres.
+- name: extent_dry_land
+  type: DOUBLE
+  nullable: true
+  description: Portion of the parcel's extent classified as dry (unirrigated) land,
+    in acres.
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp this land record was last updated.
+- name: aadhaar_mapped
+  type: STRING
+  nullable: true
+  description: 'Whether the land record is Aadhaar-mapped (Y/N). [Value Examples:
+    ''Y'', ''N'']'
+  distinct:
+  - Y
+  - N
+primary_key:
+- land_id
+relationships:
+- dim_land.person_id is a foreign key to dim_person.person_id.
+- dim_land.district_id is a foreign key to dim_district.district_id.
+- dim_land.mandal_id is a foreign key to dim_mandal.mandal_id.
+business_terms:
+- ap_citizen360
+- assets_—_land_and_property
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_land
+- join dim_land to dim_person via person_id
+- filter dim_land by district_id or mandal_id

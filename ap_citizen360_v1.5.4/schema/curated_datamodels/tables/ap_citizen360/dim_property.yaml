@@ -1,0 +1,266 @@
+database: ap_citizen360
+table: dim_property
+department: ap_citizen360
+description: One row per built property owned — residential, commercial, or apartment
+  units. Municipal tax status for each property lives separately in dim_property_tax,
+  joined via ptin.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_property
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_property`(
+    `property_id` STRING,
+    `person_id` STRING,
+    `property_type` STRING,
+    `property_sub_type` STRING,
+    `door_no` STRING,
+    `ward_no` STRING,
+    `block_no` STRING,
+    `plot_no` STRING,
+    `street_name` STRING,
+    `locality` STRING,
+    `location` STRING,
+    `pincode` STRING,
+    `district_id` STRING,
+    `area_sq_ft` INT,
+    `built_up_area_sq_ft` INT,
+    `site_area_sq_ft` INT,
+    `construction_type` STRING,
+    `roof_type` STRING,
+    `usage_type` STRING,
+    `registration_no` STRING,
+    `registration_date` DATE,
+    `market_value` DECIMAL(12,2),
+    `guideline_value` DECIMAL(12,2),
+    `ptin` STRING,
+    `municipal_no` STRING,
+    `municipal_body` STRING,
+    `sro_office` STRING,
+    `construction_year` INT,
+    `floor_count` INT,
+    `assessment_no` STRING,
+    `owner_name` STRING,
+    `plinth_area_units` STRING,
+    `site_extent_units` STRING,
+    `updated_at` TIMESTAMP,
+    `aadhaar_mapped` STRING
+  )
+columns:
+- name: property_id
+  type: STRING
+  nullable: true
+  description: Canonical property identifier.
+- name: person_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_person.person_id — the owner.
+- name: property_type
+  type: STRING
+  nullable: true
+  description: Residential / Commercial / Apartment classification.
+  distinct:
+  - Individual
+  - Joint Property
+  - Government
+  - Commercial
+  - Residential
+  - Apartment
+- name: property_sub_type
+  type: STRING
+  nullable: true
+  description: Finer classification, e.g. 'Independent House', 'Flat', 'Shop', 'Commercial
+    Complex'.
+  distinct:
+  - Independent House
+  - Flat/Apartment
+  - Shop/Commercial Unit
+  - Commercial Complex
+  - Open Plot
+  - Industrial Shed
+- name: door_no
+  type: STRING
+  nullable: true
+  description: Door number of the property.
+- name: ward_no
+  type: STRING
+  nullable: true
+  description: Municipal ward number the property falls under.
+- name: block_no
+  type: STRING
+  nullable: true
+  description: Block number, in layouts organized by block.
+- name: plot_no
+  type: STRING
+  nullable: true
+  description: Plot number within the layout/survey.
+- name: street_name
+  type: STRING
+  nullable: true
+  description: Street name of the property's address.
+- name: locality
+  type: STRING
+  nullable: true
+  description: Locality/neighbourhood name.
+- name: location
+  type: STRING
+  nullable: true
+  description: Free-text location description.
+- name: pincode
+  type: STRING
+  nullable: true
+  description: Postal PIN code.
+- name: district_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_district.district_id.
+- name: area_sq_ft
+  type: INT
+  nullable: true
+  description: Total area of the property, in square feet.
+- name: built_up_area_sq_ft
+  type: INT
+  nullable: true
+  description: Built-up (constructed) area, in square feet.
+- name: site_area_sq_ft
+  type: INT
+  nullable: true
+  description: Underlying site/plot area, in square feet.
+- name: construction_type
+  type: STRING
+  nullable: true
+  description: Construction method, e.g. 'RCC', 'Load Bearing'.
+  distinct:
+  - RCC
+  - Load Bearing
+  - Framed Structure
+  - Thatched
+  - Tin/Asbestos Sheet
+  - Semi-Pucca
+- name: roof_type
+  type: STRING
+  nullable: true
+  description: Type of roofing.
+  distinct:
+  - RCC Slab
+  - Tiled
+  - Asbestos Sheet
+  - Tin/GI Sheet
+  - Thatch
+- name: usage_type
+  type: STRING
+  nullable: true
+  description: Residential / Commercial usage classification for tax/zoning purposes.
+  distinct:
+  - Residential
+  - Commercial
+  - Mixed
+  - Industrial
+  - Institutional
+  - Vacant
+- name: registration_no
+  type: STRING
+  nullable: true
+  description: Deed registration number for the property.
+- name: registration_date
+  type: DATE
+  nullable: true
+  description: Date the property deed was registered.
+- name: market_value
+  type: DECIMAL(12,2)
+  nullable: true
+  description: Estimated market value of the property, in INR.
+- name: guideline_value
+  type: DECIMAL(12,2)
+  nullable: true
+  description: Government guideline (registration) value of the property, in INR.
+- name: ptin
+  type: STRING
+  nullable: true
+  description: Property Tax Identification Number — joins to dim_property_tax.ptin.
+- name: municipal_no
+  type: STRING
+  nullable: true
+  description: Municipal assessment/door number assigned by the local body.
+- name: municipal_body
+  type: STRING
+  nullable: true
+  description: Name of the municipal corporation/council/panchayat administering the
+    property.
+- name: sro_office
+  type: STRING
+  nullable: true
+  description: Sub-Registrar Office where the property deed is registered.
+- name: construction_year
+  type: INT
+  nullable: true
+  description: Year the property was constructed.
+- name: floor_count
+  type: INT
+  nullable: true
+  description: Number of floors.
+- name: assessment_no
+  type: STRING
+  nullable: true
+  description: Municipal tax assessment number.
+- name: owner_name
+  type: STRING
+  nullable: true
+  description: Registered owner's name (denormalized for display without a join to
+    dim_person).
+- name: plinth_area_units
+  type: STRING
+  nullable: true
+  description: Unit of measure used for plinth area in source records, e.g. 'sq.ft',
+    'sq.m'.
+  distinct:
+  - sq.ft
+  - sq.m
+  - sq.yards
+- name: site_extent_units
+  type: STRING
+  nullable: true
+  description: Unit of measure used for site extent in source records.
+  distinct:
+  - sq.ft
+  - sq.yards
+  - sq.m
+  - cents
+  - acres
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp this property record was last updated.
+- name: aadhaar_mapped
+  type: STRING
+  nullable: true
+  description: Whether the property record is Aadhaar-mapped (Y/N).
+  distinct:
+  - N
+  - Y
+primary_key:
+- property_id
+relationships:
+- dim_property.person_id is a foreign key to dim_person.person_id.
+- dim_property.district_id is a foreign key to dim_district.district_id.
+- dim_property.ptin joins to dim_property_tax.ptin.
+- dim_property.owner_name joins to dim_person (via owner_name).
+business_terms:
+- ap_citizen360
+- assets_—_land_and_property
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_property
+- join dim_property to dim_person via person_id
+- filter dim_property by district_id or mandal_id

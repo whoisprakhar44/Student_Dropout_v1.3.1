@@ -1,0 +1,7 @@
+column_name,type,nullable
+acknowledged_at,TEXT,true
+acknowledgement_id,TEXT,true
+created_at,TEXT,true
+department_id,TEXT,true
+original_request_id,TEXT,true
+payload_json,TEXT,true

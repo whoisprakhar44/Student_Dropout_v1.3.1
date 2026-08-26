@@ -1,0 +1,7 @@
+column_name,type,nullable
+created_at,TEXT,true
+department_id,TEXT,true
+event_correlation_ids,TEXT,true
+payload_hash,TEXT,true
+payload_json,TEXT,true
+request_id,TEXT,true

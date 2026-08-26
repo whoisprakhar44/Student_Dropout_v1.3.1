@@ -1,0 +1,15 @@
+column_name,type,nullable
+amount_paid_rs,REAL,true
+annual_demand_rs,REAL,true
+arrears_rs,REAL,true
+assessment_year,TEXT,true
+department_id,TEXT,true
+exemption_category,TEXT,true
+last_paid_date,TEXT,true
+municipal_body,TEXT,true
+payment_mode,TEXT,true
+person_id,TEXT,true
+ptin,TEXT,true
+tax_status,TEXT,true
+total_due_rs,REAL,true
+updated_at,TEXT,true

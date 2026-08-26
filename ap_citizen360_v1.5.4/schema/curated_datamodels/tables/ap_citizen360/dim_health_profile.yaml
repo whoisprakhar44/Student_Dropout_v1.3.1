@@ -1,0 +1,237 @@
+database: ap_citizen360
+table: dim_health_profile
+department: ap_citizen360
+description: One row per person summarizing their health-system identifiers, chronic
+  conditions, maternal-health status, and government health-scheme coverage. The aggregation
+  point for everything the Health department tracks about a citizen.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_health_profile
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_health_profile`(
+    `person_id` STRING,
+    `abdm_id` STRING,
+    `abha_address` STRING,
+    `aarogyasri_card_no` STRING,
+    `aarogyasri_status` STRING,
+    `pmjay_beneficiary_id` STRING,
+    `pmjay_family_id` STRING,
+    `blood_group` STRING,
+    `height_cm` INT,
+    `weight_kg` DOUBLE,
+    `bmi` DOUBLE,
+    `has_diabetes` BOOLEAN,
+    `has_hypertension` BOOLEAN,
+    `has_tuberculosis` BOOLEAN,
+    `has_hiv` BOOLEAN,
+    `has_cancer` BOOLEAN,
+    `registered_phc` STRING,
+    `assigned_asha_worker` STRING,
+    `is_pregnant` BOOLEAN,
+    `lmp_date` DATE,
+    `edd_date` DATE,
+    `anc_registrations` INT,
+    `institutional_delivery` BOOLEAN,
+    `covid_vaccinated` BOOLEAN,
+    `covid_doses` INT,
+    `esi_covered` BOOLEAN,
+    `cghs_covered` BOOLEAN,
+    `rsby_covered` BOOLEAN,
+    `has_mental_health_condition` BOOLEAN,
+    `mental_health_type` STRING,
+    `last_encounter_date` DATE,
+    `department_id` STRING,
+    `updated_at` TIMESTAMP
+  )
+columns:
+- name: person_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_person.person_id.
+- name: abdm_id
+  type: STRING
+  nullable: true
+  description: Ayushman Bharat Digital Mission health ID.
+- name: abha_address
+  type: STRING
+  nullable: true
+  description: Ayushman Bharat Health Account address (the ABDM health-ID's human-readable
+    handle).
+- name: aarogyasri_card_no
+  type: STRING
+  nullable: true
+  description: NTR Vaidya Seva (Aarogyasri) health insurance card number.
+- name: aarogyasri_status
+  type: STRING
+  nullable: true
+  description: Enrollment status under Aarogyasri, e.g. 'Active', 'Not Enrolled'.
+- name: pmjay_beneficiary_id
+  type: STRING
+  nullable: true
+  description: Ayushman Bharat PM-JAY beneficiary ID.
+- name: pmjay_family_id
+  type: STRING
+  nullable: true
+  description: Ayushman Bharat PM-JAY family unit ID.
+- name: blood_group
+  type: STRING
+  nullable: true
+  description: 'Blood group, e.g. ''O+'', ''AB-''. [Value Examples: ''O+'', ''B+'',
+    ''A+'', ''O-'', ''AB+'', ''A-'']'
+  distinct:
+  - O+
+  - B+
+  - A+
+  - O-
+  - AB+
+  - A-
+  - B-
+  - AB-
+- name: height_cm
+  type: INT
+  nullable: true
+  description: Height in centimetres, from the most recent recorded measurement.
+- name: weight_kg
+  type: DOUBLE
+  nullable: true
+  description: Weight in kilograms, from the most recent recorded measurement.
+- name: bmi
+  type: DOUBLE
+  nullable: true
+  description: Body mass index, computed from the most recent height/weight.
+- name: has_diabetes
+  type: BOOLEAN
+  nullable: true
+  description: 'True if diagnosed with diabetes. [Value Examples: ''True'']'
+  distinct:
+  - 'True'
+- name: has_hypertension
+  type: BOOLEAN
+  nullable: true
+  description: 'True if diagnosed with hypertension. [Value Examples: ''True'']'
+  distinct:
+  - 'True'
+- name: has_tuberculosis
+  type: BOOLEAN
+  nullable: true
+  description: True if diagnosed with active or treated tuberculosis.
+- name: has_hiv
+  type: BOOLEAN
+  nullable: true
+  description: True if HIV-positive per health records.
+- name: has_cancer
+  type: BOOLEAN
+  nullable: true
+  description: True if diagnosed with cancer (any type).
+- name: registered_phc
+  type: STRING
+  nullable: true
+  description: Primary Health Centre the person is registered with.
+- name: assigned_asha_worker
+  type: STRING
+  nullable: true
+  description: Name/ID of the assigned ASHA (community health) worker.
+- name: is_pregnant
+  type: BOOLEAN
+  nullable: true
+  description: 'True if currently pregnant per the latest ANC record. [Value Examples:
+    ''True'']'
+  distinct:
+  - 'True'
+- name: lmp_date
+  type: DATE
+  nullable: true
+  description: Last menstrual period date, for current/recent pregnancies.
+- name: edd_date
+  type: DATE
+  nullable: true
+  description: Expected date of delivery, for current pregnancies.
+- name: anc_registrations
+  type: INT
+  nullable: true
+  description: 'Count of antenatal care check-up registrations for the current/most
+    recent pregnancy. [Value Examples: ''4'', ''5'', ''2'', ''6'', ''3'', ''7'']'
+- name: institutional_delivery
+  type: BOOLEAN
+  nullable: true
+  description: True if the most recent delivery took place in a healthcare institution
+    rather than at home.
+- name: covid_vaccinated
+  type: BOOLEAN
+  nullable: true
+  description: True if the person has received at least one COVID-19 vaccine dose.
+- name: covid_doses
+  type: INT
+  nullable: true
+  description: Total number of COVID-19 vaccine doses received.
+- name: esi_covered
+  type: BOOLEAN
+  nullable: true
+  description: 'True if covered under Employee State Insurance. [Value Examples: ''False'']'
+  distinct:
+  - 'False'
+- name: cghs_covered
+  type: BOOLEAN
+  nullable: true
+  description: 'True if covered under the Central Government Health Scheme. [Value
+    Examples: ''False'']'
+  distinct:
+  - 'False'
+- name: rsby_covered
+  type: BOOLEAN
+  nullable: true
+  description: 'True if covered under the Rashtriya Swasthya Bima Yojana. [Value Examples:
+    ''False'']'
+  distinct:
+  - 'False'
+- name: has_mental_health_condition
+  type: BOOLEAN
+  nullable: true
+  description: 'True if a mental health condition is on file. [Value Examples: ''False'']'
+  distinct:
+  - 'False'
+- name: mental_health_type
+  type: STRING
+  nullable: true
+  description: Type of mental health condition, where has_mental_health_condition
+    is true.
+- name: last_encounter_date
+  type: DATE
+  nullable: true
+  description: Date of the most recent recorded healthcare encounter of any kind.
+- name: department_id
+  type: STRING
+  nullable: true
+  description: 'Foreign key to dim_department.department_id — the Health department
+    record owner. [Value Examples: ''DEPT-HEALTH'']'
+  distinct:
+  - DEPT-HEALTH
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp this health profile was last updated.
+primary_key:
+- person_id
+relationships:
+- dim_health_profile.person_id is a foreign key to dim_person.person_id.
+- dim_health_profile.department_id is a foreign key to dim_department.department_id.
+business_terms:
+- ap_citizen360
+- health
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_health_profile
+- join dim_health_profile to dim_person via person_id
+- filter dim_health_profile by district_id or mandal_id

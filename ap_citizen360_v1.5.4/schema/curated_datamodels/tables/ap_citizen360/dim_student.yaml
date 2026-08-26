@@ -1,0 +1,465 @@
+database: ap_citizen360
+table: dim_student
+department: ap_citizen360
+description: One row per person PER education level reached (Primary/Secondary/Intermediate/Polytechnic/Degree/PostGraduate)
+  — so a person's full education history is retrievable, not just their latest/highest
+  level.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_student
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_student`(
+    `student_record_id` STRING,
+    `person_id` STRING,
+    `education_level` STRING,
+    `highest_qualification` STRING,
+    `institution_id` STRING,
+    `institution_code` STRING,
+    `school_name` STRING,
+    `education_board` STRING,
+    `class_currently_enrolled` INT,
+    `academic_year` STRING,
+    `is_current_level` BOOLEAN,
+    `is_dropout` BOOLEAN,
+    `dropout_reason` STRING,
+    `medium_of_instruction` STRING,
+    `aadhaar_seeded` BOOLEAN,
+    `has_apaar_id` BOOLEAN,
+    `apaar_id` STRING,
+    `student_id` STRING,
+    `aposs_id` STRING,
+    `epass_id` STRING,
+    `epass_amount` DECIMAL(10,2),
+    `thalliki_vandanam` BOOLEAN,
+    `ntr_vidya_deevena` BOOLEAN,
+    `pre_matric_scholarship` BOOLEAN,
+    `post_matric_scholarship` BOOLEAN,
+    `digital_literacy_level` STRING,
+    `updated_at` TIMESTAMP,
+    `student_pen` STRING
+  )
+columns:
+- name: student_record_id
+  type: STRING
+  nullable: true
+  description: Canonical identifier for this education-level record.
+- name: person_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_person.person_id.
+- name: education_level
+  type: STRING
+  nullable: true
+  description: 'Normalized education tier this record represents — Primary / Secondary
+    / Intermediate / Polytechnic / Degree / PostGraduate. This is what eligibility
+    filters match against (not highest_qualification). [Value Examples: ''Secondary'',
+    ''Primary'', ''Intermediate'', ''NA'']'
+  distinct:
+  - Secondary
+  - Primary
+  - Intermediate
+- name: highest_qualification
+  type: STRING
+  nullable: true
+  description: 'Free-text specific qualification within this level, e.g. ''10th Class'',
+    ''B.Tech (CSE)'', ''M.Tech'' — finer-grained detail than education_level. [Value
+    Examples: ''13'', ''11'', ''10'', ''9'', ''8'', ''7'']'
+  distinct:
+  - '13'
+  - '11'
+  - '10'
+  - '9'
+  - '8'
+  - '7'
+  - '12'
+  - '6'
+  - '5'
+  - '4'
+  - '3'
+  - '2'
+  - '1'
+  - '-2'
+  - '-3'
+  - '0'
+- name: institution_id
+  type: STRING
+  nullable: true
+  description: Canonical identifier of the educational institution attended.
+- name: institution_code
+  type: STRING
+  nullable: true
+  description: Government-assigned code for the institution (e.g. UDISE code for schools).
+- name: school_name
+  type: STRING
+  nullable: true
+  description: Name of the school/college/institution attended.
+- name: education_board
+  type: STRING
+  nullable: true
+  description: Examining board/university for this level, e.g. 'BSEAP', 'AP State
+    Board'.
+- name: class_currently_enrolled
+  type: INT
+  nullable: true
+  description: 'Class/grade currently enrolled in, for ongoing levels. [Value Examples:
+    ''10'', ''7'', ''8'', ''9'', ''6'', ''5'']'
+  distinct:
+  - '10'
+  - '7'
+  - '8'
+  - '9'
+  - '6'
+  - '5'
+  - '11'
+  - '4'
+  - '13'
+  - '3'
+  - '2'
+  - '1'
+  - '12'
+  - '-2'
+  - '-3'
+  - '0'
+- name: academic_year
+  type: STRING
+  nullable: true
+  description: 'Academic year this record pertains to. [Value Examples: ''2026-27'',
+    ''2025-26'', ''2024-25'', ''2023-24'', ''2022-23'', ''N'']'
+  distinct:
+  - 2026-27
+  - 2025-26
+  - 2024-25
+  - 2023-24
+  - 2022-23
+  - N
+- name: is_current_level
+  type: BOOLEAN
+  nullable: true
+  description: 'True if this is the person''s currently active education level among
+    possibly several historical records. [Value Examples: ''False'', ''True'']'
+  distinct:
+  - 'False'
+  - 'True'
+- name: is_dropout
+  type: BOOLEAN
+  nullable: true
+  description: 'True if the person dropped out at this education level without completing
+    it. [Value Examples: ''False'', ''True'']'
+  distinct:
+  - 'False'
+  - 'True'
+- name: dropout_reason
+  type: STRING
+  nullable: true
+  description: Reason recorded for the dropout, where is_dropout is true.
+  distinct:
+  - Class 12 - Passed Out
+  - Active for Import/Status Not Known
+  - Others Reasons
+  - Student absent since many days
+  - tc issued
+  - Gone for Some other Mode of Study/Courses
+  - Migrated to Other State
+  - Gone for ITI/Polytechnic
+  - Gone for Study in Open Schooling / Un-Recognized Schools
+  - Student Promotion
+  - Migrated to Other Block/District
+  - TC ISSUED
+  - Wrong Entry
+  - Economic Reason
+  - Gone for Study in Non-Regular Mode
+  - Duplicate Entry
+  - TRANSFER
+  - Transportation Difficulties
+  - Due to Death
+  - LONG ABSENT
+  - OTHER SCHOOL
+  - Employment
+  - Seasonal Migration
+  - TC
+  - MIGRATION
+  - TOOK TC
+  - Studying in Other School in Same Block
+  - Transport Issue
+  - Want to change school
+  - LEFT THE VILLAGE
+  - JOINED IN ANOTHER SCHOOL
+  - JOINED IN OTHER SCHOOL
+  - MIGRATED
+  - MIGRATED TO OTHER STATE
+  - ANOTHER SCHOOL
+  - JOINED OTHER SCHOOL
+  - Irregularity
+  - SCHOOL CHANGE
+  - JOIN IN OTHER SCHOOL
+  - JOIN OTHER SCHOOL
+  - JOINED ANOTHER SCHOOL
+  - Migrated to Other Country
+  - JOIN IN ANOTHER SCHOOL
+  - T C ISSUED
+  - JOIN ANOTHER SCHOOL
+  - DROP OUT
+  - Health Issue
+  - PARENT REQUEST
+  - GO TO OTHER SCHOOL
+  - DROP
+  - LEFT
+  - Work for Family Survival
+  - LEFT THE SCHOOL
+  - Duplicate entry
+  - Orphan
+  - RS ISSUED
+  - GOING TO OTHER SCHOOL
+  - JOIN TO OTHER SCHOOL
+  - LONG ABSENTEE
+  - DROPOUT
+  - Lack of Interest
+  - GO TO ANOTHER SCHOOL
+  - OTHER SCHOOL JOINING
+  - RECORD SHEET ISSUED
+  - JOINING OTHER SCHOOL
+  - '0'
+  - GOING TO ANOTHER SCHOOL
+  - MIGRATE
+  - SHIFTED
+  - PERSONAL
+  - JOIN TO ANOTHER SCHOOL
+  - FAMILY SHIFTED
+  - WENT TO OTHER SCHOOL
+  - 'NO'
+  - OTHER SCHOOL JOINED
+  - WENT TO ANOTHER SCHOOL
+  - TCISSUED
+  - HEALTH PROBLEM
+  - OTHERSCHOOL
+  - TC ISSUE
+  - TO JOIN OTHER SCHOOL
+  - JOINING ANOTHER SCHOOL
+  - SHIFTED TO ANOTHER SCHOOL
+  - MERGING
+  - TRANSFERRED
+  - TO JOIN ANOTHER SCHOOL
+  - TC TAKEN
+  - TO JOIN IN ANOTHER SCHOOL
+  - PARENTS REQUEST
+  - OTHER SCHOOL JOIN
+  - CHANGE SCHOOL
+  - ISSUED TC
+  - OTHERS
+  - TO JOIN IN OTHER SCHOOL
+  - TRANSFER TO ANOTHER SCHOOL
+  - SCHOOL CLOSED
+  - OTHER
+  - JOINING IN OTHER SCHOOL
+  - FATHER TRANSFER
+  - GOVT SCHOOL
+  - OUT OF VILLAGE
+  - R S ISSUED
+  - HOUSE SHIFTING
+  - No Family Income
+  - TRANSFER TO OTHER SCHOOL
+  - LEFT VILLAGE
+  - CHANGE OF SCHOOL
+  - JOINING IN ANOTHER SCHOOL
+  - TRANSFERED
+  - T C
+  - A
+  - CHANGE TO ANOTHER SCHOOL
+  - JOINED TO OTHER SCHOOL
+  - FAMILY SHIFTING
+  - JOINING TO OTHER SCHOOL
+  - SCHOOL CHANGED
+  - FAMILY SHIFT
+  - LONGABSENT
+  - SHIFTED TO OTHER SCHOOL
+  - ANOTHER SCHOOL JOINING
+  - IRREGULAR
+  - JOINING TO ANOTHER SCHOOL
+  - DOUBLE ENTRY
+  - LEFT THE TOWN
+  - TRANSPORT PROBLEM
+  - Expired
+  - ANOTHERSCHOOL
+  - ILL HEALTH
+  - SHIFTING
+  - CHANGE THE SCHOOL
+  - L
+  - PARENT TRANSFER
+  - RC ISSUED
+  - JOINEDINANOTHERSCHOOL
+  - HOUSE SHIFT
+  - NIL
+  - JOINED IN GOVT SCHOOL
+  - JOINED TO ANOTHER SCHOOL
+  - TRANSFER CERTIFICATE ISSUED
+  - DROUP OUT
+  - SCHOOL MERGING
+  - CHANGED SCHOOL
+  - TRANSFAR
+  - OUT
+  - TC ISSED
+  - NOT INTERESTED
+  - MERGED TO HIGH SCHOOL
+  - TC  ISSUED
+  - HOUSE SHIFTED
+  - FINANCIAL PROBLEM
+  - HEALTH
+  - JOINOTHERSCHOOL
+  - DISCONTINUED
+  - HEALTH ISSUE
+  - Parent Illiterate
+  - LONG DISTANCE
+  - PARENTS TRANSFER
+  - TC ISSUD
+  - Child Marriage
+  - JOINEDOTHERSCHOOL
+  - JOINEDINOTHERSCHOOL
+  - TRANSFOR
+  - HE JOINED ANOTHER SCHOOL
+  - MERGE  TO HIGH SCHOOL
+  - Poor Learning
+  - MIGRATED TO OTHER SCHOOL
+  - SEASONAL MIGRATION
+  - DROPPED
+  - FAMILY MIGRATED
+  - LONG ABSCENT
+  - JOINED AT ANOTHER SCHOOL
+  - TR
+  - Disability
+  - MIGRATED TO ANOTHER VILLAGE
+  - TRANFER
+  - TRANSFERRED TO ZPGHS
+  - NILL
+  - TOOK T C
+  - CHANGING SCHOOL
+  - S
+  - SCHOOL CHAING
+  - OUT OF STATION
+  - Religious Restrictions
+  - O
+  - JOING OTHER SCHOOL
+  - CHANGED TO ANOTHER SCHOOL
+  - PARENT WISH
+  - MAPPED TO HIGH SCHOOL
+  - Transfer
+  - D
+  - JOINED IN PRIVATE SCHOOL
+  - MIGRATED TO OTHER VILLAGE
+  - JION OTHER SCHOOL
+  - LEFT SCHOOL
+  - SHIFT
+  - RS
+  - CHANGE
+- name: medium_of_instruction
+  type: STRING
+  nullable: true
+  description: 'Language of instruction at this level, e.g. ''Telugu'', ''English''.
+    [Value Examples: ''English'', ''Telugu'', ''Urdu'', ''Sanskrit'', ''Tamil'']'
+  distinct:
+  - English
+  - Telugu
+  - Urdu
+  - Sanskrit
+  - Tamil
+- name: aadhaar_seeded
+  type: BOOLEAN
+  nullable: true
+  description: 'True if this education record has been seeded/linked with the person''s
+    Aadhaar. [Value Examples: ''True'']'
+  distinct:
+  - 'True'
+- name: has_apaar_id
+  type: BOOLEAN
+  nullable: true
+  description: True if the student has been issued an APAAR (Automated Permanent Academic
+    Account Registry) ID.
+- name: apaar_id
+  type: STRING
+  nullable: true
+  description: The student's APAAR ID, when has_apaar_id is true.
+- name: student_id
+  type: STRING
+  nullable: true
+  description: School/institution-issued student roll number or ID.
+- name: aposs_id
+  type: STRING
+  nullable: true
+  description: Andhra Pradesh Open School Society enrollment ID, for open-schooling
+    students.
+- name: epass_id
+  type: STRING
+  nullable: true
+  description: AP ePass scholarship portal enrollment ID.
+- name: epass_amount
+  type: DECIMAL(10,2)
+  nullable: true
+  description: Scholarship amount disbursed via AP ePass for this education level,
+    in INR.
+- name: thalliki_vandanam
+  type: BOOLEAN
+  nullable: true
+  description: 'True if this education level''s enrollment qualified the family for
+    the Thalliki Vandanam scheme (cash support to mothers for sending children to
+    school). [Value Examples: ''False'', ''True'']'
+  distinct:
+  - 'False'
+  - 'True'
+- name: ntr_vidya_deevena
+  type: BOOLEAN
+  nullable: true
+  description: 'True if this education level''s enrollment qualified for the NTR Vidya
+    Deevena fee-reimbursement scheme. [Value Examples: ''False'']'
+  distinct:
+  - 'False'
+- name: pre_matric_scholarship
+  type: BOOLEAN
+  nullable: true
+  description: 'True if a pre-matriculation scholarship was received for this level.
+    [Value Examples: ''False'']'
+  distinct:
+  - 'False'
+- name: post_matric_scholarship
+  type: BOOLEAN
+  nullable: true
+  description: 'True if a post-matriculation scholarship was received for this level.
+    [Value Examples: ''False'']'
+  distinct:
+  - 'False'
+- name: digital_literacy_level
+  type: STRING
+  nullable: true
+  description: Self-assessed/tested digital literacy at this education level — None
+    / Basic / Intermediate / Advanced.
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp this education record was last updated.
+- name: student_pen
+  type: STRING
+  nullable: true
+  description: Permanent Education Number (PEN) assigned to the student nationally
+    across registries.
+primary_key:
+- student_record_id
+relationships:
+- dim_student.person_id is a foreign key to dim_person.person_id.
+business_terms:
+- ap_citizen360
+- education
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_student
+- join dim_student to dim_person via person_id
+- filter dim_student by district_id or mandal_id

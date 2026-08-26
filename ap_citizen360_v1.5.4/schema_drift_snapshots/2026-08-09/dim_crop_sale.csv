@@ -1,0 +1,7 @@
+column_name,type,nullable
+amt_nonpaddy,REAL,true
+amt_paddy,REAL,true
+amt_total,REAL,true
+financial_year,TEXT,true
+person_id,TEXT,true
+updated_at,TEXT,true

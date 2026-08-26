@@ -1,0 +1,126 @@
+database: ap_citizen360
+table: fact_entitlement
+department: ap_citizen360
+description: One row per person-scheme enrollment — whether a citizen is entitled
+  to a given scheme's benefit, and its current status. Partitioned by district_id.
+  The annual_benefit/last_disbursed_date columns summarize the entitlement; itemized
+  payments live in fact_benefit_transaction.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_entitlement
+partitioned_by: district_id
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`fact_entitlement`(
+    `entitlement_id` STRING,
+    `person_id` STRING,
+    `household_id` STRING,
+    `scheme_id` STRING,
+    `enrollment_status` STRING,
+    `annual_benefit` DECIMAL(12,2),
+    `last_disbursed_date` DATE,
+    `enrolled_date` DATE,
+    `district_id` STRING
+  )
+columns:
+- name: entitlement_id
+  type: STRING
+  nullable: true
+  description: Canonical entitlement-record identifier.
+- name: person_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_person.person_id.
+- name: household_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_household.household_id, for household-scoped entitlements.
+- name: scheme_id
+  type: STRING
+  nullable: true
+  description: 'Foreign key to dim_scheme.scheme_id. [Value Examples: ''SCH-008'',
+    ''SCH-032'', ''SCH-013'', ''SCH-003'', ''SCH-023'', ''SCH-066'']'
+  distinct:
+  - SCH-008
+  - SCH-032
+  - SCH-013
+  - SCH-003
+  - SCH-023
+  - SCH-066
+  - SCH-061
+  - SCH-024
+  - SCH-067
+  - SCH-058
+  - SCH-025
+  - SCH-064
+  - SCH-063
+  - SCH-045
+  - SCH-068
+  - SCH-046
+  - SCH-037
+  - SCH-051
+  - SCH-065
+  - SCH-059
+  - SCH-027
+  - SCH-026
+  - SCH-057
+  - SCH-021
+  - SCH-055
+  - SCH-047
+  - SCH-054
+  - SCH-049
+  - SCH-053
+  - SCH-052
+  - SCH-050
+  - SCH-048
+  - SCH-056
+- name: enrollment_status
+  type: STRING
+  nullable: true
+  description: 'Status of this entitlement, e.g. ''Active'', ''Pending'', ''Closed''.
+    [Value Examples: ''Active'']'
+  distinct:
+  - Active
+- name: annual_benefit
+  type: DECIMAL(12,2)
+  nullable: true
+  description: Annualized benefit value of this entitlement, in INR.
+- name: last_disbursed_date
+  type: DATE
+  nullable: true
+  description: Date of the most recent disbursement against this entitlement.
+- name: enrolled_date
+  type: DATE
+  nullable: true
+  description: Date the person was enrolled into the scheme.
+- name: district_id
+  type: STRING
+  nullable: true
+  description: 'Foreign key to dim_district.district_id — partition key. [Value Examples:
+    ''511'', ''502'', ''519'', ''515'', ''504'', ''751'']'
+primary_key:
+- entitlement_id
+relationships:
+- fact_entitlement.person_id is a foreign key to dim_person.person_id.
+- fact_entitlement.household_id is a foreign key to dim_household.household_id.
+- fact_entitlement.scheme_id is a foreign key to dim_scheme.scheme_id.
+- fact_entitlement.district_id is a foreign key to dim_district.district_id.
+business_terms:
+- ap_citizen360
+- data_transfer_api_—_entitlements,_transactions,_disbursements
+- fact
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- aggregate measures in fact_entitlement by geography and time period
+- join fact_entitlement with dimension tables via facility_id or person_id
+- filter fact_entitlement by district_id or period_date

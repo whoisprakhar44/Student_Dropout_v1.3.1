@@ -1,0 +1,12 @@
+column_name,type,nullable
+expiry_date,TEXT,true
+identifier_id,TEXT,true
+identifier_type,TEXT,true
+identifier_value,TEXT,true
+is_active,INTEGER,true
+is_primary,INTEGER,true
+issued_date,TEXT,true
+issuing_authority,TEXT,true
+person_id,TEXT,true
+source,TEXT,true
+verified_flag,INTEGER,true

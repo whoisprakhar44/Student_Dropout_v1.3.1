@@ -1,0 +1,12 @@
+column_name,type,nullable
+designation,TEXT,true
+employer_name,TEXT,true
+employment_status,TEXT,true
+is_current,INTEGER,true
+occupation_record_id,TEXT,true
+occupation_sector,TEXT,true
+occupation_type,TEXT,true
+occupation_year,TEXT,true
+person_id,TEXT,true
+source,TEXT,true
+updated_at,TEXT,true

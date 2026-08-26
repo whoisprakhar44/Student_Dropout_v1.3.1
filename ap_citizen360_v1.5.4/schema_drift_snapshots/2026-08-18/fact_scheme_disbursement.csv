@@ -1,0 +1,14 @@
+column_name,type,nullable
+amount_bc,REAL,true
+amount_oc,REAL,true
+amount_others,REAL,true
+amount_sc,REAL,true
+amount_st,REAL,true
+beneficiaries,INTEGER,true
+department_id,TEXT,true
+disbursement_id,TEXT,true
+fiscal_year,TEXT,true
+geo_id,TEXT,true
+geo_level,TEXT,true
+scheme_id,TEXT,true
+total_crores,REAL,true

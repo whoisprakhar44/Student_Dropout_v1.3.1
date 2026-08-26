@@ -1,0 +1,171 @@
+database: ap_citizen360
+table: dim_vehicle_compliance
+department: ap_citizen360
+description: One row per vehicle's regulatory/compliance status — insurance, fitness,
+  permits, taxes, loans, challans. Keyed by (person_id, reg_no) back to the owning
+  dim_vehicle row, kept separate because this data changes far more often than vehicle
+  identity.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_vehicle_compliance
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_vehicle_compliance`(
+    `person_id` STRING,
+    `reg_no` STRING,
+    `insurance_valid_to` DATE,
+    `insurance_company` STRING,
+    `policy_no` STRING,
+    `fitness_valid_to` DATE,
+    `registration_valid_to` DATE,
+    `puc_valid_to` DATE,
+    `permit_type` STRING,
+    `permit_valid_to` DATE,
+    `tax_paid_upto` DATE,
+    `green_tax_due` BOOLEAN,
+    `financer_name` STRING,
+    `hypothecation_status` STRING,
+    `loan_outstanding` DECIMAL(12,2),
+    `hsrp_issued` BOOLEAN,
+    `challan_pending` BOOLEAN,
+    `updated_at` TIMESTAMP
+  )
+columns:
+- name: person_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_person.person_id — the vehicle owner.
+- name: reg_no
+  type: STRING
+  nullable: true
+  description: Vehicle registration number — joins back to dim_vehicle.reg_no.
+- name: insurance_valid_to
+  type: DATE
+  nullable: true
+  description: Date the current insurance policy expires.
+- name: insurance_company
+  type: STRING
+  nullable: true
+  description: Name of the insurer.
+  distinct:
+  - National Insurance
+  - New India Assurance
+  - Oriental Insurance
+  - United India Insurance
+  - ICICI Lombard
+  - Bajaj Allianz
+  - HDFC ERGO
+  - Tata AIG
+  - SBI General
+  - Go Digit
+  - Reliance General
+  - Cholamandalam MS
+  - Royal Sundaram
+  - Star Health
+  - Shriram General
+- name: policy_no
+  type: STRING
+  nullable: true
+  description: Insurance policy number.
+- name: fitness_valid_to
+  type: DATE
+  nullable: true
+  description: Date the vehicle's fitness certificate expires.
+- name: registration_valid_to
+  type: DATE
+  nullable: true
+  description: Date the vehicle's registration itself expires/needs renewal.
+- name: puc_valid_to
+  type: DATE
+  nullable: true
+  description: Date the Pollution Under Control certificate expires.
+- name: permit_type
+  type: STRING
+  nullable: true
+  description: Type of transport permit held, where applicable (e.g. commercial vehicles).
+  distinct:
+  - Stage Carriage
+  - Contract Carriage
+  - Goods Carrier
+  - National Permit
+  - Auto Rickshaw Permit
+  - Private Service Vehicle
+  - Educational Institution Bus
+  - Tourist Permit
+  - Not Applicable
+- name: permit_valid_to
+  type: DATE
+  nullable: true
+  description: Date the transport permit expires.
+- name: tax_paid_upto
+  type: DATE
+  nullable: true
+  description: Date through which road tax has been paid.
+- name: green_tax_due
+  type: BOOLEAN
+  nullable: true
+  description: True if a green tax (for older vehicles) is currently due.
+  distinct:
+  - 'False'
+  - 'True'
+- name: financer_name
+  type: STRING
+  nullable: true
+  description: Name of the financing bank/NBFC, if the vehicle is under loan.
+- name: hypothecation_status
+  type: STRING
+  nullable: true
+  description: Hypothecation (loan lien) status with the financer, e.g. 'Active',
+    'Terminated'.
+  distinct:
+  - Hypothecated
+  - NOC Issued
+  - Not Hypothecated
+  - Cleared
+- name: loan_outstanding
+  type: DECIMAL(12,2)
+  nullable: true
+  description: Outstanding loan amount against the vehicle, in INR.
+- name: hsrp_issued
+  type: BOOLEAN
+  nullable: true
+  description: True if a High Security Registration Plate has been issued for this
+    vehicle.
+  distinct:
+  - 'True'
+  - 'False'
+- name: challan_pending
+  type: BOOLEAN
+  nullable: true
+  description: True if there is at least one unpaid traffic challan against this vehicle.
+  distinct:
+  - 'False'
+  - 'True'
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp this compliance record was last updated.
+primary_key:
+- person_id, reg_no
+relationships:
+- dim_vehicle_compliance.person_id is a foreign key to dim_person.person_id.
+- dim_vehicle_compliance.reg_no joins to dim_vehicle.reg_no.
+business_terms:
+- ap_citizen360
+- assets_—_vehicles
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_vehicle_compliance
+- join dim_vehicle_compliance to dim_person via person_id
+- filter dim_vehicle_compliance by district_id or mandal_id

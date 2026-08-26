@@ -1,0 +1,606 @@
+================================================================================
+🔍 IMPALA DATABASE INSPECTOR (SQL & SCHEMA TABLES)
+Config: /home/prakhars/ap_citizen360_v1.5.2/MCP/hive_config.yaml
+Source DDL File: Citizen360_latest_DDLs 1.sql
+================================================================================
+
+Found 47 tables defined to inspect.
+
+================================================================================
+📋 EXISTING TABLES IN DATABASE: ap_citizen360
+--------------------------------------------------------------------------------
+  - annadata_sukhibhava_citizen360
+  - ap_citizen_temp_null_name
+  - apseva_citizen360
+  - apseva_services_data
+  - auto_driver_seva_citizen360
+  - bal_sanjeevani_citizen360
+  - balsanjeevani_dtls
+  - crop_citizen360
+  - crs_noaadhaar_dob
+  - crs_noadhaar_dtls
+  - crs_widow_pensions_test
+  - crsap_citizen360
+  - dim_agriculture_profile
+  - dim_agriculture_profile_bkp
+  - dim_caste_certificate
+  - dim_citizen_identifier
+  - dim_citizen_identifier_old
+  - dim_consent
+  - dim_consent_old
+  - dim_crop_sale
+  - dim_department
+  - dim_department_client
+  - dim_department_client_old
+  - dim_district
+  - dim_district_old
+  - dim_driving_licence
+  - dim_driving_licence_9_jul_bkp
+  - dim_education_profile_old
+  - dim_epfo_contribution
+  - dim_epfo_old
+  - dim_family_member
+  - dim_family_member_old
+  - dim_father_mother_relation
+  - dim_father_mother_relation_crs
+  - dim_father_mother_relation_crs_death
+  - dim_father_mother_relation_student
+  - dim_health_profile
+  - dim_health_profile_old
+  - dim_health_profile_source
+  - dim_household
+  - dim_household_old
+  - dim_identifier_bkp
+  - dim_income_certificate
+  - dim_land
+  - dim_land_bkp
+  - dim_land_old_old
+  - dim_mandal
+  - dim_mandal_old
+  - dim_occupation
+  - dim_open_dataset
+  - dim_open_dataset_bkp
+  - dim_person
+  - dim_person_bkp
+  - dim_person_old
+  - dim_person_source
+  - dim_portal_menu_access
+  - dim_property
+  - dim_property_old
+  - dim_property_tax
+  - dim_property_tax_old
+  - dim_scheme
+  - dim_scheme_main_mapping
+  - dim_school
+  - dim_secretariat
+  - dim_shared_data_field
+  - dim_shared_data_source
+  - dim_social_welfare
+  - dim_social_welfare_old
+  - dim_state
+  - dim_student
+  - dim_student1
+  - dim_student_admission_profile
+  - dim_student_bkp
+  - dim_student_subject_marks_summary
+  - dim_tax_profile
+  - dim_utility_connection
+  - dim_utility_connection_old
+  - dim_vehicle
+  - dim_vehicle_compliance
+  - dim_vehicle_old
+  - dim_vehicle_source
+  - dim_village
+  - dim_village_copy_old
+  - dim_village_old
+  - driving_license
+  - driving_license_9_jul_bkp
+  - epds_citizen360
+  - fact_anomaly_event
+  - fact_anomaly_event_old
+  - fact_anomaly_loan
+  - fact_anomaly_pregnancy
+  - fact_anomaly_pregnancy_old
+  - fact_benefit_transaction
+  - fact_data_access_log
+  - fact_dataset_asis_request
+  - fact_dataset_batch_job
+  - fact_dataset_export_job
+  - fact_entitlement
+  - fact_event_acknowledgement
+  - fact_event_details
+  - fact_event_details_8_july_bkp
+  - fact_event_details_bkp_06aug26
+  - fact_event_details_old
+  - fact_event_details_tier1
+  - fact_event_details_tier1_07_julbkp
+  - fact_event_details_tier1_4_jul_bkp
+  - fact_event_details_tier1_bkp_07jul26
+  - fact_event_index
+  - fact_event_request_registry
+  - fact_event_status_update
+  - fact_lifecycle_event
+  - fact_lifecycle_event_old
+  - fact_population_age_band_old
+  - fact_population_hierarchy
+  - fact_population_hierarchy_bkp
+  - fact_population_hierarchy_old
+  - fact_population_hierarchy_state
+  - fact_portal_access_log
+  - fact_revoked_token
+  - fact_scheme_disbursement
+  - fact_scheme_disbursement_new
+  - fact_student_attendance
+  - fact_student_attendance_bkp
+  - fact_utility_trend_old
+  - fact_village_kpi_old
+  - family_relation
+  - finalror_data_17072026
+  - gsws_citizen360
+  - gws_hh_wise_sec_village
+  - housing_department_citizen360
+  - hrms_citizen360
+  - hrms_pensioner
+  - ind_incentive_genral
+  - inds_incentive_vehicle
+  - industry_power_connection_details
+  - industry_power_connection_details_05aug26
+  - mv_field_saturation_aadhaar_ids
+  - mv_field_saturation_report_cache
+  - occupation_master
+  - pension_widow_data
+  - relationship_view
+  - sadarem_citizen360
+  - schemes_data
+  - schemes_data_bkp
+  - schemes_data_new
+  - serp_citizen360
+  - shaaditohfascheme_citizen360
+  - ssc_hallticket_ids
+  - student_profile_consolidated
+  - swarna_panchayat_citizen360
+  - tbl_canonical_id
+  - tbl_energy_consumption
+  - tbl_energy_unique
+  - tbl_hh_caste_certificate
+  - test_iceberg_load
+  - tmp_field_saturation_aadhaar_4154f58b5b64
+  - tmp_field_saturation_aadhaar_6a80c2a4d05d
+  - tmp_field_saturation_aadhaar_ac627c57435c
+  - tmp_field_saturation_aadhaar_b4b191b6e899
+  - tmp_field_saturation_aadhaar_c68635516b00
+  - ufs_citizen360
+  - vw_energy_consumption
+  - vw_farmer_annadata_sukhibhava
+  - vw_swarna_panchayat_citizen360
+  - vw_widow_pension_citizen360
+  - web_land_data_1
+  - web_land_data_2
+  - webland_data_11072026
+  - webland_data_17072026
+  - webland_data_final
+  - webland_data_unique
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_agriculture_profile
+--------------------------------------------------------------------------------
+PERSON_ID    | FARMER_ID | FARMER_TYPE | TOTAL_LAND_ACRES | IRRIGATED_LAND_ACRES | DRY_LAND_ACRES | PRIMARY_CROP | SECONDARY_CROP | CROP_SEASON | SOIL_HEALTH_CARD_NO | IRRIGATION_SOURCE | PUMP_SET_HP | KCC_BANK | KCC_ACCOUNT_NO | KCC_LIMIT | PM_KISAN_BENEFICIARY | RYTHU_BHAROSA_BENEFICIARY | PMFBY_ENROLLED | MARKET_LINKAGE | FPO_NAME | LAST_YIELD_QTL_ACRE | DEPARTMENT_ID | UPDATED_AT                 | AADHAAR_MAPPED
+-------------+-----------+-------------+------------------+----------------------+----------------+--------------+----------------+-------------+---------------------+-------------------+-------------+----------+----------------+-----------+----------------------+---------------------------+----------------+----------------+----------+---------------------+---------------+----------------------------+---------------
+000000323430 | NULL      | Large       | 22.01            | 3.61                 | 0.0            | NA           | NA             | NULL        | NULL                | Rainfed           | NULL        | NULL     | NULL           | NULL      | True                 | True                      | False          | NULL           | NULL     | NULL                | DEPT-AGRI     | 2026-07-21 18:27:22.230577 | Y             
+000000422856 | NULL      | Large       | 82.6             | 0.0                  | 0.0            | NULL         | NULL           | NULL        | NULL                | NULL              | NULL        | NULL     | NULL           | NULL      | NULL                 | NULL                      | NULL           | NULL           | NULL     | NULL                | DEPT-AGRI     | 2026-07-21 18:27:22.230577 | Y             
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_citizen_identifier
+--------------------------------------------------------------------------------
+IDENTIFIER_ID | PERSON_ID    | IDENTIFIER_TYPE | IDENTIFIER_VALUE | IS_PRIMARY | ISSUING_AUTHORITY | ISSUED_DATE | EXPIRY_DATE | IS_ACTIVE | VERIFIED_FLAG | SOURCE
+--------------+--------------+-----------------+------------------+------------+-------------------+-------------+-------------+-----------+---------------+-------
+53542324      | 002353052000 | Aadhaar         | 200000235305     | True       | UIDAI             | NULL        | NULL        | True      | False         | EPDS  
+53542325      | 019489302000 | Aadhaar         | 200001948930     | True       | UIDAI             | NULL        | NULL        | True      | False         | EPDS  
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_consent
+--------------------------------------------------------------------------------
+CONSENT_ID | PERSON_ID    | VALID_FROM | VALID_TO   | IS_REVOCABLE | CREATED_AT                 | REVOKED_AT | UPDATED_AT
+-----------+--------------+------------+------------+--------------+----------------------------+------------+-----------
+45107001   | 833719536910 | 2026-08-06 | 2026-09-01 | True         | 2026-08-06 11:14:33.375535 | NULL       | NULL      
+45107002   | 833719537113 | 2026-08-06 | 2026-09-01 | True         | 2026-08-06 11:14:33.375535 | NULL       | NULL      
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_crop_sale
+--------------------------------------------------------------------------------
+PERSON_ID    | FINANCIAL_YEAR | AMT_PADDY | AMT_NONPADDY | AMT_TOTAL | UPDATED_AT                
+-------------+----------------+-----------+--------------+-----------+---------------------------
+355444352070 | 2025-26        | 189520.00 | 0.00         | 189520.00 | 2026-07-01 14:53:48.147671
+931292942298 | 2025-26        | 263432.00 | 0.00         | 263432.00 | 2026-07-01 14:53:48.147671
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_department
+--------------------------------------------------------------------------------
+DEPARTMENT_ID | DEPARTMENT_NAME             
+--------------+-----------------------------
+DEPT-RTA      | Regional Transport Authority
+DEPT-IND      | Department of Industries    
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_department_client
+--------------------------------------------------------------------------------
+DEPARTMENT_ID | CLIENT_SECRET_HASH                       | IS_ACTIVE | CREATED_AT                 | UPDATED_AT                
+--------------+------------------------------------------+-----------+----------------------------+---------------------------
+DEPT-IND      | 9fa88afd2990b35577df378173be9e26cdf8a... | True      | 2026-07-28 19:55:13.825279 | 2026-07-28 19:55:13.825279
+DEPT-ENE      | c58042bc3003713918b8b7db4520e1cb475a3... | True      | 2026-07-06 12:21:26.786951 | 2026-07-06 12:21:26.786951
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_district
+--------------------------------------------------------------------------------
+DISTRICT_ID | DISTRICT_NAME               | STATE_ID | POPULATION | HOUSEHOLDS | LITERACY_RATE | SEX_RATIO | URBANIZATION_PCT | RATION_CARDS_TOTAL | RATION_AAY | RATION_PHH | RATION_NPHH | RATION_OTHERS | VEHICLES | LAND_ACRES | AGRI_LAND_ACRES | PROPERTIES | GAS_CONNECTIONS | ELECTRICITY_CONSUMERS | AVG_MONTHLY_KWH | PROPERTY_TAX_COVERAGE | EFFECTIVE_FROM | EFFECTIVE_TO | IS_CURRENT
+------------+-----------------------------+----------+------------+------------+---------------+-----------+------------------+--------------------+------------+------------+-------------+---------------+----------+------------+-----------------+------------+-----------------+-----------------------+-----------------+-----------------------+----------------+--------------+-----------
+790         | MARKAPURAM                  | 28       | 1236332    | 390168     | NULL          | 952       | 13.0             | 345876             | 15748      | 278995     | 0           | 0             | 28       | 4853465    | 4853465         | 0          | 671             | 250508                | 20524572        | 0                     | NULL           | NULL         | True      
+515         | SRI POTTI SRIRAMULU NELLORE | 28       | 2488389    | 845763     | NULL          | 1002      | 33.0             | 722114             | 36450      | 594276     | 0           | 0             | 51       | 3804160    | 3804160         | 0          | 1472            | 554110                | 10479406        | 0                     | NULL           | NULL         | True      
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_epfo_contribution
+--------------------------------------------------------------------------------
+PERSON_ID    | EMPLOYEE_CONTRIBUTION | EMPLOYER_CONTRIBUTION | EPS_CONTRIBUTION | LATEST_CONTRIBUTION_DATE | SECRETARIAT_CODE | ESTABLISHMENT_ID | UPDATED_AT                
+-------------+-----------------------+-----------------------+------------------+--------------------------+------------------+------------------+---------------------------
+000001499986 | 150                   | 46                    | 104              | 2020-01-01               | 21023015         | APHYD0042235000  | 2026-07-07 13:10:57.170301
+000002455496 | 300                   | 161                   | 139              | 2025-04-01               | 21016007         | DLCPM0012635000  | 2026-07-07 13:10:57.170301
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_family_member
+--------------------------------------------------------------------------------
+FAMILY_MEMBER_ID | PERSON_ID    | HOUSEHOLD_ID                    | MEMBER_NAME          | RELATION | AGE    | GENDER | UPDATED_AT
+-----------------+--------------+---------------------------------+----------------------+----------+--------+--------+-----------
+338338819258     | 229074675896 | HH49896916854520200221061157011 | Istamsetti Gopalamma | NULL     | 54     | Female | NULL      
+242947586229     | 017627222540 | HH43449802317220200312065907952 | Patnam Sreenivasulu  | Husband  | 56     | Male   | NULL      
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_health_profile
+--------------------------------------------------------------------------------
+PERSON_ID    | ABDM_ID           | ABHA_ADDRESS | AAROGYASRI_CARD_NO | AAROGYASRI_STATUS | PMJAY_BENEFICIARY_ID | PMJAY_FAMILY_ID | BLOOD_GROUP | HEIGHT_CM | WEIGHT_KG | BMI    | HAS_DIABETES | HAS_HYPERTENSION | HAS_TUBERCULOSIS | HAS_HIV | HAS_CANCER | REGISTERED_PHC | ASSIGNED_ASHA_WORKER | IS_PREGNANT | LMP_DATE | EDD_DATE | ANC_REGISTRATIONS | INSTITUTIONAL_DELIVERY | COVID_VACCINATED | COVID_DOSES | ESI_COVERED | CGHS_COVERED | RSBY_COVERED | HAS_MENTAL_HEALTH_CONDITION | MENTAL_HEALTH_TYPE | LAST_ENCOUNTER_DATE | DEPARTMENT_ID | UPDATED_AT
+-------------+-------------------+--------------+--------------------+-------------------+----------------------+-----------------+-------------+-----------+-----------+--------+--------------+------------------+------------------+---------+------------+----------------+----------------------+-------------+----------+----------+-------------------+------------------------+------------------+-------------+-------------+--------------+--------------+-----------------------------+--------------------+---------------------+---------------+-----------
+205652415196 | 21-1154-2050-8369 | NULL         | 10094161163        | null              | NULL                 | NULL            | B+          | 152       | 60.0      | 26.0   | NULL         | NULL             | NULL             | NULL    | NULL       | NULL           | NULL                 | NULL        | NULL     | NULL     | NULL              | NULL                   | NULL             | NULL        | False       | False        | False        | False                       | NULL               | NULL                | DEPT-HEALTH   | NULL      
+608598864978 | 11-4264-8853-7162 | NULL         | 10003767001        | null              | NULL                 | NULL            | NULL        | NULL      | NULL      | NULL   | NULL         | NULL             | NULL             | NULL    | NULL       | NULL           | NULL                 | NULL        | NULL     | NULL     | NULL              | NULL                   | NULL             | NULL        | False       | False        | False        | False                       | NULL               | NULL                | DEPT-HEALTH   | NULL      
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_household
+--------------------------------------------------------------------------------
+HOUSEHOLD_ID                           | HEAD_PERSON_ID | HEAD_NAME           | HEAD_GENDER | MEMBERS_COUNT | SOCIAL_CATEGORY | RATION_CARD_NO | RATION_CARD_TYPE | INCOME_BAND | VILLAGE_NAME | MANDAL_ID | DISTRICT_ID | LATITUDE   | LONGITUDE  | PINCODE | ADDRESS                                  | DWELLING_TYPE   | PHONE  | HOUSEHOLD_INCOME_CATEGORY | UPDATED_AT
+---------------------------------------+----------------+---------------------+-------------+---------------+-----------------+----------------+------------------+-------------+--------------+-----------+-------------+------------+------------+---------+------------------------------------------+-----------------+--------+---------------------------+-----------
+HH101900010072021032311521420875840186 | 793350197328   | CHAMANTHULA SWATHI  | Female      | 1             | ST              | 2802869423     | AAY              | 0–1L        | BORRAMPETA   | 4787      | 519         | 18.5619491 | 83.9239151 | 532458  | HouseNo: |Street Name: NA|Location: |... | Kacchahouse     | NULL   | NULL                      | NULL      
+HH1019000210120200319015741509         | 891854128777   | Shivvala Vara Laxmi | Female      | 1             | BC              | 2810455363     | BPL              | NULL        | BOTTADASINGI | 4787      | 519         | 18.6075033 | 83.9083267 | 532459  | HouseNo: 30114|Street Name: Main Road... | Puccahouse-Daba | NULL   | NULL                      | NULL      
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_land
+--------------------------------------------------------------------------------
+LAND_ID | PERSON_ID    | LAND_TYPE | LAND_CLASSIFICATION | ACRES  | SURVEY_NO | SUB_SURVEY_NO | HISSA_NO | KHATA_NO | LOCATION  | DISTRICT_ID | MANDAL_ID | VILLAGE_NAME | REVENUE_CIRCLE | SRO_OFFICE | REGISTRATION_NO | PATTADAR_PASSBOOK_NO | REGISTRATION_DATE | MUTATION_DATE | MARKET_VALUE | GUIDELINE_VALUE | STAMP_DUTY_PAID | SOIL_TYPE | IRRIGATION_TYPE | ENCUMBRANCE_STATUS | MORTGAGE_BANK | MORTGAGE_AMOUNT | IS_ASSIGNED_LAND | EXTENT_WET_LAND | EXTENT_DRY_LAND | UPDATED_AT | AADHAAR_MAPPED
+--------+--------------+-----------+---------------------+--------+-----------+---------------+----------+----------+-----------+-------------+-----------+--------------+----------------+------------+-----------------+----------------------+-------------------+---------------+--------------+-----------------+-----------------+-----------+-----------------+--------------------+---------------+-----------------+------------------+-----------------+-----------------+------------+---------------
+1       | 000000000000 | జిరాయితి  | NULL                | 0.07   | 498       | 498           | NULL     | 8888     | GOKAVARAM | 505         | 4897      | GOKAVARAM    | GOKAVARAM      | NULL       | 412654303       | NULL                 | NULL              | NULL          | NULL         | NULL            | NULL            | NULL      | NULL            | NULL               | NULL          | NULL            | False            | NULL            | NULL            | NULL       | Y             
+2       | 000000000000 | జిరాయితి  | NULL                | 0.1    | 357       | 357-1         | NULL     | 8888     | GOKAVARAM | 505         | 4897      | GOKAVARAM    | GOKAVARAM      | NULL       | 413399577       | NULL                 | NULL              | NULL          | NULL         | NULL            | NULL            | NULL      | NULL            | NULL               | NULL          | NULL            | False            | NULL            | NULL            | NULL       | Y             
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_mandal
+--------------------------------------------------------------------------------
+MANDAL_ID | MANDAL_NAME | DISTRICT_ID
+----------+-------------+------------
+4900      | PRATHIPADU  | 746        
+5033      | GHANASALA   | 510        
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_occupation
+--------------------------------------------------------------------------------
+OCCUPATION_RECORD_ID | PERSON_ID    | OCCUPATION_TYPE | OCCUPATION_SECTOR | EMPLOYER_NAME | DESIGNATION | EMPLOYMENT_STATUS | SOURCE   | OCCUPATION_YEAR | IS_CURRENT | UPDATED_AT                
+---------------------+--------------+-----------------+-------------------+---------------+-------------+-------------------+----------+-----------------+------------+---------------------------
+5778835              | 000000583039 | Student         | NULL              | NULL          | Student     | NULL              | DEPT-EDU | NULL            | True       | 2026-06-30 16:07:25.131773
+5778847              | 000001779344 | Student         | NULL              | NULL          | Student     | NULL              | DEPT-EDU | NULL            | True       | 2026-06-30 16:07:25.131773
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_p4_kpi
+--------------------------------------------------------------------------------
+Error querying table: AnalysisException: Could not resolve table reference: 'ap_citizen360.dim_p4_kpi'
+
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_person
+--------------------------------------------------------------------------------
+PERSON_ID    | PERSON_NAME           | AGE    | DATE_OF_BIRTH | GENDER | SOCIAL_CATEGORY | PHONE      | INCOME_BAND | DWELLING_TYPE | ADDRESS                                  | DISTRICT_ID | MANDAL_ID | VILLAGE_NAME | HOUSEHOLD_ID                    | CREATED_AT                 | UPDATED_AT | RELIGION | CASTE_NAME   | CASTE_DERIVED_FLAG | CASTE_BASE_CERTIFICATE_NO | DOOR_NO | SECRETARIAT_CODE | CONSTITUENCY_CODE | RURAL_URBAN_FLAG | CLUSTER_ID  | DOMICILE_STATUS | MARITAL_STATUS | GOVT_EMPLOYMENT_TYPE | IS_DECEASED | FATHER_NAME | FATHER_PERSON_ID | MOTHER_NAME        | MOTHER_PERSON_ID | HUSBAND_NAME | HUSBAND_PERSON_ID | RATION_CARD_NO | DISABILITY_TYPE | DISABILITY_PERCENTAGE | DISABILITY_STATUS
+-------------+-----------------------+--------+---------------+--------+-----------------+------------+-------------+---------------+------------------------------------------+-------------+-----------+--------------+---------------------------------+----------------------------+------------+----------+--------------+--------------------+---------------------------+---------+------------------+-------------------+------------------+-------------+-----------------+----------------+----------------------+-------------+-------------+------------------+--------------------+------------------+--------------+-------------------+----------------+-----------------+-----------------------+------------------
+918078412943 | Gandikota Venkatesulu | 31     | 1995-01-27    | Male   | BC              | 9866182722 | NULL        | Pakkahouse    | HouseNo: ----|Street Name: sadasiva s... | 752         | 5403      | S.S.PURAM    | HH41959834958620200218044935425 | 2026-07-17 07:58:42.302685 | NULL       | Hindu    | Nayi-brahmin | False              | CGC230914187143           | 1-70    | 11090784         | 169               | R                | 11090784004 | NULL            | Married        | None                 | False       | NULL        | NULL             | THOTAPALLI JAYASRI | 982958113452     | NULL         | NULL              | 2822309003     | NULL            | NULL                  | NULL             
+800050067952 | R Mahendiran          | 15     | 2011-08-29    | Male   | BC              | 9047898087 | NULL        | Shells        | HouseNo: 3-|Street Name: lingama naid... | 752         | 5403      | SURUTUPALLE  | HH79522829491220200219074442287 | 2026-07-17 07:58:42.302685 | NULL       | Hindu    | Mutrasi      | False              | SCGC2009015796399         | 3-6     | 11090785         | 169               | R                | 11090785002 | NULL            | Single         | None                 | False       | NULL        | NULL             | NULL               | NULL             | NULL         | NULL              | 2802924559     | NULL            | NULL                  | NULL             
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_property
+--------------------------------------------------------------------------------
+PROPERTY_ID | PERSON_ID    | PROPERTY_TYPE | PROPERTY_SUB_TYPE | DOOR_NO | WARD_NO | BLOCK_NO | PLOT_NO | STREET_NAME        | LOCALITY  | LOCATION           | PINCODE | DISTRICT_ID | AREA_SQ_FT | BUILT_UP_AREA_SQ_FT | SITE_AREA_SQ_FT | CONSTRUCTION_TYPE | ROOF_TYPE | USAGE_TYPE | REGISTRATION_NO | REGISTRATION_DATE | MARKET_VALUE | GUIDELINE_VALUE | PTIN   | MUNICIPAL_NO | MUNICIPAL_BODY | SRO_OFFICE | CONSTRUCTION_YEAR | FLOOR_COUNT | ASSESSMENT_NO | OWNER_NAME            | PLINTH_AREA_UNITS | SITE_EXTENT_UNITS | UPDATED_AT                 | AADHAAR_MAPPED
+------------+--------------+---------------+-------------------+---------+---------+----------+---------+--------------------+-----------+--------------------+---------+-------------+------------+---------------------+-----------------+-------------------+-----------+------------+-----------------+-------------------+--------------+-----------------+--------+--------------+----------------+------------+-------------------+-------------+---------------+-----------------------+-------------------+-------------------+----------------------------+---------------
+1           | 244589883164 | Individual    | NULL              | 5-135   | 0       | 0        | NA      | Mamidithota        | Allavaram | Mamidithota        | 533217  | 747         | 0          | NULL                | 440             | NULL              | NULL      | NULL       | null            | NULL              | 226800.00    | NULL            | NULL   | NULL         | NULL           | NULL       | NULL              | NULL        | 198997000001  | Durgarao Kombathula   | NULL              | NULL              | 2026-06-29 23:07:26.798351 | Y             
+2           | 868625659697 | Individual    | NULL              | 1-87    | 0       | 0        | 0       | GUTHULA VARI PALEM | Allavaram | GUTHULA VARI PALEM | 533217  | 747         | 0          | NULL                | 288             | NULL              | NULL      | NULL       | null            | NULL              | 60500.00     | NULL            | NULL   | NULL         | NULL           | NULL       | NULL              | NULL        | 198997000002  | Dhanalakshmi Nagarapu | NULL              | NULL              | 2026-06-29 23:07:26.798351 | Y             
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_property_tax
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: person_id, ptin, assessment_year, annual_demand_rs, arrears_rs, total_due_rs, amount_paid_rs, tax_status, last_paid_date, payment_mode, exemption_category, municipal_body, department_id, updated_at
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_scheme
+--------------------------------------------------------------------------------
+SCHEME_ID | SCHEME_NAME                            | DEPARTMENT_ID | BENEFIT_TYPE        
+----------+----------------------------------------+---------------+---------------------
+SCH-064   | Post-Matric Scholarship to SCs [AP232] | DEPT-EDU      | Fee Reimbursement   
+SCH-051   | NTR Bharosa Pension (Abhayahastam)     | DEPT-SW       | Direct Cash Transfer
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_scheme_main_mapping
+--------------------------------------------------------------------------------
+SCHEME_ID | MAIN_SCHEME_ID | UPDATED_AT                
+----------+----------------+---------------------------
+SCH-049   | SCH-062        | 2026-07-26 14:55:37.225847
+SCH-055   | SCH-062        | 2026-07-26 14:55:37.225847
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_secretariat
+--------------------------------------------------------------------------------
+SECRETARIAT_CODE | SECRETARIAT_NAME | MANDAL_ID
+-----------------+------------------+----------
+11090141         | BALAMVARIPALLI   | 5386     
+10290587         | DANGABADRA       | 4810     
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_social_welfare
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: person_id, pension_id, pension_type, monthly_amount, pension_status, pension_bank, pension_account_no, is_disabled, disability_type, disability_percentage, udid_card_no, bpl_card_no, secc_family_id, annual_family_income, deepam_beneficiary, bc_welfare_scheme, shg_name, shg_role, ntr_bharosa_flag, department_id, disability_certificate_date
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_state
+--------------------------------------------------------------------------------
+STATE_ID | STATE_NAME     | POPULATION | HOUSEHOLDS | LITERACY_RATE | SEX_RATIO | DISTRICTS_COUNT | MANDALS_COUNT | VILLAGES_COUNT | MEDIAN_AGE | URBANIZATION_PCT | GROSS_STATE_INCOME_CR | ELECTRICITY_CONSUMERS | AVG_MONTHLY_KWH | PROPERTY_TAX_COLLECTED | AGRI_LAND_ACRES | RATION_CARDS_TOTAL | RATION_AAY | RATION_PHH | RATION_NPHH | RATION_OTHERS | EFFECTIVE_FROM | EFFECTIVE_TO | IS_CURRENT
+---------+----------------+------------+------------+---------------+-----------+-----------------+---------------+----------------+------------+------------------+-----------------------+-----------------------+-----------------+------------------------+-----------------+--------------------+------------+------------+-------------+---------------+----------------+--------------+-----------
+28       | Andhra Pradesh | 54100982   | 17195425   | 72.6          | 1001      | 28              | 688           | 17957          | 38.38      | 27.0             | 0                     | 11448206              | 1320860217      | 0                      | 71698045        | 14931733           | 773017     | 12290845   | 0           | 0             | NULL           | NULL         | True      
+
+Successfully fetched 1 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_student
+--------------------------------------------------------------------------------
+STUDENT_RECORD_ID | PERSON_ID    | EDUCATION_LEVEL | HIGHEST_QUALIFICATION | INSTITUTION_ID | INSTITUTION_CODE | SCHOOL_NAME       | EDUCATION_BOARD | CLASS_CURRENTLY_ENROLLED | ACADEMIC_YEAR | IS_CURRENT_LEVEL | IS_DROPOUT | DROPOUT_REASON | MEDIUM_OF_INSTRUCTION | AADHAAR_SEEDED | HAS_APAAR_ID | APAAR_ID | STUDENT_ID | APOSS_ID | EPASS_ID | EPASS_AMOUNT | THALLIKI_VANDANAM | NTR_VIDYA_DEEVENA | PRE_MATRIC_SCHOLARSHIP | POST_MATRIC_SCHOLARSHIP | DIGITAL_LITERACY_LEVEL | UPDATED_AT | STUDENT_PEN
+------------------+--------------+-----------------+-----------------------+----------------+------------------+-------------------+-----------------+--------------------------+---------------+------------------+------------+----------------+-----------------------+----------------+--------------+----------+------------+----------+----------+--------------+-------------------+-------------------+------------------------+-------------------------+------------------------+------------+------------
+382143            | 081012283567 | Primary         | 6                     | 28121205202    | 28121205202      | GPS(TW)  MUTAKUDU | NULL            | 5                        | 2024-25       | False            | False      | NULL           | Telugu                | True           | False        | NULL     | 1502046361 | NULL     | NULL     | NULL         | False             | False             | False                  | False                   | NULL                   | NULL       | 22882352656
+382144            | 081012283567 | Primary         | 6                     | 28121205202    | 28121205202      | GPS(TW)  MUTAKUDU | NULL            | 5                        | 2023-24       | False            | False      | NULL           | Telugu                | True           | False        | NULL     | 1502046361 | NULL     | NULL     | NULL         | True              | False             | False                  | False                   | NULL                   | NULL       | 22882352656
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_tax_profile
+--------------------------------------------------------------------------------
+PERSON_ID    | GST_PAID_ANNUAL | INCOME_TAX_PAID | UPDATED_AT
+-------------+-----------------+-----------------+-----------
+640386537578 | 0.00            | NULL            | NULL      
+215486948298 | 0.00            | NULL            | NULL      
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_utility_connection
+--------------------------------------------------------------------------------
+PERSON_ID    | GAS_CONNECTION_STATUS | ELECTRICITY_STATUS | AVG_MONTHLY_KWH | WATER_CONNECTION_STATUS | ELECTRICITY_SC_NO | DISCOM_NAME | ELECTRICITY_STATUS_UPDATED_ON | UPDATED_AT | LPG_CONSUMER_ID
+-------------+-----------------------+--------------------+-----------------+-------------------------+-------------------+-------------+-------------------------------+------------+----------------
+173204863470 | Active_gsws           | Active             | 24              | Active                  | 4006-26201        | EPDCL       | 2026-07-01                    | NULL       | NULL           
+718527703971 | Active_gsws           | Active             | 47              | Active                  | 2006-39782        | EPDCL       | 2026-07-01                    | NULL       | NULL           
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_vehicle
+--------------------------------------------------------------------------------
+VEHICLE_ID | PERSON_ID  | VEHICLE_TYPE | VEHICLE_CLASS   | REG_NO     | MAKE   | MODEL                | YEAR_OF_MANUFACTURE | FUEL_TYPE   | CHASSIS_NO        | ENGINE_NO    | COLOR           | SEATING_CAPACITY | UNLADEN_WEIGHT_KG | LADEN_WEIGHT_KG | REGISTRATION_DATE | RTO_OFFICE      | OWNER_NAME                      | OWNER_MOBILE_NUMBER | DATA_SOURCE | UPDATED_AT
+-----------+------------+--------------+-----------------+------------+--------+----------------------+---------------------+-------------+-------------------+--------------+-----------------+------------------+-------------------+-----------------+-------------------+-----------------+---------------------------------+---------------------+-------------+-----------
+12134217   | AP40HG5129 | NULL         | TWO WHEELER(NT) | AP40HG5129 | 89     | AMD600AAUN0072000002 | 2025                | PETROL(E20) | MD626EG59S1E34979 | KG5ES1X42241 | GALACTIC COPPER | 2                | 105               | 255             | 2025-07-10        | Rajahmundry RTA | RAJANNA DEVI                    | 8008490164          | Vahan       | NULL      
+12134218   | AP40HG5130 | NULL         | TWO WHEELER(NT) | AP40HG5130 | 84     | UZ125NEWM5           | 2025                | PETROL      | MB8EN11AES8384931 | AF261106044  | PRL GRACE WHITE | 2                | 105               | 255             | 2025-07-16        | Cuddapah RTA    | MARRIMEKALAPALLI CHANDRAMOULIKA | 9494947553          | Vahan       | NULL      
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_vehicle_compliance
+--------------------------------------------------------------------------------
+PERSON_ID | REG_NO   | INSURANCE_VALID_TO | INSURANCE_COMPANY | POLICY_NO | FITNESS_VALID_TO | REGISTRATION_VALID_TO | PUC_VALID_TO | PERMIT_TYPE | PERMIT_VALID_TO | TAX_PAID_UPTO | GREEN_TAX_DUE | FINANCER_NAME | HYPOTHECATION_STATUS | LOAN_OUTSTANDING | HSRP_ISSUED | CHALLAN_PENDING | UPDATED_AT
+----------+----------+--------------------+-------------------+-----------+------------------+-----------------------+--------------+-------------+-----------------+---------------+---------------+---------------+----------------------+------------------+-------------+-----------------+-----------
+007G5361  | 007G5361 | NULL               | NULL              | NULL      | 2014-02-24       | 2014-02-24            | NULL         | NULL        | NULL            | NULL          | NULL          | NULL          | NULL                 | NULL             | NULL        | NULL            | NULL      
+0104961   | 0104961  | NULL               | NULL              | NULL      | 1997-12-17       | 1997-12-17            | NULL         | NULL        | NULL            | NULL          | NULL          | NULL          | NULL                 | NULL             | NULL        | NULL            | NULL      
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.dim_village
+--------------------------------------------------------------------------------
+VILLAGE_ID | VILLAGE_NAME   | MANDAL_ID
+-----------+----------------+----------
+10990160   | DAKKILI        | 5186     
+21092013   | PEDAKOMATIPETA | 1092     
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_anomaly_event
+--------------------------------------------------------------------------------
+ANOMALY_ID | PERSON_ID    | CITIZEN_NAME       | ANOMALY_TYPE                             | SEVERITY | DETECTED_AT         | DISTRICT_ID | MANDAL_ID | VILLAGE_NAME | SUMMARY                                  | RESOLUTION_STATUS | HOUSEHOLD_ID                    | METADATA                                 | DISTRICT_NAME | MANDAL_NAME   | DEPARTMENT_ID | EVENTDATA
+-----------+--------------+--------------------+------------------------------------------+----------+---------------------+-------------+-----------+--------------+------------------------------------------+-------------------+---------------------------------+------------------------------------------+---------------+---------------+---------------+----------
+5360       | 648535131041 | YATLA NANDINI DEVI | PVTG Tribes to be included in Rice Card. |          | 2026-06-21 00:00:00 | 505         | 4896      |              | Proactive Inclusion of PVTG Tribes in... | Under Review      | HH50601268197320220729113214076 | eyJyb3dfaWQiOiI1MzYwIiwiZGlzdHJpY3QiO... | EAST GODAVARI | SEETHANAGARAM | DEPT-FCS      | NULL     
+4240       | 553828682199 | REVULA SRIKALYANI  | PVTG Tribes to be included in Rice Card. |          | 2026-06-21 00:00:00 | 505         | 1064      |              | Proactive Inclusion of PVTG Tribes in... | Under Review      | HH71398141599620200605053400726 | eyJyb3dfaWQiOiI0MjQwIiwiZGlzdHJpY3QiO... | EAST GODAVARI | RAJAHMUNDRY   | DEPT-FCS      | NULL     
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_anomaly_loan
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: anomaly_loan_id, anomaly_id, loan_source, loan_id, amount_taken, outstanding, disbursed_date, last_updated
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_anomaly_pregnancy
+--------------------------------------------------------------------------------
+  (No rows found in this table.)
+  Columns: anomaly_pregnancy_id, anomaly_id, source_system, registration_id, registered_date, lmp_date, edd_date, record_status
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_benefit_transaction
+--------------------------------------------------------------------------------
+TRANSACTION_ID | ENTITLEMENT_ID      | PERSON_ID    | SCHEME_ID | AMOUNT | TRANSACTION_DATE | DISTRICT_ID
+---------------+---------------------+--------------+-----------+--------+------------------+------------
+134289006      | SCH-032064028919734 | 064028919734 | SCH-032   | 890.00 | 2025-11-04       | 515        
+134289007      | SCH-032064028919734 | 064028919734 | SCH-032   | 890.00 | 2026-01-02       | 515        
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_entitlement
+--------------------------------------------------------------------------------
+ENTITLEMENT_ID      | PERSON_ID    | HOUSEHOLD_ID                    | SCHEME_ID | ENROLLMENT_STATUS | ANNUAL_BENEFIT | LAST_DISBURSED_DATE | ENROLLED_DATE | DISTRICT_ID
+--------------------+--------------+---------------------------------+-----------+-------------------+----------------+---------------------+---------------+------------
+SCH-008018225047644 | 018225047644 | HH83972644686720200829092324501 | SCH-008   | Active            | 2500000.00     | NULL                | NULL          | 504        
+SCH-008685645578663 | 685645578663 | HH36051868955720200220063715320 | SCH-008   | Active            | 2500000.00     | NULL                | NULL          | 749        
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_event_acknowledgement
+--------------------------------------------------------------------------------
+ACKNOWLEDGEMENT_ID                   | ORIGINAL_REQUEST_ID                  | DEPARTMENT_ID | ACKNOWLEDGED_AT            | PAYLOAD_JSON                             | CREATED_AT                
+-------------------------------------+--------------------------------------+---------------+----------------------------+------------------------------------------+---------------------------
+ce30dd23-abc1-4832-ab0b-d7fbcde74eb2 | 68336c62-04c1-4d48-bec2-443bc9164a75 | DEPT-FCS      | 2026-07-14 19:08:51.603192 | {"departmentId": "DEPT-FCS", "origina... | 2026-07-14 19:08:51.603192
+805fb276-baef-4879-a6e9-8692c5f6fece | fc0b7241-04cd-40c1-8c7f-5d1009664525 | DEPT-WCD      | 2026-07-14 00:04:50.372462 | {"departmentId": "DEPT-WCD", "origina... | 2026-07-14 00:04:50.372462
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_event_index
+--------------------------------------------------------------------------------
+EVENT_CORRELATION_ID                 | REQUEST_ID                           | CREATED_AT                 | DEPARTMENT_ID
+-------------------------------------+--------------------------------------+----------------------------+--------------
+ecbf497f-2f2a-5faa-8648-8c0abe8f5cb6 | 00bc5d1b-edf8-4a69-8fed-93e552657fb2 | 2026-07-17 08:19:44.651812 | DEPT-RTGS    
+0b730cd5-8528-5ad3-811d-f24ca847ea02 | 00bc5d1b-edf8-4a69-8fed-93e552657fb2 | 2026-07-17 08:19:44.651812 | DEPT-RTGS    
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_event_request_registry
+--------------------------------------------------------------------------------
+REQUEST_ID                               | PAYLOAD_HASH                             | DEPARTMENT_ID | EVENT_CORRELATION_IDS                    | PAYLOAD_JSON                             | CREATED_AT                
+-----------------------------------------+------------------------------------------+---------------+------------------------------------------+------------------------------------------+---------------------------
+550e84040-e29b-41d4-a716-465544443184... | 31d56ff5d27ab9b81e8fb97417bdca4d6d86b... | DEPT-RTGS     | ["ad3e29c0-add3-5daa-82ef-b11c0105bcc... | {"departmentId": "DEPT-RTGS", "startD... | 2026-07-23 15:37:20.621023
+ea58dc07-b9fb-47a7-ae21-2fababebb7e4     | d2c15eeb48527a72df5c70db2d47401d18e8b... | DEPT-FCS      | ["c5919cc0-0d24-5eae-ae8f-6633eea2338... | {"departmentId": "DEPT-FCS", "startDa... | 2026-07-24 18:23:53.998467
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_event_status_update
+--------------------------------------------------------------------------------
+EVENT_CORRELATION_ID                 | PROCESSING_STATUS | DEPARTMENT_REFERENCE_ID | UPDATED_AT                 | REMARKS | SOURCE              | CREATED_AT                
+-------------------------------------+-------------------+-------------------------+----------------------------+---------+---------------------+---------------------------
+2f232950-26a1-506d-867b-5b4e36c4c766 | SUCCESS           | HEALTH-TXN-0001         | 2026-07-01 15:12:42.830780 | NULL    | event_status_update | 2026-07-01 15:12:42.830780
+52ed1c87-15e2-5f22-8339-642e5c1eb22e | SUCCESS           | HEALTH-TXN-0002         | 2026-07-01 15:19:44.740116 | NULL    | event_status_update | 2026-07-01 15:19:44.740116
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_lifecycle_event
+--------------------------------------------------------------------------------
+EVENT_ID | PERSON_ID    | CITIZEN_NAME        | EVENT_TYPE                               | TRIGGER_REASON | SOURCE_SYSTEM  | EVENT_TIMESTAMP            | DISTRICT_ID | MANDAL_ID | VILLAGE_NAME  | DETAILS | PROCESSING_STATUS | LINKED_SCHEME_IDS | METADATA | DISTRICT_NAME | MANDAL_NAME | DEPARTMENT_ID | EVENTDATA
+---------+--------------+---------------------+------------------------------------------+----------------+----------------+----------------------------+-------------+-----------+---------------+---------+-------------------+-------------------+----------+---------------+-------------+---------------+----------
+1        | 000003673254 | Kummarapalli Sreenu | Proactive Exclusion of Deceased Benef... | NULL           | Civil Supplies | 2026-06-15 18:27:04.805212 | 748         | 4735      | DACHARAM      |         | Published         |                   | NULL     | ELURU         | KUKKUNURU   | DEPT-AGRI     | NULL     
+16       | 000064758484 | Boragam Suramma     | Proactive Exclusion of Deceased Benef... | NULL           | Civil Supplies | 2026-06-15 18:27:04.805212 | 748         | 4949      | CHEGONDAPALLI |         | Published         |                   | NULL     | ELURU         | POLAVARAM   | DEPT-AGRI     | NULL     
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_p4_citizen_score
+--------------------------------------------------------------------------------
+Error querying table: AnalysisException: Could not resolve table reference: 'ap_citizen360.fact_p4_citizen_score'
+
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_p4_geo_score
+--------------------------------------------------------------------------------
+Error querying table: AnalysisException: Could not resolve table reference: 'ap_citizen360.fact_p4_geo_score'
+
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_p4_kpi_forecast
+--------------------------------------------------------------------------------
+Error querying table: AnalysisException: Could not resolve table reference: 'ap_citizen360.fact_p4_kpi_forecast'
+
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_p4_ranking
+--------------------------------------------------------------------------------
+Error querying table: AnalysisException: Could not resolve table reference: 'ap_citizen360.fact_p4_ranking'
+
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_population_age_band
+--------------------------------------------------------------------------------
+Error querying table: AnalysisException: Could not resolve table reference: 'ap_citizen360.fact_population_age_band'
+
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_population_hierarchy
+--------------------------------------------------------------------------------
+GEO_LEVEL | GEO_ID   | GENDER | SOCIAL_CATEGORY | POPULATION_COUNT | HOUSEHOLD_COUNT | RATION_CARD_COUNT
+----------+----------+--------+-----------------+------------------+-----------------+------------------
+village   | 21012051 | Male   | SC              | 27               | 6               | 3                
+village   | 21086134 | Others | Others          | 7                | 1               | 0                
+
+Successfully fetched 2 records.
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_utility_trend
+--------------------------------------------------------------------------------
+Error querying table: AnalysisException: Could not resolve table reference: 'ap_citizen360.fact_utility_trend'
+
+
+--------------------------------------------------------------------------------
+Table: ap_citizen360.fact_village_kpi
+--------------------------------------------------------------------------------
+Error querying table: AnalysisException: Could not resolve table reference: 'ap_citizen360.fact_village_kpi'
+
+
+================================================================================
+Done.
+================================================================================

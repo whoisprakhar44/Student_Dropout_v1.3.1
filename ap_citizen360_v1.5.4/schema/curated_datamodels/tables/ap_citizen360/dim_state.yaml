@@ -1,0 +1,164 @@
+database: ap_citizen360
+table: dim_state
+department: ap_citizen360
+description: One row per state per effective-dated period (slowly-changing dimension
+  via effective_from/effective_to/is_current) — currently only Andhra Pradesh. Backs
+  the State Profile view and top-of-hierarchy rollups.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_state
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_state`(
+    `state_id` STRING,
+    `state_name` STRING,
+    `population` BIGINT,
+    `households` BIGINT,
+    `literacy_rate` DOUBLE,
+    `sex_ratio` BIGINT,
+    `districts_count` BIGINT,
+    `mandals_count` BIGINT,
+    `villages_count` BIGINT,
+    `median_age` DOUBLE,
+    `urbanization_pct` DOUBLE,
+    `gross_state_income_cr` BIGINT,
+    `electricity_consumers` BIGINT,
+    `avg_monthly_kwh` BIGINT,
+    `property_tax_collected` BIGINT,
+    `agri_land_acres` BIGINT,
+    `ration_cards_total` BIGINT,
+    `ration_aay` BIGINT,
+    `ration_phh` BIGINT,
+    `ration_nphh` BIGINT,
+    `ration_others` BIGINT,
+    `effective_from` DATE,
+    `effective_to` DATE,
+    `is_current` BOOLEAN
+  )
+columns:
+- name: state_id
+  type: STRING
+  nullable: true
+  description: Canonical state code, e.g. 'ap'.
+- name: state_name
+  type: STRING
+  nullable: true
+  description: 'Full state name, e.g. ''Andhra Pradesh''. [Value Examples: ''Andhra
+    Pradesh'']'
+  distinct:
+  - Andhra Pradesh
+- name: population
+  type: BIGINT
+  nullable: true
+  description: Total state population (census/projected).
+- name: households
+  type: BIGINT
+  nullable: true
+  description: Total household count in the state.
+- name: literacy_rate
+  type: DOUBLE
+  nullable: true
+  description: State literacy rate, percentage (0-100).
+- name: sex_ratio
+  type: BIGINT
+  nullable: true
+  description: Females per 1000 males.
+- name: districts_count
+  type: BIGINT
+  nullable: true
+  description: Number of districts in the state.
+- name: mandals_count
+  type: BIGINT
+  nullable: true
+  description: Number of mandals across all districts.
+- name: villages_count
+  type: BIGINT
+  nullable: true
+  description: Number of villages/habitations across all mandals.
+- name: median_age
+  type: DOUBLE
+  nullable: true
+  description: Median age of the population, in years.
+- name: urbanization_pct
+  type: DOUBLE
+  nullable: true
+  description: Percentage of population classified urban.
+- name: gross_state_income_cr
+  type: BIGINT
+  nullable: true
+  description: Gross state income/product, in INR crores.
+- name: electricity_consumers
+  type: BIGINT
+  nullable: true
+  description: Total registered electricity consumer connections.
+- name: avg_monthly_kwh
+  type: BIGINT
+  nullable: true
+  description: Average monthly electricity consumption per consumer, in kWh.
+- name: property_tax_collected
+  type: BIGINT
+  nullable: true
+  description: Total property tax collected statewide, in INR.
+- name: agri_land_acres
+  type: BIGINT
+  nullable: true
+  description: Total agricultural land extent, in acres.
+- name: ration_cards_total
+  type: BIGINT
+  nullable: true
+  description: Total NFSA ration cards issued statewide.
+- name: ration_aay
+  type: BIGINT
+  nullable: true
+  description: Ration cards under the Antyodaya Anna Yojana (poorest-of-poor) category.
+- name: ration_phh
+  type: BIGINT
+  nullable: true
+  description: Ration cards under the Priority Household category.
+- name: ration_nphh
+  type: BIGINT
+  nullable: true
+  description: Ration cards under the Non-Priority Household category.
+- name: ration_others
+  type: BIGINT
+  nullable: true
+  description: Ration cards under other/legacy categories not covered above.
+- name: effective_from
+  type: DATE
+  nullable: true
+  description: Start date this snapshot row is valid from (SCD2 versioning).
+- name: effective_to
+  type: DATE
+  nullable: true
+  description: End date this snapshot row is valid until; null/open-ended for the
+    current row.
+- name: is_current
+  type: BOOLEAN
+  nullable: true
+  description: 'True if this is the latest/active version of the state snapshot. [Value
+    Examples: ''True'']'
+  distinct:
+  - 'True'
+primary_key:
+- state_id
+relationships:
+- dim_state.state_id is a foreign key to dim_state.state_id.
+business_terms:
+- ap_citizen360
+- geography
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_state
+- join dim_state to dim_person via person_id
+- filter dim_state by district_id or mandal_id

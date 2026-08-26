@@ -1,0 +1,77 @@
+database: ap_citizen360
+table: dim_epfo_contribution
+department: ap_citizen360
+description: One row per person summarizing their Employees' Provident Fund Organisation
+  contribution status — for formal-sector employees contributing to EPF/EPS.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_epfo_contribution
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_epfo_contribution`(
+    `person_id` STRING,
+    `employee_contribution` DECIMAL(10,0),
+    `employer_contribution` DECIMAL(10,0),
+    `eps_contribution` DECIMAL(10,0),
+    `latest_contribution_date` DATE,
+    `secretariat_code` STRING,
+    `establishment_id` STRING,
+    `updated_at` TIMESTAMP
+  )
+columns:
+- name: person_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_person.person_id.
+- name: employee_contribution
+  type: DECIMAL(10,0)
+  nullable: true
+  description: Most recent employee-side EPF contribution amount, in INR.
+- name: employer_contribution
+  type: DECIMAL(10,0)
+  nullable: true
+  description: Most recent employer-side EPF contribution amount, in INR.
+- name: eps_contribution
+  type: DECIMAL(10,0)
+  nullable: true
+  description: Most recent Employees' Pension Scheme contribution amount, in INR.
+- name: latest_contribution_date
+  type: DATE
+  nullable: true
+  description: Date of the most recent contribution.
+- name: secretariat_code
+  type: STRING
+  nullable: true
+  description: Gram/Ward Sachivalayam code associated with the person's registered
+    address.
+- name: establishment_id
+  type: STRING
+  nullable: true
+  description: EPFO establishment (employer) code the contributions were made through.
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp this EPFO record was last updated.
+primary_key:
+- person_id
+relationships:
+- dim_epfo_contribution.person_id is a foreign key to dim_person.person_id.
+business_terms:
+- ap_citizen360
+- employment_—_epfo
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_epfo_contribution
+- join dim_epfo_contribution to dim_person via person_id
+- filter dim_epfo_contribution by district_id or mandal_id

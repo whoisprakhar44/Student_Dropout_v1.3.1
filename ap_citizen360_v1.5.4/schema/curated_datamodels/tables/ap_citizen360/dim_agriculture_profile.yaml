@@ -1,0 +1,594 @@
+database: ap_citizen360
+table: dim_agriculture_profile
+department: ap_citizen360
+description: One row per person who is a registered farmer — landholding summary,
+  crop information, irrigation, credit, and agricultural welfare-scheme enrollment.
+  Complements dim_land (which records individual parcels) with a farmer-level rollup
+  and scheme/credit detail land records don't carry.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_agriculture_profile
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_agriculture_profile`(
+    `person_id` STRING,
+    `farmer_id` STRING,
+    `farmer_type` STRING,
+    `total_land_acres` DOUBLE,
+    `irrigated_land_acres` DOUBLE,
+    `dry_land_acres` DOUBLE,
+    `primary_crop` STRING,
+    `secondary_crop` STRING,
+    `crop_season` STRING,
+    `soil_health_card_no` STRING,
+    `irrigation_source` STRING,
+    `pump_set_hp` DOUBLE,
+    `kcc_bank` STRING,
+    `kcc_account_no` STRING,
+    `kcc_limit` DECIMAL(12,2),
+    `pm_kisan_beneficiary` BOOLEAN,
+    `rythu_bharosa_beneficiary` BOOLEAN,
+    `pmfby_enrolled` BOOLEAN,
+    `market_linkage` STRING,
+    `fpo_name` STRING,
+    `last_yield_qtl_acre` DOUBLE,
+    `department_id` STRING,
+    `updated_at` TIMESTAMP,
+    `aadhaar_mapped` STRING
+  )
+columns:
+- name: person_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_person.person_id.
+- name: farmer_id
+  type: STRING
+  nullable: true
+  description: Department-issued farmer registration ID.
+- name: farmer_type
+  type: STRING
+  nullable: true
+  description: 'Landholding-size classification, e.g. ''Small'', ''Semi-medium'',
+    ''Medium'', ''Large''. [Value Examples: ''Medium'', ''Semi-medium'', ''Marginal'',
+    ''Large'', ''Small'']'
+  distinct:
+  - Medium
+  - Semi-medium
+  - Marginal
+  - Large
+  - Small
+- name: total_land_acres
+  type: DOUBLE
+  nullable: true
+  description: Total land held by the farmer, in acres (across all parcels).
+- name: irrigated_land_acres
+  type: DOUBLE
+  nullable: true
+  description: Portion of total land that is irrigated, in acres.
+- name: dry_land_acres
+  type: DOUBLE
+  nullable: true
+  description: Portion of total land that is unirrigated (dry), in acres.
+- name: primary_crop
+  type: STRING
+  nullable: true
+  description: 'Primary crop grown. [Value Examples: ''Paddy'', ''NA'', ''Red gram'',
+    ''Cotton'', ''Mango'', ''Coconut'']'
+  distinct:
+  - Paddy
+  - Red gram
+  - Cotton
+  - Mango
+  - Coconut
+  - Maize
+  - Cashew nut
+  - Red Chillies
+  - Groundnut
+  - Oil Palm
+  - Tomato
+  - casuarina
+  - Sweet Orange
+  - subabul
+  - Turmeric
+  - Banana
+  - Onion
+  - Ragi
+  - Super napier grass
+  - Eucalyptus
+  - Sugarcane (Ratoon)
+  - Black gram
+  - Acid Lime
+  - Coffee
+  - TOBACCO
+  - Castor
+  - Papaya
+  - Para Grass
+  - Sugarcane (Main)
+  - Bajra
+  - Teak
+  - Mulberry
+  - Soyabean
+  - Fodder jowar
+  - Horse gram
+  - Pomegranate
+  - Red sandal wood
+  - Tapioca
+  - Sapota
+  - Sesamum
+  - Lady finger / Okra
+  - Green Chilli
+  - sindhoor plant
+  - Ridge Gourd
+  - Green gram
+  - Jowar
+  - Fodder maize
+  - All types of plants
+  - Tamarind
+  - Guava
+  - Jasmine
+  - Korra
+  - Sweet Corn
+  - Ivy gourd
+  - Pineapple
+  - Elephant foot yam
+  - Brinjal
+  - Tube Rose
+  - Betelvine
+  - Marigold
+  - Chrysanthemum
+  - Sweet Potato
+  - Jute
+  - Sunhemp for green manure
+  - Arecanut
+  - Little millet
+  - Custard Apple
+  - Sunflower
+  - Fruit crops
+  - Rose
+  - Sandal wood tree
+  - Drum Stick
+  - Beans
+  - Cauliflower
+  - Cluster Beans
+  - Raw Banana / Plantain
+  - PMDS (GM)
+  - Dolichos Beans
+  - Jamun
+  - Crossandra
+  - Curry Leaf
+  - Cow pea
+  - Dhaincha for green manure
+  - Spinach/Palak
+  - Water Melon
+  - Pumpkin
+  - Bottle Gourd
+  - Potato
+  - Virajaji
+  - Pomelo
+  - Maruvam-The Sweet Majoram / Dhavanam-Souther wood
+  - Spiny Gourd  /   Teasel Gourd
+  - Mulberry trees
+  - Bitter Gourd
+  - Cucumber
+  - Ginger
+  - Field Bean
+  - Cocoa
+  - Gongura
+  - Colocasia
+  - Shade net nurseries
+  - Cabbage
+  - Rubber
+  - Amaranthas
+  - Black Pepper
+  - Yellow Cucumber
+  - Stylo/pencil flower
+  - Dragon Fruit
+  - Vegetables
+  - Nannari (Sarasaparilla)
+  - Broad Bean
+  - Muskmelon
+  - Long Pepper
+  - Snake Gourd
+  - Ber
+  - Subhemp (Seed)
+  - Mahogani
+  - Radish
+  - Pilli Pesara for green manure
+  - Fodder cowpea
+  - Tobacco  Nursery
+  - Soap nut
+  - Coriander Leaves
+  - Leafy Banana
+  - Mesta
+  - Maize (Pop Corn)
+  - Mandarins/Oranges
+  - Jasminum Multiflorum
+  - Grapes
+  - Ajwain
+  - Carrot
+  - Plantation Crops Nursery
+  - Ash Gourd
+  - Fodder sunhemp
+  - Broom Grass
+  - Datepalm
+  - Flax seed
+  - Mint
+  - Green gram (GM)
+  - Fodder Green gram
+  - Amaranthas(Red)
+  - Bamboo
+  - Fig
+  - Jack Fruit
+  - Tulasi
+  - Safflower
+  - Water Apple
+  - Amla / Indian Goose Berry
+  - Appleber
+  - Wild Indigo for Green Manure
+  - Palymarah
+  - Coriander Seeds
+  - Brown Top Millets
+  - Hedge Lucern
+  - Hibiscus
+  - Green Sorrel
+  - Malabar Neem
+  - Gerkin
+  - Champak
+  - Karonda
+  - Lemon Grass
+  - Wheat
+  - Palm Rosa/Rosa Grass
+  - Litchi
+  - Beet Root
+  - Crape Jasmine
+  - Avocado
+  - Indian Purple Yam
+  - Neem
+  - Bengal gram
+  - Rajma bean
+  - Green Peas
+  - Acacia/Babul tree
+  - Aswagandha
+  - Orchid
+  - Spring Onion
+  - Lakshmi taru / Paradise tree
+  - Kodo millet
+  - Fenugreek Leaves
+  - Proso millet
+  - Malabar Spinach
+  - Barnyard millet
+  - Shikakai
+  - Macadamia
+  - Saal tree
+  - Celery
+  - Nutmeg
+  - Flower crops
+  - Berry
+  - Machi pathri
+  - Sarpagandha
+  - Pongamia/Kanuga
+  - Jatropa
+  - Quinoa Rice
+  - Capsicum
+  - Passion Fruit
+  - Aster
+  - Masoor Dal/ Redlentils
+- name: secondary_crop
+  type: STRING
+  nullable: true
+  description: 'Secondary crop grown, where applicable. [Value Examples: ''Paddy'',
+    ''NA'', ''Red gram'', ''Cotton'', ''Mango'', ''Coconut'']'
+  distinct:
+  - Paddy
+  - Red gram
+  - Cotton
+  - Mango
+  - Coconut
+  - Maize
+  - Cashew nut
+  - Red Chillies
+  - Groundnut
+  - Oil Palm
+  - Tomato
+  - casuarina
+  - Sweet Orange
+  - subabul
+  - Turmeric
+  - Banana
+  - Onion
+  - Ragi
+  - Super napier grass
+  - Eucalyptus
+  - Sugarcane (Ratoon)
+  - Black gram
+  - Acid Lime
+  - Coffee
+  - TOBACCO
+  - Castor
+  - Papaya
+  - Para Grass
+  - Sugarcane (Main)
+  - Bajra
+  - Teak
+  - Mulberry
+  - Soyabean
+  - Fodder jowar
+  - Horse gram
+  - Pomegranate
+  - Red sandal wood
+  - Tapioca
+  - Sapota
+  - Sesamum
+  - Lady finger / Okra
+  - Green Chilli
+  - sindhoor plant
+  - Ridge Gourd
+  - Green gram
+  - Jowar
+  - Fodder maize
+  - All types of plants
+  - Tamarind
+  - Guava
+  - Jasmine
+  - Korra
+  - Sweet Corn
+  - Ivy gourd
+  - Pineapple
+  - Elephant foot yam
+  - Brinjal
+  - Tube Rose
+  - Betelvine
+  - Marigold
+  - Chrysanthemum
+  - Sweet Potato
+  - Jute
+  - Sunhemp for green manure
+  - Arecanut
+  - Little millet
+  - Custard Apple
+  - Sunflower
+  - Fruit crops
+  - Rose
+  - Sandal wood tree
+  - Drum Stick
+  - Beans
+  - Cauliflower
+  - Cluster Beans
+  - Raw Banana / Plantain
+  - PMDS (GM)
+  - Dolichos Beans
+  - Jamun
+  - Crossandra
+  - Curry Leaf
+  - Cow pea
+  - Dhaincha for green manure
+  - Spinach/Palak
+  - Pumpkin
+  - Water Melon
+  - Bottle Gourd
+  - Potato
+  - Virajaji
+  - Pomelo
+  - Maruvam-The Sweet Majoram / Dhavanam-Souther wood
+  - Spiny Gourd  /   Teasel Gourd
+  - Mulberry trees
+  - Bitter Gourd
+  - Cucumber
+  - Ginger
+  - Field Bean
+  - Gongura
+  - Cocoa
+  - Colocasia
+  - Shade net nurseries
+  - Cabbage
+  - Rubber
+  - Amaranthas
+  - Black Pepper
+  - Yellow Cucumber
+  - Stylo/pencil flower
+  - Dragon Fruit
+  - Vegetables
+  - Nannari (Sarasaparilla)
+  - Broad Bean
+  - Muskmelon
+  - Long Pepper
+  - Snake Gourd
+  - Subhemp (Seed)
+  - Ber
+  - Mahogani
+  - Radish
+  - Pilli Pesara for green manure
+  - Fodder cowpea
+  - Tobacco  Nursery
+  - Soap nut
+  - Coriander Leaves
+  - Leafy Banana
+  - Mesta
+  - Maize (Pop Corn)
+  - Mandarins/Oranges
+  - Grapes
+  - Jasminum Multiflorum
+  - Ajwain
+  - Plantation Crops Nursery
+  - Carrot
+  - Ash Gourd
+  - Fodder sunhemp
+  - Broom Grass
+  - Datepalm
+  - Flax seed
+  - Mint
+  - Green gram (GM)
+  - Fodder Green gram
+  - Amaranthas(Red)
+  - Bamboo
+  - Fig
+  - Jack Fruit
+  - Tulasi
+  - Safflower
+  - Amla / Indian Goose Berry
+  - Water Apple
+  - Appleber
+  - Wild Indigo for Green Manure
+  - Palymarah
+  - Hedge Lucern
+  - Coriander Seeds
+  - Brown Top Millets
+  - Hibiscus
+  - Malabar Neem
+  - Green Sorrel
+  - Gerkin
+  - Champak
+  - Karonda
+  - Lemon Grass
+  - Wheat
+  - Palm Rosa/Rosa Grass
+  - Litchi
+  - Beet Root
+  - Crape Jasmine
+  - Avocado
+  - Indian Purple Yam
+  - Neem
+  - Bengal gram
+  - Rajma bean
+  - Green Peas
+  - Acacia/Babul tree
+  - Aswagandha
+  - Kodo millet
+  - Orchid
+  - Fenugreek Leaves
+  - Lakshmi taru / Paradise tree
+  - Proso millet
+  - Spring Onion
+  - Malabar Spinach
+  - Shikakai
+  - Barnyard millet
+  - Macadamia
+  - Saal tree
+  - Nutmeg
+  - Celery
+  - Flower crops
+  - Pongamia/Kanuga
+  - Berry
+  - Capsicum
+  - Aster
+  - Sarpagandha
+  - Quinoa Rice
+  - Passion Fruit
+  - Jatropa
+  - Machi pathri
+  - Masoor Dal/ Redlentils
+- name: crop_season
+  type: STRING
+  nullable: true
+  description: Cropping season this record reflects, e.g. 'Kharif', 'Rabi'.
+- name: soil_health_card_no
+  type: STRING
+  nullable: true
+  description: Soil Health Card scheme registration number.
+- name: irrigation_source
+  type: STRING
+  nullable: true
+  description: 'Primary irrigation source, e.g. ''Borewell'', ''Canal'', ''Drip''.
+    [Value Examples: ''Conventional/ Flooding'', ''Rainfed'', ''NA'', ''Drip System'',
+    ''Sprinkler System'']'
+  distinct:
+  - Conventional/ Flooding
+  - Rainfed
+  - Drip System
+  - Sprinkler System
+- name: pump_set_hp
+  type: DOUBLE
+  nullable: true
+  description: Horsepower of the farmer's irrigation pump set, where applicable.
+- name: kcc_bank
+  type: STRING
+  nullable: true
+  description: Bank that issued the farmer's Kisan Credit Card.
+- name: kcc_account_no
+  type: STRING
+  nullable: true
+  description: Kisan Credit Card account number.
+- name: kcc_limit
+  type: DECIMAL(12,2)
+  nullable: true
+  description: Sanctioned credit limit on the Kisan Credit Card, in INR.
+- name: pm_kisan_beneficiary
+  type: BOOLEAN
+  nullable: true
+  description: 'True if enrolled in the PM-KISAN income-support scheme. [Value Examples:
+    ''True'', ''False'']'
+  distinct:
+  - 'True'
+  - 'False'
+- name: rythu_bharosa_beneficiary
+  type: BOOLEAN
+  nullable: true
+  description: 'True if enrolled in the AP Rythu Bharosa farmer-support scheme. [Value
+    Examples: ''True'', ''False'']'
+  distinct:
+  - 'True'
+  - 'False'
+- name: pmfby_enrolled
+  type: BOOLEAN
+  nullable: true
+  description: 'True if enrolled in the Pradhan Mantri Fasal Bima Yojana crop insurance
+    scheme. [Value Examples: ''False'']'
+  distinct:
+  - 'False'
+- name: market_linkage
+  type: STRING
+  nullable: true
+  description: Market/procurement channel the farmer is linked to, e.g. a specific
+    mandi or FPO marketing tie-up.
+- name: fpo_name
+  type: STRING
+  nullable: true
+  description: Name of the Farmer Producer Organisation the farmer belongs to, if
+    any.
+- name: last_yield_qtl_acre
+  type: DOUBLE
+  nullable: true
+  description: Most recent recorded yield, in quintals per acre.
+- name: department_id
+  type: STRING
+  nullable: true
+  description: 'Foreign key to dim_department.department_id — the Agriculture department
+    record owner. [Value Examples: ''DEPT-AGRI'']'
+  distinct:
+  - DEPT-AGRI
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp this agriculture profile was last updated.
+- name: aadhaar_mapped
+  type: STRING
+  nullable: true
+  description: 'Whether the farmer profile is Aadhaar-mapped (Y/N). [Value Examples:
+    ''Y'', ''N'']'
+  distinct:
+  - Y
+  - N
+primary_key:
+- person_id
+relationships:
+- dim_agriculture_profile.person_id is a foreign key to dim_person.person_id.
+- dim_agriculture_profile.department_id is a foreign key to dim_department.department_id.
+business_terms:
+- ap_citizen360
+- agriculture
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_agriculture_profile
+- join dim_agriculture_profile to dim_person via person_id
+- filter dim_agriculture_profile by district_id or mandal_id

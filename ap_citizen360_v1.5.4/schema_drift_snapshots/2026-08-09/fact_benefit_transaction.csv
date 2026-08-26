@@ -1,0 +1,8 @@
+column_name,type,nullable
+amount,REAL,true
+district_id,TEXT,true
+entitlement_id,TEXT,true
+person_id,TEXT,true
+scheme_id,TEXT,true
+transaction_date,TEXT,true
+transaction_id,TEXT,true

@@ -1,0 +1,50 @@
+INFO:     Started server process [10435]
+INFO:     Waiting for application startup.
+2026-07-14 23:14:52,790 [INFO] schema-retrieval: Startup successful
+2026-07-14 23:14:53,137 [INFO] SQLAlchemy engine created → SQLite /Users/prakhar/Downloads/Student_Dropout_v1.3.1/ap_citizen360_v1.5/database/schema.db
+2026-07-14 23:14:53,151 [INFO] mcp.server.lowlevel.server: Processing request of type ListToolsRequest
+2026-07-14 23:14:53,153 [INFO] Processing request of type ListToolsRequest
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+ChatOllama model: qwen3.5:2b-mlx  |  thinking=off
+Created empty database at /Users/prakhar/Downloads/Student_Dropout_v1.3.1/ap_citizen360_v1.5/database/schema.db with 44 tables.
+Curated database initialized at /Users/prakhar/Downloads/Student_Dropout_v1.3.1/ap_citizen360_v1.5/database/schema.db
+Chat history database initialized at /Users/prakhar/Downloads/Student_Dropout_v1.3.1/ap_citizen360_v1.5/database/chat_history.db
+Ollama ready: qwen3.5:2b-mlx
+RAG tool loaded : retrive_schema_rag
+LLM tools loaded: ['retrive_schema_rag', 'execute_sql']
+Agent graph compiled successfully.
+LangGraph agent built successfully during startup.
+INFO:     127.0.0.1:54642 - "POST /ask HTTP/1.1" 200 OK
+2026-07-14 23:14:58,925 [INFO] mcp.server.lowlevel.server: Processing request of type CallToolRequest
+2026-07-14 23:14:58,927 [INFO] schema-retrieval: Query: [intent: student_risk_list] How many students dropped out in 2025 in Anantapur? [district: Anantapur, year: 2025] [departments: ap_citizen360]
+2026-07-14 23:15:09,948 [INFO] schema-retrieval: RAG retrieved 4 chunks for query '[intent: student_risk_list] How many students dropped out in 2025 in Anantapur? [district: Anantapur, year: 2025] [departments: ap_citizen360]':
+2026-07-14 23:15:09,949 [INFO] schema-retrieval:   [1] Table: ap_citizen360.dim_student | Similarity Score: 0.6603
+2026-07-14 23:15:09,949 [INFO] schema-retrieval:   [2] Table: ap_citizen360.dim_district | Similarity Score: 0.6339
+2026-07-14 23:15:09,949 [INFO] schema-retrieval:   [3] Table: ap_community360.dim_facility_school | Similarity Score: 0.6249
+2026-07-14 23:15:09,949 [INFO] schema-retrieval:   [4] Table: ap_citizen360.fact_population_hierarchy | Similarity Score: 0.6106
+2026-07-14 23:15:09,951 [INFO] schema-retrieval: Returned 4 chunks
+2026-07-14 23:15:34,723 [INFO] Processing request of type CallToolRequest
+2026-07-14 23:15:34,733 [INFO] [execute_sql] SELECT COUNT(*) FROM ap_citizen360.dim_person WHERE person_id IN (SELECT person_id FROM ap_citizen360.dim_student WHERE education_level = 'Primary' AND is_dropout = 1) AND academic_year = '2025'
+2026-07-14 23:15:34,761 [ERROR] [execute_sql] error: (sqlite3.OperationalError) no such column: academic_year
+[SQL: SELECT COUNT(*) FROM dim_person WHERE person_id IN (SELECT person_id FROM dim_student WHERE education_level = 'Primary' AND is_dropout = 1) AND academic_year = '2025']
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+verify_node: SQL failed execution (error: (sqlite3.OperationalError) no such column: academic_year
+[SQL: SELECT COUNT(*) FROM dim_person WHERE person_id IN (SELECT person_id FROM dim_student WHERE education_level = 'Primary' AND is_dropout = 1) AND academic_year = '2025']
+(Background on this error at: https://sqlalche.me/e/20/e3q8)). Forcing RAG re-retrieval before correction.
+2026-07-14 23:15:34,788 [INFO] mcp.server.lowlevel.server: Processing request of type CallToolRequest
+2026-07-14 23:15:34,789 [INFO] schema-retrieval: Query: How many students dropped out in 2025 in Anantapur?
+2026-07-14 23:15:34,838 [INFO] schema-retrieval: RAG retrieved 4 chunks for query 'How many students dropped out in 2025 in Anantapur?':
+2026-07-14 23:15:34,838 [INFO] schema-retrieval:   [1] Table: ap_citizen360.dim_student | Similarity Score: 0.5281
+2026-07-14 23:15:34,838 [INFO] schema-retrieval:   [2] Table: ap_community360.dim_facility_school | Similarity Score: 0.4934
+2026-07-14 23:15:34,838 [INFO] schema-retrieval:   [3] Table: ap_citizen360.dim_district | Similarity Score: 0.4850
+2026-07-14 23:15:34,838 [INFO] schema-retrieval:   [4] Table: ap_citizen360.fact_population_hierarchy | Similarity Score: 0.4759
+2026-07-14 23:15:34,840 [INFO] schema-retrieval: Returned 4 chunks
+2026-07-14 23:16:20,622 [INFO] Processing request of type CallToolRequest
+2026-07-14 23:16:20,628 [INFO] [execute_sql] SELECT COUNT(*) FROM ap_citizen360.dim_person WHERE person_id IN (SELECT person_id FROM ap_citizen360.dim_student WHERE education_level = 'Primary' AND is_dropout = 1)
+I0714 23:17:45.308607  637474 chttp2_transport.cc:1376] ipv4:127.0.0.1:54639: Got goaway [11] err=UNAVAILABLE:GOAWAY received; Error code: 11; Debug Text: too_many_pings {http2_error:11}
+E0714 23:17:45.312038  637474 chttp2_transport.cc:1408] ipv4:127.0.0.1:54639: Received a GOAWAY with error code ENHANCE_YOUR_CALM and debug data equal to "too_many_pings". Current keepalive time (before throttling): 10000ms
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [10435]

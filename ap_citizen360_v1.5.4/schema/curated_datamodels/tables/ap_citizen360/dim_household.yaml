@@ -1,0 +1,179 @@
+database: ap_citizen360
+table: dim_household
+department: ap_citizen360
+description: One row per household — the family/ration-card unit that dim_person.household_id
+  and dim_family_member.household_id join against. Carries household-level (not individual-level)
+  attributes like ration card and income category.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_household
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_household`(
+    `household_id` STRING,
+    `head_person_id` STRING,
+    `head_name` STRING,
+    `head_gender` STRING,
+    `members_count` INT,
+    `social_category` STRING,
+    `ration_card_no` STRING,
+    `ration_card_type` STRING,
+    `income_band` STRING,
+    `village_name` STRING,
+    `mandal_id` STRING,
+    `district_id` STRING,
+    `latitude` DOUBLE,
+    `longitude` DOUBLE,
+    `pincode` STRING,
+    `address` STRING,
+    `dwelling_type` STRING,
+    `phone` STRING,
+    `household_income_category` STRING,
+    `updated_at` TIMESTAMP
+  )
+columns:
+- name: household_id
+  type: STRING
+  nullable: true
+  description: Canonical household identifier.
+- name: head_person_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_person.person_id for the head of household.
+- name: head_name
+  type: STRING
+  nullable: true
+  description: Name of the head of household (denormalized for display without a join).
+- name: head_gender
+  type: STRING
+  nullable: true
+  description: 'Gender of the head of household. [Value Examples: ''Female'', ''Male'',
+    ''Transgender'', ''Others'']'
+  distinct:
+  - Female
+  - Male
+  - Transgender
+  - Others
+- name: members_count
+  type: INT
+  nullable: true
+  description: Total number of members in the household.
+- name: social_category
+  type: STRING
+  nullable: true
+  description: 'Household-level social category (typically the head''s), used for
+    some household-targeted welfare schemes. [Value Examples: ''BC'', ''OC'', ''SC'',
+    ''ST'']'
+  distinct:
+  - BC
+  - OC
+  - SC
+  - ST
+- name: ration_card_no
+  type: STRING
+  nullable: true
+  description: Household NFSA ration card number.
+- name: ration_card_type
+  type: STRING
+  nullable: true
+  description: 'AAY / PHH / NPHH — ration card priority category. [Value Examples:
+    ''BPL'', ''AAY'']'
+  distinct:
+  - BPL
+  - AAY
+- name: income_band
+  type: STRING
+  nullable: true
+  description: 'Household income bracket (ranged, e.g. ''Below ₹1.5L''). [Value Examples:
+    ''>?5L'', ''0–1L'', ''?1L–?3L'', ''?3L–?5L'', ''1L–3L'', ''?0–?1L'']'
+  distinct:
+  - '>?5L'
+  - 0–1L
+  - ?1L–?3L
+  - ?3L–?5L
+  - 1L–3L
+  - ?0–?1L
+  - 3L–5L
+  - '>5L'
+- name: village_name
+  type: STRING
+  nullable: true
+  description: Village/habitation the household resides in.
+- name: mandal_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_mandal.mandal_id.
+- name: district_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_district.district_id.
+- name: latitude
+  type: DOUBLE
+  nullable: true
+  description: Geocoded latitude of the household's residence, where available.
+- name: longitude
+  type: DOUBLE
+  nullable: true
+  description: Geocoded longitude of the household's residence, where available.
+- name: pincode
+  type: STRING
+  nullable: true
+  description: Postal PIN code of the household's residence.
+- name: address
+  type: STRING
+  nullable: true
+  description: Free-text household address.
+- name: dwelling_type
+  type: STRING
+  nullable: true
+  description: 'Household-level housing tenure/quality, e.g. ''Own House – Pucca''.
+    [Value Examples: ''Puccahouse-Daba'', ''RCChouse'', ''Pakkahouse'', ''Foilhouse'',
+    ''Kacchahouse'', ''Shells'']'
+  distinct:
+  - Puccahouse-Daba
+  - RCChouse
+  - Pakkahouse
+  - Foilhouse
+  - Kacchahouse
+  - Shells
+  - Flat
+  - Duplexhouse
+- name: phone
+  type: STRING
+  nullable: true
+  description: Primary contact number for the household.
+- name: household_income_category
+  type: STRING
+  nullable: true
+  description: BPL / APL classification — distinct from the ranged income_band, used
+    by schemes that key specifically on Below/Above Poverty Line status rather than
+    an income range.
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp the household record was last updated by any source.
+primary_key:
+- household_id
+relationships:
+- dim_household.head_person_id is a foreign key to dim_person.person_id.
+- dim_household.mandal_id is a foreign key to dim_mandal.mandal_id.
+- dim_household.district_id is a foreign key to dim_district.district_id.
+business_terms:
+- ap_citizen360
+- person___household___identity
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_household
+- join dim_household to dim_person via person_id
+- filter dim_household by district_id or mandal_id

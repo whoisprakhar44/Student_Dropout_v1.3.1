@@ -1,0 +1,77 @@
+database: ap_citizen360
+table: fact_event_status_update
+department: ap_citizen360
+description: Append-only log of POST /datatransfer/event_status updates — what processing
+  status a department reports back for a specific delivered event over time (e.g.
+  a department reporting it has actioned a lifecycle event).
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_event_status_update
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`fact_event_status_update`(
+    `event_correlation_id` STRING,
+    `processing_status` STRING,
+    `department_reference_id` STRING,
+    `updated_at` TIMESTAMP,
+    `remarks` STRING,
+    `source` STRING,
+    `created_at` TIMESTAMP
+  )
+columns:
+- name: event_correlation_id
+  type: STRING
+  nullable: true
+  description: Foreign key to fact_event_index.event_correlation_id — the event this
+    status update concerns.
+- name: processing_status
+  type: STRING
+  nullable: true
+  description: 'Status the department is reporting, e.g. ''Received'', ''Processed'',
+    ''Rejected''. [Value Examples: ''SUCCESS'']'
+  distinct:
+  - SUCCESS
+- name: department_reference_id
+  type: STRING
+  nullable: true
+  description: The department's own internal reference/ticket ID for its handling
+    of this event.
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp this status update was reported.
+- name: remarks
+  type: STRING
+  nullable: true
+  description: Free-text remarks accompanying the status update.
+- name: source
+  type: STRING
+  nullable: true
+  description: 'System/integration that submitted this status update on the department''s
+    behalf. [Value Examples: ''event_status_update'']'
+  distinct:
+  - event_status_update
+- name: created_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp this status-update row was recorded.
+primary_key:
+- event_correlation_id
+business_terms:
+- ap_citizen360
+- data_transfer_api___request_idempotency,_event-delivery_index,_ack/status_persistence
+- fact
+- Iceberg
+- ICEBERG
+common_operations:
+- aggregate measures in fact_event_status_update by geography and time period
+- join fact_event_status_update with dimension tables via person_id or district_id
+- filter fact_event_status_update by district_id or date

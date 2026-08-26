@@ -1,0 +1,133 @@
+database: ap_citizen360
+table: dim_citizen_identifier
+department: ap_citizen360
+description: One row per government-issued identifier held by a person (Aadhaar, Voter
+  ID, Driving License, Bank Account, ...) — a person can hold multiple identifiers
+  of different types, and dim_person itself stores none of them directly.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_citizen_identifier
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_citizen_identifier`(
+    `identifier_id` STRING,
+    `person_id` STRING,
+    `identifier_type` STRING,
+    `identifier_value` STRING,
+    `is_primary` BOOLEAN,
+    `issuing_authority` STRING,
+    `issued_date` DATE,
+    `expiry_date` DATE,
+    `is_active` BOOLEAN,
+    `verified_flag` BOOLEAN,
+    `source` STRING
+  )
+columns:
+- name: identifier_id
+  type: STRING
+  nullable: true
+  description: Canonical identifier-record id.
+- name: person_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_person.person_id.
+- name: identifier_type
+  type: STRING
+  nullable: true
+  description: 'Type of identifier, e.g. ''Aadhaar'', ''VoterID'', ''DrivingLicense'',
+    ''BankAccount''. [Value Examples: ''Mobile Number'', ''Aadhaar'', ''Household
+    Id'', ''Ration card'', ''Student Id'', ''SSC Hallticket'']'
+  distinct:
+  - Mobile Number
+  - Aadhaar
+  - Household Id
+  - Ration card
+  - Student Id
+  - SSC Hallticket
+  - Driving licence
+  - Employee Id
+- name: identifier_value
+  type: STRING
+  nullable: true
+  description: The identifier's value/number itself (PII — masked in most API responses).
+- name: is_primary
+  type: BOOLEAN
+  nullable: true
+  description: 'True if this is the person''s primary identifier of this type, when
+    more than one of the same type is on file. [Value Examples: ''False'', ''True'']'
+  distinct:
+  - 'False'
+  - 'True'
+- name: issuing_authority
+  type: STRING
+  nullable: true
+  description: 'Authority that issued the identifier, e.g. ''UIDAI'', ''Election Commission
+    of AP''. [Value Examples: ''GSWS'', ''UIDAI'', ''EPDS'', ''RTA'']'
+  distinct:
+  - GSWS
+  - UIDAI
+  - EPDS
+  - RTA
+- name: issued_date
+  type: DATE
+  nullable: true
+  description: Date the identifier was issued.
+- name: expiry_date
+  type: DATE
+  nullable: true
+  description: Expiry date of the identifier, where applicable (e.g. driving licenses).
+- name: is_active
+  type: BOOLEAN
+  nullable: true
+  description: 'True if the identifier is currently active/valid (not cancelled or
+    superseded). [Value Examples: ''True'']'
+  distinct:
+  - 'True'
+- name: verified_flag
+  type: BOOLEAN
+  nullable: true
+  description: 'True if the identifier has been verified against its issuing authority''s
+    system (e.g. Aadhaar e-KYC verified), distinct from merely being on file. [Value
+    Examples: ''True'', ''False'']'
+  distinct:
+  - 'True'
+  - 'False'
+- name: source
+  type: STRING
+  nullable: true
+  description: 'Source system that supplied this identifier row. [Value Examples:
+    ''GSWS'', ''EPDS'', ''APSeva Services'', ''UFS'', ''School Education'', ''Electricity'']'
+  distinct:
+  - GSWS
+  - EPDS
+  - APSeva Services
+  - UFS
+  - School Education
+  - Electricity
+  - Sarathi
+  - HRMS_pensioner
+  - HRMS
+  - CRS-ap
+primary_key:
+- identifier_id
+relationships:
+- dim_citizen_identifier.person_id is a foreign key to dim_person.person_id.
+business_terms:
+- ap_citizen360
+- person___household___identity
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_citizen_identifier
+- join dim_citizen_identifier to dim_person via person_id
+- filter dim_citizen_identifier by district_id or mandal_id

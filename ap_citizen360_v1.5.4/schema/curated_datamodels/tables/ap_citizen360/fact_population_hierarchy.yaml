@@ -1,0 +1,90 @@
+database: ap_citizen360
+table: fact_population_hierarchy
+department: ap_citizen360
+description: Pre-aggregated population pyramid cells — population, household, and
+  ration-card counts broken down by geography, gender, and social category. Backs
+  the Population Hierarchy / demographic pyramid views without aggregating dim_person
+  at query time.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/fact_population_hierarchy
+partitioned_by: geo_level, months(trend_month)
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`fact_population_hierarchy`(
+    `geo_level` STRING,
+    `geo_id` STRING,
+    `gender` STRING,
+    `social_category` STRING,
+    `population_count` BIGINT,
+    `household_count` BIGINT,
+    `ration_card_count` BIGINT
+  )
+columns:
+- name: geo_level
+  type: STRING
+  nullable: true
+  description: 'state | district | mandal | village. [Value Examples: ''village'',
+    ''mandal'', ''district'', ''state'']'
+  distinct:
+  - village
+  - mandal
+  - district
+  - state
+- name: geo_id
+  type: STRING
+  nullable: true
+  description: ap | district_id | mandal_id | village_name — the identifier appropriate
+    to geo_level.
+- name: gender
+  type: STRING
+  nullable: true
+  description: 'Male | Female | Others. [Value Examples: ''Female'', ''Male'', ''Others'']'
+  distinct:
+  - Female
+  - Male
+  - Others
+- name: social_category
+  type: STRING
+  nullable: true
+  description: 'OC | BC | SC | ST | Others. [Value Examples: ''Others'', ''BC'', ''SC'',
+    ''OC'', ''ST'']'
+  distinct:
+  - Others
+  - BC
+  - SC
+  - OC
+  - ST
+- name: population_count
+  type: BIGINT
+  nullable: true
+  description: Census population for this geography/gender/category cell.
+- name: household_count
+  type: BIGINT
+  nullable: true
+  description: Number of households headed by this gender/category in this geography.
+- name: ration_card_count
+  type: BIGINT
+  nullable: true
+  description: NFSA ration card holders in this gender/category cell.
+primary_key:
+- geo_level, geo_id, gender, social_category
+business_terms:
+- ap_citizen360
+- population_and_utility_trends
+- fact
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- aggregate measures in fact_population_hierarchy by geography and time period
+- join fact_population_hierarchy with dimension tables via facility_id or person_id
+- filter fact_population_hierarchy by district_id or period_date

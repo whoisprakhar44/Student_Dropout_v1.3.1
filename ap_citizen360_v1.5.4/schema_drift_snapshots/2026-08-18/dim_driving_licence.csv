@@ -1,0 +1,12 @@
+column_name,type,nullable
+bio_alt_mobile_no,TEXT,true
+bio_full_name,TEXT,true
+bio_mobile_no,TEXT,true
+bio_phone_no,TEXT,true
+dc_covcd,TEXT,true
+dl_licno,TEXT,true
+dl_tr_valdto_dt,TEXT,true
+person_id,TEXT,true
+transport_validity_from,TEXT,true
+updated_at,TEXT,true
+ve_catg,TEXT,true

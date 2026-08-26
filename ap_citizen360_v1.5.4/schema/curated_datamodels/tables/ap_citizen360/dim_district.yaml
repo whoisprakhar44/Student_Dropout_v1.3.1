@@ -1,0 +1,216 @@
+database: ap_citizen360
+table: dim_district
+department: ap_citizen360
+description: One row per district per effective-dated period (slowly-changing dimension),
+  nested under dim_state via state_id. Backs the District Profile drilldown view.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_district
+partitioned_by: mandal_id
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_district`(
+    `district_id` STRING,
+    `district_name` STRING,
+    `state_id` STRING,
+    `population` BIGINT,
+    `households` BIGINT,
+    `literacy_rate` DOUBLE,
+    `sex_ratio` INT,
+    `urbanization_pct` DOUBLE,
+    `ration_cards_total` BIGINT,
+    `ration_aay` BIGINT,
+    `ration_phh` BIGINT,
+    `ration_nphh` BIGINT,
+    `ration_others` BIGINT,
+    `vehicles` BIGINT,
+    `land_acres` BIGINT,
+    `agri_land_acres` BIGINT,
+    `properties` BIGINT,
+    `gas_connections` BIGINT,
+    `electricity_consumers` BIGINT,
+    `avg_monthly_kwh` INT,
+    `property_tax_coverage` INT,
+    `effective_from` DATE,
+    `effective_to` DATE,
+    `is_current` BOOLEAN
+  )
+columns:
+- name: district_id
+  type: STRING
+  nullable: true
+  description: Canonical district code.
+- name: district_name
+  type: STRING
+  nullable: true
+  description: 'Display name of the district. [Value Examples: ''PRAKASAM'', ''EAST
+    GODAVARI'', ''ANAKAPALLI'', ''ALLURI SITHARAMA RAJU'', ''ANNAMAYYA'', ''VIZIANAGARAM'']'
+  distinct:
+  - PRAKASAM
+  - EAST GODAVARI
+  - ANAKAPALLI
+  - ALLURI SITHARAMA RAJU
+  - ANNAMAYYA
+  - VIZIANAGARAM
+  - POLAVARAM
+  - VISAKHAPATNAM
+  - SRIKAKULAM
+  - SRI POTTI SRIRAMULU NELLORE
+  - NTR
+  - WEST GODAVARI
+  - PARVATHIPURAM MANYAM
+  - KAKINADA
+  - SRI SATHYA SAI
+  - YSR KADAPA
+  - MARKAPURAM
+  - NANDYAL
+  - DR.B.R.AMBEDKAR KONASEEMA
+  - BAPATLA
+  - ANANTHAPURAMU
+  - GUNTUR
+  - ELURU
+  - TIRUPATI
+  - PALNADU
+  - CHITTOOR
+  - KRISHNA
+  - KURNOOL
+  - Alluri Sitharama Raju
+  - Anakapalli
+  - Ananthapuramu
+  - Annamayya
+  - Bapatla
+  - Chittoor
+  - Dr. B.R. Ambedkar Konaseema
+  - East Godavari
+  - Eluru
+  - Guntur
+  - Kakinada
+  - Krishna
+  - Kurnool
+  - Nandyal
+  - Palnadu
+  - Parvathipuram Manyam
+  - Prakasam
+  - Sri Potti Sriramulu Nellore
+  - Sri Sathya Sai
+  - Srikakulam
+  - Tirupati
+  - Visakhapatnam
+  - Vizianagaram
+  - West Godavari
+  - Y.S.R.
+- name: state_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_state.state_id.
+- name: population
+  type: BIGINT
+  nullable: true
+  description: Total district population.
+- name: households
+  type: BIGINT
+  nullable: true
+  description: Total household count in the district.
+- name: literacy_rate
+  type: DOUBLE
+  nullable: true
+  description: District literacy rate, percentage (0-100).
+- name: sex_ratio
+  type: INT
+  nullable: true
+  description: Females per 1000 males in the district.
+- name: urbanization_pct
+  type: DOUBLE
+  nullable: true
+  description: Percentage of the district's population classified urban.
+- name: ration_cards_total
+  type: BIGINT
+  nullable: true
+  description: Total NFSA ration cards issued in the district.
+- name: ration_aay
+  type: BIGINT
+  nullable: true
+  description: District ration cards under the Antyodaya Anna Yojana category.
+- name: ration_phh
+  type: BIGINT
+  nullable: true
+  description: District ration cards under the Priority Household category.
+- name: ration_nphh
+  type: BIGINT
+  nullable: true
+  description: District ration cards under the Non-Priority Household category.
+- name: ration_others
+  type: BIGINT
+  nullable: true
+  description: District ration cards under other/legacy categories.
+- name: vehicles
+  type: BIGINT
+  nullable: true
+  description: Total registered vehicles in the district.
+- name: land_acres
+  type: BIGINT
+  nullable: true
+  description: Total land extent recorded in the district, in acres.
+- name: agri_land_acres
+  type: BIGINT
+  nullable: true
+  description: Total agricultural land extent in the district, in acres.
+- name: properties
+  type: BIGINT
+  nullable: true
+  description: Total registered properties (residential/commercial) in the district.
+- name: gas_connections
+  type: BIGINT
+  nullable: true
+  description: Total registered domestic gas connections in the district.
+- name: electricity_consumers
+  type: BIGINT
+  nullable: true
+  description: Total registered electricity consumer connections in the district.
+- name: avg_monthly_kwh
+  type: INT
+  nullable: true
+  description: Average monthly electricity consumption per consumer, in kWh.
+- name: property_tax_coverage
+  type: INT
+  nullable: true
+  description: Percentage of assessed properties that are current on property tax.
+- name: effective_from
+  type: DATE
+  nullable: true
+  description: Start date this snapshot row is valid from (SCD2 versioning).
+- name: effective_to
+  type: DATE
+  nullable: true
+  description: End date this snapshot row is valid until; null/open-ended for the
+    current row.
+- name: is_current
+  type: BOOLEAN
+  nullable: true
+  description: 'True if this is the latest/active version of the district snapshot.
+    [Value Examples: ''True'']'
+  distinct:
+  - 'True'
+primary_key:
+- district_id
+relationships:
+- dim_district.state_id is a foreign key to dim_state.state_id.
+business_terms:
+- ap_citizen360
+- geography
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_district
+- join dim_district to dim_person via person_id
+- filter dim_district by district_id or mandal_id

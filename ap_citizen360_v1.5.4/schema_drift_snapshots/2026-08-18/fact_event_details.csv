@@ -1,0 +1,17 @@
+column_name,type,nullable
+citizen_name,TEXT,true
+department_id,TEXT,true
+detected_at,TEXT,true
+district_id,TEXT,true
+event_id,TEXT,true
+event_type,TEXT,true
+eventdata,TEXT,true
+household_id,TEXT,true
+linked_scheme_ids,TEXT,true
+mandal_id,TEXT,true
+person_id,TEXT,true
+resolution_status,TEXT,true
+severity,TEXT,true
+sub_event_type,TEXT,true
+summary,TEXT,true
+village_name,TEXT,true

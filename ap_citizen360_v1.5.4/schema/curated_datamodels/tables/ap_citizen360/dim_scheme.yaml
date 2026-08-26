@@ -1,0 +1,163 @@
+database: ap_citizen360
+table: dim_scheme
+department: ap_citizen360
+description: Canonical welfare/benefit scheme catalog — referenced by fact_entitlement,
+  fact_benefit_transaction, fact_scheme_disbursement, and the linked_scheme_ids arrays
+  on several dim_* tables.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_scheme
+partitioned_by: district_id
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_scheme`(
+    `scheme_id` STRING,
+    `scheme_name` STRING,
+    `department_id` STRING,
+    `benefit_type` STRING
+  )
+columns:
+- name: scheme_id
+  type: STRING
+  nullable: true
+  description: Canonical scheme code, e.g. 'SCH-001'.
+- name: scheme_name
+  type: STRING
+  nullable: true
+  description: 'Display name of the scheme, e.g. ''Anna NTR'', ''PM-Kisan''. [Value
+    Examples: ''Sumangali (Marriage Assistance)'', ''Pre-Matric Scholarship (SC/ST/BC/Min)'',
+    ''PM-YASASVI - Post-Matric Scholarship for OBC, EBC & DNT [AP146]'', ''Chandranna
+    Bima (Accidental Insurance)'', ''PM Fasal Bima Yojana (PMFBY)'', ''Post-Matric
+    Scholarship to SCs [AP232]'']'
+  distinct:
+  - Sumangali (Marriage Assistance)
+  - Pre-Matric Scholarship (SC/ST/BC/Min)
+  - PM-YASASVI - Post-Matric Scholarship for OBC, EBC & DNT [AP146]
+  - Chandranna Bima (Accidental Insurance)
+  - PM Fasal Bima Yojana (PMFBY)
+  - Post-Matric Scholarship to SCs [AP232]
+  - Aasara (SHG Interest Subvention)
+  - NTR Bharosa Pension (Transgender)
+  - NTR Bharosa Pension (Pensions to artists)
+  - Post-Matriculation Scholarships (MTF)
+  - NTR Bharosa Pension (Old Age)
+  - Bala Sanjeevani Plus
+  - BC Welfare Hostels & Scholarships
+  - Kutir Jyoti (Free Electricity Connection)
+  - NTR Bharosa Pension (Traditional Cobblers)
+  - Matsyakara Sevalo
+  - Minority Overseas Scholarship
+  - AB-PMJAY (Ayushman Bharat)
+  - Jagananna Vidya Deevena
+  - NTR Bharosa Pension (Widow)
+  - NTR Bharosa Pension (Abhayahastam)
+  - Jagjeevan Jyothi
+  - NTR Bharosa Pension (Dappu Artists)
+  - NTR Bharosa Pension
+  - NTR Vaidya Seva (Aarogyasri)
+  - Fishermen Pension
+  - PM-Kisan (Pradhan Mantri Kisan)
+  - Pradhan Mantri Matru Vandana Yojana
+  - Deepam-2 (3 Free LPG Cylinders)
+  - Annapurna Food Security Scheme
+  - Amma Vodi (School Dropout Prevention)
+  - Navaratnalu Pedalandariki Illu
+  - NTR Bharosa Pension (CKDU GOVT)
+  - Rythu Bandhu Pathakam
+  - Post-Matric Scholarship to BCs
+  - Integrated Child Development Services (ICDS)
+  - YSR Free Solar Rooftop Scheme
+  - Thalliki Vandanam
+  - Annadata Sukhibhava
+  - NTR Bharosa Pension (Amaravathi Landless Poor)
+  - MGNREGS (Mahatma Gandhi NREGS)
+  - Anna NTR (PDS Free Rice)
+  - NTR Bharosa Pension (Sainik welfare pensions)
+  - YSR Rythu Bharosa – PM KISAN Topup
+  - NTR Bharosa Pension (DMHO)
+  - Super Six – ₹1500 for Women (Thalliki Aasara)
+  - Bala Sanjeevani
+  - Stree Nidhi (SHG Micro-Finance)
+  - Auto Driver Sevalo
+  - NTR Bharosa Pension (ART(PLHIV))
+  - Weavers Pension
+  - Post-Matric Scholarship to STs [AP187]
+  - Janani Suraksha Yojana (JSY)
+  - UDID Disability Certificate & Benefits
+  - NTR Bharosa Pension (Single Women)
+  - MEPMA Urban SHG Loan
+  - Pradhan Mantri Awas Yojana – Gramin
+  - Mid-Day Meal Scheme
+  - Pradhan Mantri Awas Yojana – Urban
+  - NTR Vidya Deevena (Fee Reimbursement)
+  - NTR Bharosa Pension (CKDU Private)
+  - AP ePass (Post-Matric Scholarship)
+  - NTR Bharosa Pension (Disabled)
+  - Rajiv Gandhi Vidyarthi Abhaya Hastham
+  - Rythu Bharosa (Input Subsidy)
+  - Dr. B.R. Ambedkar Overseas Vidya Nidhi
+  - NTR Bharosa Pension (Toddy Tappers)
+  - Post-Matric Scholarship to Others
+- name: department_id
+  type: STRING
+  nullable: true
+  description: 'Foreign key to dim_department.department_id — the department administering
+    this scheme. [Value Examples: ''DEPT-SW'', ''DEPT-EDU'', ''DEPT-AGRI'', ''DEPT-WCD'',
+    ''DEPT-RD'', ''DEPT-GOI'']'
+  distinct:
+  - DEPT-SW
+  - DEPT-EDU
+  - DEPT-AGRI
+  - DEPT-WCD
+  - DEPT-RD
+  - DEPT-GOI
+  - DEPT-PG
+  - DEPT-HEALTH
+  - DEPT-FISH
+  - DEPT-HE
+  - DEPT-BC
+  - DEPT-HUD
+  - DEPT-FCS
+  - DEPT-FIN
+  - DEPT-LABOUR
+  - DEPT-MEPMA
+  - DEPT-RTA
+  - DEPT-SERP
+  - DEPT-MIN
+  - DEPT-ENE
+- name: benefit_type
+  type: STRING
+  nullable: true
+  description: 'Nature of the benefit, e.g. ''Cash Transfer'', ''In-kind'', ''Subsidy'',
+    ''Insurance''. [Value Examples: ''Direct Cash Transfer'', ''In-Kind'', ''Fee Reimbursement'',
+    ''Insurance Coverage'', ''Credit / Loan'', ''Direct Benfit Transfer'']'
+  distinct:
+  - Direct Cash Transfer
+  - In-Kind
+  - Fee Reimbursement
+  - Insurance Coverage
+  - Credit / Loan
+  - Direct Benfit Transfer
+primary_key:
+- scheme_id
+relationships:
+- dim_scheme.department_id is a foreign key to dim_department.department_id.
+business_terms:
+- ap_citizen360
+- schemes,_departments_and_governance
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_scheme
+- join dim_scheme to dim_person via person_id
+- filter dim_scheme by district_id or mandal_id

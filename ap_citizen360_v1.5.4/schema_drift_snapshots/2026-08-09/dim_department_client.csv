@@ -1,0 +1,8 @@
+column_name,type,nullable
+client_secret_hash,TEXT,true
+created_at,TEXT,true
+department_id,TEXT,true
+dimensions,TEXT,true
+is_active,INTEGER,true
+scopes,TEXT,true
+updated_at,TEXT,true

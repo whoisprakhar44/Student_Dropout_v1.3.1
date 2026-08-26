@@ -1,0 +1,4 @@
+column_name,type,nullable
+district_id,TEXT,true
+mandal_id,TEXT,true
+mandal_name,TEXT,true

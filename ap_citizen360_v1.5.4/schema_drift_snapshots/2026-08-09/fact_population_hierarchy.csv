@@ -1,0 +1,8 @@
+column_name,type,nullable
+gender,TEXT,true
+geo_id,TEXT,true
+geo_level,TEXT,true
+household_count,INTEGER,true
+population_count,INTEGER,true
+ration_card_count,INTEGER,true
+social_category,TEXT,true

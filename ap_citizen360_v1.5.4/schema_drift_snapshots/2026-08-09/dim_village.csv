@@ -1,0 +1,4 @@
+column_name,type,nullable
+mandal_id,TEXT,true
+village_id,TEXT,true
+village_name,TEXT,true

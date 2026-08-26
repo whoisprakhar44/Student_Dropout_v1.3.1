@@ -1,0 +1,206 @@
+database: ap_citizen360
+table: dim_social_welfare
+department: ap_citizen360
+description: One row per person summarizing pension, disability, and other Social
+  Welfare department entitlements and self-help-group participation — the aggregation
+  point for everything the Social Welfare department tracks about a citizen, distinct
+  from the broader fact_entitlement table which spans every department's schemes.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_social_welfare
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_social_welfare`(
+    `person_id` STRING,
+    `pension_id` STRING,
+    `pension_type` STRING,
+    `monthly_amount` DECIMAL(10,2),
+    `pension_status` STRING,
+    `pension_bank` STRING,
+    `pension_account_no` STRING,
+    `is_disabled` BOOLEAN,
+    `disability_type` STRING,
+    `disability_percentage` INT,
+    `udid_card_no` STRING,
+    `bpl_card_no` STRING,
+    `secc_family_id` STRING,
+    `annual_family_income` DECIMAL(12,2),
+    `deepam_beneficiary` BOOLEAN,
+    `bc_welfare_scheme` STRING,
+    `shg_name` STRING,
+    `shg_role` STRING,
+    `ntr_bharosa_flag` BOOLEAN,
+    `department_id` STRING,
+    `disability_certificate_date` DATE
+  )
+columns:
+- name: person_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_person.person_id.
+- name: pension_id
+  type: STRING
+  nullable: true
+  description: Pension scheme enrollment ID, where the person receives a pension.
+- name: pension_type
+  type: STRING
+  nullable: true
+  description: Type of pension received, e.g. 'Old Age Pension', 'Widow Pension',
+    'Fishermen Pension'.
+  distinct:
+  - Old Age Pension (OAP)
+  - Widow Pension
+  - Disabled Pension
+  - Weavers Pension
+  - Toddy Tappers Pension
+  - Fishermen Pension
+  - Single Women Pension
+  - CKDU / Transgender Pension
+  - ART / Dialysis Pension
+- name: monthly_amount
+  type: DECIMAL(10,2)
+  nullable: true
+  description: Monthly pension amount, in INR.
+- name: pension_status
+  type: STRING
+  nullable: true
+  description: Current pension status, e.g. 'Active', 'N/A'.
+  distinct:
+  - Active
+  - Sanctioned
+  - Suspended
+  - Stopped
+  - Applied
+  - Rejected
+- name: pension_bank
+  type: STRING
+  nullable: true
+  description: Bank through which the pension is disbursed.
+- name: pension_account_no
+  type: STRING
+  nullable: true
+  description: Bank account number the pension is credited to.
+- name: is_disabled
+  type: BOOLEAN
+  nullable: true
+  description: True if the person has a registered disability.
+  distinct:
+  - 'False'
+  - 'True'
+- name: disability_type
+  type: STRING
+  nullable: true
+  description: Category of disability per RPWD Act 2016 classifications, where is_disabled
+    is true.
+  distinct:
+  - Locomotor Disability
+  - Visual Impairment
+  - Hearing Impairment
+  - Mental Illness
+  - Intellectual Disability
+  - Multiple Disabilities
+  - None
+- name: disability_percentage
+  type: INT
+  nullable: true
+  description: Certified disability percentage.
+- name: udid_card_no
+  type: STRING
+  nullable: true
+  description: Unique Disability ID card number.
+- name: bpl_card_no
+  type: STRING
+  nullable: true
+  description: Below Poverty Line card number, where issued separately from the ration
+    card.
+- name: secc_family_id
+  type: STRING
+  nullable: true
+  description: Socio Economic Caste Census family identifier.
+- name: annual_family_income
+  type: DECIMAL(12,2)
+  nullable: true
+  description: Annual family income as recorded for welfare-eligibility purposes,
+    in INR.
+- name: deepam_beneficiary
+  type: BOOLEAN
+  nullable: true
+  description: True if enrolled in the Deepam free-LPG-connection scheme.
+  distinct:
+  - 'True'
+  - 'False'
+- name: bc_welfare_scheme
+  type: STRING
+  nullable: true
+  description: Name of the Backward Classes welfare scheme this person is enrolled
+    in, where applicable.
+  distinct:
+  - YSR Cheyutha
+  - YSR Aasara
+  - YSR Kapu Nestham
+  - YSR EBC Nestham
+  - YSR Nethanna Nestham
+  - Adarana
+  - None
+- name: shg_name
+  type: STRING
+  nullable: true
+  description: Name of the Self-Help Group the person belongs to, if any.
+- name: shg_role
+  type: STRING
+  nullable: true
+  description: Role held within the Self-Help Group, e.g. 'Member', 'Leader'.
+  distinct:
+  - Member
+  - Leader / President
+  - Secretary
+  - Treasurer
+  - Community Resource Person (CRP)
+  - None
+- name: ntr_bharosa_flag
+  type: BOOLEAN
+  nullable: true
+  description: True if enrolled in the NTR Bharosa pension consolidation scheme.
+  distinct:
+  - 'True'
+  - 'False'
+- name: department_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_department.department_id — the Social Welfare department
+    record owner.
+  distinct:
+  - DEPT-SERP
+  - DEPT-SW
+  - DEPT-BCW
+  - DEPT-TW
+  - DEPT-MW
+  - DEPT-WCD
+- name: disability_certificate_date
+  type: DATE
+  nullable: true
+  description: Date the disability certificate was issued.
+primary_key:
+- person_id
+relationships:
+- dim_social_welfare.person_id is a foreign key to dim_person.person_id.
+- dim_social_welfare.department_id is a foreign key to dim_department.department_id.
+business_terms:
+- ap_citizen360
+- social_welfare
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_social_welfare
+- join dim_social_welfare to dim_person via person_id
+- filter dim_social_welfare by district_id or mandal_id

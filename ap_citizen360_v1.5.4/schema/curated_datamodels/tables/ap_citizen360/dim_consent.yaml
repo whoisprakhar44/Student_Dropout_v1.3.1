@@ -1,0 +1,81 @@
+database: ap_citizen360
+table: dim_consent
+department: ap_citizen360
+description: One row per data-sharing consent grant a citizen has given — backs purpose-limitation
+  checks before citizen data is released to a requesting department via the Data Transfer
+  API.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_consent
+partitioned_by: updated_at
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_consent`(
+    `consent_id` STRING,
+    `person_id` STRING,
+    `valid_from` DATE,
+    `valid_to` DATE,
+    `is_revocable` BOOLEAN,
+    `created_at` TIMESTAMP,
+    `revoked_at` TIMESTAMP,
+    `updated_at` TIMESTAMP
+  )
+columns:
+- name: consent_id
+  type: STRING
+  nullable: true
+  description: Canonical consent-record id.
+- name: person_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_person.person_id — whose data this consent covers.
+- name: valid_from
+  type: DATE
+  nullable: true
+  description: Date this consent becomes effective.
+- name: valid_to
+  type: DATE
+  nullable: true
+  description: Date this consent expires, if not revoked earlier.
+- name: is_revocable
+  type: BOOLEAN
+  nullable: true
+  description: 'True if the citizen can revoke this consent before its valid_to date.
+    [Value Examples: ''True'']'
+  distinct:
+  - 'True'
+- name: created_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp the consent was originally granted.
+- name: revoked_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp the consent was revoked, if applicable; null if still active.
+- name: updated_at
+  type: TIMESTAMP
+  nullable: true
+  description: Timestamp this consent record was last updated.
+primary_key:
+- consent_id
+relationships:
+- dim_consent.person_id is a foreign key to dim_person.person_id.
+business_terms:
+- ap_citizen360
+- person___household___identity
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_consent
+- join dim_consent to dim_person via person_id
+- filter dim_consent by district_id or mandal_id

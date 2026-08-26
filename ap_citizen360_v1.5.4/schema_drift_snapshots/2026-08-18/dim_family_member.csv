@@ -1,0 +1,9 @@
+column_name,type,nullable
+age,INTEGER,true
+family_member_id,TEXT,true
+gender,TEXT,true
+household_id,TEXT,true
+member_name,TEXT,true
+person_id,TEXT,true
+relation,TEXT,true
+updated_at,TEXT,true

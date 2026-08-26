@@ -1,0 +1,53 @@
+database: ap_citizen360
+table: dim_mandal
+department: ap_citizen360
+description: One row per mandal (sub-district administrative unit), nested under dim_district
+  via district_id. A thin lookup table — aggregate metrics for a mandal are computed
+  on the fly from the fact/dim tables that carry mandal_id, not stored here.
+table_format: ICEBERG
+location: hdfs://ap-datalake/CURATED/ap_citizen360/dim_mandal
+partitioned_by: mandal_id
+tblproperties:
+  engine.hive.enabled: 'true'
+  external: 'true'
+  parquet.compression: SNAPPY
+  table_type: ICEBERG
+  write.delete.mode: merge-on-read
+  write.format.default: parquet
+  write.merge.mode: merge-on-read
+  write.update.mode: merge-on-read
+source_file: citizen360_canonical_schema.json
+raw_ddl: |
+  CREATE EXTERNAL TABLE `ap_citizen360`.`dim_mandal`(
+    `mandal_id` STRING,
+    `mandal_name` STRING,
+    `district_id` STRING
+  )
+columns:
+- name: mandal_id
+  type: STRING
+  nullable: true
+  description: Canonical mandal code.
+- name: mandal_name
+  type: STRING
+  nullable: true
+  description: Display name of the mandal.
+- name: district_id
+  type: STRING
+  nullable: true
+  description: Foreign key to dim_district.district_id.
+primary_key:
+- mandal_id
+relationships:
+- dim_mandal.district_id is a foreign key to dim_district.district_id.
+business_terms:
+- ap_citizen360
+- geography
+- dimension
+- Hive
+- Iceberg
+- ICEBERG
+common_operations:
+- profile records in dim_mandal
+- join dim_mandal to dim_person via person_id
+- filter dim_mandal by district_id or mandal_id
