@@ -27,3 +27,4 @@ rapidocr-onnxruntime      # OCR for images in documents
 Pillow                    # Image processing for OCR
 kerberos
 vl-convert-python
+valkey>=6.0.0

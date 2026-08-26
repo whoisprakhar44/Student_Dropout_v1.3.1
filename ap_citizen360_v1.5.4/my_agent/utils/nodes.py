@@ -629,6 +629,23 @@ def verify_node(state: AgentState) -> dict:
     result_table = _result_table_str(last_result_msg.content)
     summary = _summarize_sql_result(state["user_query"], last_result_msg.content)
 
+    # +++ Valkey Cache Hit/Save +++
+    try:
+        from database.valkey_cache import ValkeyCacheManager
+        cache_mgr = ValkeyCacheManager()
+        sql = _extract_sql_from_history(history)
+        if sql:
+            dept_scope = state.get("department_scope") or []
+            dept_str = json.dumps(dept_scope) if isinstance(dept_scope, list) else str(dept_scope)
+            cache_mgr.record_and_cache(
+                query=state["user_query"],
+                sql=sql,
+                department_scope=dept_str,
+                intent=state.get("intent", "general_query")
+            )
+    except Exception as e:
+        logger.error(f"Failed to record/cache query in verify_node: {e}")
+
     logger.info(
         "verify_node: query executed successfully — skipping LLM verification (%.2fs saved)",
         time.perf_counter() - t0,
@@ -902,6 +919,51 @@ def deterministic_search_node(state: AgentState) -> dict:
         "messages": [forced_tool_call_msg],
         "llm_calls": 0,
     }
+
+def valkey_cache_check_node(state: AgentState) -> dict:
+    """Checks Valkey exact match and Milvus semantic match before intent node."""
+    t0 = time.perf_counter()
+    user_query = state.get("user_query", "")
+    
+    try:
+        from database.valkey_cache import ValkeyCacheManager
+        cache_mgr = ValkeyCacheManager()
+        hit = cache_mgr.check_cache(user_query)
+        if hit and hit.get("sql"):
+            logger.info("valkey_cache_check_node: CACHE HIT for query in %.2fs", time.perf_counter() - t0)
+            
+            import uuid
+            tool_call_id = f"call_{uuid.uuid4().hex}"
+            forced_execute_msg = AIMessage(
+                content="I found a cached match for your query. Executing now.",
+                tool_calls=[{
+                    "id": tool_call_id,
+                    "name": "execute_sql",
+                    "args": {
+                        "query": hit["sql"]
+                    }
+                }]
+            )
+            
+            dept_scope = []
+            if hit.get("department_scope"):
+                try:
+                    dept_scope = json.loads(hit["department_scope"])
+                except Exception:
+                    dept_scope = [hit["department_scope"]]
+                    
+            return {
+                "messages": [forced_execute_msg],
+                "fast_sql": hit["sql"],
+                "query_type": "fast_path",
+                "intent": hit.get("intent", "general_query"),
+                "department_scope": dept_scope
+            }
+    except Exception as e:
+        logger.error(f"valkey_cache_check_node failed: {e}")
+        
+    logger.info("valkey_cache_check_node: CACHE MISS for query in %.2fs", time.perf_counter() - t0)
+    return {}
 
 def eval_fast_path_node(state: AgentState) -> dict:
     """

@@ -22,10 +22,17 @@ from langgraph.graph import END, START, StateGraph
 from my_agent.utils.nodes import (
     build_tool_node, initialize_node, intent_node, llm_node, verify_node,
     route_node, doc_search_node, synthesize_node, greeting_node,
-    deterministic_search_node, eval_fast_path_node, summarization_node
+    deterministic_search_node, eval_fast_path_node, summarization_node,
+    valkey_cache_check_node
 )
 from my_agent.utils.state import AgentState
 from my_agent.utils.tools import cleanup_tools, init_tools
+
+
+def after_valkey_cache_check(state: AgentState) -> Literal["tool_node", "intent_node"]:
+    if state.get("fast_sql"):
+        return "tool_node"
+    return "intent_node"
 
 
 def should_continue(state: AgentState) -> Literal["tool_node", "verify_node", "__end__"]:
@@ -129,6 +136,7 @@ async def build_graph():
         return result
 
     builder = StateGraph(AgentState)
+    builder.add_node("valkey_cache_check_node", valkey_cache_check_node)
     builder.add_node("intent_node",      intent_node)       # NEW — classifies intent
     builder.add_node("initialize_node",  initialize_node)
     builder.add_node("llm_node",         llm_node)
@@ -141,8 +149,13 @@ async def build_graph():
     builder.add_node("eval_fast_path_node",       eval_fast_path_node)
     builder.add_node("summarization_node",        summarization_node)
 
-    # Intent classification → route_node
-    builder.add_edge(START,           "intent_node")
+    # Cache check -> Intent classification or Tool execution
+    builder.add_edge(START, "valkey_cache_check_node")
+    builder.add_conditional_edges(
+        "valkey_cache_check_node",
+        after_valkey_cache_check,
+        ["tool_node", "intent_node"]
+    )
     
     builder.add_conditional_edges(
         "intent_node",
