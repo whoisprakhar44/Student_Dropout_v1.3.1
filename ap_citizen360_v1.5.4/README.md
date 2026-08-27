@@ -1,6 +1,6 @@
 # AP Citizen 360 — Conversational NL2SQL Intelligence Platform
 
-> **Version 1.5.2** · FastAPI · LangGraph · Milvus · Ollama · MCP · Impala/Hive
+> **Version 1.5.4** · FastAPI · LangGraph · Milvus · Valkey · Ollama · MCP · Impala/Hive
 
 A production-grade natural-language-to-SQL backend for the **Andhra Pradesh Citizen 360** unified data platform. Converts plain-English questions into verified SQL queries against the AP Citizen 360 curated data model — spanning citizen identity, health, education, land, agriculture, property, vehicle, welfare, and financial dimensions — with full support for both local SQLite (development) and enterprise Impala/HiveServer2 (production) backends.
 
@@ -29,7 +29,11 @@ The AP Citizen 360 NL2SQL platform is a multi-layered AI system that makes the `
 ┌─────────────────────────▼───────────────────────────────────────┐
 │              LangGraph Agent  (my_agent/)                        │
 │                                                                  │
-│   START → intent_node ──(greeting)──► greeting_node ──► END      │
+│   START → valkey_cache_check_node ──(HIT)──► tool_node ──► summarization_node ──► END
+│                │                                                 │
+│              (MISS)                                              │
+│                │                                                 │
+│           intent_node ──(greeting)──► greeting_node ──► END      │
 │                │                                                 │
 │       (data / hybrid)                                            │
 │                │                                                 │
@@ -69,12 +73,13 @@ The AP Citizen 360 NL2SQL platform is a multi-layered AI system that makes the `
 │  get_current_date   │  │   SQLite  /  Impala CDP    │
 └──────────┬──────────┘  │   ap_citizen360 schema     │
            │             └────────────────────────────┘
-┌──────────▼──────────┐
-│   Milvus Lite       │
-│  schema_store       │
-│  few_shot_store     │
-│  document_store     │
-└─────────────────────┘
+┌──────────▼──────────┐  ┌─────────────────────────────┐
+│   Milvus Lite       │  │   Valkey Cache (v1.5.4)      │
+│  schema_store       │  │  Tier-1: Exact match (hash)  │
+│  few_shot_store     │  │  Tier-2: Semantic (milvus_   │
+│  document_store     │  │          cache.db, ≥ 0.97)   │
+│  cached_queries ◄───┼──┤  Max 300 queries, LRU evict  │
+└─────────────────────┘  └─────────────────────────────┘
 ```
 
 ---
@@ -120,6 +125,7 @@ A canonical JSON schema (`citizen360_canonical_schema.json`) and curated YAML jo
 | **Document RAG** | `mcp_rag.py` → `search_documents` tool | COSINE similarity search over `document_store` |
 | **SQL Execution (Dev)** | `mcp_sql_execution.py` → SQLite | Read-only, validated SELECT execution |
 | **SQL Execution (Prod)** | `mcp_hive_execution.py` → Impala via Impyla | Kerberos-authenticated Impala/HiveServer2 queries |
+| **Query Cache (NEW)** | `database/valkey_cache.py` — Valkey + Milvus | 2-tier cache: Tier-1 exact hash match (Valkey), Tier-2 semantic similarity (Milvus `milvus_cache.db`) |
 | **Unified Pipeline** | `pipeline.py` | Indexes schema YAMLs (`schema_store`) and NL→SQL exemplars (`few_shot_store`) |
 | **Document Ingester** | `MCP/ingest_documents.py` | Parses PDF/DOCX/TXT into `document_store` (with OCR) |
 | **Speech-to-Text** | `speech_to_text/` — Faster-Whisper | Live WebSocket PCM transcription |
@@ -131,13 +137,14 @@ A canonical JSON schema (`citizen360_canonical_schema.json`) and curated YAML jo
 
 ## Vector Store Layout
 
-One Milvus collection (`schema_chunks`) with **three named partitions**:
+One Milvus collection (`schema_chunks`) with **three named partitions**, plus a **separate** `milvus_cache.db` dedicated to query caching:
 
-| Partition | Contents | `embedding_text` | `raw_ddl` |
+| Partition / Collection | Contents | `embedding_text` | `raw_ddl` |
 |---|---|---|---|
 | `schema_store` | One document per YAML table | Schema prose + columns + relationships | DDL string |
 | `few_shot_store` | NL→SQL exemplars from `new_fewshots.json` | Natural-language question | Gold SQL query + tables |
 | `document_store` | Chunked PDF / DOCX / TXT passages | Plain chunk text | Header-prefixed chunk |
+| `cached_queries` *(milvus_cache.db)* | Verified NL→SQL pairs cached at runtime | Original user query | JSON payload (sql, intent, department_scope) |
 
 ---
 
@@ -200,6 +207,9 @@ python -m uvicorn app:app --host 0.0.0.0 --port 8000
 | `OLLAMA_BASE_URL` | Ollama server URL | `http://localhost:11434` |
 | `LLM_MODEL` | Chat model name | `qwen3.5` |
 | `MILVUS_URI` | Milvus connection URI | `./milvus_schemas.db` |
+| `VALKEY_URL` | Valkey/Redis connection URL | `redis://localhost:6379/0` |
+| `CACHE_MAX_QUERIES` | Maximum number of queries stored in cache | `300` |
+| `CACHE_SEMANTIC_THRESHOLD` | Cosine similarity threshold for Tier-2 semantic cache hits | `0.97` |
 
 ---
 
@@ -351,6 +361,7 @@ intent_node
 
 | Node | Responsibility |
 |---|---|
+| `valkey_cache_check_node` | **NEW (v1.5.4)** — First node in the graph. Performs Tier-1 exact-match (Valkey hash) then Tier-2 semantic similarity (Milvus). On HIT, restores `intent` + `department_scope` from cache and routes straight to `tool_node (execute_sql)`. |
 | `intent_node` | Classifies user intent (`data_query`, `document_query`, `greeting`) and extracts entities/scope |
 | `greeting_node` | Returns friendly welcome response for conversational inputs without tool execution |
 | `deterministic_search_node` | Triggers exact golden question vector search (`search_exact_fewshot`) against `few_shot_store` |
@@ -358,7 +369,7 @@ intent_node
 | `initialize_node` | Forces schema retrieval tool call (`retrive_schema_rag`) when novel SQL generation is required |
 | `llm_node` | Generates SQL query using the retrieved schema DDLs, foreign key relationships, and fewshot exemplars |
 | `tool_node` | Executes MCP tools (`retrive_schema_rag`, `search_exact_fewshot`, `execute_sql`, `search_documents`, etc.) |
-| `verify_node` | Error-recovery node; inspects failed SQL execution and initiates targeted RAG re-retrieval / retry |
+| `verify_node` | Error-recovery node; inspects failed SQL execution, saves successful SQL to Valkey cache, and initiates targeted RAG re-retrieval / retry |
 | `summarization_node` | Translates raw database rows into a clear, user-facing natural language response |
 | `doc_search_node` | Triggers document vector search (`search_documents`) for policy and guideline queries |
 | `synthesize_node` | Summarizes retrieved document passages into an attributed natural language answer |
@@ -471,7 +482,7 @@ It detects added, removed, and type-changed columns, and generates drift reports
 ## Project Structure
 
 ```
-ap_citizen360_v1.5.2/
+ap_citizen360_v1.5.4/
 ├── app.py                          # FastAPI application & session management
 ├── pipeline.py                     # Schema injection & few-shot indexing pipeline
 ├── config.yaml                     # Pipeline configuration
@@ -513,7 +524,14 @@ ap_citizen360_v1.5.2/
 ├── fewshots_combined.json          # NL→SQL training exemplars
 ├── schema_drift_tracker.py         # Schema change detection
 ├── create_schema.py                # SQLite schema creation & sample data
-└── documents/                      # Unstructured documents for RAG
+├── documents/                      # Unstructured documents for RAG
+│
+├── database/
+│   ├── valkey_cache.py             # NEW — 2-tier Valkey + Milvus query cache manager
+│   ├── redis_cache.py              # Legacy rate-limiting cache
+│   └── schema.db                   # SQLite schema database
+│
+└── milvus_cache.db                 # NEW — Dedicated Milvus Lite DB for semantic cache
 ```
 
 ---
@@ -548,6 +566,7 @@ python schema_drift_tracker.py
 ## Key Design Decisions
 
 - **MCP (Model Context Protocol)** is used as the tool transport layer between the LangGraph agent and execution backends. This keeps SQL execution servers isolated, composable, and swappable — the agent never directly imports database drivers.
+- **2-Tier Query Cache** (`valkey_cache_check_node`) sits at the very top of the graph — before `intent_node`. Tier-1 is an exact MD5 hash lookup in Valkey (sub-millisecond). Tier-2 is a cosine-similarity search in a dedicated `milvus_cache.db`. On any cache hit, the entire LLM generation, RAG retrieval, and verification pipeline is bypassed. SQL, `intent`, and `department_scope` are restored from cache and routed directly to `execute_sql`.
 - **Intent classification** runs before any tool call, preventing unnecessary schema lookups for greetings, simple follow-ups, or document queries.
 - **Dual backend support** (`HIVE_MCP_ENABLED`) lets the same agent code serve local development (SQLite) and production (Impala) without code changes — only a `.env` flag flip.
 - **Retry-on-error** in `verify_node` surfaces the actual SQL error back to the LLM context, enabling dialect-aware self-correction rather than generic retry.

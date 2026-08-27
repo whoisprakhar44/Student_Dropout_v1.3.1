@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversational Query Engine Architecture v1.5.2</title>
+    <title>Conversational Query Engine Architecture v1.5.4</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -99,7 +99,7 @@
 <body>
     <header>
         <h1>Conversational Query Engine — Architecture</h1>
-        <p>ap_citizen360 v1.5.2 &nbsp;&middot;&nbsp; LangGraph + MCP (RAG &middot; Impala) &nbsp;&middot;&nbsp; Milvus Lite</p>
+        <p>ap_citizen360 v1.5.4 &nbsp;&middot;&nbsp; LangGraph + MCP (RAG &middot; Impala) &nbsp;&middot;&nbsp; Valkey Cache &nbsp;&middot;&nbsp; Milvus Lite</p>
     </header>
 
     <div class="legend">
@@ -111,7 +111,7 @@
         <div class="legend-item"><div class="legend-swatch" style="background:#fce7f3;border-color:#db2777"></div>LLM</div>
         <div class="legend-item"><div class="legend-swatch" style="background:#fef9c3;border-color:#ca8a04"></div>Impala / Kerberos</div>
         <div class="legend-item"><div class="legend-swatch" style="background:#f1f5f9;border-color:#64748b"></div>Storage</div>
-
+        <div class="legend-item"><div class="legend-swatch" style="background:#ecfdf5;border-color:#059669"></div>Cache (NEW v1.5.4)</div>
         <div class="legend-item"><div class="legend-swatch" style="background:#fee2e2;border-color:#dc2626"></div>END state</div>
     </div>
 
@@ -121,7 +121,7 @@
         </div>
     </div>
 
-    <footer>Auto-generated from source analysis &middot; MCP/mcp_rag.py &middot; MCP/mcp_hive_execution.py &middot; MCP/mcp_sql_execution.py &middot; my_agent/ &middot; ap_citizen360 v1.5.2</footer>
+    <footer>Auto-generated from source analysis &middot; MCP/mcp_rag.py &middot; MCP/mcp_hive_execution.py &middot; MCP/mcp_sql_execution.py &middot; database/valkey_cache.py &middot; my_agent/ &middot; ap_citizen360 v1.5.4</footer>
 
     <script>
         mermaid.initialize({
@@ -153,8 +153,9 @@ graph LR
     classDef db     fill:#f1f5f9,stroke:#64748b,stroke-width:2px,color:#0f172a
     classDef impala fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#0f172a
     classDef endcls fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#0f172a
+    classDef cache  fill:#ecfdf5,stroke:#059669,stroke-width:2.5px,color:#0f172a
 
-    LLM["LLM (OpenAI / Ollama)"]:::llm
+    LLM["LLM (Ollama)"]:::llm
 
     UserText["User Question (Text)"]:::user
     UserAudio["User Question (Voice)"]:::user
@@ -165,60 +166,84 @@ graph LR
     subgraph LangGraph ["LangGraph Agent"]
         direction TB
 
-        API --> Intent["intent_node\nClassify intent\nExtract entities\nSet department_scope"]:::core
+        API --> CacheCheck["valkey_cache_check_node\nTier-1 Exact hash lookup\nTier-2 Semantic similarity\nMax 300 queries - LRU evict"]:::cache
+
+        CacheCheck -- "MISS" --> Intent["intent_node\nClassify intent\nExtract entities\nSet department_scope"]:::core
+        CacheCheck -- "HIT - restore sql and intent" --> ToolNodeCache["tool_node\nexecute_sql"]:::tool
+        ToolNodeCache --> Summarize["summarization_node\nFormat answer for user"]:::core
+
         Intent --> Route["route_node"]:::core
 
         Route -- "document_query" --> DocSearch["doc_search_node"]:::core
-        Route -- "data_query / hybrid" --> Init["initialize_node\nBuild enriched RAG query"]:::core
+        Route -- "data_query / hybrid" --> DetSearch["deterministic_search_node"]:::core
 
-        DocSearch --> ToolNode["tool_node\n(Executes MCP tools)"]:::tool
+        DetSearch --> ToolNode["tool_node\nExecutes MCP tools"]:::tool
+        DocSearch --> ToolNode
+
+        ToolNode -- "search_exact_fewshot" --> EvalFast["eval_fast_path_node\nScore high - use gold SQL\nScore low - fallback"]:::core
+        EvalFast -- "score over 0.99" --> ToolNode
+        EvalFast -- "score under 0.99" --> Init["initialize_node\nBuild enriched RAG query"]:::core
         Init --> ToolNode
 
-        ToolNode -- "search_documents" --> Synth["synthesize_node\nSummarize answer"]:::core
+        ToolNode -- "search_documents" --> Synth["synthesize_node\nSummarize doc answer"]:::core
         Synth --> END1(["END"]):::endcls
 
-        ToolNode -- "retrive_schema_rag / get_column_values" --> LLMNode["llm_node\nGenerate SQL"]:::core
+        ToolNode -- "retrive_schema_rag" --> LLMNode["llm_node\nGenerate SQL"]:::core
         LLMNode -- "tool call" --> ToolNode
         LLMNode -- "plain answer" --> END2(["END"]):::endcls
 
-        ToolNode -- "execute_sql" --> Verify["verify_node\nCheck result"]:::core
+        ToolNode -- "execute_sql success" --> Summarize
+        ToolNode -- "execute_sql error" --> Verify["verify_node\nCheck result\nand save to cache"]:::core
 
-        Verify -- "Correct" --> END3(["END"]):::endcls
-        Verify -- "retry < 3" --> ToolNode
-        Verify -- "retries >= 3" --> END4(["END - Max Retries"]):::endcls
+        Verify -- "Correct" --> Summarize
+        Verify -- "retry under 3" --> ToolNode
+        Verify -- "retries maxed" --> END4(["END - Max Retries"]):::endcls
+
+        Summarize --> END0(["END"]):::endcls
     end
 
-    Intent  -. "LLM call" .-> LLM
-    Synth   -. "LLM call" .-> LLM
-    Init    -. "LLM call" .-> LLM
-    LLMNode -. "LLM call" .-> LLM
-    Verify  -. "LLM call" .-> LLM
+    Intent  -.-> LLM
+    Synth   -.-> LLM
+    Init    -.-> LLM
+    LLMNode -.-> LLM
+    Verify  -.-> LLM
 
     subgraph MCP ["MCP Servers"]
         direction TB
-        MCPSchema["retrive_schema_rag\nSchema DDL + few-shot SQL"]:::mcp
+        MCPSchema["retrive_schema_rag\nSchema DDL and few-shot SQL"]:::mcp
         MCPColVals["get_column_values\nDistinct value lookup"]:::mcp
         MCPDoc["search_documents\nPDF / DOCX passages"]:::mcp
         MCPHive["mcp_hive_execution.py\nexecute_sql"]:::impala
     end
 
-    ToolNode -...-> MCPSchema
-    ToolNode -...-> MCPColVals
-    ToolNode -...-> MCPHive
-    ToolNode -...-> MCPDoc
+    ToolNode -.-> MCPSchema
+    ToolNode -.-> MCPColVals
+    ToolNode -.-> MCPHive
+    ToolNode -.-> MCPDoc
 
-    subgraph Milvus ["Milvus Lite"]
+    subgraph Milvus ["Milvus Lite - milvus_schemas.db"]
         direction TB
         SchemaStore[("schema_store\nTable DDLs")]:::db
-        FewShotStore[("few_shot_store\nNL → SQL exemplars")]:::db
-        DocStore[("document_store\nPDF / DOCX passages")]:::db
+        FewShotStore[("few_shot_store\nNL to SQL exemplars")]:::db
+        DocStore[("document_store\nPDF and DOCX passages")]:::db
     end
 
-    MCPSchema -..-> SchemaStore
-    MCPSchema -..-> FewShotStore
-    MCPDoc    -..-> DocStore
+    MCPSchema -.-> SchemaStore
+    MCPSchema -.-> FewShotStore
+    MCPDoc    -.-> DocStore
 
-    ImpalaDB[("ap_citizen360\nImpala / Iceberg")]:::impala
+    subgraph ValkeyCache ["Valkey Cache - NEW v1.5.4"]
+        direction TB
+        ValkeyStore[("Valkey ZSET\nquery_hits and exact payloads")]:::cache
+        MilvusCache[("milvus_cache.db\ncached_queries and embeddings")]:::cache
+    end
+
+    CacheCheck -.-> ValkeyStore
+    CacheCheck -.-> MilvusCache
+    Verify -.-> ValkeyStore
+    Verify -.-> MilvusCache
+
+    ImpalaDB[("ap_citizen360\nImpala and Iceberg")]:::impala
     MCPHive --> ImpalaDB
 `;
 
