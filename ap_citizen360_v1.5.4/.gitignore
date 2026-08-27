@@ -6,3 +6,4 @@ MCP/milvus_schemas.db/
 database/schema.db
 generation_logs
 graphify-out
+node_modules

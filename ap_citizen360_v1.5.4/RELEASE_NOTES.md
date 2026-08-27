@@ -2,6 +2,73 @@
 
 ---
 
+## v1.5.4 — Frequency-Based Query Cache
+
+**Release Date:** August 2026  
+**Codename:** Cache Intelligence  
+**Status:** Production-Ready · Internal Release  
+**Base:** v1.5.2
+
+---
+
+### What's New in v1.5.4
+
+This release introduces a **2-tier, frequency-based query cache** that sits at the very beginning of the LangGraph agent pipeline — before `intent_node`. For any query that has been successfully executed before, the system now bypasses LLM generation, RAG schema retrieval, intent classification, and SQL verification entirely, returning results directly from the execution layer.
+
+#### 1. Tier-1 Cache — Exact Match via Valkey
+
+- **Technology**: [Valkey](https://valkey.io) — a 100% open-source, drop-in Redis-compatible in-memory store (BSD-3 license, no enterprise lock-in).
+- **Mechanism**: Every successfully executed query is normalized (lowercased, whitespace-stripped) and hashed with MD5. The hash is used as a Valkey key storing the full JSON payload: `sql`, `intent`, `department_scope`, and `original_query`.
+- **Lookup**: Sub-millisecond. Runs before any other node in the graph.
+- **Installation**: Installed natively via system package manager (no Docker required). Runs as a `systemd` service on RHEL/Linux.
+
+#### 2. Tier-2 Cache — Semantic Match via Milvus
+
+- **Technology**: Milvus Lite, stored in a **dedicated independent** `milvus_cache.db` file (separate from `milvus_schemas.db` to prevent file-lock conflicts with the RAG pipeline).
+- **Mechanism**: On a Tier-1 miss, the incoming user query is embedded using the same `nomic-embed-text` model already used by the RAG pipeline. The embedding is searched against the `cached_queries` Milvus collection using COSINE similarity.
+- **Threshold**: Configurable via `CACHE_SEMANTIC_THRESHOLD` in `.env` (default `0.97`). A score at or above this value is treated as a cache hit and the stored SQL is returned directly.
+- **Coverage**: Catches paraphrased queries (e.g., *"how many dropouts in Anantapur"* vs *"dropout count for Anantapur district"*) that have different hashes but the same intent.
+
+#### 3. Cache Admission & Eviction
+
+- **Immediate caching**: Every new query is cached on first successful execution (no hit-count threshold required).
+- **Hit tracking**: All queries are tracked in a Valkey `ZSET` (`query_hits`) with a score incremented on every execution. This tracks popularity across sessions.
+- **Max 300 entries**: If the cache exceeds 300 stored queries, the entries with the **fewest hits** (`ZPOPMIN`) are evicted from both Valkey and Milvus simultaneously.
+- **Indefinite persistence**: Cached queries do not expire automatically. They are evicted only when the 300-entry limit is reached.
+- **Department scope stored**: Each cached entry stores `department_scope` (e.g., `["ap_citizen360"]`) alongside `intent` for accurate future query restoration.
+
+#### 4. Graph Integration
+
+- `valkey_cache_check_node` is the **first node** in the LangGraph `StateGraph`, wired as `START → valkey_cache_check_node`.
+- On a **cache HIT**: restores `fast_sql`, `intent`, and `department_scope` from the cached payload and routes directly to `tool_node (execute_sql)` → `summarization_node` → `END`. Zero LLM calls. Zero RAG calls. Zero verify loops.
+- On a **cache MISS**: falls through to `intent_node` and the normal agentic pipeline.
+- `verify_node` now also calls `record_and_cache()` after a successful SQL execution to populate the cache for future hits.
+
+#### 5. Environment Configuration
+
+Three new `.env` variables control cache behavior:
+
+| Variable | Default | Description |
+|---|---|---|
+| `VALKEY_URL` | `redis://localhost:6379/0` | Valkey connection string |
+| `CACHE_MAX_QUERIES` | `300` | Maximum cache size before LRU eviction |
+| `CACHE_SEMANTIC_THRESHOLD` | `0.97` | Cosine similarity cutoff for Tier-2 hits |
+
+#### 6. RHEL Deployment
+
+Valkey can be installed from source on RHEL 8/9 without Docker:
+
+```bash
+sudo dnf groupinstall "Development Tools" -y && sudo dnf install -y openssl-devel
+wget https://github.com/valkey-io/valkey/archive/refs/tags/8.1.0.tar.gz
+tar -xzf 8.1.0.tar.gz && cd valkey-8.1.0 && make -j$(nproc) && sudo make install
+sudo systemctl enable --now valkey
+```
+
+No other code changes are required for RHEL deployment. The Python `valkey>=6.0.0` client is already in `requirements.txt`.
+
+---
+
 ## v1.5.2 — First Production Release
 
 **Release Date:** August 2026  
@@ -315,8 +382,9 @@ Multiplexing all operations through a single endpoint with an `action` discrimin
 | High | HTTPS / TLS configuration |
 | Medium | LangGraph Studio integration for agent debugging and visualization |
 | Medium | Streaming SQL results (row-by-row) over Server-Sent Events |
-| Medium | Query result caching for repeated identical queries |
+| Medium | ~~Query result caching for repeated identical queries~~ ✅ **Done in v1.5.4** |
 | Medium | Automated schema drift alerting (email / webhook) |
+| Medium | Cache analytics dashboard (hit/miss rates, top cached queries) |
 | Low | OpenAI / Gemini model support in addition to Ollama |
 | Low | Milvus Standalone deployment for high-throughput environments |
 | Low | Multi-language support for regional language query input |
@@ -328,12 +396,14 @@ Multiplexing all operations through a single endpoint with an `action` discrimin
 
 | Field | Value |
 |---|---|
-| **Version** | 1.5.2 |
-| **Release Type** | First Production Release |
+| **Version** | 1.5.4 |
+| **Release Type** | Incremental Feature Release |
 | **Release Date** | August 2026 |
+| **Base Version** | 1.5.2 |
 | **Platform** | AP Citizen 360 — Government of Andhra Pradesh |
 | **Backend Runtime** | Python 3.11+ |
 | **Primary LLM Runtime** | Ollama (local, air-gapped compatible) |
+| **Cache Layer** | Valkey 8.x (Tier-1) + Milvus Lite (Tier-2) |
 | **Vector Database** | Milvus Lite (embedded) / Milvus Standalone (production) |
 | **Database Backends** | SQLite (development) · Apache Impala / HiveServer2 (production) |
 | **Agent Framework** | LangGraph 1.2.9 |
@@ -341,5 +411,5 @@ Multiplexing all operations through a single endpoint with an `action` discrimin
 
 ---
 
-*This document covers the AP Citizen 360 NL2SQL Intelligence Platform v1.5.2 — First Production Release.*  
+*This document covers the AP Citizen 360 NL2SQL Intelligence Platform v1.5.4.*  
 *Internal release — Government of Andhra Pradesh.*
