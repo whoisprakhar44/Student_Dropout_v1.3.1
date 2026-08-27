@@ -18,6 +18,8 @@ import uuid
 import logging
 from datetime import datetime
 import time
+from flask import Request
+from auth_check import validate_issuer
 
 logging.basicConfig(
     level=logging.INFO,
@@ -74,6 +76,12 @@ _EXCEL_HEADERS = [
     "Answer / Response", "Error",
     "Gen Time (s)", "Exec Time (s)", "Total Time (s)"
 ]
+
+ALLOWED_ISSUERS = {
+    issuer.strip()
+    for issuer in os.getenv("ALLOWED_ISSUERS", "sso-platform,YourIssuer").split(",")
+    if issuer.strip()
+}
 
 
 def _init_excel_log() -> None:
@@ -527,7 +535,8 @@ async def health():
 
 
 @app.post("/ask")
-async def ask(payload: AskRequest):
+@validate_issuer
+async def ask(payload: AskRequest, request: Request):
     action = payload.action or "ask"
     username = payload.username
 
