@@ -1,0 +1,266 @@
+import re
+import math
+from collections import Counter
+from typing import Dict
+
+from detoxify import Detoxify
+from better_profanity import profanity
+
+
+###########################################################
+# Hate Speech Guardrail
+###########################################################
+
+class HateSpeechGuardrail:
+
+    def __init__(
+        self,
+        toxicity_threshold=0.60,
+        severe_threshold=0.40,
+        identity_threshold=0.40,
+        insult_threshold=0.60,
+        threat_threshold=0.30,
+        obscene_threshold=0.70,
+    ):
+
+        self.model = Detoxify("original")
+
+        self.thresholds = {
+            "toxicity": toxicity_threshold,
+            "severe_toxicity": severe_threshold,
+            "identity_attack": identity_threshold,
+            "insult": insult_threshold,
+            "threat": threat_threshold,
+            "obscene": obscene_threshold,
+        }
+
+    def predict(self, text: str) -> Dict:
+
+        return self.model.predict(text)
+
+    def validate(self, text):
+
+        scores = self.predict(text)
+
+        violations = []
+
+        for label, threshold in self.thresholds.items():
+
+            if scores[label] >= threshold:
+
+                violations.append({
+                    "category": label,
+                    "score": round(scores[label],3),
+                    "threshold": threshold
+                })
+
+        if violations:
+
+            return (
+                False,
+                "Toxic/Hate Speech Detected",
+                {
+                    "scores": scores,
+                    "violations": violations
+                }
+            )
+
+        return (
+            True,
+            "Passed",
+            {
+                "scores": scores,
+                "violations":[]
+            }
+        )
+
+
+###########################################################
+# Gibberish Guardrail
+###########################################################
+
+class GibberishDetector:
+
+    def __init__(self):
+
+        self.common_bigrams = {
+            "th","he","in","er","an","re","on","at","en","nd",
+            "ti","es","or","te","of","ed","is","it","al","ar",
+            "st","to","nt","ng","se","ha","as","ou","io","le",
+            "ve","co","me","de","hi","ri","ro","ic","ne","ea"
+        }
+
+        self.keyboard_patterns = [
+            "asdf","qwer","zxcv","poiuy",
+            "lkjh","mnb","12345","09876"
+        ]
+
+    def entropy(self,text):
+
+        freq = Counter(text)
+
+        length = len(text)
+
+        if length==0:
+            return 0
+
+        return -sum((c/length)*math.log2(c/length)
+                    for c in freq.values())
+
+    def repeated_characters(self,text):
+
+        return bool(re.search(r"(.)\1{5,}",text.lower()))
+
+    def keyboard_smash(self,text):
+
+        text=text.lower()
+
+        return any(x in text for x in self.keyboard_patterns)
+
+    def abnormal_word_length(self,words):
+
+        if not words:
+            return True
+
+        avg=sum(len(w) for w in words)/len(words)
+
+        return avg>15
+
+    def bigram_score(self,text):
+
+        letters=re.sub(r"[^a-z]","",text.lower())
+
+        if len(letters)<2:
+            return 0
+
+        total=0
+        common=0
+
+        for i in range(len(letters)-1):
+
+            total+=1
+
+            if letters[i:i+2] in self.common_bigrams:
+                common+=1
+
+        return common/total
+
+    def random_symbol_ratio(self,text):
+
+        if not text:
+            return 1
+
+        symbols=len(re.findall(r"[^A-Za-z0-9\s.,!?;:'\"()-]",text))
+
+        return symbols/len(text)
+
+    def vowel_ratio(self,text):
+
+        letters=re.findall(r"[a-z]",text.lower())
+
+        if not letters:
+            return 0
+
+        vowels=sum(c in "aeiou" for c in letters)
+
+        return vowels/len(letters)
+
+    def repetition_ratio(self,words):
+
+        if not words:
+            return 1
+
+        unique=len(set(words))
+
+        return 1-unique/len(words)
+
+    def detect(self,text):
+
+        reasons=[]
+
+        score=0
+
+        text=text.strip()
+
+        if len(text)<30:
+            reasons.append("Very Short")
+            score+=0.30
+
+        words=re.findall(r"[A-Za-z]+",text)
+
+        if self.entropy(text)<2.8:
+            reasons.append("Low Entropy")
+            score+=0.20
+
+        if self.repeated_characters(text):
+            reasons.append("Repeated Characters")
+            score+=0.25
+
+        if self.keyboard_smash(text):
+            reasons.append("Keyboard Smash")
+            score+=0.40
+
+        if self.abnormal_word_length(words):
+            reasons.append("Long Words")
+            score+=0.15
+
+        if self.bigram_score(text)<0.18:
+            reasons.append("Few English Bigrams")
+            score+=0.25
+
+        if self.random_symbol_ratio(text)>0.15:
+            reasons.append("Too Many Symbols")
+            score+=0.20
+
+        v=self.vowel_ratio(text)
+
+        if v<0.2 or v>0.7:
+            reasons.append("Abnormal Vowel Ratio")
+            score+=0.10
+
+        if self.repetition_ratio(words)>0.7:
+            reasons.append("Word Repetition")
+            score+=0.15
+
+        confidence=min(score,1)
+
+        return (
+            confidence<0.5,
+            confidence,
+            reasons
+        )
+
+
+###########################################################
+# Profanity Guardrail
+###########################################################
+
+class ProfanityGuardrail:
+
+    def __init__(self):
+
+        profanity.load_censor_words()
+
+    def validate(self,text):
+
+        contains=profanity.contains_profanity(text)
+
+        if contains:
+
+            return (
+                False,
+                "Profanity Detected",
+                {
+                    "contains_profanity":True,
+                    "censored_text":profanity.censor(text)
+                }
+            )
+
+        return (
+            True,
+            "Passed",
+            {
+                "contains_profanity":False,
+                "censored_text":text
+            }
+        )

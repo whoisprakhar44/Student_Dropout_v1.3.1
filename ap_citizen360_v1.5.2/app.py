@@ -18,6 +18,8 @@ import uuid
 import logging
 from datetime import datetime
 import time
+from flask import Request
+from auth_check import validate_issuer
 
 logging.basicConfig(
     level=logging.INFO,
@@ -36,6 +38,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import HumanMessage, AIMessage
 from pydantic import BaseModel, Field
 
+from database.suggestions import (
+    get_fewshot_suggestions,
+    get_cache_metadata,
+    load_or_build_suggestions,
+)
 from create_schema import create_database
 from my_agent.agent import build_graph
 from my_agent.utils.ollama_check import chat_model_name, check_ollama
@@ -69,6 +76,12 @@ _EXCEL_HEADERS = [
     "Answer / Response", "Error",
     "Gen Time (s)", "Exec Time (s)", "Total Time (s)"
 ]
+
+ALLOWED_ISSUERS = {
+    issuer.strip()
+    for issuer in os.getenv("ALLOWED_ISSUERS", "sso-platform,YourIssuer").split(",")
+    if issuer.strip()
+}
 
 
 def _init_excel_log() -> None:
@@ -136,7 +149,10 @@ active_tasks: dict[str, asyncio.Task] = {}
 
 
 class AskRequest(BaseModel):
-    action: str | None = Field(default=None, description="Action to perform: 'ask', 'cancel', 'history', 'history_session', 'delete_session', 'clear_history', 'chart'")
+    action: str | None = Field(
+        default=None,
+        description="Action to perform: 'ask', 'suggestions', 'suggestions_meta', 'cancel', 'history', 'history_session', 'delete_session', 'clear_history', 'chart'",
+    )
     question: str | None = Field(default=None, description="Natural-language question.")
     request_id: str | None = Field(
         None,
@@ -147,7 +163,8 @@ class AskRequest(BaseModel):
     chart_type: str | None = Field(default=None, description="Type of chart (e.g., 'bar', 'line', 'pie', 'scatter') for 'chart' action.")
     data: list[dict[str, Any]] | None = Field(default=None, description="Data to be plotted for 'chart' action.")
     audio_base64: str | None = Field(default=None, description="Base64 encoded audio for 'speech_to_text' action.")
-    username: str = Field(..., min_length=1, description="Required username to scope the chat history.")
+    username: str = Field(default="user", description="Required username to scope the chat history.")
+    limit: int | None = Field(default=-1, description="Optional limit for suggestion count (-1 returns all).")
 
 
 class AskResponse(BaseModel):
@@ -518,12 +535,29 @@ async def health():
 
 
 @app.post("/ask")
-async def ask(payload: AskRequest):
+@validate_issuer
+async def ask(payload: AskRequest, request: Request):
     action = payload.action or "ask"
     username = payload.username
 
+    # 0. Action: Suggestions Cache Metadata / Version check
+    if action in ("suggestions_meta", "suggestions_version"):
+        return get_cache_metadata()
+
+    # 0b. Action: Suggestions / Few-shots (raw list, NO backend ranking)
+    elif action in ("suggestions", "fewshots", "get_suggestions"):
+        limit = payload.limit if payload.limit is not None else -1
+        items = get_fewshot_suggestions(limit=limit)
+        meta = get_cache_metadata()
+        return {
+            "status": "success",
+            "count": len(items),
+            "updated_at": meta["updated_at"],
+            "suggestions": items,
+        }
+
     # 1. Action: Cancel
-    if action == "cancel":
+    elif action == "cancel":
         req_id = payload.request_id
         if not req_id:
             raise HTTPException(status_code=400, detail="request_id is required for cancel action")
@@ -960,6 +994,37 @@ async def live_transcription(websocket: WebSocket) -> None:
         pass
 
 
+@app.get("/suggestions/meta")
+@app.get("/suggestions/version")
+async def get_suggestions_meta_endpoint():
+    """Returns timestamp and count metadata of few-shot suggestions cache for UI caching validation."""
+    return get_cache_metadata()
+
+
+@app.get("/suggestions")
+@app.get("/fewshots")
+async def get_suggestions_endpoint(
+    limit: int = Query(default=-1, description="Maximum suggestions to return (-1 for all)"),
+):
+    """Retrieve raw few-shot questions and vector embeddings (all ranking handled client-side in UI)."""
+    items = get_fewshot_suggestions(limit=limit)
+    meta = get_cache_metadata()
+    return {
+        "status": "success",
+        "count": len(items),
+        "updated_at": meta["updated_at"],
+        "suggestions": items,
+    }
+
+
+@app.post("/suggestions")
+async def post_suggestions_endpoint(payload: AskRequest):
+    """Alternate POST endpoint for few-shot suggestions and vector embeddings."""
+    if not payload.action:
+        payload.action = "suggestions"
+    return await ask(payload)
+
+
 @app.get("/", response_class=HTMLResponse)
 async def get_ui():
     html_content = r"""<!DOCTYPE html>
@@ -1290,9 +1355,113 @@ async def get_ui():
         }
         /* Input Panel Styling */
         .input-panel {
-            padding: 24px 40px;
+            position: relative;
+            padding: 16px 40px 24px 40px;
             border-top: 1px solid #1e293b;
-            background: rgba(15, 23, 42, 0.8);
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+        }
+        .quick-suggestions-bar {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            scrollbar-width: none;
+        }
+        .quick-suggestions-bar::-webkit-scrollbar {
+            display: none;
+        }
+        .quick-chip {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(51, 65, 85, 0.8);
+            border-radius: 9999px;
+            padding: 5px 12px;
+            font-size: 11px;
+            color: #94a3b8;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .quick-chip:hover {
+            background: rgba(99, 102, 241, 0.18);
+            border-color: #6366f1;
+            color: #f1f5f9;
+            transform: translateY(-1px);
+        }
+        .suggestions-dropdown {
+            position: absolute;
+            bottom: calc(100% - 6px);
+            left: 40px;
+            right: 40px;
+            background: #0d1322;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+            gap: 4px;
+        }
+        .suggestions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #64748b;
+            border-bottom: 1px solid #1e293b;
+            margin-bottom: 4px;
+        }
+        .suggestion-item {
+            padding: 9px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: #cbd5e1;
+            font-size: 13px;
+            transition: all 0.15s ease;
+        }
+        .suggestion-item:hover, .suggestion-item.selected {
+            background: rgba(99, 102, 241, 0.18);
+            color: #ffffff;
+            border-left: 3px solid #6366f1;
+            padding-left: 9px;
+        }
+        .suggestion-text {
+            flex-grow: 1;
+            line-height: 1.4;
+        }
+        .suggestion-text mark {
+            background: rgba(99, 102, 241, 0.35);
+            color: #c7d2fe;
+            padding: 1px 3px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+        .suggestion-badge {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: #1e293b;
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+        .suggestion-item.selected .suggestion-badge {
+            background: rgba(99, 102, 241, 0.3);
+            color: #c7d2fe;
         }
         .input-form {
             display: flex;
@@ -1390,8 +1559,22 @@ async def get_ui():
         </div>
         
         <div class="input-panel">
+            <!-- Quick Suggestion Chips -->
+            <div class="quick-suggestions-bar" id="quickSuggestionsBar">
+                <!-- Dynamically populated chips -->
+            </div>
+
+            <!-- Autocomplete Suggestions Dropdown -->
+            <div id="suggestionsDropdown" class="suggestions-dropdown" style="display: none;">
+                <div class="suggestions-header">
+                    <span>Suggested Questions</span>
+                    <span style="font-size: 10px; color: #475569;">Use ↑ ↓ arrows & Enter</span>
+                </div>
+                <div id="suggestionsItemsList" style="display: flex; flex-direction: column; gap: 3px;"></div>
+            </div>
+
             <form class="input-form" onsubmit="submitQuestion(event)">
-                <textarea id="questionInput" class="input-chat" placeholder="Ask a natural-language database question..." onkeydown="handleEnter(event)"></textarea>
+                <textarea id="questionInput" class="input-chat" placeholder="Ask a question or type to see few-shot suggestions..." onkeydown="handleInputKeyDown(event)" oninput="handleInputChange(event)" onfocus="handleInputFocus()"></textarea>
                 <button class="btn" type="submit" id="sendBtn" style="height: 54px; width: 80px;">Send</button>
             </form>
         </div>
@@ -1403,6 +1586,12 @@ async def get_ui():
         let sessionsMap = new Map(); // session_id -> session object
         window.__chartData = {}; // msgId -> result data
 
+        // Suggestions state
+        let cachedSuggestions = [];
+        let currentRenderedSuggestions = [];
+        let currentActiveSuggestionIndex = -1;
+        let suggestionDebounceTimer = null;
+
         // Helper to generate UUIDv4
         function generateUUID() {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -1411,12 +1600,276 @@ async def get_ui():
             });
         }
 
-        // On document load, configure username and fetch history
+        // On document load, configure username and fetch history & fewshot suggestions
         window.addEventListener('DOMContentLoaded', () => {
             const savedUsername = localStorage.getItem('chat_username') || 'test_user';
             document.getElementById('usernameInput').value = savedUsername;
             loadHistory();
+            loadSuggestions();
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                const dropdown = document.getElementById('suggestionsDropdown');
+                const input = document.getElementById('questionInput');
+                if (dropdown && !dropdown.contains(e.target) && e.target !== input) {
+                    hideSuggestionsDropdown();
+                }
+            });
         });
+
+        // ─────────────────────────────────────────────────────────────────────────────
+        // Suggestions & Embeddings Loading & Matching
+        // ─────────────────────────────────────────────────────────────────────────────
+
+        async function loadSuggestions() {
+            try {
+                // 1. Check server cache timestamp / version first
+                const metaResp = await fetch('/suggestions/meta');
+                let serverMeta = null;
+                if (metaResp.ok) {
+                    serverMeta = await metaResp.json();
+                }
+
+                const localUpdatedAt = localStorage.getItem('fewshot_cache_updated_at');
+                const localCached = localStorage.getItem('fewshot_suggestions_cache');
+
+                // 2. If client cache is up-to-date, use local data immediately (0 network download)
+                if (serverMeta && localUpdatedAt === serverMeta.updated_at && localCached) {
+                    try {
+                        const parsed = JSON.parse(localCached);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            cachedSuggestions = parsed;
+                            renderQuickChips(cachedSuggestions);
+                            return;
+                        }
+                    } catch (e) {
+                        console.warn("Failed to parse cached suggestions from localStorage", e);
+                    }
+                }
+
+                // 3. Otherwise, fetch all suggestions (limit=-1) and save to localStorage
+                const response = await fetch('/suggestions?limit=-1');
+                if (!response.ok) throw new Error("Suggestions fetch failed");
+                const data = await response.json();
+                if (data.suggestions && Array.isArray(data.suggestions)) {
+                    cachedSuggestions = data.suggestions;
+                    localStorage.setItem('fewshot_suggestions_cache', JSON.stringify(cachedSuggestions));
+                    if (data.updated_at) {
+                        localStorage.setItem('fewshot_cache_updated_at', data.updated_at);
+                    }
+                    renderQuickChips(cachedSuggestions);
+                }
+            } catch (err) {
+                console.error("Could not fetch fewshot suggestions:", err);
+                // Fallback to local cache if offline
+                const localCached = localStorage.getItem('fewshot_suggestions_cache');
+                if (localCached) {
+                    try {
+                        cachedSuggestions = JSON.parse(localCached);
+                        renderQuickChips(cachedSuggestions);
+                    } catch (e) {}
+                }
+            }
+        }
+
+        function renderQuickChips(suggestions) {
+            const bar = document.getElementById('quickSuggestionsBar');
+            if (!bar || !suggestions || suggestions.length === 0) return;
+            bar.innerHTML = '';
+            
+            // Pick a diverse set of 6 sample questions for the quick chips
+            const sample = suggestions.slice(0, 6);
+            sample.forEach(item => {
+                const chip = document.createElement('div');
+                chip.className = 'quick-chip';
+                chip.innerHTML = `<span>✨</span> <span>${escapeHtml(item.question.length > 55 ? item.question.substring(0, 52) + '...' : item.question)}</span>`;
+                chip.title = item.question;
+                chip.onclick = () => applySuggestion(item.question, false);
+                bar.appendChild(chip);
+            });
+        }
+
+        function handleInputFocus() {
+            const input = document.getElementById('questionInput');
+            const query = input.value.trim();
+            if (query) {
+                filterAndRenderSuggestions(query);
+            }
+        }
+
+        function handleInputChange(event) {
+            const query = event.target.value.trim();
+            clearTimeout(suggestionDebounceTimer);
+            if (!query) {
+                hideSuggestionsDropdown();
+                return;
+            }
+            suggestionDebounceTimer = setTimeout(() => {
+                filterAndRenderSuggestions(query);
+            }, 50);
+        }
+
+        function handleInputKeyDown(event) {
+            const dropdown = document.getElementById('suggestionsDropdown');
+            const isOpen = dropdown && dropdown.style.display !== 'none';
+
+            if (isOpen) {
+                if (event.key === 'ArrowDown') {
+                    event.preventDefault();
+                    navigateSuggestions(1);
+                    return;
+                } else if (event.key === 'ArrowUp') {
+                    event.preventDefault();
+                    navigateSuggestions(-1);
+                    return;
+                } else if (event.key === 'Enter' && !event.shiftKey) {
+                    if (currentActiveSuggestionIndex >= 0 && currentRenderedSuggestions[currentActiveSuggestionIndex]) {
+                        event.preventDefault();
+                        applySuggestion(currentRenderedSuggestions[currentActiveSuggestionIndex].question, true);
+                        return;
+                    }
+                } else if (event.key === 'Escape') {
+                    event.preventDefault();
+                    hideSuggestionsDropdown();
+                    return;
+                }
+            }
+
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                hideSuggestionsDropdown();
+                submitQuestion(event);
+            }
+        }
+
+        function navigateSuggestions(delta) {
+            if (!currentRenderedSuggestions || currentRenderedSuggestions.length === 0) return;
+            currentActiveSuggestionIndex += delta;
+            if (currentActiveSuggestionIndex < 0) currentActiveSuggestionIndex = currentRenderedSuggestions.length - 1;
+            if (currentActiveSuggestionIndex >= currentRenderedSuggestions.length) currentActiveSuggestionIndex = 0;
+
+            const items = document.querySelectorAll('.suggestion-item');
+            items.forEach((el, idx) => {
+                if (idx === currentActiveSuggestionIndex) {
+                    el.classList.add('selected');
+                    el.scrollIntoView({ block: 'nearest' });
+                } else {
+                    el.classList.remove('selected');
+                }
+            });
+        }
+
+        function filterAndRenderSuggestions(query) {
+            if (!cachedSuggestions || cachedSuggestions.length === 0) {
+                hideSuggestionsDropdown();
+                return;
+            }
+
+            const qLower = query.toLowerCase();
+            const qTokens = qLower.split(/\s+/).filter(t => t.length > 1);
+
+            // Score each suggestion
+            const scored = [];
+            for (let i = 0; i < cachedSuggestions.length; i++) {
+                const s = cachedSuggestions[i];
+                const qText = s.question.toLowerCase();
+                let score = 0;
+
+                // 1. Prefix match boost
+                if (qText.startsWith(qLower)) {
+                    score += 3.0;
+                } else if (qText.includes(qLower)) {
+                    score += 1.5;
+                }
+
+                // 2. Token match
+                if (qTokens.length > 0) {
+                    let matches = 0;
+                    for (const tok of qTokens) {
+                        if (qText.includes(tok)) matches++;
+                    }
+                    score += (matches / qTokens.length) * 1.2;
+                }
+
+                if (score > 0.3) {
+                    scored.push({ score, item: s });
+                }
+            }
+
+            scored.sort((a, b) => b.score - a.score);
+            const topMatches = scored.slice(0, 8).map(x => x.item);
+
+            renderSuggestionsDropdown(topMatches, query);
+        }
+
+        function renderSuggestionsDropdown(items, query) {
+            const dropdown = document.getElementById('suggestionsDropdown');
+            const listContainer = document.getElementById('suggestionsItemsList');
+            if (!dropdown || !listContainer) return;
+
+            if (!items || items.length === 0) {
+                hideSuggestionsDropdown();
+                return;
+            }
+
+            currentRenderedSuggestions = items;
+            currentActiveSuggestionIndex = -1;
+            listContainer.innerHTML = '';
+
+            items.forEach((item, idx) => {
+                const row = document.createElement('div');
+                row.className = 'suggestion-item';
+                row.onclick = () => applySuggestion(item.question, false);
+
+                // Highlight matched query in text
+                const highlighted = highlightQueryInText(item.question, query);
+                const tag = item.intent || item.topic || (item.difficulty ? `${item.difficulty}` : 'few-shot');
+
+                row.innerHTML = `
+                    <div class="suggestion-text">
+                        <span>💬</span> ${highlighted}
+                    </div>
+                    <div class="suggestion-badge">${escapeHtml(tag)}</div>
+                `;
+                listContainer.appendChild(row);
+            });
+
+            dropdown.style.display = 'flex';
+        }
+
+        function highlightQueryInText(text, query) {
+            if (!query) return escapeHtml(text);
+            const escapedText = escapeHtml(text);
+            const tokens = query.trim().split(/\s+/).filter(t => t.length > 0).map(t => escapeRegExp(t));
+            if (tokens.length === 0) return escapedText;
+
+            try {
+                const regex = new RegExp(`(${tokens.join('|')})`, 'gi');
+                return escapedText.replace(regex, '<mark>$1</mark>');
+            } catch (e) {
+                return escapedText;
+            }
+        }
+
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        function hideSuggestionsDropdown() {
+            const dropdown = document.getElementById('suggestionsDropdown');
+            if (dropdown) dropdown.style.display = 'none';
+            currentActiveSuggestionIndex = -1;
+        }
+
+        function applySuggestion(questionText, autoSubmit = false) {
+            const input = document.getElementById('questionInput');
+            input.value = questionText;
+            hideSuggestionsDropdown();
+            input.focus();
+            if (autoSubmit) {
+                submitQuestion(new Event('submit'));
+            }
+        }
 
         function handleEnter(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
@@ -1885,4 +2338,3 @@ async def get_ui():
 </html>
 """
     return HTMLResponse(content=html_content)
-
