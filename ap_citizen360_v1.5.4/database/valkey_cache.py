@@ -197,3 +197,28 @@ class ValkeyCacheManager:
                             
         except Exception as e:
             logger.error(f"Failed to record/cache query: {e}")
+
+    def get_all_cached_queries(self) -> list[Dict[str, Any]]:
+        """Fetch all dynamically cached queries from Valkey to show in suggestions."""
+        queries = []
+        try:
+            # Fetch up to 300 hashes, ordered by highest hits first
+            top_hashes = self.valkey.zrevrange("query_hits", 0, -1)
+            
+            for idx, q_hash in enumerate(top_hashes):
+                payload_str = self.valkey.get(f"query_cache:{q_hash}")
+                if payload_str:
+                    payload = json.loads(payload_str)
+                    original_query = payload.get("original_query")
+                    if original_query:
+                        queries.append({
+                            "id": f"valkey_{idx}_{q_hash[:8]}",
+                            "question": original_query,
+                            "intent": payload.get("intent", "Cached Query"),
+                            "topic": "Trending",
+                            "is_history": True,
+                        })
+        except Exception as e:
+            logger.error(f"Failed to fetch cached queries from Valkey: {e}")
+            
+        return queries

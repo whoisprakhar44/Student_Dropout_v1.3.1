@@ -1008,6 +1008,17 @@ async def get_suggestions_endpoint(
 ):
     """Retrieve raw few-shot questions and vector embeddings (all ranking handled client-side in UI)."""
     items = get_fewshot_suggestions(limit=limit)
+    
+    # Append dynamic queried caches from Valkey
+    try:
+        from database.valkey_cache import ValkeyCacheManager
+        valkey_queries = ValkeyCacheManager().get_all_cached_queries()
+        if valkey_queries:
+            # We insert valkey queries at the beginning so they show up prominently
+            items = valkey_queries + items
+    except Exception as e:
+        logger.error(f"Failed to fetch dynamic queries from Valkey for suggestions: {e}")
+
     meta = get_cache_metadata()
     return {
         "status": "success",
@@ -1782,13 +1793,17 @@ async def get_ui():
                     score += 1.5;
                 }
 
-                // 2. Token match
                 if (qTokens.length > 0) {
                     let matches = 0;
                     for (const tok of qTokens) {
                         if (qText.includes(tok)) matches++;
                     }
                     score += (matches / qTokens.length) * 1.2;
+                }
+                
+                // Boost dynamic trending queries from Valkey slightly
+                if (s.is_history) {
+                    score += 0.5;
                 }
 
                 if (score > 0.3) {
@@ -1824,12 +1839,16 @@ async def get_ui():
                 // Highlight matched query in text
                 const highlighted = highlightQueryInText(item.question, query);
                 const tag = item.intent || item.topic || (item.difficulty ? `${item.difficulty}` : 'few-shot');
+                
+                // Use a different icon for dynamically trending Valkey queries
+                const icon = item.is_history ? '🔥' : '💬';
+                const badgeClass = item.is_history ? 'suggestion-badge trending-badge' : 'suggestion-badge';
 
                 row.innerHTML = `
                     <div class="suggestion-text">
-                        <span>💬</span> ${highlighted}
+                        <span>${icon}</span> ${highlighted}
                     </div>
-                    <div class="suggestion-badge">${escapeHtml(tag)}</div>
+                    <div class="${badgeClass}">${escapeHtml(tag)}</div>
                 `;
                 listContainer.appendChild(row);
             });
