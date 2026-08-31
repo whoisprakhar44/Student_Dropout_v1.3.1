@@ -18,7 +18,7 @@ import uuid
 import logging
 from datetime import datetime
 import time
-from flask import Request
+from fastapi import Request
 from auth_check import validate_issuer
 
 logging.basicConfig(
