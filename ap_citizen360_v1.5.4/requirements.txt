@@ -28,3 +28,5 @@ Pillow                    # Image processing for OCR
 kerberos
 vl-convert-python
 valkey>=6.0.0
+better-profanity>=0.7.0       # Profanity guardrail
+detoxify>=0.5.2               # Hate speech & toxicity ML guardrail (requires torch)

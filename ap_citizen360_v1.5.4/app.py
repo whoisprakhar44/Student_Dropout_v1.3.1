@@ -47,6 +47,16 @@ from create_schema import create_database
 from my_agent.agent import build_graph
 from my_agent.utils.ollama_check import chat_model_name, check_ollama
 from my_agent.utils.tools import cleanup_tools
+from my_agent.utils.guardrails import ContentGuardrailManager
+
+guardrail_manager: ContentGuardrailManager | None = None
+
+
+def _get_guardrail_manager() -> ContentGuardrailManager:
+    global guardrail_manager
+    if guardrail_manager is None:
+        guardrail_manager = ContentGuardrailManager()
+    return guardrail_manager
 
 # Speech-to-text imports
 from speech_to_text.config import get_settings as get_speech_settings
@@ -468,6 +478,13 @@ async def lifespan(app: FastAPI):
     init_database()
     init_history_database()
     _init_excel_log()
+    global guardrail_manager
+    try:
+        guardrail_manager = ContentGuardrailManager()
+        logger.info("Content guardrails initialized in lifespan.")
+    except Exception as e:
+        logger.warning("Failed to initialize ContentGuardrailManager: %s", e)
+        guardrail_manager = None
     ollama_status = check_ollama()
     app.state.ollama_status = ollama_status
     app.state.graph = None
@@ -746,6 +763,28 @@ async def ask(payload: AskRequest, request: Request):
         async def _stream():
             graph_task: asyncio.Task | None = None
             try:
+                # Content guardrail validation (reject harmful, nonsensical, or profane input early)
+                gm = _get_guardrail_manager()
+                if gm:
+                    is_valid, violation_msg, violation_details = gm.validate(payload.question)
+                    if not is_valid:
+                        logger.warning(
+                            "🛡️ [GUARDRAIL BLOCKED] User: %s | Reason: %s | Query: %s",
+                            username, violation_msg, payload.question
+                        )
+                        yield json.dumps({
+                            "sql": "",
+                            "result": [{
+                                "error": f"Content Policy Violation: {violation_msg}",
+                                "status": "blocked",
+                                "details": violation_details
+                            }],
+                            "summary": f"I cannot process this query. {violation_msg}",
+                            "username": username,
+                            "timings": {"total_time": 0.0}
+                        }).encode()
+                        return
+
                 if not check_ollama().get("model_available"):
                     yield json.dumps({
                         "sql": "",
