@@ -43,6 +43,7 @@ from database.suggestions import (
     get_cache_metadata,
     load_or_build_suggestions,
 )
+from database.valkey_queue import ValkeyQueueManager, JobStatus
 from create_schema import create_database
 from my_agent.agent import build_graph
 from my_agent.utils.ollama_check import chat_model_name, check_ollama
@@ -161,7 +162,7 @@ active_tasks: dict[str, asyncio.Task] = {}
 class AskRequest(BaseModel):
     action: str | None = Field(
         default=None,
-        description="Action to perform: 'ask', 'suggestions', 'suggestions_meta', 'cancel', 'history', 'history_session', 'delete_session', 'clear_history', 'chart'",
+        description="Action to perform: 'ask', 'queue_status', 'job_status', 'suggestions', 'suggestions_meta', 'cancel', 'history', 'history_session', 'delete_session', 'clear_history', 'chart', 'speech_to_text'",
     )
     question: str | None = Field(default=None, description="Natural-language question.")
     request_id: str | None = Field(
@@ -473,6 +474,136 @@ def _extract_sql_and_result(messages: list[Any], username: str) -> AskResponse:
 
 
 
+queue_manager = ValkeyQueueManager()
+
+
+async def _execute_graph_query(job: dict) -> dict:
+    """Execute a single query job pulled by a consumer worker."""
+    question = job.get("question", "")
+    username = job.get("username", "user")
+    session_id = job.get("session_id", "")
+
+    # Content guardrail validation (defense-in-depth in worker)
+    gm = _get_guardrail_manager()
+    if gm:
+        is_valid, violation_msg, violation_details = gm.validate(question)
+        if not is_valid:
+            logger.warning(
+                "🛡️ [GUARDRAIL BLOCKED in worker] User: %s | Reason: %s | Query: %s",
+                username, violation_msg, question
+            )
+            return {
+                "sql": "",
+                "result": [{
+                    "error": f"Content Policy Violation: {violation_msg}",
+                    "status": "blocked",
+                    "details": violation_details
+                }],
+                "username": username,
+                "summary": f"I cannot process this query. {violation_msg}",
+                "gen_time": 0.0,
+                "exec_time": 0.0,
+                "total_time": 0.0,
+            }
+
+    ollama_info = check_ollama()
+    if not ollama_info.get("model_available"):
+        return {
+            "sql": "",
+            "result": [{
+                "error": f"Ollama model '{chat_model_name()}' is not available. Run: ollama pull {chat_model_name()} — then restart uvicorn.",
+                "status": "failed"
+            }],
+            "username": username,
+            "summary": "Ollama model not available.",
+            "gen_time": 0.0,
+            "exec_time": 0.0,
+            "total_time": 0.0,
+        }
+
+    graph = await _get_graph()
+    history_messages = get_session_messages(session_id)
+
+    t_start = time.perf_counter()
+    state = await graph.ainvoke(
+        {
+            "user_query": question,
+            "messages": history_messages + [HumanMessage(content=question)],
+            "retrieved_context": [],
+            "llm_calls": 0,
+            "rag_calls": 0,
+            "verify_calls": 0,
+            "verified": False,
+            "intent": None,
+            "department_scope": None,
+            "entities": None,
+        }
+    )
+    total_time = time.perf_counter() - t_start
+    gen_time = state.get("gen_time", 0.0)
+    exec_time = state.get("exec_time", 0.0)
+
+    response_obj = _extract_sql_and_result(state.get("messages", []), username)
+    response_obj.timings = {
+        "total_gen_time": round(gen_time, 2),
+        "total_exec_time": round(exec_time, 2),
+        "total_time": round(total_time, 2)
+    }
+
+    # Extract verbal assistant summary
+    response_text = ""
+    for msg in reversed(state.get("messages", [])):
+        if msg.__class__.__name__ == "AIMessage" or getattr(msg, "type", None) == "ai":
+            if not getattr(msg, "tool_calls", None) and getattr(msg, "content", ""):
+                response_text = msg.content
+                break
+    if not response_text:
+        if response_obj.result and isinstance(response_obj.result, list) and len(response_obj.result) > 0 and "error" in response_obj.result[0]:
+            response_text = response_obj.result[0]["error"]
+        else:
+            response_text = "Here is the query result."
+
+    response_obj.summary = response_text
+
+    is_greeting = state.get("intent") == "greeting"
+    if not is_greeting:
+        save_chat_turn(
+            session_id=session_id,
+            question=question,
+            response_text=response_text,
+            sql=response_obj.sql,
+            result=response_obj.result,
+            username=username
+        )
+        is_error = (
+            response_obj.result
+            and len(response_obj.result) > 0
+            and response_obj.result[0].get("status") in ("failed", "cancelled")
+        )
+        excel_status = response_obj.result[0].get("status", "success") if is_error else "success"
+        excel_error = response_obj.result[0].get("error", "") if is_error else ""
+        _append_excel_log(
+            username=username,
+            session_id=session_id,
+            question=question or "",
+            sql=response_obj.sql or "",
+            status=excel_status,
+            answer=response_text,
+            error=excel_error,
+            gen_time=gen_time,
+            exec_time=exec_time,
+            total_time=total_time,
+        )
+
+    res_dict = response_obj.model_dump()
+    res_dict["gen_time"] = gen_time
+    res_dict["exec_time"] = exec_time
+    res_dict["total_time"] = total_time
+    return res_dict
+
+queue_manager.set_executor(_execute_graph_query)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_database()
@@ -504,12 +635,14 @@ async def lifespan(app: FastAPI):
     if speech_settings.enable_speech_to_text and speech_transcriber:
         print("Speech-to-text enabled. Loading faster-whisper model...")
         speech_settings.upload_dir.mkdir(parents=True, exist_ok=True)
-        # Note: Transcriber load_model is sync, using run_in_threadpool if it's heavy, or just call it directly.
-        # It's better to load it lazily on first request as per original implementation, but we can do it here.
-        # Actually transcriber uses lazy loading in its transcribe method, so we don't strictly need to load it here,
-        # but let's make sure the upload_dir is created.
+
+    # Start Valkey parallel consumer workers
+    queue_manager.start_workers()
 
     yield
+
+    # Shutdown workers and cleanup
+    await queue_manager.stop_workers()
     if app.state.graph is not None:
         await cleanup_tools()
     if speech_settings.enable_speech_to_text and speech_transcriber:
@@ -524,13 +657,10 @@ async def _get_graph():
     return app.state.graph
 
 
-# Global lock to serialize requests and prevent concurrency crashes in Milvus/MCP
-request_lock = asyncio.Lock()
-
 app = FastAPI(
     title="Student Dropout Intent API",
-    version="1.4.0",
-    description="API backend for natural-language SQL with Intent Classification (v1.4).",
+    version="1.5.4",
+    description="API backend for natural-language SQL with Intent Classification (v1.5.4).",
     lifespan=lifespan,
 )
 
@@ -545,8 +675,16 @@ app.add_middleware(
 @app.get("/health")
 async def health():
     info = check_ollama()
+    q_metrics = await queue_manager.get_metrics()
     return {
         "status": "ok" if info.get("model_available") else "degraded",
+        "queue": {
+            "backend": q_metrics.get("backend"),
+            "concurrency": q_metrics.get("concurrency_limit"),
+            "active_workers": q_metrics.get("active_workers"),
+            "queued_jobs": q_metrics.get("queued_jobs"),
+            "total_completed": q_metrics.get("total_completed"),
+        },
         **info,
     }
 
@@ -573,14 +711,30 @@ async def ask(payload: AskRequest, request: Request):
             "suggestions": items,
         }
 
+    # 0c. Action: Queue Status / Metrics
+    elif action in ("queue_status", "queue_metrics", "queue"):
+        return await queue_manager.get_metrics()
+
+    # 0d. Action: Job Status (check specific job)
+    elif action in ("job_status", "check_job"):
+        req_id = payload.request_id
+        if not req_id:
+            raise HTTPException(status_code=400, detail="request_id is required for job_status action")
+        job = queue_manager.get_job(req_id)
+        if not job:
+            raise HTTPException(status_code=404, detail=f"Job {req_id} not found")
+        return job
+
     # 1. Action: Cancel
     elif action == "cancel":
         req_id = payload.request_id
         if not req_id:
             raise HTTPException(status_code=400, detail="request_id is required for cancel action")
+        cancelled = await queue_manager.cancel_job(req_id)
         task = active_tasks.get(req_id)
-        if task:
+        if task and not task.done():
             task.cancel()
+        if cancelled or task:
             return {"status": "success", "message": f"Request {req_id} cancellation signal sent."}
         return {
             "status": "not_found",
@@ -744,207 +898,118 @@ async def ask(payload: AskRequest, request: Request):
             traceback.print_exc()
             raise HTTPException(status_code=500, detail=f"Failed to transcribe audio: {e}")
 
-    # 5. Action: Ask (NL2SQL Query)
+    # 5. Action: Ask (NL2SQL Query via Valkey FIFO Queue)
     elif action == "ask":
         if not payload.question:
             raise HTTPException(status_code=400, detail="question is required for ask action")
-        
-        req_id = payload.request_id or f"req_{asyncio.get_running_loop().time()}"
+
+        req_id = payload.request_id or f"req_{uuid.uuid4().hex[:12]}"
         session_id = payload.session_id or payload.thread_id or str(uuid.uuid4())
-        history_messages = get_session_messages(session_id)
 
         logger.info("=" * 60)
         logger.info("📥 [NEW QUERY RECEIVED]")
-        logger.info("   User:     %s", username)
-        logger.info("   Session:  %s", session_id)
-        logger.info("   Question: %s", payload.question)
+        logger.info("   User:       %s", username)
+        logger.info("   Session:    %s", session_id)
+        logger.info("   Request ID: %s", req_id)
+        logger.info("   Question:   %s", payload.question)
         logger.info("=" * 60)
 
-        async def _stream():
-            graph_task: asyncio.Task | None = None
-            try:
-                # Content guardrail validation (reject harmful, nonsensical, or profane input early)
-                gm = _get_guardrail_manager()
-                if gm:
-                    is_valid, violation_msg, violation_details = gm.validate(payload.question)
-                    if not is_valid:
-                        logger.warning(
-                            "🛡️ [GUARDRAIL BLOCKED] User: %s | Reason: %s | Query: %s",
-                            username, violation_msg, payload.question
-                        )
-                        yield json.dumps({
-                            "sql": "",
-                            "result": [{
-                                "error": f"Content Policy Violation: {violation_msg}",
-                                "status": "blocked",
-                                "details": violation_details
-                            }],
-                            "summary": f"I cannot process this query. {violation_msg}",
-                            "username": username,
-                            "timings": {"total_time": 0.0}
-                        }).encode()
-                        return
-
-                if not check_ollama().get("model_available"):
+        # Content guardrail validation (reject harmful, nonsensical, or profane input early)
+        gm = _get_guardrail_manager()
+        if gm:
+            is_valid, violation_msg, violation_details = gm.validate(payload.question)
+            if not is_valid:
+                logger.warning(
+                    "🛡️ [GUARDRAIL BLOCKED] User: %s | Reason: %s | Query: %s",
+                    username, violation_msg, payload.question
+                )
+                async def _blocked_stream():
                     yield json.dumps({
                         "sql": "",
-                        "result": [{"error": (
-                            f"Ollama model '{chat_model_name()}' is not available. "
-                            f"Run: ollama pull {chat_model_name()} — then restart uvicorn."
-                        ), "status": "failed"}],
+                        "result": [{
+                            "error": f"Content Policy Violation: {violation_msg}",
+                            "status": "blocked",
+                            "details": violation_details
+                        }],
+                        "summary": f"I cannot process this query. {violation_msg}",
+                        "username": username,
+                        "timings": {"total_time": 0.0}
                     }).encode()
-                    return
+                return StreamingResponse(
+                    _blocked_stream(),
+                    media_type="application/json",
+                    headers={
+                        "X-Accel-Buffering": "no",
+                        "Cache-Control": "no-cache",
+                        "Connection": "keep-alive",
+                    }
+                )
 
-                graph = await _get_graph()
+        # Enqueue non-blockingly in strict FIFO order
+        job_id = await queue_manager.enqueue_job(
+            question=payload.question,
+            username=username,
+            session_id=session_id,
+            request_id=req_id,
+        )
 
-                # Run the graph inside the request lock in a background task so we
-                # can send periodic keepalive bytes while it works.  IIS (and any
-                # reverse proxy) resets its idle-connection timer on every byte
-                # received, so this prevents the 502 from triggering before the
-                # graph finishes.
-                async def _run_graph():
-                    async with request_lock:
-                        return await graph.ainvoke(
-                            {
-                                "user_query": payload.question,
-                                "messages": history_messages + [HumanMessage(content=payload.question)],
-                                "retrieved_context": [],
-                                "llm_calls": 0,
-                                "rag_calls": 0,
-                                "verify_calls": 0,
-                                "verified": False,
-                                # intent_node will populate these during the run
-                                "intent": None,
-                                "department_scope": None,
-                                "entities": None,
-                            }
-                        )
-
-                t_start = time.perf_counter()
-                graph_task = asyncio.ensure_future(_run_graph())
-                active_tasks[req_id] = graph_task
-
-                # Keepalive loop: check if the graph task is done every 0.1 seconds.
-                # Every 10 seconds, send a keepalive space to reset IIS proxy timeouts.
+        async def _stream():
+            try:
+                # Keepalive loop: stream keepalive space every 10 seconds while
+                # waiting in queue or during LLM processing to prevent proxy timeouts.
                 KEEPALIVE_INTERVAL = 10.0
                 POLL_INTERVAL = 0.1
                 elapsed = 0.0
-                while not graph_task.done():
+
+                while True:
+                    job = queue_manager.get_job(job_id)
+                    if job and job.get("status") in (JobStatus.COMPLETED, JobStatus.FAILED, JobStatus.CANCELLED):
+                        break
+
                     await asyncio.sleep(POLL_INTERVAL)
                     elapsed += POLL_INTERVAL
                     if elapsed >= KEEPALIVE_INTERVAL:
-                        yield b" "  # keepalive — resets IIS 120 s proxy timeout
+                        yield b" "  # keepalive — resets IIS / proxy 120s timeout
                         elapsed = 0.0
 
-                # Retrieve result (re-raises any exception from inside the task)
-                state = graph_task.result()
-                total_time = time.perf_counter() - t_start
+                job = queue_manager.get_job(job_id) or {}
+                status = job.get("status")
 
-                response_obj = _extract_sql_and_result(state.get("messages", []), username)
-
-                # Attach timings
-                gen_time = state.get("gen_time", 0.0)
-                exec_time = state.get("exec_time", 0.0)
-                response_obj.timings = {
-                    "total_gen_time": round(gen_time, 2),
-                    "total_exec_time": round(exec_time, 2),
-                    "total_time": round(total_time, 2)
-                }
-                logger.info("=" * 60)
-                logger.info("📤 [QUERY COMPLETED]")
-                logger.info("   SQL:     %s", response_obj.sql or "None")
-                logger.info("   Results: %d rows", len(response_obj.result) if response_obj.result else 0)
-                logger.info("   Timings: Gen: %.2fs | Exec: %.2fs | Total: %.2fs", gen_time, exec_time, total_time)
-                logger.info("=" * 60)
-
-                # Extract response text (the final assistant verbal summary)
-                response_text = ""
-                for msg in reversed(state.get("messages", [])):
-                    if msg.__class__.__name__ == "AIMessage" or getattr(msg, "type", None) == "ai":
-                        if not getattr(msg, "tool_calls", None) and getattr(msg, "content", ""):
-                            response_text = msg.content
-                            break
-                if not response_text:
-                    if response_obj.result and isinstance(response_obj.result, list) and len(response_obj.result) > 0 and "error" in response_obj.result[0]:
-                        response_text = response_obj.result[0]["error"]
-                    else:
-                        response_text = "Here is the query result."
-
-                response_obj.summary = response_text
-                
-                is_greeting = state.get("intent") == "greeting"
-                
-                if not is_greeting:
-                    # Save user query and assistant response to chat history database
-                    save_chat_turn(
-                        session_id=session_id,
-                        question=payload.question,
-                        response_text=response_text,
-                        sql=response_obj.sql,
-                        result=response_obj.result,
-                        username=username
-                    )
-    
-                    # Determine status and error for Excel log
-                    is_error = (
-                        response_obj.result
-                        and len(response_obj.result) > 0
-                        and response_obj.result[0].get("status") in ("failed", "cancelled")
-                    )
-                    excel_status = response_obj.result[0].get("status", "success") if is_error else "success"
-                    excel_error = response_obj.result[0].get("error", "") if is_error else ""
-                    _append_excel_log(
-                        username=username,
-                        session_id=session_id,
-                        question=payload.question or "",
-                        sql=response_obj.sql or "",
-                        status=excel_status,
-                        answer="",
-                        error=excel_error,
-                        gen_time=gen_time,
-                        exec_time=exec_time,
-                        total_time=total_time,
-                    )
-
-                response_obj.username = username
-
-                yield json.dumps(response_obj.model_dump()).encode()
-
-            except BaseException as exc:
-                exc_total_time = time.perf_counter() - t_start if 't_start' in locals() else 0.0
-                cancelled = (
-                    (graph_task is not None and graph_task.cancelled())
-                    or isinstance(exc, asyncio.CancelledError)
-                )
-                if cancelled:
-                    print(f"Request {req_id} was explicitly cancelled.")
-                    _append_excel_log(
-                        username=username,
-                        session_id=session_id,
-                        question=payload.question or "",
-                        sql="",
-                        status="cancelled",
-                        answer="",
-                        error="Request cancelled by user.",
-                        total_time=exc_total_time,
-                    )
-                    yield json.dumps({"sql": "", "result": [{"error": "Request cancelled.", "status": "cancelled"}]}).encode()
+                if status == JobStatus.CANCELLED:
+                    yield json.dumps({
+                        "sql": "",
+                        "result": [{"error": "Request cancelled.", "status": "cancelled"}],
+                        "username": username
+                    }).encode()
+                elif job.get("result"):
+                    yield json.dumps(job["result"]).encode()
+                elif job.get("error"):
+                    yield json.dumps({
+                        "sql": "",
+                        "result": [{"error": job["error"], "status": "failed"}],
+                        "username": username
+                    }).encode()
                 else:
-                    traceback.print_exc()
-                    _append_excel_log(
-                        username=username,
-                        session_id=session_id,
-                        question=payload.question or "",
-                        sql="",
-                        status="error",
-                        answer="",
-                        error=str(exc),
-                        total_time=exc_total_time,
-                    )
-                    yield json.dumps({"sql": "", "result": [{"error": str(exc), "status": "failed"}]}).encode()
+                    yield json.dumps({
+                        "sql": "",
+                        "result": [{"error": "The agent did not return an executed SQL query.", "status": "failed"}],
+                        "username": username
+                    }).encode()
 
-            finally:
-                active_tasks.pop(req_id, None)
+            except asyncio.CancelledError:
+                await queue_manager.cancel_job(job_id)
+                yield json.dumps({
+                    "sql": "",
+                    "result": [{"error": "Request cancelled.", "status": "cancelled"}],
+                    "username": username
+                }).encode()
+            except Exception as exc:
+                logger.error("Error in streaming response for job %s: %s", job_id, exc, exc_info=True)
+                yield json.dumps({
+                    "sql": "",
+                    "result": [{"error": str(exc), "status": "failed"}],
+                    "username": username
+                }).encode()
 
         return StreamingResponse(
             _stream(),

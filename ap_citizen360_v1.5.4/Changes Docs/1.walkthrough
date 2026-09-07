@@ -1,0 +1,101 @@
+# Walkthrough: Valkey FIFO Queue & Parallel Consumer Workers
+
+We have implemented a **Valkey-backed FIFO query queue** and **$N$-worker parallel consumer pool** in [`ap_citizen360_v1.5.4`](file:///d:/Office/Student_Dropout_v1.3.1-main/ap_citizen360_v1.5.4). All interactions remain strictly unified within the `POST /ask` endpoint using action types.
+
+---
+
+## 1. Summary of Changes
+
+### A. Valkey Queue Manager & Consumer Worker Pool ([`database/valkey_queue.py`](file:///d:/Office/Student_Dropout_v1.3.1-main/ap_citizen360_v1.5.4/database/valkey_queue.py))
+- **Strict FIFO Execution**: Incoming queries are enqueued in arrival order (`valkey:query_queue`).
+- **Parallel Workers**: Configurable $N$ concurrent workers (default: `VALKEY_WORKER_CONCURRENCY=3` or `MAX_CONCURRENT_WORKERS=3` in [`.env`](file:///d:/Office/Student_Dropout_v1.3.1-main/ap_citizen360_v1.5.4/.env)).
+- **Automatic Queue Draining**: Workers continuously pull queries 1-by-1 in FIFO order and run LLM/LangGraph queries concurrently until the queue is completely drained.
+- **Detailed Logging**: Comprehensive log output for queue entry, worker assignment, wait time in queue, active concurrency count, execution timings (Gen, Exec, Total), generated SQL, row counts, and remaining queue depth.
+- **Resilient Fallback**: Directly connects to Valkey server when available (`VALKEY_URL`), with seamless in-memory async fallback for development environments where the Valkey server daemon is not running.
+- **Cancellation**: Full support for canceling pending or active queries.
+
+### B. Unified `/ask` Actions in [`app.py`](file:///d:/Office/Student_Dropout_v1.3.1-main/ap_citizen360_v1.5.4/app.py)
+All operations are multiplexed through `POST /ask` with action types:
+1. **`action: "ask"` (Default)**: Non-blocking enqueueing. Streams keepalive tokens (` `) every 10s to prevent reverse proxy (IIS/NGINX) timeouts while waiting in queue or during LLM processing, then delivers final JSON response.
+2. **`action: "queue_status"` / `"queue_metrics"`**: Returns real-time metrics including concurrency limit, active workers, queue depth, total enqueued/completed/failed/cancelled counts, and recent jobs.
+3. **`action: "job_status"`**: Checks status and result details of a specific query by `request_id`.
+4. **`action: "cancel"`**: Cancels a queued or active query by `request_id`.
+5. **Existing actions preserved**: `suggestions`, `suggestions_meta`, `history`, `history_session`, `delete_session`, `clear_history`, `chart`, `speech_to_text`.
+
+### C. Contract & Config Updates
+- [`.env`](file:///d:/Office/Student_Dropout_v1.3.1-main/ap_citizen360_v1.5.4/.env): Added `VALKEY_WORKER_CONCURRENCY=3`.
+- [`API_CONTRACT.md`](file:///d:/Office/Student_Dropout_v1.3.1-main/ap_citizen360_v1.5.4/API_CONTRACT.md): Documented `queue_status` and `job_status` actions and response schemas.
+
+---
+
+## 2. Validation & Test Results
+
+The automated test suite in [`test_valkey_queue.py`](file:///d:/Office/Student_Dropout_v1.3.1-main/ap_citizen360_v1.5.4/test_valkey_queue.py) was executed:
+
+```
+[TEST] 1. Testing ValkeyQueueManager Unit & Multi-Worker Concurrency
+Enqueued 6 jobs. Waiting for automatic completion...
+  [OK] test_job_1 finished with status 'completed' by worker-1
+  [OK] test_job_2 finished with status 'completed' by worker-2
+  [OK] test_job_3 finished with status 'completed' by worker-3
+  [OK] test_job_4 finished with status 'completed' by worker-1
+  [OK] test_job_5 finished with status 'completed' by worker-2
+  [OK] test_job_6 finished with status 'completed' by worker-3
+
+Live Queue Metrics:
+{
+  "status": "healthy",
+  "backend": "in_memory_fallback",
+  "concurrency_limit": 3,
+  "active_workers": 0,
+  "queued_jobs": 0,
+  "total_enqueued": 6,
+  "total_completed": 6,
+  "total_failed": 0,
+  "total_cancelled": 0,
+  ...
+}
+
+Max Concurrent Active Workers Observed: 3 (Configured N: 3)
+
+Testing Job Cancellation...
+  Cancelled job test_job_cancel: True
+[SUCCESS] ValkeyQueueManager Unit Tests Passed Successfully!
+
+[TEST] 2. Testing FastAPI /ask Endpoint with Action Types
+POST /ask (action='queue_status') Status: 200
+Sending 3 concurrent queries to POST /ask (action='ask')...
+  [OK] Query 2 returned: SELECT COUNT(*) FROM citizen_student WHERE query = 'How many students in district 2?'
+  [OK] Query 1 returned: SELECT COUNT(*) FROM citizen_student WHERE query = 'How many students in district 1?'
+  [OK] Query 3 returned: SELECT COUNT(*) FROM citizen_student WHERE query = 'How many students in district 3?'
+
+POST /ask (action='job_status') Status: 200
+  Job 1 Status: completed | Worker: worker-1
+  Cancel nonexistent request handled: {'status': 'not_found', 'message': 'Request missing_req is not active.'}
+
+[SUCCESS] FastAPI /ask Endpoint Actions Tested & Verified Successfully!
+```
+
+---
+
+## 3. How to Use the New Actions via `POST /ask`
+
+### 1. Check Live Queue Status & Worker Counts
+```bash
+curl -X POST http://localhost:8000/ask \
+  -H "Content-Type: application/json" \
+  -d '{"action": "queue_status", "username": "admin"}'
+```
+
+### 2. Check Specific Job Status
+```bash
+curl -X POST http://localhost:8000/ask \
+  -H "Content-Type: application/json" \
+  -d '{"action": "job_status", "username": "admin", "request_id": "req_12345"}'
+```
+
+### 3. Change Concurrency at Runtime
+In [`.env`](file:///d:/Office/Student_Dropout_v1.3.1-main/ap_citizen360_v1.5.4/.env), simply adjust:
+```ini
+VALKEY_WORKER_CONCURRENCY=5
+```

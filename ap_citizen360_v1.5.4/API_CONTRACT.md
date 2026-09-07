@@ -48,9 +48,9 @@ All interactions (executing NL-to-SQL queries, canceling queries, listing histor
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | `username` | `string` | **Required.** Scopes all operations. |
-| `action` | `string` | **Optional.** One of: `"ask"` (default), `"cancel"`, `"history"`, `"history_session"`, `"delete_session"`, `"clear_history"`, `"chart"`. |
-| `question` | `string` | **Required only for `"ask"` action.** The natural-language database question. |
-| `request_id` | `string` | **Optional.** Custom identifier to track/cancel a running request. |
+| `action` | `string` | **Optional.** One of: `"ask"` (default), `"queue_status"`, `"job_status"`, `"cancel"`, `"history"`, `"history_session"`, `"delete_session"`, `"clear_history"`, `"suggestions"`, `"suggestions_meta"`, `"chart"`, `"speech_to_text"`. |
+| `question` | `string` | **Required only for `"ask"` action.** The natural-language database question. Enqueued in Valkey FIFO queue for parallel worker execution. |
+| `request_id` | `string` | **Optional.** Custom identifier to track/cancel a running or queued request. |
 | `session_id` | `string` | **Optional.** Chat session ID for conversation memory (used in `"ask"`, `"history_session"`, and `"delete_session"`). |
 | `thread_id` | `string` | **Optional.** Alias for `session_id`. |
 | `chart_type` | `string` | **Required only for `"chart"` action.** Type of chart (e.g., `"bar"`, `"line"`, `"pie"`, `"scatter"`). |
@@ -276,9 +276,91 @@ Response:
 }
 ```
 
+---
+
+## 7. Action: `"queue_status"`
+
+Retrieves live metrics of the Valkey FIFO queue and parallel consumer workers.
+
+Request:
+```json
+{
+  "action": "queue_status",
+  "username": "test_user"
+}
+```
+
+Response:
+```json
+{
+  "status": "healthy",
+  "backend": "valkey",
+  "concurrency_limit": 3,
+  "active_workers": 1,
+  "queued_jobs": 0,
+  "total_enqueued": 42,
+  "total_completed": 40,
+  "total_failed": 2,
+  "total_cancelled": 0,
+  "recent_jobs": [
+    {
+      "job_id": "req_12345",
+      "username": "test_user",
+      "question": "How many students are in the database?",
+      "status": "completed",
+      "enqueued_at": "2026-09-02T10:15:00.123456",
+      "total_time": 2.45,
+      "worker_id": "worker-1"
+    }
+  ],
+  "timestamp": "2026-09-02T10:15:05.123456"
+}
+```
+
+---
+
+## 8. Action: `"job_status"`
+
+Checks the real-time execution status of a specific job by `request_id`.
+
+Request:
+```json
+{
+  "action": "job_status",
+  "username": "test_user",
+  "request_id": "req_12345"
+}
+```
+
+Response:
+```json
+{
+  "job_id": "req_12345",
+  "question": "How many students are in the database?",
+  "username": "test_user",
+  "session_id": "session_abc",
+  "status": "completed",
+  "enqueued_at": "2026-09-02T10:15:00.123456",
+  "started_at": "2026-09-02T10:15:00.150000",
+  "completed_at": "2026-09-02T10:15:02.600000",
+  "worker_id": "worker-1",
+  "gen_time": 1.20,
+  "exec_time": 0.15,
+  "total_time": 2.45,
+  "wait_time": 0.02,
+  "result": {
+    "sql": "SELECT COUNT(*) FROM citizen_student",
+    "result": [{"COUNT(*)": 1000}],
+    "username": "test_user"
+  },
+  "error": null
+}
+```
+
 ## CORS
 
 CORS is open for integration testing:
 ```text
 allow_origins=["*"]
 ```
+

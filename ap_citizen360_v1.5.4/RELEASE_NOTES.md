@@ -44,28 +44,29 @@ This release introduces a **2-tier, frequency-based query cache** that sits at t
 - On a **cache MISS**: falls through to `intent_node` and the normal agentic pipeline.
 - `verify_node` now also calls `record_and_cache()` after a successful SQL execution to populate the cache for future hits.
 
-#### 5. Environment Configuration
+#### 7. Valkey FIFO Query Queue & Multi-Worker Parallel Consumer Pool
 
-Three new `.env` variables control cache behavior:
+- **Non-Blocking Ingestion**: Incoming queries via `POST /ask` are enqueued immediately in strict FIFO order (`valkey:query_queue`) without blocking incoming requests.
+- **Concurrent Worker Pool**: Up to $N$ consumer workers process queries in parallel across the LangGraph agent and LLM, configurable via `VALKEY_WORKER_CONCURRENCY` / `MAX_CONCURRENT_WORKERS` in `.env` (default `3`).
+- **Continuous Automatic Processing**: Workers continuously drain jobs 1-by-1 in FIFO order until the queue is clear, then seamlessly wait for new incoming queries.
+- **Keepalive Streaming**: Emits keepalive tokens (` `) every 10s during queue wait and LLM execution, preventing reverse proxy (IIS, NGINX) 502/504 gateway timeouts.
+- **Resilient Auto-Fallback**: Directly connects to Valkey server in production (`VALKEY_URL`), with transparent fallback to an in-memory asynchronous FIFO queue in development when Valkey daemon is offline.
+- **Comprehensive Logging & Observability**: Full structured logging for every transition (`[QUEUE ENQUEUE]`, `[WORKER START]`, `[WORKER DONE]`, `[WORKER ERROR]`, `[QUEUE CANCEL]`), tracking queue wait times, active workers count, generation times, execution times, and remaining queue depth.
+- **New Actions in `POST /ask`**:
+  - `action: "queue_status"`: Returns live queue depth, active worker count, and job metrics.
+  - `action: "job_status"`: Returns status, timing breakdown, and results for a specific `request_id`.
+  - `action: "cancel"`: Signals cancellation of a queued or actively running query.
+
+#### 8. Environment Configuration Updates
+
+Updated `.env` settings:
 
 | Variable | Default | Description |
 |---|---|---|
-| `VALKEY_URL` | `redis://localhost:6379/0` | Valkey connection string |
+| `VALKEY_URL` | `redis://localhost:6379/0` | Valkey / Redis connection string |
+| `VALKEY_WORKER_CONCURRENCY` | `3` | Number of parallel concurrent consumer workers |
 | `CACHE_MAX_QUERIES` | `300` | Maximum cache size before LRU eviction |
 | `CACHE_SEMANTIC_THRESHOLD` | `0.97` | Cosine similarity cutoff for Tier-2 hits |
-
-#### 6. RHEL Deployment
-
-Valkey can be installed from source on RHEL 8/9 without Docker:
-
-```bash
-sudo dnf groupinstall "Development Tools" -y && sudo dnf install -y openssl-devel
-wget https://github.com/valkey-io/valkey/archive/refs/tags/8.1.0.tar.gz
-tar -xzf 8.1.0.tar.gz && cd valkey-8.1.0 && make -j$(nproc) && sudo make install
-sudo systemctl enable --now valkey
-```
-
-No other code changes are required for RHEL deployment. The Python `valkey>=6.0.0` client is already in `requirements.txt`.
 
 ---
 

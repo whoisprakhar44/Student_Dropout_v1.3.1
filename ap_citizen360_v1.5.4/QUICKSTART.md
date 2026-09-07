@@ -43,6 +43,7 @@ python -m uvicorn app:app --host 0.0.0.0 --port 8000
 
 ## API Testing
 
+### 1. Execute Natural Language Query (via Valkey FIFO Queue)
 Use this request from Bruno or `curl`:
 
 ```bash
@@ -67,6 +68,33 @@ Expected response format:
   ],
   "username": "tester"
 }
+```
+
+### 2. Check Live Queue Status & Parallel Workers
+```bash
+curl -X POST http://localhost:8000/ask \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "tester",
+    "action": "queue_status"
+  }'
+```
+
+### 3. Check Status of Specific Job
+```bash
+curl -X POST http://localhost:8000/ask \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "tester",
+    "action": "job_status",
+    "request_id": "req_12345"
+  }'
+```
+
+### 4. Worker Concurrency Configuration
+Configure worker pool concurrency in `.env`:
+```ini
+VALKEY_WORKER_CONCURRENCY=3
 ```
 
 OpenAPI docs are available at `http://<server-host>:8000/docs`.

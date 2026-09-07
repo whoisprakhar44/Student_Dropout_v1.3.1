@@ -23,7 +23,17 @@ The AP Citizen 360 NL2SQL platform is a multi-layered AI system that makes the `
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                      Frontend / API Client                       │
-│                    POST /ask  ·  GET /health                     │
+│             POST /ask (action: ask, queue_status, etc.)         │
+└─────────────────────────┬───────────────────────────────────────┘
+                          │ (Non-blocking Enqueue)
+┌─────────────────────────▼───────────────────────────────────────┐
+│           Valkey FIFO Query Queue (valkey:query_queue)          │
+│            Auto-fallback to in-memory async FIFO queue          │
+└─────────────────────────┬───────────────────────────────────────┘
+                          │ (Pulls 1-by-1 in arrival order)
+┌─────────────────────────▼───────────────────────────────────────┐
+│    Concurrent Consumer Worker Pool (Concurrency = N Workers)    │
+│           Runs N LLM / LangGraph Queries in Parallel            │
 └─────────────────────────┬───────────────────────────────────────┘
                           │
 ┌─────────────────────────▼───────────────────────────────────────┐
@@ -74,11 +84,12 @@ The AP Citizen 360 NL2SQL platform is a multi-layered AI system that makes the `
 └──────────┬──────────┘  │   ap_citizen360 schema     │
            │             └────────────────────────────┘
 ┌──────────▼──────────┐  ┌─────────────────────────────┐
-│   Milvus Lite       │  │   Valkey Cache (v1.5.4)      │
+│   Milvus Lite       │  │   Valkey Cache & Queue       │
 │  schema_store       │  │  Tier-1: Exact match (hash)  │
 │  few_shot_store     │  │  Tier-2: Semantic (milvus_   │
 │  document_store     │  │          cache.db, ≥ 0.97)   │
 │  cached_queries ◄───┼──┤  Max 300 queries, LRU evict  │
+│                     │  │  FIFO Query Queue + N Worker │
 └─────────────────────┘  └─────────────────────────────┘
 ```
 
@@ -112,7 +123,9 @@ A canonical JSON schema (`citizen360_canonical_schema.json`) and curated YAML jo
 
 | Component | Technology | Role |
 |---|---|---|
-| **API Server** | FastAPI 0.115.6 + Uvicorn 0.32.1 | REST endpoints, session management, streaming |
+| **API Server** | FastAPI 0.115.6 + Uvicorn 0.32.1 | REST endpoints, session management, streaming keepalives |
+| **Valkey FIFO Queue** | `database/valkey_queue.py` | Strict FIFO query enqueueing, job state tracking, cancellation |
+| **Parallel Worker Pool** | `database/valkey_queue.py` | Configurable $N$ parallel consumer workers executing LLM queries concurrently |
 | **Agent Framework** | LangGraph 1.2.9 + LangChain Core 1.5.1 | Stateful multi-node graph, intent routing, self-correction |
 | **MCP Protocol** | MCP 1.29.0 + langchain-mcp-adapters 0.3.1 | Tool transport between agent and execution servers |
 | **Embedding Model** | Ollama `nomic-embed-text` (768-d) | Schema and document vectorization |
@@ -125,7 +138,7 @@ A canonical JSON schema (`citizen360_canonical_schema.json`) and curated YAML jo
 | **Document RAG** | `mcp_rag.py` → `search_documents` tool | COSINE similarity search over `document_store` |
 | **SQL Execution (Dev)** | `mcp_sql_execution.py` → SQLite | Read-only, validated SELECT execution |
 | **SQL Execution (Prod)** | `mcp_hive_execution.py` → Impala via Impyla | Kerberos-authenticated Impala/HiveServer2 queries |
-| **Query Cache (NEW)** | `database/valkey_cache.py` — Valkey + Milvus | 2-tier cache: Tier-1 exact hash match (Valkey), Tier-2 semantic similarity (Milvus `milvus_cache.db`) |
+| **Query Cache** | `database/valkey_cache.py` — Valkey + Milvus | 2-tier cache: Tier-1 exact hash match (Valkey), Tier-2 semantic similarity (Milvus `milvus_cache.db`) |
 | **Unified Pipeline** | `pipeline.py` | Indexes schema YAMLs (`schema_store`) and NL→SQL exemplars (`few_shot_store`) |
 | **Document Ingester** | `MCP/ingest_documents.py` | Parses PDF/DOCX/TXT into `document_store` (with OCR) |
 | **Speech-to-Text** | `speech_to_text/` — Faster-Whisper | Live WebSocket PCM transcription |

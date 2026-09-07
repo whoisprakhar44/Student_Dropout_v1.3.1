@@ -6,14 +6,32 @@ Tests short queries, Andhra Pradesh domain terms, gibberish rejection,
 and profanity filtering.
 """
 import sys
-from my_agent.utils.guardrails import (
-    GibberishDetector,
-    ProfanityGuardrail,
-    HateSpeechGuardrail,
-    ContentGuardrailManager,
-    _DETOXIFY_AVAILABLE,
-    _PROFANITY_AVAILABLE,
-)
+import os
+from pathlib import Path
+
+# Add my_agent/utils to sys.path for direct isolated execution
+_utils_dir = str(Path(__file__).resolve().parent / "my_agent" / "utils")
+if _utils_dir not in sys.path:
+    sys.path.insert(0, _utils_dir)
+
+try:
+    from my_agent.utils.guardrails import (
+        GibberishDetector,
+        ProfanityGuardrail,
+        HateSpeechGuardrail,
+        ContentGuardrailManager,
+        _DETOXIFY_AVAILABLE,
+        _PROFANITY_AVAILABLE,
+    )
+except ImportError:
+    from guardrails import (
+        GibberishDetector,
+        ProfanityGuardrail,
+        HateSpeechGuardrail,
+        ContentGuardrailManager,
+        _DETOXIFY_AVAILABLE,
+        _PROFANITY_AVAILABLE,
+    )
 
 
 def test_gibberish_detector():
