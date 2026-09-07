@@ -32,7 +32,7 @@ from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import HumanMessage, AIMessage
@@ -47,20 +47,6 @@ from create_schema import create_database
 from my_agent.agent import build_graph
 from my_agent.utils.ollama_check import chat_model_name, check_ollama
 from my_agent.utils.tools import cleanup_tools
-
-# Speech-to-text imports
-from speech_to_text.config import get_settings as get_speech_settings
-from speech_to_text.transcriber import Transcriber
-from speech_to_text.live import LiveTranscriptionSession, LiveSessionLimitError
-from starlette.concurrency import run_in_threadpool
-import base64
-from fastapi import WebSocket, WebSocketDisconnect
-
-speech_settings = get_speech_settings()
-if speech_settings.enable_speech_to_text:
-    speech_transcriber = Transcriber(speech_settings)
-else:
-    speech_transcriber = None
 
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "database", "schema.db")
@@ -164,7 +150,6 @@ class AskRequest(BaseModel):
     thread_id: str | None = Field(default=None, description="Optional chat thread ID (alias for session_id) for conversation memory.")
     chart_type: str | None = Field(default=None, description="Type of chart (e.g., 'bar', 'line', 'pie', 'scatter') for 'chart' action.")
     data: list[dict[str, Any]] | None = Field(default=None, description="Data to be plotted for 'chart' action.")
-    audio_base64: str | None = Field(default=None, description="Base64 encoded audio for 'speech_to_text' action.")
     username: str = Field(default="user", description="Required username to scope the chat history.")
     limit: int | None = Field(default=-1, description="Optional limit for suggestion count (-1 returns all).")
 
@@ -486,19 +471,9 @@ async def lifespan(app: FastAPI):
             print(f"Failed to build LangGraph agent during startup: {e}")
             traceback.print_exc()
 
-    if speech_settings.enable_speech_to_text and speech_transcriber:
-        print("Speech-to-text enabled. Loading faster-whisper model...")
-        speech_settings.upload_dir.mkdir(parents=True, exist_ok=True)
-        # Note: Transcriber load_model is sync, using run_in_threadpool if it's heavy, or just call it directly.
-        # It's better to load it lazily on first request as per original implementation, but we can do it here.
-        # Actually transcriber uses lazy loading in its transcribe method, so we don't strictly need to load it here,
-        # but let's make sure the upload_dir is created.
-
     yield
     if app.state.graph is not None:
         await cleanup_tools()
-    if speech_settings.enable_speech_to_text and speech_transcriber:
-        speech_transcriber.unload_model()
 
 
 async def _get_graph():
@@ -704,31 +679,6 @@ async def ask(payload: AskRequest, request: Request):
             traceback.print_exc()
             raise HTTPException(status_code=500, detail=f"Failed to generate chart: {e}")
 
-    # 4c. Action: Speech to Text (Offline file base64)
-    elif action == "speech_to_text":
-        if not speech_settings.enable_speech_to_text or not speech_transcriber:
-            raise HTTPException(status_code=503, detail="Speech-to-text is not enabled.")
-        if not payload.audio_base64:
-            raise HTTPException(status_code=400, detail="audio_base64 is required for speech_to_text action.")
-        try:
-            audio_bytes = base64.b64decode(payload.audio_base64)
-            upload_path = speech_settings.upload_dir / f"{uuid.uuid4().hex}.wav"
-            with upload_path.open("wb") as f:
-                f.write(audio_bytes)
-            
-            result = await run_in_threadpool(speech_transcriber.transcribe, upload_path)
-            
-            try:
-                if upload_path.exists():
-                    upload_path.unlink()
-            except OSError:
-                pass
-
-            return AskResponse(sql="", result=[{"text": result.text}], username=username)
-        except Exception as e:
-            traceback.print_exc()
-            raise HTTPException(status_code=500, detail=f"Failed to transcribe audio: {e}")
-
     # 5. Action: Ask (NL2SQL Query)
     elif action == "ask":
         if not payload.question:
@@ -917,83 +867,7 @@ async def ask(payload: AskRequest, request: Request):
         raise HTTPException(status_code=400, detail=f"Unsupported action: {action}")
 
 
-@app.websocket("/ws/transcribe/live")
-async def live_transcription(websocket: WebSocket) -> None:
-    await websocket.accept()
 
-    if not speech_settings.enable_speech_to_text or not speech_transcriber:
-        await websocket.send_json({"type": "error", "detail": "Speech-to-text is not enabled"})
-        await websocket.close(code=1008)
-        return
-
-    try:
-        start_message = await websocket.receive_text()
-        start_payload = json.loads(start_message)
-    except (WebSocketDisconnect, json.JSONDecodeError):
-        await websocket.send_json({"type": "error", "detail": "First message must be JSON"})
-        await websocket.close(code=1003)
-        return
-
-    if start_payload.get("type") != "start":
-        await websocket.send_json({"type": "error", "detail": "First message type must be start"})
-        await websocket.close(code=1003)
-        return
-
-    try:
-        sample_rate = int(start_payload.get("sample_rate") or 0)
-    except (TypeError, ValueError):
-        await websocket.send_json({"type": "error", "detail": f"sample_rate must be {speech_settings.live_sample_rate}"})
-        await websocket.close(code=1003)
-        return
-        
-    if sample_rate != speech_settings.live_sample_rate:
-        await websocket.send_json({"type": "error", "detail": f"sample_rate must be {speech_settings.live_sample_rate}"})
-        await websocket.close(code=1003)
-        return
-
-    session = LiveTranscriptionSession(
-        transcriber=speech_transcriber,
-        sample_rate=speech_settings.live_sample_rate,
-        chunk_seconds=speech_settings.live_chunk_seconds,
-        max_session_seconds=speech_settings.live_max_session_seconds,
-    )
-    await websocket.send_json({"type": "ready"})
-
-    try:
-        while True:
-            message = await websocket.receive()
-
-            if message.get("bytes") is not None:
-                try:
-                    events = await run_in_threadpool(session.receive_audio, message["bytes"])
-                except LiveSessionLimitError as exc:
-                    await websocket.send_json({"type": "error", "detail": str(exc)})
-                    await websocket.close(code=1009)
-                    return
-
-                for event in events:
-                    await websocket.send_json(event)
-                continue
-
-            text = message.get("text")
-            if text is None:
-                continue
-
-            try:
-                payload = json.loads(text)
-            except json.JSONDecodeError:
-                await websocket.send_json({"type": "error", "detail": "Text messages must be JSON"})
-                continue
-
-            if payload.get("type") == "stop":
-                final_event = await run_in_threadpool(session.flush)
-                await websocket.send_json(final_event)
-                await websocket.close(code=1000)
-                return
-
-            await websocket.send_json({"type": "error", "detail": "Unsupported message type"})
-    except WebSocketDisconnect:
-        pass
 
 
 @app.get("/suggestions/meta")
@@ -1025,6 +899,558 @@ async def post_suggestions_endpoint(payload: AskRequest):
     if not payload.action:
         payload.action = "suggestions"
     return await ask(payload)
+
+
+# ------------------------------------------------------------------------------
+# WebSocket Action-Based Communication Protocol
+# ------------------------------------------------------------------------------
+
+class WebSocketSessionHandler:
+    """Manages an individual WebSocket client connection, concurrent tasks, and action routing."""
+
+    def __init__(self, websocket: WebSocket):
+        self.websocket = websocket
+        self._send_lock = asyncio.Lock()
+        self._active_tasks: dict[str, asyncio.Task] = {}
+
+    async def send_json(self, payload: dict[str, Any]) -> None:
+        """Thread-safe and coroutine-safe JSON frame sender."""
+        async with self._send_lock:
+            try:
+                await self.websocket.send_json(payload)
+            except Exception as exc:
+                logger.debug("[WS SEND FAILED] %s", exc)
+
+    async def handle_message(self, message_text: str) -> None:
+        """Parse incoming JSON frame and spawn an async task for action execution."""
+        try:
+            payload = json.loads(message_text)
+        except Exception:
+            await self.send_json({
+                "type": "error",
+                "detail": "Invalid JSON frame payload. Text messages must be JSON objects."
+            })
+            return
+
+        action = str(payload.get("action", "")).strip()
+        request_id = payload.get("request_id") or f"req_{uuid.uuid4().hex[:12]}"
+        username = payload.get("username", "user")
+
+        # Spawn task to allow concurrent message processing (e.g. ws_cancel, ws_ping during ws_ask)
+        task_name = f"ws_task_{request_id}"
+        task = asyncio.create_task(
+            self._dispatch_action(action, payload, request_id, username),
+            name=task_name
+        )
+        self._active_tasks[request_id] = task
+        task.add_done_callback(lambda t: self._active_tasks.pop(request_id, None))
+
+    async def _dispatch_action(self, action: str, payload: dict[str, Any], request_id: str, username: str) -> None:
+        try:
+            # 1. Ping / Heartbeat
+            if action in ("ws_ping", "ping"):
+                await self.send_json({
+                    "type": "pong",
+                    "action": action,
+                    "request_id": request_id,
+                    "timestamp": datetime.now().isoformat()
+                })
+
+            # 2. Suggestions / Few-shots
+            elif action in ("ws_suggestions", "suggestions", "fewshots", "get_suggestions"):
+                limit = payload.get("limit", -1)
+                items = get_fewshot_suggestions(limit=limit)
+                meta = get_cache_metadata()
+                await self.send_json({
+                    "type": "result",
+                    "action": action,
+                    "request_id": request_id,
+                    "status": "success",
+                    "data": {
+                        "count": len(items),
+                        "updated_at": meta["updated_at"],
+                        "suggestions": items
+                    }
+                })
+
+            # 2b. Suggestions Meta / Version
+            elif action in ("ws_suggestions_meta", "suggestions_meta", "ws_suggestions_version", "suggestions_version"):
+                await self.send_json({
+                    "type": "result",
+                    "action": action,
+                    "request_id": request_id,
+                    "status": "success",
+                    "data": get_cache_metadata()
+                })
+
+            # 3. History (list sessions)
+            elif action in ("ws_history", "history"):
+                conn = sqlite3.connect(HISTORY_DB_PATH)
+                conn.row_factory = sqlite3.Row
+                try:
+                    cursor = conn.cursor()
+                    cursor.execute(
+                        "SELECT id, title, created_at, updated_at FROM sessions WHERE username = ? ORDER BY updated_at DESC",
+                        (username,)
+                    )
+                    rows = cursor.fetchall()
+                    sessions = [
+                        {
+                            "id": row["id"],
+                            "title": row["title"],
+                            "created_at": row["created_at"],
+                            "updated_at": row["updated_at"],
+                        }
+                        for row in rows
+                    ]
+                    await self.send_json({
+                        "type": "result",
+                        "action": action,
+                        "request_id": request_id,
+                        "status": "success",
+                        "data": sessions
+                    })
+                finally:
+                    conn.close()
+
+            # 3b. History Session (messages context)
+            elif action in ("ws_history_session", "history_session"):
+                session_id = payload.get("session_id") or payload.get("thread_id")
+                if not session_id:
+                    await self.send_json({
+                        "type": "error",
+                        "action": action,
+                        "request_id": request_id,
+                        "detail": "session_id is required for history_session"
+                    })
+                    return
+
+                conn = sqlite3.connect(HISTORY_DB_PATH)
+                conn.row_factory = sqlite3.Row
+                try:
+                    cursor = conn.cursor()
+                    cursor.execute(
+                        "SELECT id, title, username, created_at, updated_at FROM sessions WHERE id = ? AND username = ?",
+                        (session_id, username)
+                    )
+                    s_row = cursor.fetchone()
+                    if not s_row:
+                        await self.send_json({
+                            "type": "error",
+                            "action": action,
+                            "request_id": request_id,
+                            "session_id": session_id,
+                            "status": "not_found",
+                            "detail": "Session not found"
+                        })
+                        return
+
+                    cursor.execute(
+                        "SELECT id, role, content, sql, result, created_at FROM messages WHERE session_id = ? ORDER BY created_at ASC",
+                        (session_id,)
+                    )
+                    msg_rows = cursor.fetchall()
+                    messages = []
+                    for r in msg_rows:
+                        res_val = None
+                        if r["result"]:
+                            try:
+                                res_val = json.loads(r["result"])
+                            except Exception:
+                                res_val = []
+                        messages.append({
+                            "id": r["id"],
+                            "role": r["role"],
+                            "content": r["content"],
+                            "sql": r["sql"],
+                            "result": res_val,
+                            "created_at": r["created_at"],
+                        })
+
+                    await self.send_json({
+                        "type": "result",
+                        "action": action,
+                        "request_id": request_id,
+                        "session_id": session_id,
+                        "status": "success",
+                        "data": {
+                            "id": s_row["id"],
+                            "title": s_row["title"],
+                            "created_at": s_row["created_at"],
+                            "updated_at": s_row["updated_at"],
+                            "messages": messages,
+                        }
+                    })
+                finally:
+                    conn.close()
+
+            # 4. Delete Session
+            elif action in ("ws_delete_session", "delete_session"):
+                session_id = payload.get("session_id") or payload.get("thread_id")
+                if not session_id:
+                    await self.send_json({
+                        "type": "error",
+                        "action": action,
+                        "request_id": request_id,
+                        "detail": "session_id is required for delete_session"
+                    })
+                    return
+
+                conn = sqlite3.connect(HISTORY_DB_PATH)
+                try:
+                    cursor = conn.cursor()
+                    cursor.execute("SELECT username FROM sessions WHERE id = ?", (session_id,))
+                    row = cursor.fetchone()
+                    if not row or row[0] != username:
+                        await self.send_json({
+                            "type": "error",
+                            "action": action,
+                            "request_id": request_id,
+                            "session_id": session_id,
+                            "status": "not_found",
+                            "detail": "Chat session not found"
+                        })
+                        return
+
+                    cursor.execute("DELETE FROM messages WHERE session_id = ?", (session_id,))
+                    cursor.execute("DELETE FROM sessions WHERE id = ?", (session_id,))
+                    conn.commit()
+                    await self.send_json({
+                        "type": "result",
+                        "action": action,
+                        "request_id": request_id,
+                        "session_id": session_id,
+                        "status": "success",
+                        "message": "Session deleted successfully"
+                    })
+                finally:
+                    conn.close()
+
+            # 4b. Clear History
+            elif action in ("ws_clear_history", "clear_history"):
+                conn = sqlite3.connect(HISTORY_DB_PATH)
+                try:
+                    cursor = conn.cursor()
+                    cursor.execute(
+                        "DELETE FROM messages WHERE session_id IN (SELECT id FROM sessions WHERE username = ?)",
+                        (username,)
+                    )
+                    cursor.execute("DELETE FROM sessions WHERE username = ?", (username,))
+                    conn.commit()
+                    await self.send_json({
+                        "type": "result",
+                        "action": action,
+                        "request_id": request_id,
+                        "status": "success",
+                        "message": "All sessions deleted successfully"
+                    })
+                finally:
+                    conn.close()
+
+            # 5. Chart (Vega-Lite SVG)
+            elif action in ("ws_chart", "chart"):
+                data = payload.get("data")
+                chart_type = payload.get("chart_type")
+                if not data or not chart_type:
+                    await self.send_json({
+                        "type": "error",
+                        "action": action,
+                        "request_id": request_id,
+                        "detail": "Both 'data' and 'chart_type' are required for chart action."
+                    })
+                    return
+                try:
+                    from my_agent.utils.chart_generator import generate_svg_chart
+                    svg = generate_svg_chart(data, chart_type)
+                    await self.send_json({
+                        "type": "result",
+                        "action": action,
+                        "request_id": request_id,
+                        "status": "success",
+                        "data": {"svg": svg}
+                    })
+                except Exception as e:
+                    await self.send_json({
+                        "type": "error",
+                        "action": action,
+                        "request_id": request_id,
+                        "detail": f"Failed to generate chart: {e}"
+                    })
+
+            # 6. Cancel
+            elif action in ("ws_cancel", "cancel"):
+                target_req_id = payload.get("target_request_id") or payload.get("request_id")
+                if not target_req_id:
+                    await self.send_json({
+                        "type": "error",
+                        "action": action,
+                        "request_id": request_id,
+                        "detail": "target_request_id or request_id is required for cancel action"
+                    })
+                    return
+
+                task = active_tasks.get(target_req_id)
+                cancelled = False
+                if task and not task.done():
+                    task.cancel()
+                    cancelled = True
+
+                await self.send_json({
+                    "type": "result",
+                    "action": action,
+                    "request_id": request_id,
+                    "target_request_id": target_req_id,
+                    "status": "success" if cancelled else "not_found",
+                    "message": f"Request {target_req_id} {'cancellation signal sent.' if cancelled else 'not active or already completed.'}"
+                })
+
+            # 7. Ask (Chat Query with Status Stream)
+            elif action in ("ws_ask", "ask"):
+                question = payload.get("question")
+                if not question:
+                    await self.send_json({
+                        "type": "error",
+                        "action": action,
+                        "request_id": request_id,
+                        "detail": "question is required for ask action"
+                    })
+                    return
+
+                session_id = payload.get("session_id") or payload.get("thread_id") or str(uuid.uuid4())
+
+                logger.info("=" * 60)
+                logger.info("⚡ [WS QUERY RECEIVED]")
+                logger.info("   User:       %s", username)
+                logger.info("   Session:    %s", session_id)
+                logger.info("   Request ID: %s", request_id)
+                logger.info("   Question:   %s", question)
+                logger.info("=" * 60)
+
+                ollama_info = check_ollama()
+                if not ollama_info.get("model_available"):
+                    await self.send_json({
+                        "type": "status",
+                        "action": action,
+                        "request_id": request_id,
+                        "session_id": session_id,
+                        "status": "failed",
+                        "step": "model_error",
+                        "message": f"Ollama model '{chat_model_name()}' is not available."
+                    })
+                    await self.send_json({
+                        "type": "result",
+                        "action": action,
+                        "request_id": request_id,
+                        "session_id": session_id,
+                        "status": "failed",
+                        "data": {
+                            "sql": "",
+                            "result": [{"error": f"Ollama model '{chat_model_name()}' is not available. Run: ollama pull {chat_model_name()} — then restart uvicorn.", "status": "failed"}],
+                            "username": username,
+                            "summary": "Ollama model not available."
+                        }
+                    })
+                    return
+
+                await self.send_json({
+                    "type": "status",
+                    "action": action,
+                    "request_id": request_id,
+                    "session_id": session_id,
+                    "status": "processing",
+                    "step": "generating_sql",
+                    "message": "Analyzing query intent, database schema, and synthesizing SQL query...",
+                    "timestamp": datetime.now().isoformat()
+                })
+
+                graph = await _get_graph()
+                history_messages = get_session_messages(session_id)
+
+                async def _run_graph():
+                    async with request_lock:
+                        return await graph.ainvoke({
+                            "user_query": question,
+                            "messages": history_messages + [HumanMessage(content=question)],
+                            "retrieved_context": [],
+                            "llm_calls": 0,
+                            "rag_calls": 0,
+                            "verify_calls": 0,
+                            "verified": False,
+                            "intent": None,
+                            "department_scope": None,
+                            "entities": None,
+                        })
+
+                t_start = time.perf_counter()
+                graph_task = asyncio.ensure_future(_run_graph())
+                active_tasks[request_id] = graph_task
+
+                try:
+                    state = await graph_task
+                    total_time = time.perf_counter() - t_start
+                    gen_time = state.get("gen_time", 0.0)
+                    exec_time = state.get("exec_time", 0.0)
+
+                    await self.send_json({
+                        "type": "status",
+                        "action": action,
+                        "request_id": request_id,
+                        "session_id": session_id,
+                        "status": "processing",
+                        "step": "formatting",
+                        "message": "Formatting result rows, extracting summary, and updating session context...",
+                        "timestamp": datetime.now().isoformat()
+                    })
+
+                    response_obj = _extract_sql_and_result(state.get("messages", []), username)
+                    response_obj.timings = {
+                        "total_gen_time": round(gen_time, 2),
+                        "total_exec_time": round(exec_time, 2),
+                        "total_time": round(total_time, 2)
+                    }
+
+                    response_text = ""
+                    for msg in reversed(state.get("messages", [])):
+                        if msg.__class__.__name__ == "AIMessage" or getattr(msg, "type", None) == "ai":
+                            if not getattr(msg, "tool_calls", None) and getattr(msg, "content", ""):
+                                response_text = msg.content
+                                break
+                    if not response_text:
+                        if response_obj.result and isinstance(response_obj.result, list) and len(response_obj.result) > 0 and "error" in response_obj.result[0]:
+                            response_text = response_obj.result[0]["error"]
+                        else:
+                            response_text = "Here is the query result."
+
+                    response_obj.summary = response_text
+                    is_greeting = state.get("intent") == "greeting"
+
+                    if not is_greeting:
+                        save_chat_turn(
+                            session_id=session_id,
+                            question=question,
+                            response_text=response_text,
+                            sql=response_obj.sql,
+                            result=response_obj.result,
+                            username=username
+                        )
+                        is_error = (
+                            response_obj.result
+                            and len(response_obj.result) > 0
+                            and response_obj.result[0].get("status") in ("failed", "cancelled")
+                        )
+                        excel_status = response_obj.result[0].get("status", "success") if is_error else "success"
+                        excel_error = response_obj.result[0].get("error", "") if is_error else ""
+                        _append_excel_log(
+                            username=username,
+                            session_id=session_id,
+                            question=question or "",
+                            sql=response_obj.sql or "",
+                            status=excel_status,
+                            answer=response_text,
+                            error=excel_error,
+                            gen_time=gen_time,
+                            exec_time=exec_time,
+                            total_time=total_time,
+                        )
+
+                    response_obj.username = username
+                    res_dict = response_obj.model_dump()
+
+                    await self.send_json({
+                        "type": "status",
+                        "action": action,
+                        "request_id": request_id,
+                        "session_id": session_id,
+                        "status": "completed",
+                        "step": "completed",
+                        "message": "Query processing finished successfully.",
+                        "timestamp": datetime.now().isoformat()
+                    })
+
+                    await self.send_json({
+                        "type": "result",
+                        "action": action,
+                        "request_id": request_id,
+                        "session_id": session_id,
+                        "status": "completed",
+                        "data": res_dict
+                    })
+
+                except asyncio.CancelledError:
+                    await self.send_json({
+                        "type": "result",
+                        "action": action,
+                        "request_id": request_id,
+                        "session_id": session_id,
+                        "status": "cancelled",
+                        "data": {
+                            "sql": "",
+                            "result": [{"error": "Request cancelled.", "status": "cancelled"}],
+                            "username": username
+                        }
+                    })
+                except Exception as exc:
+                    logger.error("[WS QUERY ERROR] %s", exc, exc_info=True)
+                    await self.send_json({
+                        "type": "result",
+                        "action": action,
+                        "request_id": request_id,
+                        "session_id": session_id,
+                        "status": "failed",
+                        "data": {
+                            "sql": "",
+                            "result": [{"error": str(exc), "status": "failed"}],
+                            "username": username
+                        }
+                    })
+                finally:
+                    active_tasks.pop(request_id, None)
+
+            else:
+                await self.send_json({
+                    "type": "error",
+                    "action": action,
+                    "request_id": request_id,
+                    "detail": f"Unsupported WebSocket action: '{action}'"
+                })
+
+        except Exception as exc:
+            logger.error("[WS DISPATCH ERROR] Action: %s | Error: %s", action, exc, exc_info=True)
+            await self.send_json({
+                "type": "error",
+                "action": action,
+                "request_id": request_id,
+                "detail": str(exc)
+            })
+
+    async def cancel_all(self):
+        """Cancel all pending subtasks on disconnect."""
+        for t in list(self._active_tasks.values()):
+            if not t.done():
+                t.cancel()
+        self._active_tasks.clear()
+
+
+@app.websocket("/ws")
+@app.websocket("/ws/chat")
+async def chat_websocket_endpoint(websocket: WebSocket) -> None:
+    """Action-based WebSocket endpoint for complete chat communication."""
+    await websocket.accept()
+    session_handler = WebSocketSessionHandler(websocket)
+    logger.info("🔌 [WS CONNECTED] Client connected to chat WebSocket.")
+
+    try:
+        while True:
+            text = await websocket.receive_text()
+            if not text.strip():
+                continue
+            await session_handler.handle_message(text)
+    except WebSocketDisconnect:
+        logger.info("🔌 [WS DISCONNECTED] Client disconnected from chat WebSocket.")
+    except Exception as exc:
+        logger.error("[WS UNHANDLED EXCEPTION] %s", exc)
+    finally:
+        await session_handler.cancel_all()
 
 
 @app.get("/", response_class=HTMLResponse)

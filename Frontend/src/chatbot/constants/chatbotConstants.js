@@ -42,6 +42,32 @@ export const ROLES = {
   ASSISTANT: 'assistant',
 };
 
+export const TRANSPORT_MODES = {
+  AUTO: 'auto',
+  WEBSOCKET: 'websocket',
+  HTTP: 'http',
+};
+
+export const WS_CONNECTION_STATUS = {
+  DISCONNECTED: 'disconnected',
+  CONNECTING: 'connecting',
+  CONNECTED: 'connected',
+  ERROR: 'error',
+  FALLBACK_HTTP: 'fallback_http',
+};
+
+export const PLANNER_STEPS = {
+  QUEUED: 'queued',
+  WORKER_ASSIGNED: 'worker_assigned',
+  GUARDRAIL_CHECK: 'guardrail_check',
+  GENERATING_SQL: 'generating_sql',
+  FORMATTING: 'formatting',
+  COMPLETED: 'completed',
+  CANCELLED: 'cancelled',
+  BLOCKED: 'guardrail_blocked',
+  FAILED: 'failed',
+};
+
 export const DEFAULT_BOT_INFO = {
   name: 'AP Citizen 360 AI Assistant',
   status: 'Online',
@@ -54,3 +80,4 @@ export const INITIAL_WELCOME_MESSAGE = {
   content: 'Hello! 👋 Welcome to AP Citizen 360 AI Assistant.\nPlease ask your question regarding the Citizen 360 database or policy documents in short.',
   timestamp: new Date().toISOString(),
 };
+

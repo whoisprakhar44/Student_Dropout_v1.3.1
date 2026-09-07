@@ -78,6 +78,7 @@ class ValkeyQueueManager:
         self._fallback_queue: asyncio.Queue[str] = asyncio.Queue()
         self._job_store: Dict[str, Dict[str, Any]] = {}
         self._job_events: Dict[str, asyncio.Event] = {}
+        self._progress_listeners: Dict[str, list[Callable[[Dict[str, Any]], Awaitable[None]]]] = {}
         self._active_worker_tasks: Dict[str, asyncio.Task] = {}  # job_id -> worker task
         self._worker_pool_tasks: list[asyncio.Task] = []
         self._is_running = False
@@ -265,6 +266,53 @@ class ValkeyQueueManager:
 
         return self.get_job(job_id) or {}
 
+    def register_progress_listener(self, job_id: str, callback: Callable[[Dict[str, Any]], Awaitable[None]]):
+        """Register an async callback for real-time progress/status events on job_id."""
+        if job_id not in self._progress_listeners:
+            self._progress_listeners[job_id] = []
+        self._progress_listeners[job_id].append(callback)
+
+    def unregister_progress_listener(self, job_id: str, callback: Optional[Callable] = None):
+        """Unregister progress callback(s) for job_id."""
+        if job_id in self._progress_listeners:
+            if callback:
+                try:
+                    self._progress_listeners[job_id].remove(callback)
+                except ValueError:
+                    pass
+            else:
+                self._progress_listeners.pop(job_id, None)
+
+    async def emit_progress(
+        self,
+        job_id: str,
+        step: str,
+        status: str = "processing",
+        message: str = "",
+        data: Optional[Dict[str, Any]] = None
+    ):
+        """Broadcast a structured progress/planner event for job_id to all registered listeners."""
+        event = {
+            "type": "status",
+            "action": "ws_ask",
+            "request_id": job_id,
+            "status": status,
+            "step": step,
+            "message": message,
+            "timestamp": datetime.now().isoformat(),
+        }
+        if data:
+            event["data"] = data
+
+        listeners = self._progress_listeners.get(job_id, [])
+        for cb in list(listeners):
+            try:
+                res = cb(event)
+                if asyncio.iscoroutine(res):
+                    await res
+            except Exception as e:
+                logger.error("Error invoking progress listener for job %s: %s", job_id, e)
+
     async def cancel_job(self, job_id: str) -> bool:
         """Cancel a queued or actively processing job."""
         job = self.get_job(job_id)
@@ -282,6 +330,14 @@ class ValkeyQueueManager:
             "error": "Request cancelled by user."
         })
         self.total_cancelled += 1
+
+        # Emit cancellation progress event
+        await self.emit_progress(
+            job_id,
+            step="cancelled",
+            status=JobStatus.CANCELLED,
+            message="Request cancelled by user."
+        )
 
         # Cancel running task if active
         active_task = self._active_worker_tasks.get(job_id)
@@ -370,6 +426,15 @@ class ValkeyQueueManager:
             "wait_time": round(wait_time, 2)
         })
 
+        # Emit worker assignment progress event
+        await self.emit_progress(
+            job_id,
+            step="worker_assigned",
+            status=JobStatus.PROCESSING,
+            message=f"Worker {worker_id} assigned. Starting query processing...",
+            data={"worker_id": worker_id, "wait_time": round(wait_time, 2)}
+        )
+
         if self.is_connected and self.valkey_client:
             try:
                 self.valkey_client.sadd(self.active_set_key, job_id)
@@ -431,6 +496,19 @@ class ValkeyQueueManager:
                 "result": exec_result,
                 "error": result_rows[0].get("error") if has_error else None
             })
+
+            # Emit final completed / failed progress event
+            await self.emit_progress(
+                job_id,
+                step="completed" if status == JobStatus.COMPLETED else "failed",
+                status=status,
+                message="Query processing finished successfully." if status == JobStatus.COMPLETED else (result_rows[0].get("error") if has_error else "Query execution failed."),
+                data={
+                    "gen_time": round(gen_time, 2),
+                    "exec_time": round(exec_time, 2),
+                    "total_time": round(total_time, 2)
+                }
+            )
 
             logger.info("=" * 70)
             logger.info(

@@ -1,272 +1,168 @@
-# API Contract
+# API & WebSocket Contract
 
-This project exposes one API server for a separately hosted frontend.
-
-## Base URL
-
-Local development:
-
-```text
-http://localhost:8000
-```
-
-Remote testing from Bruno or another server:
-
-```text
-http://<server-host>:8000
-```
-
-Interactive docs:
-
-```http
-GET /docs
-```
-
-## Endpoints
-
-Only the following endpoints are supported.
-
-### Health
-
-```http
-GET /health
-```
-
-Returns service status and Ollama model availability.
-
-### Authentication & Headers
-
-**Authentication token is mandatory in every request to the backend.**
-
-```http
-Authorization: Bearer <auth_token>
-Content-Type: application/json
-```
-
-The frontend extracts the auth token from `localStorage` (`userInfo.token` or direct `token`/`authToken`/`accessToken` keys) and passes it in the `Authorization` header.
-
-### Username Resolution
-
-The username is dynamically resolved from `localStorage.getItem("userInfo")` (which contains JSON with a `username` property). If not found, it defaults to `"Test User"`.
-
-### Ask (Unified Endpoint)
-
-```http
-POST /ask
-Content-Type: application/json
-Authorization: Bearer <auth_token>
-```
-
-All interactions (executing NL-to-SQL queries, canceling queries, listing history, deleting sessions, and clearing history) are multiplexed through the `/ask` endpoint using the `action` field.
-
-#### Fields
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `username` | `string` | **Required.** Scopes all operations. |
-| `action` | `string` | **Optional.** One of: `"ask"` (default), `"cancel"`, `"history"`, `"history_session"`, `"delete_session"`, `"clear_history"`. |
-| `question` | `string` | **Required only for `"ask"` action.** The natural-language database question. |
-| `request_id` | `string` | **Optional.** Custom identifier to track/cancel a running request. |
-| `session_id` | `string` | **Optional.** Chat session ID for conversation memory (used in `"ask"`, `"history_session"`, and `"delete_session"`). |
-| `thread_id` | `string` | **Optional.** Alias for `session_id`. |
+This project exposes both a high-performance **Real-Time WebSocket Protocol** and a unified multiplexed **HTTP REST Endpoint** for the frontend chatbot interface.
 
 ---
 
-### 1. Action: `"ask"` (Default)
+## 1. Transport Modes (`VITE_CHATBOT_TRANSPORT`)
 
-Executes a natural-language SQL query and returns a streaming response.
-
-Request:
-```json
-{
-  "action": "ask",
-  "question": "How many students are in the database?",
-  "username": "test_user",
-  "request_id": "req_12345",
-  "session_id": "session_abc"
-}
-```
-
-Response:
-```json
-{
-  "sql": "SELECT COUNT(*) AS total_students FROM citizen_student",
-  "result": [
-    {
-      "total_students": 1000
-    }
-  ],
-  "username": "test_user"
-}
-```
-
-#### Failures / Fallback Response
-If SQL generation or execution fails, a `failed` status will be included in the results object rather than throwing an HTTP 500 error:
-```json
-{
-  "sql": "",
-  "result": [
-    {
-      "error": "The agent did not return an executed SQL query.",
-      "status": "failed"
-    }
-  ],
-  "username": "test_user"
-}
-```
+The frontend React application supports three transport modes configurable in `.env`:
+- `auto` (**Default & Recommended**): Connects via WebSocket for real-time status and query streaming; automatically and seamlessly falls back to HTTP POST if WebSocket connection is unavailable or interrupted.
+- `websocket`: Exclusively uses WebSocket connection (`ws://` / `wss://`).
+- `http`: Exclusively uses HTTP POST multiplexed endpoint.
 
 ---
 
-### 2. Action: `"cancel"`
+## 2. WebSocket Protocol (`/ws` & `/ws/chat`)
 
-Cancels an active running query matching the provided `request_id`.
+### Connection Endpoints
+- Local development: `ws://localhost:8000/ws` (or `ws://localhost:8000/ws/chat`)
+- Production (SSL): `wss://your-domain.com/ws`
 
-Request:
+### Client Action Payloads
+
+Every client frame is a JSON object with an `action` property:
+
+#### 1. `ws_ask` / `ask` (Chat Query & Planner Progress Stream)
 ```json
 {
-  "action": "cancel",
-  "username": "test_user",
+  "action": "ws_ask",
+  "question": "Show top 5 districts by total student dropouts",
+  "username": "user",
+  "session_id": "session_abc",
   "request_id": "req_12345"
 }
 ```
 
-Response (if active):
+**Real-Time Status Frames (`type: "status"`)**:
+The server streams progress events as the query passes through the pipeline:
+- `step: "queued"` (with `queue_position`)
+- `step: "worker_assigned"` (with `worker_id`)
+- `step: "guardrail_check"`
+- `step: "generating_sql"`
+- `step: "formatting"`
+
+**Final Result Frame (`type: "result"`)**:
 ```json
 {
-  "status": "success",
-  "message": "Request req_12345 cancellation signal sent."
-}
-```
-
-Response (if not found or completed):
-```json
-{
-  "status": "not_found",
-  "message": "Request req_12345 is not active or has already completed."
-}
-```
-
----
-
-### 3. Action: `"history"`
-
-Retrieves all session summaries (titles and creation/update times only) scoped to the provided username.
-
-Request:
-```json
-{
-  "action": "history",
-  "username": "test_user"
-}
-```
-
-Response:
-```json
-[
-  {
-    "id": "session_abc",
-    "title": "How many students are in the database?",
-    "created_at": "2026-06-13T03:40:00.123456",
-    "updated_at": "2026-06-13T03:41:30.987654"
-  }
-]
-```
-
----
-
-### 3b. Action: `"history_session"`
-
-Retrieves the full message context and history details for a specific session ID scoped to a username.
-
-Request:
-```json
-{
-  "action": "history_session",
-  "username": "test_user",
-  "session_id": "session_abc"
-}
-```
-
-Response:
-```json
-{
-  "id": "session_abc",
-  "title": "How many students are in the database?",
-  "created_at": "2026-06-13T03:40:00.123456",
-  "updated_at": "2026-06-13T03:41:30.987654",
-  "messages": [
-    {
-      "id": "msg_001",
-      "role": "user",
-      "content": "How many students are in the database?",
-      "sql": null,
-      "result": null,
-      "created_at": "2026-06-13T03:40:00.123456"
-    },
-    {
-      "id": "msg_002",
-      "role": "assistant",
-      "content": "There are **1,000** total students in the database.",
-      "sql": "SELECT COUNT(*) AS total_students FROM citizen_student",
-      "result": [
-        {
-          "total_students": 1000
-        }
-      ],
-      "created_at": "2026-06-13T03:40:05.654321"
+  "type": "result",
+  "action": "ws_ask",
+  "request_id": "req_12345",
+  "session_id": "session_abc",
+  "status": "completed",
+  "data": {
+    "sql": "SELECT district, SUM(dropout_count) as dropouts FROM student_dropouts GROUP BY district ORDER BY dropouts DESC LIMIT 5;",
+    "result": [
+      {"district": "Visakhapatnam", "dropouts": 1420},
+      {"district": "Guntur", "dropouts": 1180}
+    ],
+    "summary": "Here are the top 5 districts with the highest student dropout counts.",
+    "username": "user",
+    "timings": {
+      "total_time": 1.25
     }
-  ]
+  }
+}
+```
+
+#### 2. `ws_cancel` / `cancel` (Cancel In-Flight Query)
+```json
+{
+  "action": "ws_cancel",
+  "target_request_id": "req_12345",
+  "request_id": "req_cancel_cmd"
+}
+```
+
+#### 3. `ws_history` / `history` (List Session Summaries)
+```json
+{
+  "action": "ws_history",
+  "username": "user",
+  "request_id": "req_hist_01"
+}
+```
+
+#### 4. `ws_history_session` / `history_session` (Fetch Full Session History)
+```json
+{
+  "action": "ws_history_session",
+  "session_id": "session_abc",
+  "username": "user",
+  "request_id": "req_sess_01"
+}
+```
+
+#### 5. `ws_delete_session` / `delete_session` (Delete Session)
+```json
+{
+  "action": "ws_delete_session",
+  "session_id": "session_abc",
+  "username": "user",
+  "request_id": "req_del_01"
+}
+```
+
+#### 6. `ws_clear_history` / `clear_history` (Clear All Sessions)
+```json
+{
+  "action": "ws_clear_history",
+  "username": "user",
+  "request_id": "req_clr_01"
+}
+```
+
+#### 7. `ws_suggestions` & `ws_suggestions_meta` (Suggestions)
+```json
+{
+  "action": "ws_suggestions",
+  "limit": 50,
+  "request_id": "req_sugg_01"
+}
+```
+
+#### 8. `ws_chart` / `chart` (Server-Side SVG Chart Rendering)
+```json
+{
+  "action": "ws_chart",
+  "chart_type": "bar",
+  "data": [
+    {"district": "Guntur", "dropouts": 1180},
+    {"district": "Kurnool", "dropouts": 1230}
+  ],
+  "request_id": "req_chart_01"
+}
+```
+
+#### 9. `ws_ping` / `ping` (Heartbeat)
+```json
+{
+  "action": "ws_ping",
+  "request_id": "ping_01"
 }
 ```
 
 ---
 
-### 4. Action: `"delete_session"`
+## 3. HTTP Multiplexed Endpoint (`POST /ask`)
 
-Deletes a specific session history thread for a username.
+For clients where WebSockets are unavailable or in HTTP-only fallback mode, all interactions are supported via `POST /ask`.
 
-Request:
-```json
-{
-  "action": "delete_session",
-  "username": "test_user",
-  "session_id": "session_abc"
-}
+### Headers
+```http
+Authorization: Bearer <auth_token>
+Content-Type: application/json
 ```
 
-Response:
-```json
-{
-  "status": "success",
-  "message": "Session deleted successfully"
-}
-```
-
----
-
-### 5. Action: `"clear_history"`
-
-Clears all session histories associated with a username.
-
-Request:
-```json
-{
-  "action": "clear_history",
-  "username": "test_user"
-}
-```
-
-Response:
-```json
-{
-  "status": "success",
-  "message": "All sessions deleted successfully"
-}
-```
-
-## CORS
-
-CORS is open for integration testing:
-```text
-allow_origins=["*"]
-```
+### Action Dispatch Summary
+| Action | Purpose | Required Fields |
+|---|---|---|
+| `ask` | Execute NL2SQL Query | `question`, `session_id`, `username` |
+| `cancel` | Cancel in-flight request | `request_id` or `target_request_id` |
+| `history` | List session summaries | `username` |
+| `history_session` | Fetch message turns for session | `session_id`, `username` |
+| `delete_session` | Delete a single session | `session_id`, `username` |
+| `clear_history` | Delete all user sessions | `username` |
+| `suggestions_meta` | Suggestions cache metadata | - |
+| `suggestions` | Exemplar questions & vectors | `limit` |
+| `chart` | SVG chart generation | `chart_type`, `data` |

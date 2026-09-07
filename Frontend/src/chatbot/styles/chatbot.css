@@ -1705,3 +1705,93 @@ body {
   background: var(--danger-color);
   color: #ffffff;
 }
+
+/* ==========================================================================
+   11. Real-Time Planner Execution Progress & WebSocket Indicators
+   ========================================================================== */
+
+.cb-loading-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.cb-planner-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  color: var(--text-color);
+}
+
+.cb-planner-step-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+}
+
+.cb-planner-step-label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-color);
+  letter-spacing: 0.2px;
+}
+
+.cb-dots-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cb-icon-spin {
+  animation: cb-spin 1.2s linear infinite;
+}
+
+@keyframes cb-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cb-status-dot.connected {
+  background: #10b981 !important;
+  box-shadow: 0 0 8px #10b981 !important;
+  animation: cb-pulse-green 2.5s infinite ease-in-out;
+}
+
+.cb-status-dot.connecting {
+  background: #f59e0b !important;
+  box-shadow: 0 0 8px #f59e0b !important;
+  animation: cb-pulse-amber 1.5s infinite ease-in-out;
+}
+
+@keyframes cb-pulse-green {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+}
+
+@keyframes cb-pulse-amber {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+}

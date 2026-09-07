@@ -1,7 +1,8 @@
 import React, { createContext, useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { VIEW_MODES, ROLES, INITIAL_WELCOME_MESSAGE, SUGGESTION_LAYOUTS } from './constants/chatbotConstants';
+import { VIEW_MODES, ROLES, INITIAL_WELCOME_MESSAGE, SUGGESTION_LAYOUTS, WS_CONNECTION_STATUS } from './constants/chatbotConstants';
 import { chatStorage } from './services/chatStorage';
 import { chatbotApi } from './services/chatbotApi';
+import { chatWebSocketService } from './services/chatWebSocketService';
 import { suggestionsService } from './services/suggestionsService';
 
 export const ChatbotContext = createContext(null);
@@ -13,6 +14,8 @@ export const ChatbotProvider = ({ children }) => {
   const [activeSessionId, setActiveSessionId] = useState(() => chatStorage.getActiveSessionId());
   const [unreadCount, setUnreadCount] = useState(() => chatStorage.getUnreadCount());
   const [isLoading, setIsLoading] = useState(false);
+  const [activeProgress, setActiveProgress] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState(chatWebSocketService.status);
   const [suggestionLayout, setSuggestionLayoutState] = useState(() => {
     return chatStorage.getSuggestionLayout() || (import.meta.env?.VITE_SUGGESTION_LAYOUT || SUGGESTION_LAYOUTS.HORIZONTAL).toLowerCase();
   });
@@ -37,7 +40,16 @@ export const ChatbotProvider = ({ children }) => {
     };
   };
 
-  // 2. Fetch Sessions & History from Backend on Mount
+  // 2. Initialize WebSocket Connection and Listen to Connection Status
+  useEffect(() => {
+    chatWebSocketService.connect();
+    const unsub = chatWebSocketService.onStatusChange((status) => {
+      setConnectionStatus(status);
+    });
+    return () => unsub();
+  }, []);
+
+  // 3. Fetch Sessions & History from Backend on Mount
   useEffect(() => {
     let isMounted = true;
 
@@ -82,7 +94,7 @@ export const ChatbotProvider = ({ children }) => {
     };
   }, []);
 
-  // 3. Persist State Changes to localStorage
+  // 4. Persist State Changes to localStorage
   useEffect(() => {
     chatStorage.saveViewMode(viewMode);
   }, [viewMode]);
@@ -242,7 +254,7 @@ export const ChatbotProvider = ({ children }) => {
       return session;
     }));
 
-    // Optionally notify backend to delete/clear session
+    // Notify backend
     try {
       await chatbotApi.deleteChatSession(activeSessionId);
     } catch (err) {
@@ -278,6 +290,7 @@ export const ChatbotProvider = ({ children }) => {
     }
 
     setIsLoading(false);
+    setActiveProgress(null);
   }, []);
 
   // Core Send Message Handler
@@ -320,6 +333,11 @@ export const ChatbotProvider = ({ children }) => {
     }));
 
     setIsLoading(true);
+    setActiveProgress({
+      step: 'queued',
+      message: 'Submitting query to assistant...',
+      timestamp: new Date().toISOString(),
+    });
 
     const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
     activeRequestIdRef.current = requestId;
@@ -328,12 +346,15 @@ export const ChatbotProvider = ({ children }) => {
     abortControllerRef.current = controller;
 
     try {
-      // 2. Call backend /ask endpoint
+      // 2. Call backend via WebSocket or HTTP fallback with progress streaming
       const assistantMsg = await chatbotApi.sendChatMessage({
         question: trimmed,
         sessionId: targetSessionId,
         requestId: requestId,
         signal: controller.signal,
+        onProgress: (prog) => {
+          setActiveProgress(prog);
+        },
       });
 
       // 3. Append assistant response
@@ -374,6 +395,7 @@ export const ChatbotProvider = ({ children }) => {
       }
     } finally {
       setIsLoading(false);
+      setActiveProgress(null);
       activeRequestIdRef.current = null;
       abortControllerRef.current = null;
     }
@@ -383,6 +405,10 @@ export const ChatbotProvider = ({ children }) => {
     viewMode,
     isChatOpen: viewMode !== VIEW_MODES.CLOSED,
     isFullscreen: viewMode === VIEW_MODES.FULLSCREEN,
+
+    connectionStatus,
+    isConnected: connectionStatus === WS_CONNECTION_STATUS.CONNECTED,
+    activeProgress,
 
     sessions,
     activeSessionId,
@@ -417,6 +443,8 @@ export const ChatbotProvider = ({ children }) => {
     clearAllSessions,
   }), [
     viewMode,
+    connectionStatus,
+    activeProgress,
     sessions,
     activeSessionId,
     activeSession,
