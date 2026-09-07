@@ -28,9 +28,23 @@ logging.basicConfig(
 )
 logger = logging.getLogger("app")
 
+from log_streamer import (
+    log_manager,
+    setup_log_streamer,
+    verify_totp,
+    create_session_token,
+    verify_session_token,
+    render_log_viewer_html,
+    SESSION_COOKIE_NAME,
+)
+
+# Attach real-time log stream handler
+setup_log_streamer()
+
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).resolve().parent / ".env")
+
 
 from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse, HTMLResponse
@@ -702,9 +716,115 @@ async def health():
     }
 
 
+def _check_logs_auth(request: Request, code: str | None = None) -> tuple[bool, str | None]:
+    """
+    Check if request is authenticated for viewing runtime logs via:
+    1. Query param 'code' (6-digit TOTP)
+    2. Session Cookie 'logs_auth_session'
+    3. Authorization header Bearer token
+    """
+    # 1. Direct TOTP code in query param
+    if code and verify_totp(code):
+        return True, create_session_token()
+
+    # 2. Session cookie
+    cookie_token = request.cookies.get(SESSION_COOKIE_NAME)
+    if cookie_token and verify_session_token(cookie_token):
+        return True, None
+
+    # 3. Authorization header
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        token = auth_header[7:].strip()
+        if verify_session_token(token) or (len(token) == 6 and token.isdigit() and verify_totp(token)):
+            return True, None
+
+    return False, None
+
+
+@app.get("/ask")
+@app.get("/logs")
+async def ask_get_handler(
+    request: Request,
+    action: str = Query(default="logs"),
+    code: str | None = Query(default=None),
+    logout: str | None = Query(default=None),
+):
+    """
+    GET handler for /ask?action=logs with TOTP Google Authenticator protection.
+    Provides live interactive log streaming, search, filters, and export.
+    """
+    # 1. Handle Logout
+    if logout:
+        response = HTMLResponse(render_log_viewer_html(authenticated=False))
+        response.delete_cookie(SESSION_COOKIE_NAME, path="/")
+        return response
+
+    # 2. Action: Logs UI Viewer (HTML)
+    if action in ("logs", "view_logs", "runtime_logs"):
+        is_auth, new_token = _check_logs_auth(request, code)
+        if is_auth:
+            html = render_log_viewer_html(authenticated=True)
+            response = HTMLResponse(html)
+            if new_token:
+                response.set_cookie(
+                    key=SESSION_COOKIE_NAME,
+                    value=new_token,
+                    max_age=86400,
+                    httponly=True,
+                    samesite="lax",
+                    path="/",
+                )
+            return response
+        else:
+            err_msg = "Invalid or expired 6-digit Authenticator code. Please try again." if code else ""
+            return HTMLResponse(render_log_viewer_html(authenticated=False, error_message=err_msg))
+
+    # 3. Action: Live Server-Sent Events (SSE) Log Stream
+    elif action in ("logs_stream", "stream_logs"):
+        is_auth, _ = _check_logs_auth(request, code)
+        if not is_auth:
+            async def _auth_err_stream():
+                yield f"data: {json.dumps({'id': 0, 'timestamp': datetime.now().isoformat(), 'level': 'ERROR', 'name': 'auth', 'message': 'Unauthorized: TOTP verification required.', 'formatted': 'Unauthorized'})}\n\n"
+            return StreamingResponse(_auth_err_stream(), media_type="text/event-stream")
+
+        async def _log_sse_stream():
+            # Burst initial historical logs
+            for entry in log_manager.get_recent_logs(200):
+                yield f"data: {json.dumps(entry)}\n\n"
+
+            # Stream live logs
+            async for entry in log_manager.subscribe():
+                yield f"data: {json.dumps(entry)}\n\n"
+
+        return StreamingResponse(
+            _log_sse_stream(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "X-Accel-Buffering": "no"
+            }
+        )
+
+    # 4. Action: JSON Logs Data
+    elif action in ("logs_data", "get_logs"):
+        is_auth, _ = _check_logs_auth(request, code)
+        if not is_auth:
+            raise HTTPException(status_code=401, detail="Unauthorized: TOTP verification code required")
+        return {
+            "status": "success",
+            "count": len(log_manager.buffer),
+            "logs": log_manager.get_recent_logs(500)
+        }
+
+    raise HTTPException(status_code=400, detail=f"Unsupported GET action: '{action}'. For natural-language SQL queries, please use POST /ask.")
+
+
 @app.post("/ask")
 @validate_issuer
 async def ask(payload: AskRequest, request: Request):
+
     action = payload.action or "ask"
     username = payload.username
 
@@ -1138,6 +1258,45 @@ class WebSocketSessionHandler:
                     "status": "success",
                     "data": get_cache_metadata()
                 })
+
+            # 2c. Logs (WebSocket Live Log Streaming with TOTP Auth)
+            elif action in ("ws_logs", "logs"):
+                code = payload.get("code") or payload.get("totp") or payload.get("token")
+                is_auth = (code and (verify_totp(str(code)) or verify_session_token(str(code))))
+                if not is_auth:
+                    await self.send_json({
+                        "type": "error",
+                        "action": action,
+                        "request_id": request_id,
+                        "detail": "Unauthorized: Valid 6-digit TOTP code required for logs streaming."
+                    })
+                    return
+
+                # Send confirmation
+                await self.send_json({
+                    "type": "status",
+                    "action": action,
+                    "request_id": request_id,
+                    "status": "connected",
+                    "message": "Logs stream authenticated. Streaming live runtime logs..."
+                })
+
+                # Burst historical logs
+                for entry in log_manager.get_recent_logs(100):
+                    await self.send_json({
+                        "type": "log",
+                        "action": action,
+                        "data": entry
+                    })
+
+                # Continuous stream
+                async for entry in log_manager.subscribe():
+                    await self.send_json({
+                        "type": "log",
+                        "action": action,
+                        "data": entry
+                    })
+
 
             # 3. History (list sessions)
             elif action in ("ws_history", "history"):
