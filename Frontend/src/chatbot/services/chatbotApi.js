@@ -20,7 +20,7 @@ const getTransportMode = () => {
 };
 
 const getApiBaseUrl = () => {
-  return import.meta.env?.VITE_CHATBOT_API_URL;
+  return import.meta.env?.VITE_CHATBOT_API_URL || 'http://localhost:8000';
 };
 
 /**
@@ -67,6 +67,9 @@ export const normalizeBackendMessage = (msg) => {
           summary: summary || `${msg.result.length} record${msg.result.length !== 1 ? 's' : ''} retrieved.`,
         },
       ];
+      if (content === summary) {
+        content = '';
+      }
     }
   } else if (msg.tables) {
     tables = msg.tables;

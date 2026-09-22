@@ -60,8 +60,10 @@ def get_fewshots_jsonl_path(custom_path: str | Path | None = None) -> Path | Non
 
     candidates = [
         APP_ROOT / "new_fewshots.jsonl",
+        APP_ROOT / "new_fewshots.json",
         APP_ROOT / "fewshots_combined.jsonl",
         APP_ROOT.parent / "new_fewshots.jsonl",
+        APP_ROOT.parent / "new_fewshots.json",
         APP_ROOT.parent / "fewshots_combined.jsonl",
     ]
     for p in candidates:
@@ -157,11 +159,15 @@ def build_suggestions_from_file(
                     "embedding": emb,
                 }
 
-                # Optional metadata from extended schemas (e.g. new_fewshots)
+                # Optional metadata from extended schemas (e.g. fewshots_combined / new_fewshots)
                 if "degree" in row:
                     item["degree"] = str(row["degree"])
                 if "tables" in row:
                     item["tables"] = row["tables"]
+                if "risk_signal" in row:
+                    item["risk_signal"] = row["risk_signal"]
+                if "grain" in row:
+                    item["grain"] = row["grain"]
 
                 suggestions.append(item)
             except Exception as e:
@@ -180,8 +186,8 @@ def load_or_build_suggestions(
     
     1. If file_path is not specified and memory cache is valid (and not force_refresh),
        returns in-memory cache.
-    2. If cache JSON file exists on disk (and not force_refresh), loads and returns it.
-    3. Otherwise, parses questions from the JSONL file (defaulting to new_fewshots.jsonl),
+    2. If cache JSON file exists on disk (and is not older than source JSONL), loads and returns it.
+    3. Otherwise, parses questions from the JSONL file (defaulting to fewshots_combined.jsonl),
        attaches Milvus embeddings, persists to cache JSON file, and updates memory cache.
     """
     global _SUGGESTIONS_CACHE, _CACHE_UPDATED_AT
@@ -191,8 +197,22 @@ def load_or_build_suggestions(
     if _SUGGESTIONS_CACHE is not None and not force_refresh and file_path is None:
         return _SUGGESTIONS_CACHE
 
-    # 1. Try reading from disk cache if no custom file is specified and no refresh forced
-    if not force_refresh and file_path is None and target_cache.is_file():
+    jsonl_path = get_fewshots_jsonl_path(file_path)
+
+    # Invalidate cache if the source JSONL file is newer than the cached file
+    cache_is_stale = False
+    if target_cache.is_file() and jsonl_path and jsonl_path.is_file():
+        try:
+            if os.path.getmtime(jsonl_path) > os.path.getmtime(target_cache):
+                cache_is_stale = True
+                logger.info(
+                    f"Fewshots source file {jsonl_path.name} is newer than cache {target_cache.name}. Rebuilding..."
+                )
+        except OSError:
+            pass
+
+    # 1. Try reading from disk cache if no custom file is specified, no refresh forced, and cache is fresh
+    if not force_refresh and not cache_is_stale and file_path is None and target_cache.is_file():
         try:
             with open(target_cache, "r", encoding="utf-8") as f:
                 data = json.load(f)
@@ -258,4 +278,9 @@ def get_fewshot_suggestions(limit: int | None = None) -> list[dict[str, Any]]:
     if limit is not None and limit > 0:
         return suggestions[:limit]
     return suggestions
+
+
+# Backwards compatibility alias
+get_suggestions_meta = get_cache_metadata
+
 

@@ -62,6 +62,9 @@ class MockWebSocket:
     async def send_json(self, data):
         self.sent_messages.append(data)
 
+    async def send_text(self, text):
+        self.sent_messages.append(json.loads(text))
+
     async def accept(self):
         pass
 

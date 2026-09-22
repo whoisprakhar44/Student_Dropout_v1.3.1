@@ -288,7 +288,7 @@ class ChatWebSocketService {
    * @returns {Promise<Object>} Server response frame
    */
   async sendAction(action, payload = {}, options = {}) {
-    const { onProgress, signal, timeoutMs = 90000 } = options;
+    const { onProgress, signal, timeoutMs = 120000 } = options;
 
     if (!this.isConnected()) {
       // Attempt quick auto-connect

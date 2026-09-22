@@ -5,6 +5,29 @@ try:
 except ImportError:
     pass
 
+# Patch watchfiles DefaultFilter so database writes, Excel logs, and sqlite files do not trigger uvicorn auto-reload
+try:
+    import watchfiles
+    _orig_watchfiles_init = watchfiles.DefaultFilter.__init__
+
+    def _patched_watchfiles_init(self, *args, **kwargs):
+        ignore_dirs = list(kwargs.get("ignore_dirs") or watchfiles.DefaultFilter.ignore_dirs or ())
+        for d in ("database", "logs", "milvus_schemas.db", ".agents", "graphify-out"):
+            if d not in ignore_dirs:
+                ignore_dirs.append(d)
+        kwargs["ignore_dirs"] = tuple(ignore_dirs)
+
+        ignore_patterns = list(kwargs.get("ignore_entity_patterns") or watchfiles.DefaultFilter.ignore_entity_patterns or ())
+        for p in (r"\.db$", r"\.db-journal$", r"\.xlsx$", r"\.log$"):
+            if p not in ignore_patterns:
+                ignore_patterns.append(p)
+        kwargs["ignore_entity_patterns"] = tuple(ignore_patterns)
+        _orig_watchfiles_init(self, *args, **kwargs)
+
+    watchfiles.DefaultFilter.__init__ = _patched_watchfiles_init
+except Exception:
+    pass
+
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
@@ -55,6 +78,7 @@ from pydantic import BaseModel, Field
 from database.suggestions import (
     get_fewshot_suggestions,
     get_cache_metadata,
+    get_suggestions_meta,
     load_or_build_suggestions,
 )
 from database.valkey_queue import ValkeyQueueManager, JobStatus
@@ -340,7 +364,10 @@ def save_chat_turn(session_id: str, question: str, response_text: str, sql: str 
         
         # Save assistant message
         assistant_msg_id = str(uuid.uuid4())
-        result_json = json.dumps(result) if result is not None else None
+        try:
+            result_json = json.dumps(result, default=str) if result is not None else None
+        except Exception:
+            result_json = None
         cursor.execute(
             "INSERT INTO messages (id, session_id, role, content, sql, result, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
             (assistant_msg_id, session_id, "assistant", response_text, sql, result_json, now)
@@ -348,8 +375,8 @@ def save_chat_turn(session_id: str, question: str, response_text: str, sql: str 
         
         conn.commit()
         return session_id
-    except sqlite3.Error as e:
-        print(f"Database error while saving chat turn: {e}")
+    except Exception as e:
+        logger.warning(f"Error while saving chat turn: {e}")
         return session_id
     finally:
         conn.close()
@@ -1162,11 +1189,30 @@ async def get_suggestions_endpoint(
 
 
 @app.post("/suggestions")
-async def post_suggestions_endpoint(payload: AskRequest):
+async def post_suggestions_endpoint(payload: AskRequest, request: Request):
     """Alternate POST endpoint for few-shot suggestions and vector embeddings."""
-    if not payload.action:
-        payload.action = "suggestions"
-    return await ask(payload)
+    action = payload.action or "suggestions"
+    if action in ("suggestions_meta", "suggestions_version", "ws_suggestions_meta"):
+        return get_suggestions_meta()
+    elif action in ("suggestions", "fewshots", "get_suggestions", "ws_suggestions"):
+        limit = payload.limit or -1
+        items = get_fewshot_suggestions(limit=limit)
+        try:
+            from database.valkey_cache import ValkeyCacheManager
+            valkey_queries = ValkeyCacheManager().get_all_cached_queries()
+            if valkey_queries:
+                items = valkey_queries + items
+        except Exception as e:
+            logger.error(f"Failed to fetch dynamic suggestions from Valkey: {e}")
+        meta = get_suggestions_meta()
+        return {
+            "status": "success",
+            "count": len(items),
+            "total_count": len(items),
+            "suggestions": items,
+            "updated_at": meta.get("updated_at"),
+        }
+    return await ask(payload, request)
 
 
 # ------------------------------------------------------------------------------
@@ -1182,12 +1228,16 @@ class WebSocketSessionHandler:
         self._active_tasks: dict[str, asyncio.Task] = {}
 
     async def send_json(self, payload: dict[str, Any]) -> None:
-        """Thread-safe and coroutine-safe JSON frame sender."""
+        """Thread-safe and coroutine-safe JSON frame sender with universal serialization support."""
         async with self._send_lock:
             try:
-                await self.websocket.send_json(payload)
+                if hasattr(self.websocket, "send_text"):
+                    text = json.dumps(payload, default=str, ensure_ascii=False)
+                    await self.websocket.send_text(text)
+                else:
+                    await self.websocket.send_json(payload)
             except Exception as exc:
-                logger.debug("[WS SEND FAILED] %s", exc)
+                logger.error("[WS SEND FAILED] %s", exc, exc_info=True)
 
     async def handle_message(self, message_text: str) -> None:
         """Parse incoming JSON frame and spawn an async task for action execution."""
@@ -1604,7 +1654,21 @@ class WebSocketSessionHandler:
                         request_id=request_id
                     )
 
-                    job = await queue_manager.wait_for_job(request_id)
+                    while True:
+                        try:
+                            job = await asyncio.wait_for(queue_manager.wait_for_job(request_id), timeout=5.0)
+                            break
+                        except asyncio.TimeoutError:
+                            await self.send_json({
+                                "type": "status",
+                                "action": action,
+                                "request_id": request_id,
+                                "session_id": session_id,
+                                "status": "processing",
+                                "step": "generating_sql",
+                                "message": "Analyzing query intent and synthesizing SQL...",
+                                "timestamp": datetime.now().isoformat()
+                            })
                     job_status = job.get("status")
 
                     if job_status == JobStatus.CANCELLED:

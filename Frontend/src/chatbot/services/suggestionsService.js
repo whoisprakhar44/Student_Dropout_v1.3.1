@@ -12,43 +12,48 @@ import { indexedDbService } from './indexedDbService';
  */
 const FALLBACK_SUGGESTIONS = [
   {
-    id: 'school_dropout_001',
-    question:
-      'Give me class 6 students in Anantapur who dropped out in 2025-26, including school and social category.',
-    intent: 'student_risk_list',
-    topic: 'dropout_tracking',
+    id: '001',
+    question: 'How many male and female citizens are in the BC social category?',
+    intent: 'equity_risk_slice',
+    topic: 'social_category',
+    degree: '1',
+    tables: 'ap_citizen360.dim_person',
     embedding: new Array(768).fill(0).map((_, i) => Math.sin(i * 0.1))
   },
   {
-    id: 'school_attendance_002',
-    question:
-      'Show monthly student attendance percentage by district for secondary schools.',
-    intent: 'attendance_summary',
-    topic: 'attendance_analytics',
+    id: '002',
+    question: 'What are the top 5 event types recorded in the event details table?',
+    intent: 'event_summary',
+    topic: 'event_analytics',
+    degree: '1',
+    tables: 'ap_citizen360.fact_event_details',
     embedding: new Array(768).fill(0).map((_, i) => Math.cos(i * 0.1))
   },
   {
-    id: 'teacher_pupil_ratio_003',
-    question:
-      'List government high schools with student-to-teacher ratio greater than 40:1.',
-    intent: 'school_infrastructure',
-    topic: 'staffing_analysis',
+    id: '003',
+    question: 'Calculate the total disbursed amount to the SC category across all schemes.',
+    intent: 'scheme_disbursement',
+    topic: 'welfare_finance',
+    degree: '1',
+    tables: 'ap_citizen360.fact_scheme_disbursement',
     embedding: new Array(768).fill(0).map((_, i) => Math.sin(i * 0.2))
   },
   {
-    id: 'infra_drinking_water_004',
-    question:
-      'Which schools in Chittoor district lack functional drinking water facilities?',
-    intent: 'infrastructure_audit',
-    topic: 'school_facilities',
+    id: '004',
+    question: 'Find the number of citizens residing in each district.',
+    intent: 'demographic_distribution',
+    topic: 'district_demographics',
+    degree: '2',
+    tables: 'ap_citizen360.dim_person, ap_citizen360.dim_district',
     embedding: new Array(768).fill(0).map((_, i) => Math.cos(i * 0.2))
   },
   {
-    id: 'exam_pass_percentage_005',
-    question:
-      'Compare SSC board exam pass rates between rural and urban districts over the last 3 years.',
-    intent: 'academic_performance',
-    topic: 'examination_reports',
+    id: '005',
+    question: 'What is the total annual benefit for active enrollments grouped by scheme name?',
+    intent: 'scheme_benefit_analysis',
+    topic: 'entitlements',
+    degree: '2',
+    tables: 'ap_citizen360.fact_entitlement, ap_citizen360.dim_scheme',
     embedding: new Array(768).fill(0).map((_, i) => Math.sin(i * 0.3))
   }
 ];
@@ -57,7 +62,11 @@ const FALLBACK_SUGGESTIONS = [
  * API URL
  */
 const getApiBaseUrl = () => {
-  return import.meta.env.VITE_SUGGESTIONS_API_BASE_URL;
+  if (import.meta.env.VITE_SUGGESTIONS_API_BASE_URL) {
+    return import.meta.env.VITE_SUGGESTIONS_API_BASE_URL;
+  }
+  const apiBase = import.meta.env.VITE_CHATBOT_API_URL || 'http://localhost:8000';
+  return `${apiBase}/suggestions`;
 };
 
 const DEFAULT_TOKEN =
