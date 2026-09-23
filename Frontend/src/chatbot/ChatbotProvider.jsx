@@ -13,8 +13,8 @@ export const ChatbotProvider = ({ children }) => {
   const [sessions, setSessions] = useState(() => chatStorage.getSessions());
   const [activeSessionId, setActiveSessionId] = useState(() => chatStorage.getActiveSessionId());
   const [unreadCount, setUnreadCount] = useState(() => chatStorage.getUnreadCount());
-  const [isLoading, setIsLoading] = useState(false);
-  const [activeProgress, setActiveProgress] = useState(null);
+  const [loadingSessions, setLoadingSessions] = useState({}); // { [sessionId]: true }
+  const [sessionProgress, setSessionProgress] = useState({}); // { [sessionId]: progressObj }
   const [connectionStatus, setConnectionStatus] = useState(chatWebSocketService.status);
   const [suggestionLayout, setSuggestionLayoutState] = useState(() => {
     return chatStorage.getSuggestionLayout() || (import.meta.env?.VITE_SUGGESTION_LAYOUT || SUGGESTION_LAYOUTS.HORIZONTAL).toLowerCase();
@@ -24,8 +24,15 @@ export const ChatbotProvider = ({ children }) => {
   );
   const [inputText, setInputText] = useState('');
 
-  const activeRequestIdRef = useRef(null);
-  const abortControllerRef = useRef(null);
+  const activeRequestsRef = useRef({}); // { [sessionId]: { requestId, controller } }
+
+  // Derived loading & progress for active session
+  const isLoading = Boolean(loadingSessions[activeSessionId]);
+  const activeProgress = sessionProgress[activeSessionId] || null;
+
+  const isSessionLoading = useCallback((sessionId) => {
+    return Boolean(loadingSessions[sessionId]);
+  }, [loadingSessions]);
 
   // Helper to construct a new session object
   const createSessionObject = (initialMessages = []) => {
@@ -216,7 +223,43 @@ export const ChatbotProvider = ({ children }) => {
     }
   }, [sessions]);
 
+  const cancelCurrentRequest = useCallback(async (sessionIdToCancel) => {
+    const targetId = sessionIdToCancel || activeSessionId;
+    if (!targetId) return;
+
+    const sessionReq = activeRequestsRef.current[targetId];
+    if (sessionReq) {
+      if (sessionReq.controller) {
+        sessionReq.controller.abort();
+      }
+      if (sessionReq.requestId) {
+        try {
+          await chatbotApi.cancelChatRequest({ requestId: sessionReq.requestId });
+        } catch (err) {
+          console.warn('Failed to send cancel signal:', err);
+        }
+      }
+      delete activeRequestsRef.current[targetId];
+    }
+
+    setLoadingSessions(prev => {
+      const next = { ...prev };
+      delete next[targetId];
+      return next;
+    });
+    setSessionProgress(prev => {
+      const next = { ...prev };
+      delete next[targetId];
+      return next;
+    });
+  }, [activeSessionId]);
+
   const deleteSession = useCallback(async (sessionId) => {
+    // If target session has an in-flight request, cancel it first
+    if (activeRequestsRef.current[sessionId]) {
+      cancelCurrentRequest(sessionId);
+    }
+
     // 1. Optimistic local update
     setSessions(prev => {
       const filtered = prev.filter(s => s.id !== sessionId);
@@ -237,7 +280,7 @@ export const ChatbotProvider = ({ children }) => {
     } catch (err) {
       console.warn('Backend deleteSession warning:', err);
     }
-  }, [activeSessionId]);
+  }, [activeSessionId, cancelCurrentRequest]);
 
   const clearChat = useCallback(async () => {
     if (!activeSessionId) return;
@@ -263,6 +306,11 @@ export const ChatbotProvider = ({ children }) => {
   }, [activeSessionId]);
 
   const clearAllSessions = useCallback(async () => {
+    // Cancel all in-flight queries across all sessions
+    Object.keys(activeRequestsRef.current).forEach(sId => {
+      cancelCurrentRequest(sId);
+    });
+
     const fresh = createSessionObject();
     setSessions([fresh]);
     setActiveSessionId(fresh.id);
@@ -272,37 +320,23 @@ export const ChatbotProvider = ({ children }) => {
     } catch (err) {
       console.warn('Backend clearAllHistory warning:', err);
     }
-  }, []);
-
-  // Cancel In-Flight Request
-  const cancelCurrentRequest = useCallback(async () => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    const currentReqId = activeRequestIdRef.current;
-    if (currentReqId) {
-      try {
-        await chatbotApi.cancelChatRequest({ requestId: currentReqId });
-      } catch (err) {
-        console.warn('Failed to send cancel signal:', err);
-      }
-    }
-
-    setIsLoading(false);
-    setActiveProgress(null);
-  }, []);
+  }, [cancelCurrentRequest]);
 
   // Core Send Message Handler
-  const sendMessage = useCallback(async (content) => {
+  const sendMessage = useCallback(async (content, targetSessionIdOverride) => {
     const trimmed = content?.trim();
-    if (!trimmed || isLoading) return;
+    if (!trimmed) return;
 
-    let targetSessionId = activeSessionId;
+    let targetSessionId = targetSessionIdOverride || activeSessionId;
 
     // Ensure we have an active session
     if (!targetSessionId || !sessions.some(s => s.id === targetSessionId)) {
       targetSessionId = createNewSession();
+    }
+
+    // Prevent duplicate concurrent requests in the same session
+    if (loadingSessions[targetSessionId]) {
+      return;
     }
 
     const now = new Date().toISOString();
@@ -314,7 +348,7 @@ export const ChatbotProvider = ({ children }) => {
       sessionId: targetSessionId,
     };
 
-    // 1. Instantly append user message to local state
+    // 1. Instantly append user message to target session in local state
     setSessions(prev => prev.map(session => {
       if (session.id === targetSessionId) {
         const isFirstUserMsg = (session.messages || []).filter(m => m.role === ROLES.USER).length === 0;
@@ -332,18 +366,20 @@ export const ChatbotProvider = ({ children }) => {
       return session;
     }));
 
-    setIsLoading(true);
-    setActiveProgress({
-      step: 'queued',
-      message: 'Submitting query to assistant...',
-      timestamp: new Date().toISOString(),
-    });
+    // Set loading & initial progress specifically for targetSessionId
+    setLoadingSessions(prev => ({ ...prev, [targetSessionId]: true }));
+    setSessionProgress(prev => ({
+      ...prev,
+      [targetSessionId]: {
+        step: 'queued',
+        message: 'Submitting query to assistant...',
+        timestamp: new Date().toISOString(),
+      },
+    }));
 
     const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
-    activeRequestIdRef.current = requestId;
-
     const controller = new AbortController();
-    abortControllerRef.current = controller;
+    activeRequestsRef.current[targetSessionId] = { requestId, controller };
 
     try {
       // 2. Call backend via WebSocket or HTTP fallback with progress streaming
@@ -353,11 +389,14 @@ export const ChatbotProvider = ({ children }) => {
         requestId: requestId,
         signal: controller.signal,
         onProgress: (prog) => {
-          setActiveProgress(prog);
+          setSessionProgress(prev => ({
+            ...prev,
+            [targetSessionId]: prog,
+          }));
         },
       });
 
-      // 3. Append assistant response
+      // 3. Append assistant response to target session
       setSessions(prev => prev.map(session => {
         if (session.id === targetSessionId) {
           return {
@@ -394,12 +433,19 @@ export const ChatbotProvider = ({ children }) => {
         }));
       }
     } finally {
-      setIsLoading(false);
-      setActiveProgress(null);
-      activeRequestIdRef.current = null;
-      abortControllerRef.current = null;
+      setLoadingSessions(prev => {
+        const next = { ...prev };
+        delete next[targetSessionId];
+        return next;
+      });
+      setSessionProgress(prev => {
+        const next = { ...prev };
+        delete next[targetSessionId];
+        return next;
+      });
+      delete activeRequestsRef.current[targetSessionId];
     }
-  }, [activeSessionId, sessions, isLoading, viewMode, createNewSession]);
+  }, [activeSessionId, sessions, loadingSessions, viewMode, createNewSession]);
 
   const value = useMemo(() => ({
     viewMode,
@@ -409,6 +455,8 @@ export const ChatbotProvider = ({ children }) => {
     connectionStatus,
     isConnected: connectionStatus === WS_CONNECTION_STATUS.CONNECTED,
     activeProgress,
+    loadingSessions,
+    isSessionLoading,
 
     sessions,
     activeSessionId,
@@ -445,6 +493,8 @@ export const ChatbotProvider = ({ children }) => {
     viewMode,
     connectionStatus,
     activeProgress,
+    loadingSessions,
+    isSessionLoading,
     sessions,
     activeSessionId,
     activeSession,

@@ -8,7 +8,8 @@ import {
   Check,
   LayoutGrid,
   List,
-  Ban
+  Ban,
+  Loader2
 } from 'lucide-react';
 
 import { useChatbot } from '../hooks/useChatbot';
@@ -25,7 +26,8 @@ export const ChatHistorySidebar = () => {
     suggestionLayout,
     setSuggestionLayout,
     suggestionsDisabled,
-    setSuggestionsDisabled
+    setSuggestionsDisabled,
+    loadingSessions
   } = useChatbot();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -182,10 +184,17 @@ export const ChatHistorySidebar = () => {
                 aria-label={`Select session: ${session.title}`}
               >
                 <div className="cb-session-details">
-                  <span className="cb-session-title">
-                    {session.title ||
-                      'Untitled Session'}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span className="cb-session-title">
+                      {session.title ||
+                        'Untitled Session'}
+                    </span>
+                    {loadingSessions?.[session.id] && (
+                      <span className="cb-session-loading-badge" title="Query running in this chat...">
+                        <Loader2 size={12} className="cb-icon-spin" />
+                      </span>
+                    )}
+                  </div>
 
                   <div className="cb-session-meta">
                     <span>
