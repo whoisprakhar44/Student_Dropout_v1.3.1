@@ -9,15 +9,14 @@ export const ChatHeader = ({ isFullscreen = false, onToggleSidebar = null }) => 
   const getStatusLabel = () => {
     switch (connectionStatus) {
       case WS_CONNECTION_STATUS.CONNECTED:
-        return 'Online • Live';
+      case WS_CONNECTION_STATUS.FALLBACK_HTTP:
+        return 'Online';
       case WS_CONNECTION_STATUS.CONNECTING:
         return 'Connecting...';
-      case WS_CONNECTION_STATUS.FALLBACK_HTTP:
-        return 'Online • HTTP';
       case WS_CONNECTION_STATUS.ERROR:
       case WS_CONNECTION_STATUS.DISCONNECTED:
       default:
-        return DEFAULT_BOT_INFO.status;
+        return DEFAULT_BOT_INFO.status || 'Online';
     }
   };
 

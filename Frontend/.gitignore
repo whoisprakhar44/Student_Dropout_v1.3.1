@@ -30,3 +30,6 @@ build/
 
 # Temp files
 enc.py
+.env
+.env
+.env

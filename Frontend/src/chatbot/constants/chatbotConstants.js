@@ -81,3 +81,13 @@ export const INITIAL_WELCOME_MESSAGE = {
   timestamp: new Date().toISOString(),
 };
 
+export const WELCOME_FAQ_QUESTIONS = [
+  'How many male and female citizens are in the BC category?',
+  'Find the number of citizens residing in each district.',
+  'Calculate the total disbursed amount to SC category across all schemes.',
+  'What are the top 5 event types in the event details table?',
+  'What is the total annual benefit for active scheme enrollments?',
+  'Show welfare disbursements grouped by department.',
+  'How many beneficiaries are currently enrolled in education schemes?'
+];
+

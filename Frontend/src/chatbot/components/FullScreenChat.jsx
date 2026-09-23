@@ -1,15 +1,18 @@
 import React, { useRef, useEffect } from 'react';
 import { useChatbot } from '../hooks/useChatbot';
-import { VIEW_MODES } from '../constants/chatbotConstants';
+import { VIEW_MODES, ROLES } from '../constants/chatbotConstants';
 import ChatHeader from './ChatHeader';
 import ChatHistorySidebar from './ChatHistorySidebar';
 import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import LoadingAnimation from './LoadingAnimation';
+import WelcomeScreen from './WelcomeScreen';
 
 export const FullScreenChat = ({ suggestionLayout }) => {
   const { messages, sendMessage, isLoading, openChat, suggestionLayout: contextLayout, suggestionsDisabled, setSuggestionsDisabled } = useChatbot();
   const messagesEndRef = useRef(null);
+
+  const isWelcomeState = !messages.some(msg => msg.role === ROLES.USER);
 
   // Read fullscreen gap percentage from env variable (default: 3%)
   const gapPercent = Number(import.meta.env?.VITE_FULLSCREEN_GAP_PERCENT ?? 3);
@@ -50,10 +53,14 @@ export const FullScreenChat = ({ suggestionLayout }) => {
           <ChatHistorySidebar />
 
           <main className="cb-fullscreen-main">
-            <div className="cb-fullscreen-messages">
-              {messages.map(msg => (
-                <ChatMessage key={msg.id} message={msg} />
-              ))}
+            <div className={`cb-fullscreen-messages ${isWelcomeState ? 'welcome-mode' : ''}`}>
+              {isWelcomeState ? (
+                <WelcomeScreen onSend={sendMessage} />
+              ) : (
+                messages.map(msg => (
+                  <ChatMessage key={msg.id} message={msg} />
+                ))
+              )}
               {isLoading && <LoadingAnimation />}
               <div ref={messagesEndRef} />
             </div>
