@@ -216,7 +216,7 @@ export const ChatMessage = ({ message }) => {
               </div>
             )}
 
-            {message.summary && (
+            {message.summary && message.summary.trim() !== (message.content || '').trim() && (
               <div className="cb-summary-text">
                 {message.summary}
               </div>

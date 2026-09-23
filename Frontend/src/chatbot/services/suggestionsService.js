@@ -62,11 +62,12 @@ const FALLBACK_SUGGESTIONS = [
  * API URL
  */
 const getApiBaseUrl = () => {
-  if (import.meta.env.VITE_SUGGESTIONS_API_BASE_URL) {
-    return import.meta.env.VITE_SUGGESTIONS_API_BASE_URL;
+  let url = (import.meta.env.VITE_SUGGESTIONS_API_BASE_URL || import.meta.env.VITE_CHATBOT_API_URL || 'http://localhost:8000').trim();
+  url = url.replace(/\/+$/, '');
+  if (url.endsWith('/ask')) {
+    return url;
   }
-  const apiBase = import.meta.env.VITE_CHATBOT_API_URL || 'http://localhost:8000';
-  return `${apiBase}/suggestions`;
+  return `${url}/ask`;
 };
 
 const DEFAULT_TOKEN =

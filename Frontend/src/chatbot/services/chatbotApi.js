@@ -20,7 +20,15 @@ const getTransportMode = () => {
 };
 
 const getApiBaseUrl = () => {
-  return import.meta.env?.VITE_CHATBOT_API_URL || 'http://localhost:8000';
+  let url = (import.meta.env?.VITE_CHATBOT_API_URL || 'http://localhost:8000').trim();
+  // Strip trailing slashes first
+  url = url.replace(/\/+$/, '');
+  // If the user provided a URL ending with /ask, return without trailing slash
+  if (url.endsWith('/ask')) {
+    return url;
+  }
+  // If the user provided base host URL, append /ask
+  return `${url}/ask`;
 };
 
 /**
@@ -59,22 +67,28 @@ export const normalizeBackendMessage = (msg) => {
     // Check for failed status payload
     if (firstRow && (firstRow.status === 'failed' || firstRow.error)) {
       content = firstRow.error || 'The query could not be executed.';
+      summary = null;
     } else {
       tables = [
         {
           title: 'Query Result',
           rows: msg.result,
-          summary: summary || `${msg.result.length} record${msg.result.length !== 1 ? 's' : ''} retrieved.`,
         },
       ];
-      if (content === summary) {
-        content = '';
-      }
     }
   } else if (msg.tables) {
     tables = msg.tables;
   } else if (msg.tableData) {
     tables = Array.isArray(msg.tableData) ? msg.tableData : [msg.tableData];
+  }
+
+  if (Array.isArray(msg.result) && msg.result.length === 0 && !content && !summary) {
+    content = 'No records found matching your query.';
+  }
+
+  // Deduplicate content and summary to prevent printing summary twice
+  if (content && summary && content.trim() === summary.trim()) {
+    content = '';
   }
 
   return {
@@ -123,7 +137,7 @@ export const chatbotApi = {
         return normalizeBackendMessage({
           id: `msg_bot_${Date.now()}`,
           role: 'assistant',
-          content: payloadData.content || payloadData.summary || (payloadData.result?.length === 0 ? 'No records found matching your query.' : ''),
+          content: payloadData.content || (payloadData.result?.length === 0 && !payloadData.summary ? 'No records found matching your query.' : ''),
           sql: payloadData.sql,
           result: payloadData.result,
           tables: payloadData.tables,
@@ -197,7 +211,7 @@ export const chatbotApi = {
       return normalizeBackendMessage({
         id: `msg_bot_${Date.now()}`,
         role: 'assistant',
-        content: data.content || data.message || (data.result?.length === 0 ? 'No records found matching your query.' : ''),
+        content: data.content || data.message || (data.result?.length === 0 && !data.summary ? 'No records found matching your query.' : ''),
         sql: data.sql,
         result: data.result,
         tables: data.tables,

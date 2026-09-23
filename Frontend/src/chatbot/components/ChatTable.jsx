@@ -225,14 +225,7 @@ export const ChatTable = ({ tableData, summary }) => {
         </div>
       )}
 
-      {/* Render Summary normally as plain text inline (without card box) */}
-      {effectiveSummary && (
-        <div className="cb-summary-text">
-          {effectiveSummary}
-        </div>
-      )}
-
-      {/* Download Action Buttons at the bottom of the response */}
+      {/* Download Action Buttons immediately after table */}
       {hasRows && (
         <div className="cb-download-actions">
           <button

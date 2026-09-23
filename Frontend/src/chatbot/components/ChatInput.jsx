@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Send, Mic, MicOff } from 'lucide-react';
+import { Send, Mic, MicOff, Square } from 'lucide-react';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import { useSuggestions } from '../hooks/useSuggestions';
 import { useChatbot } from '../hooks/useChatbot';
@@ -12,6 +12,16 @@ export const ChatInput = ({ onSend, disabled = false, suggestionLayout, suggesti
   } catch {
     // Graceful fallback if rendered outside provider
   }
+
+  const isQueryRunning = chatbotCtx?.isLoading ?? false;
+  const cancelCurrentRequest = chatbotCtx?.cancelCurrentRequest;
+
+  const handleStop = (e) => {
+    e?.preventDefault();
+    if (cancelCurrentRequest) {
+      cancelCurrentRequest();
+    }
+  };
 
   const [localText, setLocalText] = useState('');
   const text = chatbotCtx?.inputText !== undefined ? chatbotCtx.inputText : localText;
@@ -79,14 +89,16 @@ export const ChatInput = ({ onSend, disabled = false, suggestionLayout, suggesti
     // Enter sends message, Shift+Enter adds newline
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit();
+      if (!isQueryRunning) {
+        handleSubmit();
+      }
     }
   };
 
   const handleSubmit = (overrideText) => {
     const messageToSend = typeof overrideText === 'string' ? overrideText : text;
     const trimmed = messageToSend.trim();
-    if (!trimmed || disabled) return;
+    if (!trimmed || disabled || isQueryRunning) return;
 
     if (isListening) {
       stopListening();
@@ -158,19 +170,19 @@ export const ChatInput = ({ onSend, disabled = false, suggestionLayout, suggesti
             value={text}
             onChange={handleTextChange}
             onKeyDown={handleKeyDown}
-            placeholder={isListening ? 'Listening to speech...' : 'Type a message...'}
-            disabled={disabled}
+            placeholder={isListening ? 'Listening to speech...' : (isQueryRunning ? 'Processing query...' : 'Type a message...')}
+            disabled={disabled || isQueryRunning}
             rows={1}
             aria-label="Chat input field"
           />
 
           {/* Render mic button ONLY if browser supports Web Speech API */}
-          {isSpeechSupported && (
+          {isSpeechSupported && !isQueryRunning && (
             <button
               type="button"
               className={`cb-mic-btn ${isListening ? 'active' : ''}`}
               onClick={handleMicClick}
-              disabled={disabled}
+              disabled={disabled || isQueryRunning}
               aria-label={isListening ? 'Stop voice recording' : 'Start voice dictation'}
               title={isListening ? 'Listening... Click to stop' : 'Click to speak'}
             >
@@ -179,16 +191,28 @@ export const ChatInput = ({ onSend, disabled = false, suggestionLayout, suggesti
           )}
         </div>
 
-        <button
-          type="button"
-          className="cb-send-btn"
-          onClick={() => handleSubmit()}
-          disabled={disabled || !text.trim()}
-          aria-label="Send message"
-          title="Send Message"
-        >
-          <Send size={18} />
-        </button>
+        {isQueryRunning ? (
+          <button
+            type="button"
+            className="cb-send-btn stop"
+            onClick={handleStop}
+            aria-label="Stop query"
+            title="Stop generating"
+          >
+            <Square size={14} fill="currentColor" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="cb-send-btn"
+            onClick={() => handleSubmit()}
+            disabled={disabled || !text.trim()}
+            aria-label="Send message"
+            title="Send Message"
+          >
+            <Send size={18} />
+          </button>
+        )}
       </div>
     </div>
   );

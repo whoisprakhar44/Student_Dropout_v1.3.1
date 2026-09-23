@@ -79,19 +79,6 @@ export const LoadingAnimation = () => {
             <div className="cb-dot" />
           </div>
         )}
-
-        {cancelCurrentRequest && (
-          <button
-            type="button"
-            className="cb-cancel-request-btn"
-            onClick={cancelCurrentRequest}
-            title="Cancel this query"
-            aria-label="Cancel request"
-          >
-            <XCircle size={14} />
-            <span>Cancel</span>
-          </button>
-        )}
       </div>
     </div>
   );

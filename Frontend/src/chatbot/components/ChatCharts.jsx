@@ -358,15 +358,9 @@ export const ChatCharts = ({ chartData, summary }) => {
             >
             {renderChart()}
         </div>
-        </div>
-
-        {effectiveSummary && (
-        <div className="cb-summary-text">
-            {effectiveSummary}
-        </div>
-        )}
+      </div>
     </div>
-    );
+  );
 };
 
 export default ChatCharts;
