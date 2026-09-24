@@ -46,17 +46,29 @@ logger = logging.getLogger("ingest_suggestions")
 
 def generate_ollama_embedding(
     text: str,
-    model: str = "nomic-embed-text",
+    model: str | None = None,
     ollama_url: str | None = None,
 ) -> list[float]:
-    """Generates embedding vector via Ollama for queries not yet in Milvus parquet."""
-    import requests
-
-    base_url = ollama_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
-    url = f"{base_url}/api/embeddings"
-    res = requests.post(url, json={"model": model, "prompt": text[:4096]}, timeout=60)
-    res.raise_for_status()
-    return res.json().get("embedding", [])
+    """Generates embedding vector via vLLM (default) or Ollama for queries not yet in Milvus parquet."""
+    backend = os.getenv("LLM_BACKEND", "vllm").strip().lower()
+    if backend == "vllm":
+        from openai import OpenAI
+        base_url = os.getenv("VLLM_EMBEDDING_BASE_URL", "http://localhost:8005/v1").rstrip("/")
+        if not base_url.endswith("/v1"):
+            base_url = f"{base_url}/v1"
+        api_key = os.getenv("VLLM_EMBEDDING_API_KEY", "EMPTY")
+        emb_model = model or os.getenv("VLLM_EMBEDDING_MODEL", "nomic-embed-text-v1.5")
+        client = OpenAI(base_url=base_url, api_key=api_key)
+        res = client.embeddings.create(model=emb_model, input=[text[:4096]])
+        return res.data[0].embedding
+    else:
+        import requests
+        base_url = ollama_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
+        url = f"{base_url}/api/embeddings"
+        emb_model = model or "nomic-embed-text"
+        res = requests.post(url, json={"model": emb_model, "prompt": text[:4096]}, timeout=60)
+        res.raise_for_status()
+        return res.json().get("embedding", [])
 
 
 def ingest_fewshot_suggestions(

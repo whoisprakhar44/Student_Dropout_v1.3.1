@@ -360,12 +360,17 @@ def save_chat_turn(session_id: str, question: str, response_text: str, sql: str 
 def _http_error_from_exc(exc: Exception) -> HTTPException:
     msg = str(exc)
     model = chat_model_name()
+    backend = os.getenv("LLM_BACKEND", "vllm").strip().lower()
     if "not found" in msg.lower() and "model" in msg.lower():
+        hint = (
+            f"Please ensure {backend} is running and serving model '{model}'."
+            if backend == "vllm"
+            else f"Run: ollama pull {model} - then restart uvicorn."
+        )
         return HTTPException(
             status_code=503,
             detail=(
-                f"Ollama model '{model}' is not installed. "
-                f"Run: ollama pull {model} - then restart uvicorn. ({msg})"
+                f"{backend.upper()} model '{model}' is not available. {hint} ({msg})"
             ),
         )
     return HTTPException(status_code=500, detail=msg)
@@ -486,10 +491,11 @@ async def lifespan(app: FastAPI):
     app.state.ollama_status = ollama_status
     app.state.graph = None
     app.state.graph_lock = asyncio.Lock()
+    backend_label = ollama_status.get("backend", "vllm").upper()
     if not ollama_status.get("model_available"):
-        print("WARNING: Ollama chat model not available:", ollama_status)
+        print(f"WARNING: {backend_label} chat model not available:", ollama_status)
     else:
-        print("Ollama ready:", ollama_status.get("model"))
+        print(f"{backend_label} ready:", ollama_status.get("model"))
         try:
             app.state.graph = await build_graph()
             print("LangGraph agent built successfully during startup.")
@@ -725,12 +731,18 @@ async def ask(payload: AskRequest, request: Request):
         async def _stream():
             graph_task: asyncio.Task | None = None
             try:
-                if not check_ollama().get("model_available"):
+                backend_info = check_ollama()
+                if not backend_info.get("model_available"):
+                    backend_name = backend_info.get("backend", "vllm")
+                    hint = (
+                        f"Please ensure {backend_name} is running on port 8000 with model '{chat_model_name()}'."
+                        if backend_name == "vllm"
+                        else f"Run: ollama pull {chat_model_name()} — then restart uvicorn."
+                    )
                     yield json.dumps({
                         "sql": "",
                         "result": [{"error": (
-                            f"Ollama model '{chat_model_name()}' is not available. "
-                            f"Run: ollama pull {chat_model_name()} — then restart uvicorn."
+                            f"{backend_name.upper()} model '{chat_model_name()}' is not available. {hint}"
                         ), "status": "failed"}],
                     }).encode()
                     return
@@ -1269,8 +1281,14 @@ class WebSocketSessionHandler:
                 logger.info("   Question:   %s", question)
                 logger.info("=" * 60)
 
-                ollama_info = check_ollama()
-                if not ollama_info.get("model_available"):
+                backend_info = check_ollama()
+                if not backend_info.get("model_available"):
+                    backend_name = backend_info.get("backend", "vllm")
+                    hint = (
+                        f"Please ensure {backend_name} is running with model '{chat_model_name()}'."
+                        if backend_name == "vllm"
+                        else f"Run: ollama pull {chat_model_name()} — then restart uvicorn."
+                    )
                     await self.send_json({
                         "type": "status",
                         "action": action,
@@ -1278,7 +1296,7 @@ class WebSocketSessionHandler:
                         "session_id": session_id,
                         "status": "failed",
                         "step": "model_error",
-                        "message": f"Ollama model '{chat_model_name()}' is not available."
+                        "message": f"{backend_name.upper()} model '{chat_model_name()}' is not available."
                     })
                     await self.send_json({
                         "type": "result",
@@ -1288,9 +1306,9 @@ class WebSocketSessionHandler:
                         "status": "failed",
                         "data": {
                             "sql": "",
-                            "result": [{"error": f"Ollama model '{chat_model_name()}' is not available. Run: ollama pull {chat_model_name()} — then restart uvicorn.", "status": "failed"}],
+                            "result": [{"error": f"{backend_name.upper()} model '{chat_model_name()}' is not available. {hint}", "status": "failed"}],
                             "username": username,
-                            "summary": "Ollama model not available."
+                            "summary": f"{backend_name.upper()} model not available."
                         }
                     })
                     return

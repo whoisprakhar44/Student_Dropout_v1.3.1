@@ -298,15 +298,32 @@ def build_chunks(segments: list[dict], filename: str) -> list[dict]:
 # STEP 3 — Embedder
 # ---------------------------------------------------------------------------
 
-class OllamaEmbedder:
-    """Thin Ollama embedding client — reuses same setup as mcp_rag.py."""
+class DocumentEmbedder:
+    """Embedding client for document ingestion — supports vLLM, Ollama, and OpenAI."""
 
     def __init__(self, cfg: dict):
-        base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
-        self.url   = f"{base_url}/api/embeddings"
-        self.model = cfg["embedding"]["model"]
+        self.provider = os.getenv("EMBEDDING_PROVIDER") or cfg.get("embedding", {}).get("provider", "vllm")
+        if self.provider == "vllm":
+            from openai import OpenAI
+            base_url = os.getenv("VLLM_EMBEDDING_BASE_URL", "http://localhost:8005/v1").rstrip("/")
+            if not base_url.endswith("/v1"):
+                base_url = f"{base_url}/v1"
+            api_key = os.getenv("VLLM_EMBEDDING_API_KEY", "EMPTY")
+            self.model = os.getenv("VLLM_EMBEDDING_MODEL") or cfg.get("embedding", {}).get("model", "nomic-embed-text-v1.5")
+            self.client = OpenAI(base_url=base_url, api_key=api_key)
+        elif self.provider == "openai":
+            from openai import OpenAI
+            self.model = cfg.get("embedding", {}).get("model", "text-embedding-3-small")
+            self.client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY", "EMPTY"))
+        else:
+            base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
+            self.url = f"{base_url}/api/embeddings"
+            self.model = cfg.get("embedding", {}).get("model", "nomic-embed-text")
 
     def embed(self, text: str) -> list[float]:
+        if self.provider in ("vllm", "openai"):
+            res = self.client.embeddings.create(model=self.model, input=[text])
+            return res.data[0].embedding
         resp = requests.post(
             self.url,
             json={"model": self.model, "prompt": text},
@@ -314,6 +331,10 @@ class OllamaEmbedder:
         )
         resp.raise_for_status()
         return resp.json()["embedding"]
+
+
+# Backward compatibility alias
+OllamaEmbedder = DocumentEmbedder
 
 
 # ---------------------------------------------------------------------------

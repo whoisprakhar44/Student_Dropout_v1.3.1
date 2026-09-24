@@ -176,20 +176,29 @@ def load_yaml_schemas(yaml_dir: str) -> list[dict]:
 class EmbeddingGenerator:
     """
     Supports:
+      provider: vllm                → vLLM embeddings API (port 8005)
       provider: openai              → OpenAI embeddings API
       provider: sentence_transformers → local HuggingFace model
       provider: ollama              → local Ollama server
     """
 
     def __init__(self, cfg: dict):
-        self.provider   = cfg["provider"]
-        self.model      = cfg["model"]
+        self.provider   = os.getenv("EMBEDDING_PROVIDER") or cfg["provider"]
+        self.model      = os.getenv("VLLM_EMBEDDING_MODEL") if self.provider == "vllm" else cfg["model"]
         self.batch_size = cfg.get("batch_size", 32)
         self._client    = None
 
-        if self.provider == "openai":
+        if self.provider == "vllm":
             from openai import OpenAI
-            self._client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+            base_url = os.getenv("VLLM_EMBEDDING_BASE_URL", "http://localhost:8005/v1").rstrip("/")
+            if not base_url.endswith("/v1"):
+                base_url = f"{base_url}/v1"
+            api_key = os.getenv("VLLM_EMBEDDING_API_KEY", "EMPTY")
+            self._client = OpenAI(base_url=base_url, api_key=api_key)
+
+        elif self.provider == "openai":
+            from openai import OpenAI
+            self._client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY", "EMPTY"))
 
         elif self.provider == "sentence_transformers":
             from sentence_transformers import SentenceTransformer
@@ -210,7 +219,7 @@ class EmbeddingGenerator:
             batch             = texts[i: i + self.batch_size]
             batch_embeddings: list[list[float]] = []
 
-            if self.provider == "openai":
+            if self.provider in ("openai", "vllm"):
                 response = self._client.embeddings.create(
                     model=self.model,
                     input=batch,

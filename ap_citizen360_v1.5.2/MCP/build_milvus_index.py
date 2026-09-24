@@ -132,22 +132,56 @@ def load_join_chunks() -> list[dict]:
     }]
 
 
-_MAX_EMBED_CHARS = 4096  # ~1024 tokens; keeps Ollama context safe
+from dotenv import load_dotenv
+
+load_dotenv()
+_root_env = os.path.join(PROJECT_ROOT, ".env")
+if os.path.exists(_root_env):
+    load_dotenv(_root_env)
+
+_MAX_EMBED_CHARS = 4096  # ~1024 tokens
+_client = None
+
+
+def get_embedding_client(provider: str):
+    global _client
+    if _client is None:
+        if provider == "vllm":
+            from openai import OpenAI
+            base_url = os.getenv("VLLM_EMBEDDING_BASE_URL", "http://localhost:8005/v1").rstrip("/")
+            if not base_url.endswith("/v1"):
+                base_url = f"{base_url}/v1"
+            api_key = os.getenv("VLLM_EMBEDDING_API_KEY", "EMPTY")
+            _client = OpenAI(base_url=base_url, api_key=api_key)
+        elif provider == "openai":
+            from openai import OpenAI
+            _client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY", "EMPTY"))
+    return _client
 
 
 def embed_text(text: str, cfg: dict) -> list[float]:
     emb_cfg = cfg["embedding"]
-    if emb_cfg["provider"] != "ollama":
-        raise ValueError("Only ollama embeddings supported for index build")
-    
-    base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
-    url = emb_cfg.get("ollama_url", f"{base_url}/api/embeddings")
-    model = emb_cfg["model"]
-    # Truncate to avoid Ollama 500s on huge DDLs
+    provider = os.getenv("EMBEDDING_PROVIDER") or emb_cfg.get("provider", "vllm")
     prompt = text[:_MAX_EMBED_CHARS]
-    res = requests.post(url, json={"model": model, "prompt": prompt}, timeout=120)
-    res.raise_for_status()
-    return res.json()["embedding"]
+
+    if provider in ("vllm", "openai"):
+        client = get_embedding_client(provider)
+        model = os.getenv("VLLM_EMBEDDING_MODEL") if provider == "vllm" else emb_cfg.get("model", "text-embedding-3-small")
+        if not model:
+            model = emb_cfg.get("model", "nomic-embed-text-v1.5")
+        res = client.embeddings.create(model=model, input=[prompt])
+        return res.data[0].embedding
+
+    elif provider == "ollama":
+        base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
+        url = emb_cfg.get("ollama_url", f"{base_url}/api/embeddings")
+        model = emb_cfg.get("model", "nomic-embed-text")
+        res = requests.post(url, json={"model": model, "prompt": prompt}, timeout=120)
+        res.raise_for_status()
+        return res.json()["embedding"]
+
+    else:
+        raise ValueError(f"Unsupported embedding provider: {provider}")
 
 
 def build_index():

@@ -337,23 +337,44 @@ def _ollama_model() -> str:
 
 
 def _call_ollama(prompt: str, timeout: int = 60) -> str:
-    """Call Ollama chat completion API and return the response text."""
-    url = f"{_ollama_base_url()}/api/generate"
-    payload = {
-        "model": _ollama_model(),
-        "prompt": prompt,
-        "stream": False,
-        "options": {
+    """Call LLM chat completion API (vLLM or Ollama) and return the response text."""
+    backend = os.getenv("LLM_BACKEND", "vllm").strip().lower()
+    if backend == "vllm":
+        base_url = os.getenv("VLLM_BASE_URL", "http://localhost:8000/v1").rstrip("/")
+        if not base_url.endswith("/v1"):
+            base_url = f"{base_url}/v1"
+        model = os.getenv("VLLM_CHAT_MODEL") or os.getenv("OLLAMA_CHAT_MODEL", "qwen")
+        api_key = os.getenv("VLLM_API_KEY", "EMPTY")
+        headers = {"Authorization": f"Bearer {api_key}"}
+        payload = {
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],
             "temperature": 0.3,
-            "num_predict": 1024,
-        },
-    }
-    try:
-        resp = requests.post(url, json=payload, timeout=timeout)
-        resp.raise_for_status()
-        return resp.json().get("response", "").strip()
-    except Exception as e:
-        return f"[LLM error: {e}]"
+            "max_tokens": 1024,
+        }
+        try:
+            resp = requests.post(f"{base_url}/chat/completions", headers=headers, json=payload, timeout=timeout)
+            resp.raise_for_status()
+            return resp.json()["choices"][0]["message"]["content"].strip()
+        except Exception as e:
+            return f"[LLM error: {e}]"
+    else:
+        url = f"{_ollama_base_url()}/api/generate"
+        payload = {
+            "model": _ollama_model(),
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "temperature": 0.3,
+                "num_predict": 1024,
+            },
+        }
+        try:
+            resp = requests.post(url, json=payload, timeout=timeout)
+            resp.raise_for_status()
+            return resp.json().get("response", "").strip()
+        except Exception as e:
+            return f"[LLM error: {e}]"
 
 
 def _llm_enrich_yaml(
