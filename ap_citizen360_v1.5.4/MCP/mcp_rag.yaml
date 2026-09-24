@@ -9,9 +9,9 @@
 #   batch_size: 32
   
 embedding:
-  provider: ollama
-  model: nomic-embed-text     # or mxbai-embed-large
-  # ollama_url is now controlled globally by OLLAMA_BASE_URL in .env
+  provider: vllm
+  model: nomic-embed-text-v1.5     # or controlled by VLLM_EMBEDDING_MODEL in .env
+  # vLLM embedding server URL is controlled globally by VLLM_EMBEDDING_BASE_URL in .env
   batch_size: 32
 
 vector_db:

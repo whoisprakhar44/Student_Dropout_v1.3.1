@@ -3,7 +3,7 @@ Schema Injection Pipeline
 =========================
 Modular, config-driven pipeline to:
   1. Read YAML schema files OR a JSONL few-shot file → extract embedding text
-  2. Generate embeddings (OpenAI, SentenceTransformers, or Ollama)
+  2. Generate embeddings (vLLM, OpenAI, or SentenceTransformers)
   3. Insert into vector DB (ChromaDB local OR Milvus server)
 
 Milvus uses two named partitions inside a single collection:
@@ -176,28 +176,32 @@ def load_yaml_schemas(yaml_dir: str) -> list[dict]:
 class EmbeddingGenerator:
     """
     Supports:
+      provider: vllm                → vLLM embeddings API (port 8005)
       provider: openai              → OpenAI embeddings API
       provider: sentence_transformers → local HuggingFace model
-      provider: ollama              → local Ollama server
     """
 
     def __init__(self, cfg: dict):
-        self.provider   = cfg["provider"]
-        self.model      = cfg["model"]
+        self.provider   = os.getenv("EMBEDDING_PROVIDER") or cfg.get("provider", "vllm")
+        self.model      = os.getenv("VLLM_EMBEDDING_MODEL") if self.provider == "vllm" else cfg.get("model")
         self.batch_size = cfg.get("batch_size", 32)
         self._client    = None
 
-        if self.provider == "openai":
+        if self.provider == "vllm":
             from openai import OpenAI
-            self._client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+            base_url = os.getenv("VLLM_EMBEDDING_BASE_URL", "http://localhost:8005/v1").rstrip("/")
+            if not base_url.endswith("/v1"):
+                base_url = f"{base_url}/v1"
+            api_key = os.getenv("VLLM_EMBEDDING_API_KEY", "EMPTY")
+            self._client = OpenAI(base_url=base_url, api_key=api_key)
+
+        elif self.provider == "openai":
+            from openai import OpenAI
+            self._client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY", "EMPTY"))
 
         elif self.provider == "sentence_transformers":
             from sentence_transformers import SentenceTransformer
             self._client = SentenceTransformer(self.model)
-
-        elif self.provider == "ollama":
-            base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
-            self._ollama_url = cfg.get("ollama_url", f"{base_url}/api/embeddings")
 
         else:
             raise ValueError(f"Unsupported embedding provider: {self.provider}")
@@ -210,24 +214,12 @@ class EmbeddingGenerator:
             batch             = texts[i: i + self.batch_size]
             batch_embeddings: list[list[float]] = []
 
-            if self.provider == "openai":
+            if self.provider in ("openai", "vllm"):
                 response = self._client.embeddings.create(
                     model=self.model,
                     input=batch,
                 )
                 batch_embeddings = [item.embedding for item in response.data]
-
-            elif self.provider == "ollama":
-                for text in batch:
-                    response = requests.post(
-                        self._ollama_url,
-                        json={"model": self.model, "prompt": text},
-                    )
-                    res_json = response.json()
-                    emb = res_json.get("embedding") or (res_json.get("embeddings", [[]])[0] if res_json.get("embeddings") else None)
-                    if not emb:
-                        raise RuntimeError(f"Ollama embedding request failed ({response.status_code}): {res_json}")
-                    batch_embeddings.append(emb)
 
             elif self.provider == "sentence_transformers":
                 batch_embeddings = self._client.encode(

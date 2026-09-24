@@ -44,19 +44,24 @@ logging.basicConfig(
 logger = logging.getLogger("ingest_suggestions")
 
 
-def generate_ollama_embedding(
+def generate_embedding(
     text: str,
-    model: str = "nomic-embed-text",
-    ollama_url: str | None = None,
+    model: str | None = None,
 ) -> list[float]:
-    """Generates embedding vector via Ollama for queries not yet in Milvus parquet."""
-    import requests
+    """Generates embedding vector via vLLM embedding server on port 8005 for queries not yet in Milvus parquet."""
+    from openai import OpenAI
+    base_url = os.getenv("VLLM_EMBEDDING_BASE_URL", "http://localhost:8005/v1").rstrip("/")
+    if not base_url.endswith("/v1"):
+        base_url = f"{base_url}/v1"
+    api_key = os.getenv("VLLM_EMBEDDING_API_KEY", "EMPTY")
+    emb_model = model or os.getenv("VLLM_EMBEDDING_MODEL", "nomic-embed-text-v1.5")
+    client = OpenAI(base_url=base_url, api_key=api_key)
+    res = client.embeddings.create(model=emb_model, input=[text[:4096]])
+    return res.data[0].embedding
 
-    base_url = ollama_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
-    url = f"{base_url}/api/embeddings"
-    res = requests.post(url, json={"model": model, "prompt": text[:4096]}, timeout=60)
-    res.raise_for_status()
-    return res.json().get("embedding", [])
+
+# Backwards compatibility alias
+generate_ollama_embedding = generate_embedding
 
 
 def ingest_fewshot_suggestions(
@@ -101,21 +106,21 @@ def ingest_fewshot_suggestions(
     if missing_count > 0:
         logger.warning(f"Found {missing_count} questions without precomputed parquet embeddings.")
         if embed_missing:
-            logger.info("Generating missing embeddings via Ollama...")
+            logger.info("Generating missing embeddings via vLLM...")
             generated = 0
             for item in items:
                 if len(item.get("embedding", [])) != 768:
                     try:
-                        emb = generate_ollama_embedding(item["question"])
+                        emb = generate_embedding(item["question"])
                         if len(emb) == 768:
                             item["embedding"] = emb
                             generated += 1
                     except Exception as e:
                         logger.warning(f"Failed to generate embedding for '{item['question'][:40]}...': {e}")
-            logger.info(f"Generated {generated} missing embeddings via Ollama.")
+            logger.info(f"Generated {generated} missing embeddings via vLLM.")
             matched_embs = sum(1 for item in items if len(item.get("embedding", [])) == 768)
         else:
-            logger.info("Tip: Pass --embed-missing to generate vectors via Ollama for missing questions.")
+            logger.info("Tip: Pass --embed-missing to generate vectors via vLLM for missing questions.")
     else:
         logger.info(f"100% of questions ({matched_embs}/{total_items}) matched Milvus 768-dim embeddings.")
 
@@ -183,7 +188,7 @@ def main():
     parser.add_argument(
         "--embed-missing",
         action="store_true",
-        help="Call Ollama embedding endpoint to generate vectors for questions not in parquet store.",
+        help="Call vLLM embedding endpoint to generate vectors for questions not in parquet store.",
     )
     parser.add_argument(
         "--no-verify",

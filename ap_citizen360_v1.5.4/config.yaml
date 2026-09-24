@@ -12,6 +12,10 @@ logging:
 # ── Embedding ─────────────────────────────────────────────────────────────────
 # Choose ONE provider block and set provider accordingly.
 #
+# provider: vllm
+#   requires: vLLM or OpenAI-compatible server running on port 8005
+#   recommended model: nomic-embed-text-v1.5 (768-d)
+#
 # provider: openai
 #   requires: OPENAI_API_KEY env var
 #   recommended model: text-embedding-3-small (1536-d) or text-embedding-3-large (3072-d)
@@ -19,16 +23,12 @@ logging:
 # provider: sentence_transformers
 #   runs locally, no API key needed
 #   recommended model: all-MiniLM-L6-v2 (384-d), BAAI/bge-base-en-v1.5 (768-d)
-#
-# provider: ollama
-#   requires: Ollama server running at ollama_url
-#   recommended model: nomic-embed-text (768-d), mxbai-embed-large (1024-d)
 
 embedding:
-  provider: ollama
-  model: nomic-embed-text          # dim must match vector_db.milvus.dim below
+  provider: vllm
+  model: nomic-embed-text-v1.5      # dim must match vector_db.milvus.dim below
   batch_size: 32
-  # ollama_url is now controlled globally by OLLAMA_BASE_URL in .env
+  # vLLM embedding URL is controlled globally by VLLM_EMBEDDING_BASE_URL in .env (port 8005)
 
 # ── Vector DB ─────────────────────────────────────────────────────────────────
 # provider: chromadb  →  local persistent store (no server needed)

@@ -38,6 +38,9 @@ from mcp.server.fastmcp import FastMCP
 from dotenv import load_dotenv
 
 load_dotenv()
+_root_env = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
+if os.path.exists(_root_env):
+    load_dotenv(_root_env)
 
 
 # =========================
@@ -58,10 +61,18 @@ PARTITION_DOCS = "document_store"
 
 class Embedder:
     def __init__(self, cfg):
-        self.provider = cfg["embedding"]["provider"]
-        self.model = cfg["embedding"]["model"]
+        self.provider = os.getenv("EMBEDDING_PROVIDER") or cfg["embedding"].get("provider", "vllm")
+        self.model = os.getenv("VLLM_EMBEDDING_MODEL") if self.provider == "vllm" else cfg["embedding"]["model"]
 
-        if self.provider == "openai":
+        if self.provider == "vllm":
+            from openai import OpenAI
+            base_url = os.getenv("VLLM_EMBEDDING_BASE_URL", "http://localhost:8005/v1").rstrip("/")
+            if not base_url.endswith("/v1"):
+                base_url = f"{base_url}/v1"
+            api_key = os.getenv("VLLM_EMBEDDING_API_KEY", "EMPTY")
+            self.client = OpenAI(base_url=base_url, api_key=api_key)
+
+        elif self.provider == "openai":
             from openai import OpenAI
             self.client = OpenAI()
 
@@ -69,26 +80,15 @@ class Embedder:
             from sentence_transformers import SentenceTransformer
             self.client = SentenceTransformer(self.model)
 
-        elif self.provider == "ollama":
-            import requests
-            self.requests = requests
-            base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
-            self.url = cfg["embedding"].get("ollama_url", f"{base_url}/api/embeddings")
-
     def embed(self, text: str):
-        if self.provider == "openai":
+        if self.provider in ("vllm", "openai"):
             res = self.client.embeddings.create(model=self.model, input=[text])
             return res.data[0].embedding
 
         if self.provider == "sentence_transformers":
             return self.client.encode([text])[0].tolist()
 
-        if self.provider == "ollama":
-            res = self.requests.post(
-                self.url,
-                json={"model": self.model, "prompt": text}
-            )
-            return res.json()["embedding"]
+        raise ValueError(f"Unsupported embedding provider: {self.provider}")
 
 
 # =========================

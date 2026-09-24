@@ -326,32 +326,35 @@ def _fetch_distinct_values(
         return _fetch_distinct_impala(executor, database, table_name, column_name, limit)
 
 
-# ── LLM description generation (Ollama) ──────────────────────────────────────
+# ── LLM description generation (vLLM) ────────────────────────────────────────
 
-def _ollama_base_url() -> str:
-    return os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
+def _vllm_base_url() -> str:
+    url = os.getenv("VLLM_BASE_URL", "http://localhost:8000/v1").rstrip("/")
+    if not url.endswith("/v1"):
+        url = f"{url}/v1"
+    return url
 
 
-def _ollama_model() -> str:
-    return os.getenv("OLLAMA_CHAT_MODEL", "qwen3.5:0.8b-mlx")
+def _vllm_model() -> str:
+    return os.getenv("VLLM_CHAT_MODEL", "qwen")
 
 
 def _call_ollama(prompt: str, timeout: int = 60) -> str:
-    """Call Ollama chat completion API and return the response text."""
-    url = f"{_ollama_base_url()}/api/generate"
+    """Call vLLM chat completion API and return the response text."""
+    base_url = _vllm_base_url()
+    model = _vllm_model()
+    api_key = os.getenv("VLLM_API_KEY", "EMPTY")
+    headers = {"Authorization": f"Bearer {api_key}"}
     payload = {
-        "model": _ollama_model(),
-        "prompt": prompt,
-        "stream": False,
-        "options": {
-            "temperature": 0.3,
-            "num_predict": 1024,
-        },
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.3,
+        "max_tokens": 1024,
     }
     try:
-        resp = requests.post(url, json=payload, timeout=timeout)
+        resp = requests.post(f"{base_url}/chat/completions", headers=headers, json=payload, timeout=timeout)
         resp.raise_for_status()
-        return resp.json().get("response", "").strip()
+        return resp.json()["choices"][0]["message"]["content"].strip()
     except Exception as e:
         return f"[LLM error: {e}]"
 
@@ -831,7 +834,7 @@ def main():
                     c.split(" (")[0] for c in changes["changed"]
                 ]
                 if all_drift_cols:
-                    print(f"    🤖 Generating descriptions via Ollama ({_ollama_model()})...")
+                    print(f"    🤖 Generating descriptions via vLLM ({_vllm_model()})...")
                     enriched = _llm_enrich_yaml(
                         yaml_path, changes["added"],
                         [c.split(" (")[0] for c in changes["changed"]],

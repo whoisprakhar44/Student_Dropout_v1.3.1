@@ -18,7 +18,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
-from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import ToolNode
 
 from my_agent.utils import tools as tool_registry
@@ -28,36 +28,44 @@ logger = logging.getLogger("agent.nodes")
 
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
-_CHAT_MODEL = os.getenv("OLLAMA_CHAT_MODEL", "qwen3.5:9b")
-_REASONING = os.getenv("OLLAMA_REASONING", "true").strip().lower() in ("true", "1", "yes")
-print(f"ChatOllama model: {_CHAT_MODEL}  |  thinking={'on' if _REASONING else 'off'}")
+_VLLM_BASE_URL = os.getenv("VLLM_BASE_URL", "http://localhost:8000/v1").rstrip("/")
+if not _VLLM_BASE_URL.endswith("/v1"):
+    _VLLM_BASE_URL = f"{_VLLM_BASE_URL}/v1"
+_VLLM_API_KEY = os.getenv("VLLM_API_KEY", "EMPTY")
+_CHAT_MODEL = os.getenv("VLLM_CHAT_MODEL", "qwen")
+_MAX_TOKENS = int(os.getenv("VLLM_MAX_TOKENS", "1024"))
+_SUMMARIZE_MAX_TOKENS = int(os.getenv("VLLM_SUMMARIZE_MAX_TOKENS", "256"))
+_SUMMARIZE_NUM_CTX = int(os.getenv("VLLM_SUMMARIZE_NUM_CTX", "2048"))
+_DOC_MAX_TOKENS = int(os.getenv("VLLM_DOC_MAX_TOKENS", "512"))
+_DOC_NUM_CTX = int(os.getenv("VLLM_DOC_NUM_CTX", "4096"))
 
-_base_model = ChatOllama(
+print(f"vLLM model: {_CHAT_MODEL}  |  base_url: {_VLLM_BASE_URL}")
+
+_base_model = ChatOpenAI(
     model=_CHAT_MODEL,
-    temperature=0,
-    reasoning=_REASONING,
-    base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-    num_ctx=int(os.getenv("OLLAMA_NUM_CTX", "4096")),
-    num_predict=int(os.getenv("OLLAMA_NUM_PREDICT", "512")),
+    temperature=float(os.getenv("VLLM_TEMPERATURE", "0")),
+    base_url=_VLLM_BASE_URL,
+    api_key=_VLLM_API_KEY,
+    max_tokens=_MAX_TOKENS,
 )
 _model_with_tools = None
 
-_summarize_model = ChatOllama(
-    model=os.getenv("OLLAMA_SUMMARIZE_MODEL", _CHAT_MODEL),
+_summarize_model = ChatOpenAI(
+    model=os.getenv("VLLM_SUMMARIZE_MODEL", _CHAT_MODEL),
     temperature=0,
-    reasoning=False,
-    base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-    num_ctx=int(os.getenv("OLLAMA_SUMMARIZE_NUM_CTX", "2048")),
-    num_predict=int(os.getenv("OLLAMA_SUMMARIZE_NUM_PREDICT", "128")),
+    base_url=_VLLM_BASE_URL,
+    api_key=_VLLM_API_KEY,
+    max_tokens=_SUMMARIZE_MAX_TOKENS,
+    extra_body={"truncate_prompt_tokens": _SUMMARIZE_NUM_CTX},
 )
 
-_doc_synthesize_model = ChatOllama(
+_doc_synthesize_model = ChatOpenAI(
     model=_CHAT_MODEL,
     temperature=0,
-    reasoning=False,
-    base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-    num_ctx=int(os.getenv("OLLAMA_DOC_NUM_CTX", "4096")),
-    num_predict=int(os.getenv("OLLAMA_DOC_NUM_PREDICT", "256")),
+    base_url=_VLLM_BASE_URL,
+    api_key=_VLLM_API_KEY,
+    max_tokens=_DOC_MAX_TOKENS,
+    extra_body={"truncate_prompt_tokens": _DOC_NUM_CTX},
 )
 
 _HIVE_ENABLED = os.getenv("HIVE_MCP_ENABLED", "false").strip().lower() in ("true", "1", "yes")
@@ -735,13 +743,15 @@ INTENT_DESCRIPTIONS = """
 - general_query: anything that does not fit the above intents
 """
 
-_intent_model = ChatOllama(
+_INTENT_MAX_TOKENS = int(os.getenv("VLLM_INTENT_MAX_TOKENS", "64"))
+_INTENT_NUM_CTX = int(os.getenv("VLLM_INTENT_NUM_CTX", "2048"))
+_intent_model = ChatOpenAI(
     model=_CHAT_MODEL,
     temperature=0,
-    reasoning=False,
-    base_url=os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
-    num_ctx=int(os.getenv("OLLAMA_INTENT_NUM_CTX", "2048")),
-    num_predict=int(os.getenv("OLLAMA_INTENT_NUM_PREDICT", "64")),
+    base_url=_VLLM_BASE_URL,
+    api_key=_VLLM_API_KEY,
+    max_tokens=_INTENT_MAX_TOKENS,
+    extra_body={"truncate_prompt_tokens": _INTENT_NUM_CTX},
 )
 
 _INTENT_SYSTEM_PROMPT = f"""You are an intent classifier for the ap_citizen360 data model.
@@ -1035,7 +1045,10 @@ def synthesize_node(state: AgentState) -> dict:
     # Extract the passages returned by the search_documents tool
     doc_results = _tool_messages(history, "search_documents")
     if doc_results:
-        doc_content = _extract_tool_content(doc_results[-1].content)
+        doc_content = _extract_tool_content(doc_results[-1].content) or ""
+        max_doc_chars = _DOC_NUM_CTX * 4
+        if len(doc_content) > max_doc_chars:
+            doc_content = doc_content[:max_doc_chars]
     else:
         doc_content = "No document passages were found."
     
@@ -1091,6 +1104,9 @@ def summarization_node(state: AgentState) -> dict:
         }
         
     result_table = _result_table_str(last_result_msg.content)
+    max_table_chars = _SUMMARIZE_NUM_CTX * 4
+    if result_table and len(result_table) > max_table_chars:
+        result_table = result_table[:max_table_chars] + "\n...(truncated for context limit)"
     
     system_prompt = (
         "You are an AI assistant. Summarize the following database query results in short based on the user's query.\n"

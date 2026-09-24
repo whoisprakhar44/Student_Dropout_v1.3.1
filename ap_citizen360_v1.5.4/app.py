@@ -389,8 +389,8 @@ def _http_error_from_exc(exc: Exception) -> HTTPException:
         return HTTPException(
             status_code=503,
             detail=(
-                f"Ollama model '{model}' is not installed. "
-                f"Run: ollama pull {model} - then restart uvicorn. ({msg})"
+                f"VLLM model '{model}' is not available. "
+                f"Please ensure vLLM is running and serving model '{model}'. ({msg})"
             ),
         )
     return HTTPException(status_code=500, detail=msg)
@@ -548,22 +548,22 @@ async def _execute_graph_query(job: dict) -> dict:
                 "total_time": 0.0,
             }
 
-    ollama_info = check_ollama()
-    if not ollama_info.get("model_available"):
+    backend_info = check_ollama()
+    if not backend_info.get("model_available"):
         await queue_manager.emit_progress(
             job_id,
             step="model_error",
             status="failed",
-            message=f"Ollama model '{chat_model_name()}' is not available."
+            message=f"VLLM model '{chat_model_name()}' is not available."
         )
         return {
             "sql": "",
             "result": [{
-                "error": f"Ollama model '{chat_model_name()}' is not available. Run: ollama pull {chat_model_name()} — then restart uvicorn.",
+                "error": f"VLLM model '{chat_model_name()}' is not available. Please ensure vLLM is running on port 8000 with model '{chat_model_name()}'.",
                 "status": "failed"
             }],
             "username": username,
-            "summary": "Ollama model not available.",
+            "summary": "VLLM model not available.",
             "gen_time": 0.0,
             "exec_time": 0.0,
             "total_time": 0.0,
@@ -678,14 +678,14 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning("Failed to initialize ContentGuardrailManager: %s", e)
         guardrail_manager = None
-    ollama_status = check_ollama()
-    app.state.ollama_status = ollama_status
+    vllm_status = check_ollama()
+    app.state.ollama_status = vllm_status
     app.state.graph = None
     app.state.graph_lock = asyncio.Lock()
-    if not ollama_status.get("model_available"):
-        print("WARNING: Ollama chat model not available:", ollama_status)
+    if not vllm_status.get("model_available"):
+        print("WARNING: vLLM chat model not available:", vllm_status)
     else:
-        print("Ollama ready:", ollama_status.get("model"))
+        print("vLLM ready:", vllm_status.get("model"))
         try:
             app.state.graph = await build_graph()
             print("LangGraph agent built successfully during startup.")
