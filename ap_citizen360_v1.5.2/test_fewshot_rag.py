@@ -5,10 +5,10 @@ from pymilvus import MilvusClient
 
 load_dotenv()
 
-backend = os.getenv("LLM_BACKEND", "vllm").lower()
+emb_provider = os.getenv("EMBEDDING_PROVIDER", "ollama").lower()
 query_text = "[intent: school_hotspot] which schools in eluru have the highest number of dropouts in 2025 [district: Eluru, year: 2025]"
 
-if backend == "vllm":
+if emb_provider == "vllm":
     from openai import OpenAI
     base_url = os.getenv("VLLM_EMBEDDING_BASE_URL", "http://localhost:8005/v1").rstrip("/")
     if not base_url.endswith("/v1"):
@@ -17,8 +17,10 @@ if backend == "vllm":
     model = os.getenv("VLLM_EMBEDDING_MODEL", "nomic-embed-text-v1.5")
     emb = client.embeddings.create(model=model, input=[query_text]).data[0].embedding
 else:
-    resp = requests.post("http://localhost:11434/api/embeddings", json={
-        "model": "nomic-embed-text",
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
+    model = os.getenv("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
+    resp = requests.post(f"{base_url}/api/embeddings", json={
+        "model": model,
         "prompt": query_text
     })
     emb = resp.json()["embedding"]

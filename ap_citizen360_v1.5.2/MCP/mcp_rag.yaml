@@ -9,9 +9,9 @@
 #   batch_size: 32
   
 embedding:
-  provider: vllm
-  model: nomic-embed-text-v1.5     # or controlled by VLLM_EMBEDDING_MODEL in .env
-  # vLLM embedding server URL is controlled globally by VLLM_EMBEDDING_BASE_URL in .env
+  provider: ollama
+  model: nomic-embed-text          # or controlled by OLLAMA_EMBEDDING_MODEL in .env
+  # Ollama embedding server URL is controlled globally by OLLAMA_BASE_URL in .env
   batch_size: 32
 
 vector_db:

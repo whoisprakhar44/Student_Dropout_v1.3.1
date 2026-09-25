@@ -1,4 +1,4 @@
-"""Model backend connectivity and availability checks (supports vLLM and Ollama)."""
+"""Model backend connectivity and availability checks (supports vLLM chat + Ollama/vLLM embeddings)."""
 
 from __future__ import annotations
 
@@ -10,11 +10,24 @@ def get_backend() -> str:
     return os.getenv("LLM_BACKEND", "vllm").strip().lower()
 
 
+def get_embedding_provider() -> str:
+    return os.getenv("EMBEDDING_PROVIDER", "ollama").strip().lower()
+
+
 def chat_model_name() -> str:
     backend = get_backend()
     if backend == "vllm":
         return os.getenv("VLLM_CHAT_MODEL") or os.getenv("OLLAMA_CHAT_MODEL", "qwen")
     return os.getenv("OLLAMA_CHAT_MODEL", "qwen3.5:9b")
+
+
+def embedding_model_name() -> str:
+    provider = get_embedding_provider()
+    if provider == "ollama":
+        return os.getenv("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
+    elif provider == "vllm":
+        return os.getenv("VLLM_EMBEDDING_MODEL", "nomic-embed-text-v1.5")
+    return os.getenv("EMBEDDING_MODEL", "nomic-embed-text")
 
 
 def vllm_base_url() -> str:
@@ -38,10 +51,17 @@ def ollama_base_url() -> str:
 def list_vllm_models() -> list[str]:
     api_key = os.getenv("VLLM_API_KEY", "EMPTY")
     headers = {"Authorization": f"Bearer {api_key}"}
-    response = requests.get(f"{vllm_base_url()}/models", headers=headers, timeout=10)
-    response.raise_for_status()
-    data = response.json().get("data", [])
-    return [m.get("id", "") for m in data if isinstance(m, dict)]
+    url = f"{vllm_base_url()}/models"
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code == 404:
+            root_url = f"{vllm_base_url().removesuffix('/v1')}/models"
+            response = requests.get(root_url, headers=headers, timeout=10)
+        response.raise_for_status()
+        data = response.json().get("data", [])
+        return [m.get("id", "") for m in data if isinstance(m, dict)]
+    except Exception:
+        raise
 
 
 def list_ollama_models() -> list[str]:
@@ -58,7 +78,6 @@ def model_is_available(model: str | None = None) -> bool:
             available = list_vllm_models()
             if not available:
                 return False
-            # Check for direct or substring match (e.g. "qwen" in "Qwen/Qwen2.5-7B-Instruct")
             matched = any(
                 target.lower() in m.lower() or m.lower() in target.lower()
                 for m in available
@@ -82,23 +101,41 @@ def model_is_available(model: str | None = None) -> bool:
 def check_backend() -> dict:
     backend = get_backend()
     model = chat_model_name()
+    emb_provider = get_embedding_provider()
+    emb_model = embedding_model_name()
+
+    # Check embedding connectivity
+    emb_ok = False
+    if emb_provider == "ollama":
+        emb_url = ollama_base_url()
+        try:
+            ollama_models = list_ollama_models()
+            emb_ok = any(emb_model in m or m in emb_model for m in ollama_models) or (len(ollama_models) > 0)
+        except Exception:
+            try:
+                res = requests.get(f"{emb_url}/api/tags", timeout=5)
+                emb_ok = res.status_code == 200
+            except Exception:
+                emb_ok = False
+    elif emb_provider == "vllm":
+        emb_url = vllm_embedding_url()
+        try:
+            emb_res = requests.get(
+                f"{emb_url}/models",
+                headers={"Authorization": f"Bearer {os.getenv('VLLM_EMBEDDING_API_KEY', 'EMPTY')}"},
+                timeout=5,
+            )
+            emb_ok = emb_res.status_code == 200
+        except Exception:
+            emb_ok = False
+    else:
+        emb_url = "local"
+        emb_ok = True
+
     if backend == "vllm":
         try:
             available = list_vllm_models()
             ok = model_is_available(model)
-
-            # Check embedding service on port 8005
-            emb_model = os.getenv("VLLM_EMBEDDING_MODEL", "nomic-embed-text-v1.5")
-            emb_ok = False
-            try:
-                emb_res = requests.get(
-                    f"{vllm_embedding_url()}/models",
-                    headers={"Authorization": f"Bearer {os.getenv('VLLM_EMBEDDING_API_KEY', 'EMPTY')}"},
-                    timeout=5,
-                )
-                emb_ok = emb_res.status_code == 200
-            except Exception:
-                emb_ok = False
 
             return {
                 "backend": "vllm",
@@ -108,8 +145,9 @@ def check_backend() -> dict:
                 "model_available": ok,
                 "available_models": available,
                 "vllm_url": vllm_base_url(),
+                "embedding_provider": emb_provider,
                 "embedding_model": emb_model,
-                "embedding_url": vllm_embedding_url(),
+                "embedding_url": emb_url,
                 "embedding_available": emb_ok,
             }
         except Exception as exc:
@@ -121,6 +159,10 @@ def check_backend() -> dict:
                 "model_available": False,
                 "error": str(exc),
                 "vllm_url": vllm_base_url(),
+                "embedding_provider": emb_provider,
+                "embedding_model": emb_model,
+                "embedding_url": emb_url,
+                "embedding_available": emb_ok,
             }
     else:
         try:
@@ -134,6 +176,10 @@ def check_backend() -> dict:
                 "model_available": ok,
                 "available_models": available,
                 "ollama_url": ollama_base_url(),
+                "embedding_provider": emb_provider,
+                "embedding_model": emb_model,
+                "embedding_url": emb_url,
+                "embedding_available": emb_ok,
             }
         except Exception as exc:
             return {
@@ -144,6 +190,10 @@ def check_backend() -> dict:
                 "model_available": False,
                 "error": str(exc),
                 "ollama_url": ollama_base_url(),
+                "embedding_provider": emb_provider,
+                "embedding_model": emb_model,
+                "embedding_url": emb_url,
+                "embedding_available": emb_ok,
             }
 
 

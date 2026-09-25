@@ -49,9 +49,9 @@ def generate_ollama_embedding(
     model: str | None = None,
     ollama_url: str | None = None,
 ) -> list[float]:
-    """Generates embedding vector via vLLM (default) or Ollama for queries not yet in Milvus parquet."""
-    backend = os.getenv("LLM_BACKEND", "vllm").strip().lower()
-    if backend == "vllm":
+    """Generates embedding vector via Ollama (default) or vLLM for queries not yet in Milvus parquet."""
+    emb_provider = os.getenv("EMBEDDING_PROVIDER", "ollama").strip().lower()
+    if emb_provider == "vllm":
         from openai import OpenAI
         base_url = os.getenv("VLLM_EMBEDDING_BASE_URL", "http://localhost:8005/v1").rstrip("/")
         if not base_url.endswith("/v1"):
@@ -65,7 +65,7 @@ def generate_ollama_embedding(
         import requests
         base_url = ollama_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
         url = f"{base_url}/api/embeddings"
-        emb_model = model or "nomic-embed-text"
+        emb_model = model or os.getenv("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
         res = requests.post(url, json={"model": emb_model, "prompt": text[:4096]}, timeout=60)
         res.raise_for_status()
         return res.json().get("embedding", [])

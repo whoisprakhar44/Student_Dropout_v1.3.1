@@ -25,10 +25,10 @@ logging:
 #   recommended model: nomic-embed-text-v1.5 (768-d)
 
 embedding:
-  provider: vllm
-  model: nomic-embed-text-v1.5     # dim must match vector_db.milvus.dim below (768)
+  provider: ollama
+  model: nomic-embed-text          # dim must match vector_db.milvus.dim below (768)
   batch_size: 32
-  # vLLM embedding URL is controlled globally by VLLM_EMBEDDING_BASE_URL in .env (port 8005)
+  # controlled globally by EMBEDDING_PROVIDER and OLLAMA_BASE_URL in .env
 
 # ── Vector DB ─────────────────────────────────────────────────────────────────
 # provider: chromadb  →  local persistent store (no server needed)
