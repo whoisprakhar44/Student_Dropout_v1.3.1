@@ -13,6 +13,7 @@ import logging
 import os
 import re
 import time
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -281,6 +282,135 @@ def _sanitize_messages_for_llm(messages: list) -> list:
     return sanitized
 
 
+def _parse_text_tool_calls(content: str) -> tuple[list[dict], str]:
+    """
+    Parses tool calls emitted as text into structured LangChain tool_calls dicts.
+    Handles:
+      1. XML/tag format (Qwen/Hermes):
+         <tool_call>
+         <function=get_column_values>
+         <parameter=table>ap_citizen360.dim_district</parameter>
+         <parameter=column>district_name</parameter>
+         </function>
+         </tool_call>
+      2. JSON format inside <tool_call>:
+         <tool_call>
+         {"name": "...", "arguments": {...}}
+         </tool_call>
+      3. Bare <function=...> or markdown blocks.
+    Returns:
+      (tool_calls, cleaned_content)
+    """
+    if not content:
+        return [], content
+
+    calls = []
+    cleaned_content = content
+
+    tool_blocks = list(re.finditer(r'<tool_call>(.*?)(?:</tool_call>|$)', content, re.DOTALL))
+    
+    if tool_blocks:
+        for tb in tool_blocks:
+            raw_block = tb.group(0)
+            block = tb.group(1).strip()
+            cleaned_content = cleaned_content.replace(raw_block, "").strip()
+
+            parsed_json = False
+            json_candidates = []
+            if block.startswith('{') and block.endswith('}'):
+                json_candidates.append(block)
+            else:
+                json_match = re.search(r'\{.*\}', block, re.DOTALL)
+                if json_match:
+                    json_candidates.append(json_match.group(0))
+
+            for jc in json_candidates:
+                try:
+                    data = json.loads(jc)
+                    name = data.get('name')
+                    args = data.get('arguments') or data.get('args') or data.get('parameters') or {}
+                    if isinstance(args, str):
+                        try:
+                            args = json.loads(args)
+                        except Exception:
+                            pass
+                    if name:
+                        calls.append({'id': f'call_{uuid.uuid4().hex[:8]}', 'name': name, 'args': args})
+                        parsed_json = True
+                        break
+                except Exception:
+                    pass
+
+            if parsed_json:
+                continue
+
+            func_matches = list(re.finditer(r'<function(?:=|\s+name=[\"\']?)([a-zA-Z0-9_]+)[\"\']?>(.*?)(?:</function>|$)', block, re.DOTALL))
+            for fm in func_matches:
+                name = fm.group(1).strip()
+                body = fm.group(2)
+                args = {}
+                param_matches = re.finditer(r'<parameter(?:=|\s+name=[\"\']?)([a-zA-Z0-9_]+)[\"\']?>\s*(.*?)\s*</parameter>', body, re.DOTALL)
+                for pm in param_matches:
+                    k = pm.group(1).strip()
+                    v = pm.group(2).strip()
+                    if v.startswith("```"):
+                        v = re.sub(r"^```(?:sql|json)?\s*", "", v, flags=re.IGNORECASE)
+                        v = re.sub(r"\s*```$", "", v)
+                    try:
+                        if v.lower() == 'true':
+                            args[k] = True
+                        elif v.lower() == 'false':
+                            args[k] = False
+                        elif re.match(r'^-?\d+$', v):
+                            args[k] = int(v)
+                        elif re.match(r'^-?\d+\.\d+$', v):
+                            args[k] = float(v)
+                        elif (v.startswith('{') and v.endswith('}')) or (v.startswith('[') and v.endswith(']')):
+                            args[k] = json.loads(v)
+                        else:
+                            args[k] = v
+                    except Exception:
+                        args[k] = v
+                calls.append({'id': f'call_{uuid.uuid4().hex[:8]}', 'name': name, 'args': args})
+
+    elif '<function' in content:
+        func_matches = list(re.finditer(r'<function(?:=|\s+name=[\"\']?)([a-zA-Z0-9_]+)[\"\']?>(.*?)(?:</function>|$)', content, re.DOTALL))
+        for fm in func_matches:
+            raw_func = fm.group(0)
+            cleaned_content = cleaned_content.replace(raw_func, "").strip()
+            name = fm.group(1).strip()
+            body = fm.group(2)
+            args = {}
+            param_matches = re.finditer(r'<parameter(?:=|\s+name=[\"\']?)([a-zA-Z0-9_]+)[\"\']?>\s*(.*?)\s*</parameter>', body, re.DOTALL)
+            for pm in param_matches:
+                k = pm.group(1).strip()
+                v = pm.group(2).strip()
+                if v.startswith("```"):
+                    v = re.sub(r"^```(?:sql|json)?\s*", "", v, flags=re.IGNORECASE)
+                    v = re.sub(r"\s*```$", "", v)
+                args[k] = v
+            calls.append({'id': f'call_{uuid.uuid4().hex[:8]}', 'name': name, 'args': args})
+
+    cleaned_content = re.sub(r"<tool_call>.*?</tool_call>", "", cleaned_content, flags=re.DOTALL)
+    cleaned_content = re.sub(r"<function(?:=|\s+name=[\"']?)[^>]+>.*?</function>", "", cleaned_content, flags=re.DOTALL)
+    cleaned_content = re.sub(r"</?tool_call>", "", cleaned_content)
+    cleaned_content = re.sub(r"<think>.*?</think>", "", cleaned_content, flags=re.DOTALL)
+    cleaned_content = cleaned_content.strip()
+
+    return calls, cleaned_content
+
+
+def _normalize_llm_response(response: AIMessage) -> AIMessage:
+    """Ensure response has structured tool_calls even if the model emitted raw text tool calls."""
+    if not getattr(response, "tool_calls", None) and response.content:
+        parsed_calls, clean_text = _parse_text_tool_calls(response.content)
+        if parsed_calls:
+            logger.info("llm_node: parsed %d text tool call(s) from response: %s", len(parsed_calls), [c["name"] for c in parsed_calls])
+            response.tool_calls = parsed_calls
+            response.content = clean_text
+    return response
+
+
 def llm_node(state: AgentState) -> dict:
     """
     Invoke the LLM. The LLM may call schema retrieval, execute SQL, or answer.
@@ -406,6 +536,7 @@ def llm_node(state: AgentState) -> dict:
     model = _get_model()
         
     response = model.invoke(_sanitize_messages_for_llm(messages_for_llm))
+    response = _normalize_llm_response(response)
     llm_steps = 1
 
     # Retry 1: model answered without calling any tool at all.
@@ -422,6 +553,7 @@ def llm_node(state: AgentState) -> dict:
             )
         )
         response = _get_model().invoke(_sanitize_messages_for_llm(messages_for_llm + [retry_hint]))
+        response = _normalize_llm_response(response)
         llm_steps += 1
 
     # Retry 2: RAG was retrieved but there is still no SUCCESSFUL execute_sql.
@@ -471,6 +603,7 @@ def llm_node(state: AgentState) -> dict:
             )
         )
         response = _get_model().invoke(_sanitize_messages_for_llm(messages_for_llm + [sql_nudge]))
+        response = _normalize_llm_response(response)
         llm_steps += 1
 
     # Count how many RAG tool calls the LLM emitted in this node turn
