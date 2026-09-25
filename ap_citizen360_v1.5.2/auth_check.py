@@ -7,7 +7,7 @@ from fastapi import HTTPException, Request
 
 ALLOWED_ISSUERS = {
     issuer.strip()
-    for issuer in os.getenv("ALLOWED_ISSUERS", "sso-platform,YourIssuer").split(",")
+    for issuer in os.getenv("ALLOWED_ISSUERS", "sso-platform,YourIssuer,ap-citizen360-web").split(",")
     if issuer.strip()
 }
 
