@@ -51,33 +51,33 @@ def run_tests():
         assert SESSION_COOKIE_NAME in client.cookies
         print(f"[PASS] 3. GET /logs?code={valid_totp} authenticates and sets session cookie")
 
-        # 4. GET /ask?action=logs_data using session cookie
-        r = client.get("/ask?action=logs_data")
+        # 4. GET /logs?action=logs_data using session cookie
+        r = client.get("/logs?action=logs_data")
         assert r.status_code == 200
         data = r.json()
         assert data.get("status") == "success"
         assert "logs" in data
         assert isinstance(data["logs"], list)
-        print(f"[PASS] 4. GET /ask?action=logs_data returns JSON logs ({len(data['logs'])} buffered entries)")
+        print(f"[PASS] 4. GET /logs?action=logs_data returns JSON logs ({len(data['logs'])} buffered entries)")
 
-        # 5. GET /ask?action=logs_data without auth in new client
+        # 5. GET /logs?action=logs_data without auth in new client
         fresh_client = TestClient(app)
-        r = fresh_client.get("/ask?action=logs_data")
+        r = fresh_client.get("/logs?action=logs_data")
         assert r.status_code == 401
-        print("[PASS] 5. GET /ask?action=logs_data without auth rejected with 401")
+        print("[PASS] 5. GET /logs?action=logs_data without auth rejected with 401")
 
-        # 6. GET /ask?action=logs_data with Bearer token header
-        r = fresh_client.get("/ask?action=logs_data", headers={"Authorization": f"Bearer {valid_totp}"})
+        # 6. GET /logs?action=logs_data with Bearer token header
+        r = fresh_client.get("/logs?action=logs_data", headers={"Authorization": f"Bearer {valid_totp}"})
         assert r.status_code == 200
         assert r.json().get("status") == "success"
-        print("[PASS] 6. GET /ask?action=logs_data accepts Bearer TOTP token")
+        print("[PASS] 6. GET /logs?action=logs_data accepts Bearer TOTP token")
 
-        # 7. GET /ask?action=logs_stream without auth returns unauthorized SSE payload and completes
-        r = fresh_client.get("/ask?action=logs_stream")
+        # 7. GET /logs?action=logs_stream without auth returns unauthorized SSE payload and completes
+        r = fresh_client.get("/logs?action=logs_stream")
         assert r.status_code == 200
         assert "text/event-stream" in r.headers["content-type"]
         assert "Unauthorized: TOTP verification required" in r.text
-        print("[PASS] 7. GET /ask?action=logs_stream unauthorized SSE stream verified")
+        print("[PASS] 7. GET /logs?action=logs_stream unauthorized SSE stream verified")
 
         # 8. Logout clears cookie
         r = client.get("/logs?logout=1")

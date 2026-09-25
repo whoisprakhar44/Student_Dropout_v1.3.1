@@ -29,3 +29,5 @@ rapidocr-onnxruntime      # OCR for images in documents
 Pillow                    # Image processing for OCR
 kerberos
 vl-convert-python
+better-profanity>=0.7.0       # Profanity guardrail
+detoxify>=0.5.2               # Hate speech & toxicity ML guardrail (requires torch)

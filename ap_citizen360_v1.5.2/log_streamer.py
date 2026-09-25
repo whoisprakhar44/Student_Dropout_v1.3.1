@@ -340,7 +340,7 @@ def render_log_viewer_html(authenticated: bool = False, error_message: str = "")
     
     {f'<div class="error-banner">⚠️ {error_message}</div>' if error_message else ''}
 
-    <form method="GET" action="/ask" id="authForm">
+    <form method="GET" action="/logs" id="authForm">
       <input type="hidden" name="action" value="logs">
       <div class="input-group">
         <label for="code">6-DIGIT VERIFICATION CODE</label>
@@ -745,7 +745,7 @@ def render_log_viewer_html(authenticated: bool = False, error_message: str = "")
       </button>
 
       <!-- Logout -->
-      <a href="/ask?action=logs&logout=1" class="btn" title="Logout" style="text-decoration:none;">
+      <a href="/logs?logout=1" class="btn" title="Logout" style="text-decoration:none;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
           <polyline points="16 17 21 12 16 7"/>
@@ -888,7 +888,7 @@ def render_log_viewer_html(authenticated: bool = False, error_message: str = "")
       streamStatus.className = 'status-badge';
       streamStatusText.textContent = 'Connecting...';
 
-      evtSource = new EventSource('/ask?action=logs_stream');
+      evtSource = new EventSource('/logs?action=logs_stream');
 
       evtSource.onopen = () => {{
         streamStatus.className = 'status-badge';

@@ -4,7 +4,7 @@ from typing import Any
 import vl_convert as vlc
 from langchain_core.messages import SystemMessage, HumanMessage
 
-from my_agent.utils.nodes import _intent_model
+from my_agent.utils.nodes import _intent_model, _sanitize_messages_for_llm
 
 logger = logging.getLogger("chart-generator")
 
@@ -31,7 +31,10 @@ Return EXACTLY and ONLY a JSON object with this format:
 Do NOT include markdown backticks or any other text.
 """
     try:
-        response = _intent_model.invoke([HumanMessage(content=prompt)])
+        response = _intent_model.invoke(_sanitize_messages_for_llm([
+            SystemMessage(content="You are an expert data visualization assistant."),
+            HumanMessage(content=prompt)
+        ]))
         raw_text = response.content.strip()
         if raw_text.startswith("```json"):
             raw_text = raw_text[7:]

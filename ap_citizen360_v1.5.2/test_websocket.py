@@ -170,7 +170,10 @@ async def run_all_tests():
         "request_id": req_id_ask
     }))
 
-    await asyncio.sleep(0.1)
+    for _ in range(20):
+        if any(f.get("type") == "result" for f in ws.sent_messages):
+            break
+        await asyncio.sleep(0.05)
 
     print(f"[PASS] TEST 6: ws_ask Streaming Lifecycle | Total Frames Emitted: {len(ws.sent_messages)}")
     for idx, f in enumerate(ws.sent_messages):
@@ -187,9 +190,36 @@ async def run_all_tests():
     assert final_result["data"]["sql"] == "SELECT district, COUNT(*) FROM dropouts GROUP BY district"
     assert final_result["data"]["result"] == [{"district": "Guntur", "count": 120}]
 
+    # 7. Test ws_ask Guardrail Blocked
+    ws_g = MockWebSocket()
+    handler_g = WebSocketSessionHandler(ws_g)
+    req_id_blocked = f"req_blocked_{uuid.uuid4().hex[:6]}"
+    await handler_g.handle_message(json.dumps({
+        "action": "ws_ask",
+        "question": "asdfghjklqwerty",
+        "username": "tester",
+        "request_id": req_id_blocked
+    }))
+    for _ in range(10):
+        if len(ws_g.sent_messages) >= 2:
+            break
+        await asyncio.sleep(0.02)
+
+    assert len(ws_g.sent_messages) == 2
+    status_frame = ws_g.sent_messages[0]
+    result_frame = ws_g.sent_messages[1]
+    print(f"[PASS] TEST 7: ws_ask Guardrail Block | Status Step: {status_frame.get('step')}, Result Status: {result_frame.get('status')}")
+    assert status_frame["type"] == "status"
+    assert status_frame["status"] == "blocked"
+    assert status_frame["step"] == "guardrail_blocked"
+    assert result_frame["type"] == "result"
+    assert result_frame["status"] == "blocked"
+
     print("=" * 65)
-    print("[SUCCESS] ALL 6 WEBSOCKET ACTION & STREAMING TESTS PASSED (v1.5.2)!")
+    print("[SUCCESS] ALL 7 WEBSOCKET ACTION & STREAMING TESTS PASSED (v1.5.2)!")
     print("=" * 65)
+
+
 
 
 if __name__ == "__main__":

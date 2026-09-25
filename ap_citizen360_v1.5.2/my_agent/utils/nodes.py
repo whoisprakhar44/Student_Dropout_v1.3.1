@@ -257,6 +257,28 @@ def _summarize_sql_result(user_query: str, tool_content: Any) -> str | None:
         f"Query returned **{payload.get('row_count', len(rows))}** rows "
         f"({', '.join(columns[:6])}{'...' if len(columns) > 6 else ''})."
     )
+def _sanitize_messages_for_llm(messages: list) -> list:
+    """
+    Strict vLLM / OpenAI chat template compliance:
+    - System message must ONLY appear at index 0.
+    - Any subsequent SystemMessage (index > 0) is converted to HumanMessage
+      so no instructional context is lost, while preventing:
+      '400 - System message must be at the beginning.'
+    """
+    if not messages:
+        return messages
+    sanitized = [messages[0]]
+    for m in messages[1:]:
+        if (
+            isinstance(m, SystemMessage)
+            or getattr(m, "__class__", None).__name__ == "SystemMessage"
+            or getattr(m, "type", "") == "system"
+        ):
+            content = getattr(m, "content", "")
+            sanitized.append(HumanMessage(content=content))
+        else:
+            sanitized.append(m)
+    return sanitized
 
 
 def llm_node(state: AgentState) -> dict:
@@ -334,8 +356,16 @@ def llm_node(state: AgentState) -> dict:
                 "gen_time": state.get("gen_time", 0.0) + (time.perf_counter() - t0),
             }
 
+    clean_history = [
+        m for m in history
+        if not (
+            isinstance(m, SystemMessage)
+            or getattr(m, "__class__", None).__name__ == "SystemMessage"
+            or getattr(m, "type", "") == "system"
+        )
+    ]
     system_message = SystemMessage(content=SYSTEM_PROMPT)
-    messages_for_llm = [system_message] + history
+    messages_for_llm = [system_message] + clean_history
 
     rag_results = _tool_messages(history, "retrive_schema_rag")
     if rag_results:
@@ -353,7 +383,7 @@ def llm_node(state: AgentState) -> dict:
                 "llm_node: RAG call cap (%d) reached. Forcing SQL generation with existing schema context.",
                 _MAX_RAG_CALLS,
             )
-            messages_for_llm.append(SystemMessage(
+            messages_for_llm.append(HumanMessage(
                 content=(
                     "You have already retrieved schema context multiple times. "
                     "Do NOT call retrive_schema_rag again. "
@@ -362,7 +392,7 @@ def llm_node(state: AgentState) -> dict:
                 )
             ))
         else:
-            messages_for_llm.append(SystemMessage(
+            messages_for_llm.append(HumanMessage(
                 content=(
                     "The schema context above contains two sections:\n"
                     "1. REFERENCE SQL EXAMPLES — use these as a structural pattern for your query.\n"
@@ -375,7 +405,7 @@ def llm_node(state: AgentState) -> dict:
             ))
     model = _get_model()
         
-    response = model.invoke(messages_for_llm)
+    response = model.invoke(_sanitize_messages_for_llm(messages_for_llm))
     llm_steps = 1
 
     # Retry 1: model answered without calling any tool at all.
@@ -391,7 +421,7 @@ def llm_node(state: AgentState) -> dict:
                 "Do NOT answer without running SQL."
             )
         )
-        response = _get_model().invoke(messages_for_llm + [retry_hint])
+        response = _get_model().invoke(_sanitize_messages_for_llm(messages_for_llm + [retry_hint]))
         llm_steps += 1
 
     # Retry 2: RAG was retrieved but there is still no SUCCESSFUL execute_sql.
@@ -440,7 +470,7 @@ def llm_node(state: AgentState) -> dict:
                 "Do NOT describe the schema — call execute_sql right now."
             )
         )
-        response = _get_model().invoke(messages_for_llm + [sql_nudge])
+        response = _get_model().invoke(_sanitize_messages_for_llm(messages_for_llm + [sql_nudge]))
         llm_steps += 1
 
     # Count how many RAG tool calls the LLM emitted in this node turn
@@ -873,10 +903,10 @@ def intent_node(state: AgentState) -> dict:
         }
 
     try:
-        response = _intent_model.invoke([
+        response = _intent_model.invoke(_sanitize_messages_for_llm([
             SystemMessage(content=_INTENT_SYSTEM_PROMPT),
             HumanMessage(content=f"User question: {user_query}"),
-        ])
+        ]))
         raw_text = response.content or ""
         intent, query_type = _parse_intent_response(raw_text)
     except Exception as e:
@@ -1078,7 +1108,7 @@ def synthesize_node(state: AgentState) -> dict:
     ]
     
     model = _doc_synthesize_model  # Lightweight model with small context for doc synthesis
-    response = model.invoke(messages_for_llm)
+    response = model.invoke(_sanitize_messages_for_llm(messages_for_llm))
     if response.content:
         response.content = re.sub(r"<think>.*?</think>", "", response.content, flags=re.DOTALL).strip()
     
@@ -1133,7 +1163,7 @@ def summarization_node(state: AgentState) -> dict:
     ]
     
     model = _summarize_model
-    response = model.invoke(messages_for_llm)
+    response = model.invoke(_sanitize_messages_for_llm(messages_for_llm))
     if response.content:
         response.content = re.sub(r"<think>.*?</think>", "", response.content, flags=re.DOTALL).strip()
     

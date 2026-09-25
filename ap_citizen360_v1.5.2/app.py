@@ -84,6 +84,16 @@ from create_schema import create_database
 from my_agent.agent import build_graph
 from my_agent.utils.ollama_check import chat_model_name, check_ollama
 from my_agent.utils.tools import cleanup_tools
+from my_agent.utils.guardrails import ContentGuardrailManager
+
+guardrail_manager: ContentGuardrailManager | None = None
+
+
+def _get_guardrail_manager() -> ContentGuardrailManager:
+    global guardrail_manager
+    if guardrail_manager is None:
+        guardrail_manager = ContentGuardrailManager()
+    return guardrail_manager
 
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "database", "schema.db")
@@ -500,6 +510,13 @@ async def lifespan(app: FastAPI):
     init_database()
     init_history_database()
     _init_excel_log()
+    global guardrail_manager
+    try:
+        guardrail_manager = ContentGuardrailManager()
+        logger.info("Content guardrails initialized in lifespan.")
+    except Exception as e:
+        logger.warning("Failed to initialize ContentGuardrailManager: %s", e)
+        guardrail_manager = None
     ollama_status = check_ollama()
     app.state.ollama_status = ollama_status
     app.state.graph = None
@@ -843,6 +860,49 @@ async def ask(payload: AskRequest, request: Request):
         logger.info("   Session:  %s", session_id)
         logger.info("   Question: %s", payload.question)
         logger.info("=" * 60)
+
+        # Content guardrail validation (reject harmful, nonsensical, or profane input early)
+        gm = _get_guardrail_manager()
+        if gm:
+            is_valid, violation_msg, violation_details = gm.validate(payload.question)
+            if not is_valid:
+                logger.warning(
+                    "🛡️ [GUARDRAIL BLOCKED] User: %s | Reason: %s | Query: %s",
+                    username, violation_msg, payload.question
+                )
+                _append_excel_log(
+                    username=username,
+                    session_id=session_id,
+                    question=payload.question or "",
+                    sql="",
+                    status="blocked",
+                    answer=f"I cannot process this query. {violation_msg}",
+                    error=f"Content Policy Violation: {violation_msg}",
+                    gen_time=0.0,
+                    exec_time=0.0,
+                    total_time=0.0,
+                )
+                async def _blocked_stream():
+                    yield json.dumps({
+                        "sql": "",
+                        "result": [{
+                            "error": f"Content Policy Violation: {violation_msg}",
+                            "status": "blocked",
+                            "details": violation_details
+                        }],
+                        "summary": f"I cannot process this query. {violation_msg}",
+                        "username": username,
+                        "timings": {"total_time": 0.0}
+                    }).encode()
+                return StreamingResponse(
+                    _blocked_stream(),
+                    media_type="application/json",
+                    headers={
+                        "X-Accel-Buffering": "no",
+                        "Cache-Control": "no-cache",
+                        "Connection": "keep-alive",
+                    }
+                )
 
         async def _stream():
             graph_task: asyncio.Task | None = None
@@ -1434,6 +1494,57 @@ class WebSocketSessionHandler:
                 logger.info("   Request ID: %s", request_id)
                 logger.info("   Question:   %s", question)
                 logger.info("=" * 60)
+
+                # Content Guardrail Check
+                gm = _get_guardrail_manager()
+                if gm:
+                    is_valid, violation_msg, violation_details = gm.validate(question)
+                    if not is_valid:
+                        logger.warning(
+                            "🛡️ [WS GUARDRAIL BLOCKED] User: %s | Reason: %s | Query: %s",
+                            username, violation_msg, question
+                        )
+                        _append_excel_log(
+                            username=username,
+                            session_id=session_id,
+                            question=question or "",
+                            sql="",
+                            status="blocked",
+                            answer=f"I cannot process this query. {violation_msg}",
+                            error=f"Content Policy Violation: {violation_msg}",
+                            gen_time=0.0,
+                            exec_time=0.0,
+                            total_time=0.0,
+                        )
+                        await self.send_json({
+                            "type": "status",
+                            "action": action,
+                            "request_id": request_id,
+                            "session_id": session_id,
+                            "status": "blocked",
+                            "step": "guardrail_blocked",
+                            "message": f"Content Policy Violation: {violation_msg}",
+                            "data": {"details": violation_details}
+                        })
+                        await self.send_json({
+                            "type": "result",
+                            "action": action,
+                            "request_id": request_id,
+                            "session_id": session_id,
+                            "status": "blocked",
+                            "data": {
+                                "sql": "",
+                                "result": [{
+                                    "error": f"Content Policy Violation: {violation_msg}",
+                                    "status": "blocked",
+                                    "details": violation_details
+                                }],
+                                "summary": f"I cannot process this query. {violation_msg}",
+                                "username": username,
+                                "timings": {"total_time": 0.0}
+                            }
+                        })
+                        return
 
                 backend_info = check_ollama()
                 if not backend_info.get("model_available"):
