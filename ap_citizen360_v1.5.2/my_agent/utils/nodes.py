@@ -38,6 +38,7 @@ if _BACKEND == "vllm":
         _VLLM_BASE_URL = f"{_VLLM_BASE_URL}/v1"
     _VLLM_API_KEY = os.getenv("VLLM_API_KEY", "EMPTY")
     _CHAT_MODEL = os.getenv("VLLM_CHAT_MODEL") or os.getenv("OLLAMA_CHAT_MODEL", "qwen")
+    _NUM_CTX = int(os.getenv("VLLM_NUM_CTX") or os.getenv("OLLAMA_NUM_CTX", "16384"))
     _MAX_TOKENS = int(os.getenv("VLLM_MAX_TOKENS") or os.getenv("OLLAMA_NUM_PREDICT", "1024"))
     _SUMMARIZE_MAX_TOKENS = int(os.getenv("VLLM_SUMMARIZE_MAX_TOKENS") or os.getenv("OLLAMA_SUMMARIZE_NUM_PREDICT", "256"))
     _SUMMARIZE_NUM_CTX = int(os.getenv("VLLM_SUMMARIZE_NUM_CTX") or os.getenv("OLLAMA_SUMMARIZE_NUM_CTX", "2048"))
@@ -46,9 +47,11 @@ if _BACKEND == "vllm":
 
     _REASONING = os.getenv("VLLM_REASONING", "false").strip().lower() in ("true", "1", "yes")
 
-    print(f"vLLM model: {_CHAT_MODEL}  |  base_url: {_VLLM_BASE_URL}  |  thinking={'on' if _REASONING else 'off'}")
+    print(f"vLLM model: {_CHAT_MODEL}  |  base_url: {_VLLM_BASE_URL}  |  context_window: {_NUM_CTX}  |  thinking={'on' if _REASONING else 'off'}")
 
-    _base_extra_body = {}
+    _base_extra_body = {
+        "truncate_prompt_tokens": _NUM_CTX,
+    }
     if not _REASONING:
         _base_extra_body["chat_template_kwargs"] = {"enable_thinking": False}
 
@@ -58,7 +61,7 @@ if _BACKEND == "vllm":
         base_url=_VLLM_BASE_URL,
         api_key=_VLLM_API_KEY,
         max_tokens=_MAX_TOKENS,
-        extra_body=_base_extra_body if _base_extra_body else None,
+        extra_body=_base_extra_body,
     )
     _model_with_tools = None
 
@@ -411,6 +414,34 @@ def _normalize_llm_response(response: AIMessage) -> AIMessage:
     return response
 
 
+def _prune_history_to_budget(history: list, max_chars: int = 55000) -> list:
+    """
+    Keep recent conversation context within token/char budget when multiple
+    queries are submitted in the same session. Preserves the active turn and
+    most recent schema/tool context while dropping oldest turns.
+    """
+    if not history:
+        return []
+
+    def _msg_len(m):
+        c = getattr(m, "content", "")
+        if isinstance(c, str):
+            return len(c)
+        if isinstance(c, list):
+            return sum(len(str(x)) for x in c)
+        return len(str(c))
+
+    total_len = sum(_msg_len(m) for m in history)
+    if total_len <= max_chars:
+        return history
+
+    trimmed = list(history)
+    while len(trimmed) > 4 and sum(_msg_len(m) for m in trimmed) > max_chars:
+        trimmed.pop(0)
+
+    return trimmed
+
+
 def llm_node(state: AgentState) -> dict:
     """
     Invoke the LLM. The LLM may call schema retrieval, execute SQL, or answer.
@@ -494,6 +525,9 @@ def llm_node(state: AgentState) -> dict:
             or getattr(m, "type", "") == "system"
         )
     ]
+    # Prune older turns if history exceeds the context budget (~4 chars per token)
+    context_budget = _NUM_CTX if _BACKEND == "vllm" else int(os.getenv("OLLAMA_NUM_CTX", "16384"))
+    clean_history = _prune_history_to_budget(clean_history, max_chars=max(12000, (context_budget - _MAX_TOKENS - 1500) * 4))
     system_message = SystemMessage(content=SYSTEM_PROMPT)
     messages_for_llm = [system_message] + clean_history
 
