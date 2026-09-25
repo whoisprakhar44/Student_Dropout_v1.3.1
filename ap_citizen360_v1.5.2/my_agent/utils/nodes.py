@@ -43,7 +43,13 @@ if _BACKEND == "vllm":
     _DOC_MAX_TOKENS = int(os.getenv("VLLM_DOC_MAX_TOKENS") or os.getenv("OLLAMA_DOC_NUM_PREDICT", "512"))
     _DOC_NUM_CTX = int(os.getenv("VLLM_DOC_NUM_CTX") or os.getenv("OLLAMA_DOC_NUM_CTX", "4096"))
 
-    print(f"vLLM model: {_CHAT_MODEL}  |  base_url: {_VLLM_BASE_URL}")
+    _REASONING = os.getenv("VLLM_REASONING", "false").strip().lower() in ("true", "1", "yes")
+
+    print(f"vLLM model: {_CHAT_MODEL}  |  base_url: {_VLLM_BASE_URL}  |  thinking={'on' if _REASONING else 'off'}")
+
+    _base_extra_body = {}
+    if not _REASONING:
+        _base_extra_body["chat_template_kwargs"] = {"enable_thinking": False}
 
     _base_model = ChatOpenAI(
         model=_CHAT_MODEL,
@@ -51,31 +57,40 @@ if _BACKEND == "vllm":
         base_url=_VLLM_BASE_URL,
         api_key=_VLLM_API_KEY,
         max_tokens=_MAX_TOKENS,
+        extra_body=_base_extra_body if _base_extra_body else None,
     )
     _model_with_tools = None
 
+    _summarize_extra_body = {
+        "truncate_prompt_tokens": _SUMMARIZE_NUM_CTX,
+        "chat_template_kwargs": {"enable_thinking": False},
+    }
     _summarize_model = ChatOpenAI(
         model=os.getenv("VLLM_SUMMARIZE_MODEL", _CHAT_MODEL),
         temperature=0,
         base_url=_VLLM_BASE_URL,
         api_key=_VLLM_API_KEY,
         max_tokens=_SUMMARIZE_MAX_TOKENS,
-        extra_body={"truncate_prompt_tokens": _SUMMARIZE_NUM_CTX},
+        extra_body=_summarize_extra_body,
     )
 
+    _doc_extra_body = {
+        "truncate_prompt_tokens": _DOC_NUM_CTX,
+        "chat_template_kwargs": {"enable_thinking": False},
+    }
     _doc_synthesize_model = ChatOpenAI(
         model=_CHAT_MODEL,
         temperature=0,
         base_url=_VLLM_BASE_URL,
         api_key=_VLLM_API_KEY,
         max_tokens=_DOC_MAX_TOKENS,
-        extra_body={"truncate_prompt_tokens": _DOC_NUM_CTX},
+        extra_body=_doc_extra_body,
     )
 else:
     from langchain_ollama import ChatOllama
 
     _CHAT_MODEL = os.getenv("OLLAMA_CHAT_MODEL", "qwen3.5:9b")
-    _REASONING = os.getenv("OLLAMA_REASONING", "true").strip().lower() in ("true", "1", "yes")
+    _REASONING = os.getenv("OLLAMA_REASONING", "false").strip().lower() in ("true", "1", "yes")
     print(f"ChatOllama model: {_CHAT_MODEL}  |  thinking={'on' if _REASONING else 'off'}")
 
     _base_model = ChatOllama(
@@ -147,6 +162,10 @@ STRICT RULES — follow every rule without exception:
 6. The database is SQLite - use SQLite-compatible SQL only. All tables are in the main schema with no prefix (e.g. write `citizen_student` instead of `ap_citizen360.citizen_student`).
 7. BEFORE using any filter value in a WHERE clause (like district name, status, or academic year), you MUST verify the exact spelling by calling get_column_values. Do NOT blindly trust the user's spelling and do NOT invent your own. Always use the closest matching valid value returned by the tool.
 """
+
+if not _REASONING:
+    SYSTEM_PROMPT += "\nDo NOT include any chain-of-thought, internal reasoning, or <think>...</think> tags. Output only the direct response or tool call immediately.\n"
+
 
 
 def _get_model():
@@ -455,6 +474,9 @@ def llm_node(state: AgentState) -> dict:
                 )
             # Recalculate increment after stripping
             rag_increment = 0
+
+    if response.content and not _REASONING:
+        response.content = re.sub(r"<think>.*?</think>", "", response.content, flags=re.DOTALL).strip()
 
     logger.info("llm_node: completed in %.2fs (rag_calls this turn: %d)", time.perf_counter() - t0, rag_increment)
     return {
@@ -767,13 +789,17 @@ INTENT_DESCRIPTIONS = """
 if _BACKEND == "vllm":
     _INTENT_MAX_TOKENS = int(os.getenv("VLLM_INTENT_MAX_TOKENS") or os.getenv("OLLAMA_INTENT_NUM_PREDICT", "64"))
     _INTENT_NUM_CTX = int(os.getenv("VLLM_INTENT_NUM_CTX") or os.getenv("OLLAMA_INTENT_NUM_CTX", "2048"))
+    _intent_extra_body = {
+        "truncate_prompt_tokens": _INTENT_NUM_CTX,
+        "chat_template_kwargs": {"enable_thinking": False},
+    }
     _intent_model = ChatOpenAI(
         model=_CHAT_MODEL,
         temperature=0,
         base_url=_VLLM_BASE_URL,
         api_key=_VLLM_API_KEY,
         max_tokens=_INTENT_MAX_TOKENS,
-        extra_body={"truncate_prompt_tokens": _INTENT_NUM_CTX},
+        extra_body=_intent_extra_body,
     )
 else:
     _intent_model = ChatOllama(
@@ -1053,6 +1079,8 @@ def synthesize_node(state: AgentState) -> dict:
     
     model = _doc_synthesize_model  # Lightweight model with small context for doc synthesis
     response = model.invoke(messages_for_llm)
+    if response.content:
+        response.content = re.sub(r"<think>.*?</think>", "", response.content, flags=re.DOTALL).strip()
     
     logger.info("synthesize_node: completed in %.2fs", time.perf_counter() - t0)
     
@@ -1106,6 +1134,8 @@ def summarization_node(state: AgentState) -> dict:
     
     model = _summarize_model
     response = model.invoke(messages_for_llm)
+    if response.content:
+        response.content = re.sub(r"<think>.*?</think>", "", response.content, flags=re.DOTALL).strip()
     
     logger.info("summarization_node: completed in %.2fs", time.perf_counter() - t0)
     
