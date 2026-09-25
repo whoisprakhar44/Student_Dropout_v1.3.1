@@ -104,7 +104,7 @@ _EXCEL_HEADERS = [
 
 ALLOWED_ISSUERS = {
     issuer.strip()
-    for issuer in os.getenv("ALLOWED_ISSUERS", "sso-platform,YourIssuer").split(",")
+    for issuer in os.getenv("ALLOWED_ISSUERS", "sso-platform,YourIssuer,ap-citizen360-web").split(",")
     if issuer.strip()
 }
 
@@ -582,8 +582,6 @@ def _check_logs_auth(request: Request, code: str | None = None) -> tuple[bool, s
 
     return False, None
 
-
-@app.get("/ask")
 @app.get("/logs")
 async def ask_get_handler(
     request: Request,
