@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversational Query Engine Architecture — Sequential UML v1.5.2</title>
+    <!-- Mermaid JS -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0B0F19;
+            --bg-card: #111827;
+            --bg-card-header: #1E293B;
+            --border-color: #1F2937;
+            --border-accent: rgba(99, 102, 241, 0.3);
+            --primary: #3B82F6;
+            --primary-hover: #2563EB;
+            --accent: #8B5CF6;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --text-dim: #64748B;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0f172a 45%, #0B0F19 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Top Navigation Header */
+        header {
+            width: 100%;
+            padding: 1.25rem 2rem;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-accent);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-logo {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #38BDF8, #818CF8, #C084FC);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(129, 140, 248, 0.35);
+        }
+
+        .brand h1 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #38BDF8, #818CF8, #C084FC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .brand p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        /* Header Action Controls */
+        .actions-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #1E293B;
+            border: 1px solid #334155;
+            color: var(--text-main);
+            padding: 0.5rem 0.9rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #334155;
+            border-color: #475569;
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3B82F6, #6366F1);
+            border-color: #60A5FA;
+            color: #FFFFFF;
+            box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563EB, #4F46E5);
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-accent {
+            background: rgba(139, 92, 246, 0.15);
+            border-color: rgba(139, 92, 246, 0.4);
+            color: #C084FC;
+        }
+
+        .btn-accent:hover {
+            background: rgba(139, 92, 246, 0.25);
+            border-color: #A855F7;
+        }
+
+        /* Tabs Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.8rem 2rem 0;
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-muted);
+            padding: 0.6rem 1.2rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: #38BDF8;
+            border-bottom-color: #38BDF8;
+        }
+
+        /* Main Workspace Container */
+        .main-container {
+            flex: 1;
+            width: 100%;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1.25rem 2rem 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .tab-content {
+            display: none;
+            width: 100%;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Diagram Card Wrap */
+        .diagram-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .diagram-toolbar {
+            background: var(--bg-card-header);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .diagram-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #E2E8F0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: #0F172A;
+            padding: 0.25rem 0.5rem;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+
+        .zoom-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            width: 26px;
+            height: 26px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .zoom-btn:hover {
+            background: #334155;
+            color: #FFFFFF;
+        }
+
+        .zoom-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            min-width: 48px;
+            text-align: center;
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* Mermaid Wrapper */
+        .diagram-viewport {
+            background: #FFFFFF;
+            padding: 2.5rem 2rem;
+            overflow: auto;
+            position: relative;
+            min-height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        #mermaid-output {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            transform-origin: top center;
+            transition: transform 0.15s ease-out;
+        }
+
+        #mermaid-output svg {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+
+        /* Code Viewers */
+        .code-card {
+            background: #0D1117;
+            border: 1px solid #30363D;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: #161B22;
+            padding: 0.75rem 1.25rem;
+            border-bottom: 1px solid #30363D;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .code-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #C9D1D9;
+            font-family: 'Fira Code', monospace;
+        }
+
+        pre code {
+            font-family: 'Fira Code', Consolas, Monaco, monospace;
+            font-size: 0.82rem;
+            line-height: 1.6;
+            color: #E6EDF3;
+            display: block;
+            padding: 1.25rem;
+            overflow-x: auto;
+            tab-size: 4;
+            max-height: 75vh;
+        }
+
+        /* Breakdown Cards Grid */
+        .stages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .stage-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stage-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        .stage-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .stage-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #60A5FA;
+            font-weight: 800;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stage-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #F8FAFC;
+        }
+
+        .stage-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.55;
+            margin-bottom: 0.75rem;
+        }
+
+        .stage-tags {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            background: #1E293B;
+            border: 1px solid #334155;
+            color: #94A3B8;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .tag.blue { background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.3); color: #93C5FD; }
+        .tag.purple { background: rgba(139, 92, 246, 0.12); border-color: rgba(139, 92, 246, 0.3); color: #C084FC; }
+        .tag.green { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3); color: #6EE7B7; }
+        .tag.amber { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3); color: #FCD34D; }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #10B981;
+            color: #FFFFFF;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            background: #0B0F19;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="brand">
+            <div class="brand-logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                    <polyline points="2 17 12 22 22 17"/>
+                    <polyline points="2 12 12 17 22 12"/>
+                </svg>
+            </div>
+            <div>
+                <h1>Conversational Query Engine — End-to-End Sequential Architecture</h1>
+                <p>AP Citizen 360 v1.5.2 &middot; LangGraph Multi-Agent Orchestration &middot; 2-Tier Cache &middot; Hybrid MCP RAG</p>
+            </div>
+        </div>
+
+        <div class="actions-bar">
+            <button class="btn btn-accent" onclick="copyMermaidCode()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                <span>Copy Mermaid Code</span>
+            </button>
+            <button class="btn" onclick="copyPlantUmlCode()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect width="8" height="4" x="8" y="2" rx="1"/></svg>
+                <span>Copy PlantUML</span>
+            </button>
+            <button class="btn btn-primary" onclick="downloadSVG()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                <span>Download SVG</span>
+            </button>
+            <button class="btn" onclick="downloadPNG()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                <span>Download PNG</span>
+            </button>
+            <button class="btn" onclick="window.print()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+                <span>Print / PDF</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('diagram')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>
+            <span>Interactive UML Diagram</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('breakdown')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+            <span>Stage-by-Stage Breakdown</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('mermaid')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            <span>Raw Mermaid UML Code</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('plantuml')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+            <span>PlantUML Code</span>
+        </button>
+    </div>
+
+    <!-- Main Container -->
+    <main class="main-container">
+
+        <!-- TAB 1: Visual Diagram -->
+        <section id="tab-diagram" class="tab-content active">
+            <div class="diagram-card">
+                <div class="diagram-toolbar">
+                    <div class="diagram-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/></svg>
+                        <span>Sequence Workflow: User &rarr; Valkey Queue &rarr; 2-Tier Cache &rarr; LangGraph &rarr; MCP Tools &rarr; Impala DB</span>
+                    </div>
+
+                    <div class="zoom-controls">
+                        <button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">-</button>
+                        <span id="zoomLevel" class="zoom-label">100%</span>
+                        <button class="zoom-btn" onclick="zoomIn()" title="Zoom In">+</button>
+                        <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom">&#x21bb;</button>
+                    </div>
+                </div>
+
+                <div class="diagram-viewport">
+                    <div id="mermaid-output">
+                        <!-- Mermaid renders SVG here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: Stage Breakdown -->
+        <section id="tab-breakdown" class="tab-content">
+            <div class="stages-grid">
+                
+                <div class="stage-card">
+                    <div class="stage-header">
+                        <div class="stage-badge">01</div>
+                        <div class="stage-title">Ingestion & Speech-to-Text</div>
+                    </div>
+                    <p class="stage-desc">Accepts user queries via HTTP REST (<code>POST /ask</code>), WebSocket (<code>/ws</code>), or raw voice audio. Audio streams are transcribed in real-time using local Faster-Whisper models.</p>
+                    <div class="stage-tags">
+                        <span class="tag blue">FastAPI</span>
+                        <span class="tag purple">Faster-Whisper</span>
+                        <span class="tag">WebSocket /ws</span>
+                    </div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-header">
+                        <div class="stage-badge">02</div>
+                        <div class="stage-title">FIFO Queue & Worker Concurrency</div>
+                    </div>
+                    <p class="stage-desc">Queries are non-blocking enqueued into Valkey FIFO queue (<code>valkey:query_queue</code>). Concurrent worker pools dequeue jobs in strict arrival order to prevent Ollama GPU/CPU thrashing.</p>
+                    <div class="stage-tags">
+                        <span class="tag green">Valkey Queue</span>
+                        <span class="tag amber">Worker Pool</span>
+                        <span class="tag">Async Concurrency</span>
+                    </div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-header">
+                        <div class="stage-badge">03</div>
+                        <div class="stage-title">2-Tier Hybrid Cache Resolution</div>
+                    </div>
+                    <p class="stage-desc"><code>valkey_cache_check_node</code> executes Tier-1 SHA256 exact-match hash lookup. On miss, Tier-2 evaluates semantic vector cosine similarity (&ge; 0.97) in <code>milvus_cache.db</code>. Instant SQL reuse on Hit.</p>
+                    <div class="stage-tags">
+                        <span class="tag green">Tier-1 Hash</span>
+                        <span class="tag purple">Tier-2 Milvus Lite</span>
+                        <span class="tag blue">LRU 300</span>
+                    </div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-header">
+                        <div class="stage-badge">04</div>
+                        <div class="stage-title">Intent & Entity Classification</div>
+                    </div>
+                    <p class="stage-desc"><code>intent_node</code> parses user question with LLM to extract intent label, temporal filters (years), geographical entities (districts, mandals), and target department scope (<code>ap_citizen360</code>).</p>
+                    <div class="stage-tags">
+                        <span class="tag blue">LangGraph</span>
+                        <span class="tag purple">Ollama LLM</span>
+                        <span class="tag">Entity Extraction</span>
+                    </div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-header">
+                        <div class="stage-badge">05</div>
+                        <div class="stage-title">Exact Few-Shot Fast Path</div>
+                    </div>
+                    <p class="stage-desc"><code>deterministic_search_node</code> searches <code>few_shot_store</code>. If semantic match score &ge; 0.99, <code>eval_fast_path_node</code> directly binds gold SQL parameters and executes without LLM generation overhead.</p>
+                    <div class="stage-tags">
+                        <span class="tag amber">Fast Path</span>
+                        <span class="tag purple">few_shot_store</span>
+                        <span class="tag green">&ge; 0.99 Match</span>
+                    </div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-header">
+                        <div class="stage-badge">06</div>
+                        <div class="stage-title">MCP Semantic Schema Retrieval</div>
+                    </div>
+                    <p class="stage-desc">On dynamic queries, <code>initialize_node</code> calls MCP tool <code>retrive_schema_rag</code> to fetch table DDLs, column definitions, distinct values, and NL&rarr;SQL pairs from Milvus vector index.</p>
+                    <div class="stage-tags">
+                        <span class="tag blue">MCP Tool</span>
+                        <span class="tag purple">schema_store</span>
+                        <span class="tag">Distinct Values</span>
+                    </div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-header">
+                        <div class="stage-badge">07</div>
+                        <div class="stage-title">Self-Directed SQL Generation</div>
+                    </div>
+                    <p class="stage-desc"><code>llm_node</code> receives schema context and domain guidelines. Constructs syntactically correct, partition-optimized Impala/Hive/SQLite SQL with tool invocation <code>execute_sql</code>.</p>
+                    <div class="stage-tags">
+                        <span class="tag purple">Ollama Qwen2.5</span>
+                        <span class="tag blue">Tool Call</span>
+                        <span class="tag">Impala Syntax</span>
+                    </div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-header">
+                        <div class="stage-badge">08</div>
+                        <div class="stage-title">Sandboxed SQL Execution</div>
+                    </div>
+                    <p class="stage-desc">MCP SQL Server (<code>mcp_hive_execution.py</code> / <code>mcp_sql_execution.py</code>) executes queries against Impala CDP cluster (Kerberos GSSAPI) or local SQLite with SELECT-only safety enforcement.</p>
+                    <div class="stage-tags">
+                        <span class="tag amber">Impala Iceberg</span>
+                        <span class="tag blue">Kerberos SASL</span>
+                        <span class="tag green">Read-Only</span>
+                    </div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-header">
+                        <div class="stage-badge">09</div>
+                        <div class="stage-title">Self-Correction & Verification</div>
+                    </div>
+                    <p class="stage-desc"><code>verify_node</code> inspects query output. On SQL runtime errors, feeds error traceback into a targeted RAG re-retrieval and self-repair loop (up to 3 retries). On success, caches to Valkey.</p>
+                    <div class="stage-tags">
+                        <span class="tag red">Self-Healing</span>
+                        <span class="tag green">3x Retries</span>
+                        <span class="tag purple">Auto-Cache</span>
+                    </div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-header">
+                        <div class="stage-badge">10</div>
+                        <div class="stage-title">Unstructured Document RAG</div>
+                    </div>
+                    <p class="stage-desc">For policy guidelines, circulars, and schemes, <code>doc_search_node</code> invokes <code>search_documents</code> across vectorized PDF/DOCX passages in Milvus and synthesizes comprehensive answers.</p>
+                    <div class="stage-tags">
+                        <span class="tag purple">document_store</span>
+                        <span class="tag blue">PDF / DOCX RAG</span>
+                        <span class="tag">Citation Synth</span>
+                    </div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-header">
+                        <div class="stage-badge">11</div>
+                        <div class="stage-title">Summarization & Chart Synthesis</div>
+                    </div>
+                    <p class="stage-desc"><code>summarization_node</code> transforms tabular SQL result sets into natural executive insights, markdown data tables, and automatic Chart.js / Mermaid visual chart metadata for frontend graphs.</p>
+                    <div class="stage-tags">
+                        <span class="tag green">Executive Summary</span>
+                        <span class="tag blue">Chart Spec</span>
+                        <span class="tag">Markdown Table</span>
+                    </div>
+                </div>
+
+                <div class="stage-card">
+                    <div class="stage-header">
+                        <div class="stage-badge">12</div>
+                        <div class="stage-title">Live Delivery & Audit Logging</div>
+                    </div>
+                    <p class="stage-desc">Payload streams back to client via SSE / WebSocket. Session is saved to SQLite <code>chat_history.db</code> and audit metadata written to thread-safe <code>query_log.xlsx</code>.</p>
+                    <div class="stage-tags">
+                        <span class="tag blue">SSE Stream</span>
+                        <span class="tag green">chat_history.db</span>
+                        <span class="tag amber">query_log.xlsx</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 3: Raw Mermaid Code -->
+        <section id="tab-mermaid" class="tab-content">
+            <div class="code-card">
+                <div class="code-header">
+                    <span class="code-title">Mermaid.js Sequence Diagram Source Code (Universal Markdown)</span>
+                    <button class="btn btn-accent" onclick="copyMermaidCode()">Copy Code</button>
+                </div>
+                <pre><code id="mermaidCodeBlock"></code></pre>
+            </div>
+        </section>
+
+        <!-- TAB 4: PlantUML Code -->
+        <section id="tab-plantuml" class="tab-content">
+            <div class="code-card">
+                <div class="code-header">
+                    <span class="code-title">PlantUML Sequence Diagram Specification</span>
+                    <button class="btn btn-accent" onclick="copyPlantUmlCode()">Copy Code</button>
+                </div>
+                <pre><code id="plantUmlCodeBlock"></code></pre>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="toastMsg">Copied to clipboard!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        Conversational Query Engine Architecture v1.5.2 &middot; Source: <code>ap_citizen360_v1.5.2</code> &middot; LangGraph &middot; MCP &middot; Valkey &middot; Milvus &middot; Impala
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Raw Mermaid Sequence Diagram Definition
+        const MERMAID_UML = `sequenceDiagram
+    autonumber
+    actor User as Citizen / Officer / User
+    participant Client as Web UI / Audio Client
+    participant FastAPI as FastAPI Backend (/ask, /ws)
+    participant STT as Faster-Whisper STT
+    participant Queue as Valkey FIFO Query Queue
+    participant Agent as LangGraph Orchestrator
+    participant Cache as Valkey Cache (Tier 1 & 2)
+    participant LLM as Ollama LLM Engine
+    participant MCP_RAG as MCP RAG Server (mcp_rag.py)
+    participant Milvus as Milvus Lite Vector DB
+    participant MCP_SQL as MCP SQL Server (Impala/SQLite)
+    participant Impala as Impala CDP / Iceberg Warehouse
+
+    %% ------------------------------------------------------------------------
+    %% STAGE 1 & 2: INGESTION & CONCURRENT QUEUE
+    %% ------------------------------------------------------------------------
+    rect rgb(240, 249, 255)
+    Note over User, Queue: Stage 1 & 2: Query Ingestion, Audio Transcription & FIFO Enqueue
+    alt Voice Audio Query
+        User->>Client: Speak Voice Query (Audio Stream)
+        Client->>FastAPI: WebSocket /ws (audio_chunk)
+        FastAPI->>STT: Transcribe Audio Bytes
+        STT-->>FastAPI: Return Transcribed Text Query
+    else Text Query
+        User->>Client: Enter Question in Natural Language
+        Client->>FastAPI: POST /ask (JSON payload + issuer auth)
+    end
+    FastAPI->>Queue: Enqueue query (valkey:query_queue)
+    Queue-->>FastAPI: Job queued (Position #N)
+    Queue->>Agent: Worker dequeues next task in arrival order
+    end
+
+    %% ------------------------------------------------------------------------
+    %% STAGE 3: 2-TIER CACHE CHECK
+    %% ------------------------------------------------------------------------
+    rect rgb(236, 253, 245)
+    Note over Agent, Cache: Stage 3: 2-Tier Cache Evaluation (valkey_cache_check_node)
+    Agent->>Cache: Tier-1 Exact Hash Lookup (SHA256 of question)
+    alt Tier-1 Exact Cache HIT
+        Cache-->>Agent: Return Cached Gold SQL & Metadata
+        Note over Agent, Impala: Bypass RAG and LLM Generation entirely!
+    else Tier-1 Cache MISS
+        Agent->>Cache: Tier-2 Semantic Similarity Search (milvus_cache.db)
+        alt Tier-2 Semantic HIT (Cosine Similarity >= 0.97)
+            Cache-->>Agent: Return Nearest Validated SQL & Intent
+        else Tier-2 Cache MISS
+            Cache-->>Agent: Full Cache MISS -> Proceed to Graph
+        end
+    end
+    end
+
+    %% ------------------------------------------------------------------------
+    %% STAGE 4 & 5: INTENT CLASSIFICATION & DETERMINISTIC FAST PATH
+    %% ------------------------------------------------------------------------
+    rect rgb(254, 243, 199)
+    Note over Agent, LLM: Stage 4 & 5: Intent Classification & Deterministic Search
+    opt If Cache MISS
+        Agent->>LLM: intent_node: Classify intent, extract entities & scope
+        LLM-->>Agent: Return (intent, entities, department_scope)
+        
+        alt Query Type == greeting
+            Agent->>Client: greeting_node: Friendly conversational greeting
+        else Query Type == document_query
+            Agent->>MCP_RAG: search_documents(query, top_k=5)
+            MCP_RAG->>Milvus: Search document_store (PDF/DOCX embeddings)
+            Milvus-->>MCP_RAG: Return relevant policy circular text chunks
+            MCP_RAG-->>Agent: Return Document Passages
+            Agent->>LLM: synthesize_node: Synthesize citation answer
+            LLM-->>Agent: Document Policy Response
+        else Query Type == data_query / hybrid
+            Agent->>MCP_RAG: deterministic_search_node: search_exact_fewshot(query)
+            MCP_RAG->>Milvus: Exact cosine search in few_shot_store
+            Milvus-->>MCP_RAG: Return Top Exemplar + Match Score
+            MCP_RAG-->>Agent: Exemplar NL2SQL pair
+            
+            alt Match Score >= 0.99 (Fast-Path Hit)
+                Note over Agent, MCP_SQL: eval_fast_path_node: High confidence exemplar found!
+                Agent->>MCP_SQL: Execute Parameterized Gold SQL directly
+            else Match Score < 0.99 (Dynamic Path)
+                Note over Agent, MCP_RAG: Stage 6: Dynamic Schema & Distinct Value Retrieval
+                Agent->>MCP_RAG: initialize_node: retrive_schema_rag(intent, query, department)
+                MCP_RAG->>Milvus: Search schema_store (Table DDLs) & few_shot_store
+                Milvus-->>MCP_RAG: Top-k DDLs + Relevant SQL Exemplars
+                MCP_RAG->>MCP_RAG: Inspect get_column_values (District spellings, code mappings)
+                MCP_RAG-->>Agent: Enriched Schema & Exemplar Context
+                
+                Note over Agent, LLM: Stage 7: Self-Directed SQL Generation (llm_node)
+                Agent->>LLM: Generate Impala SQL with Schema + Exemplar Constraints
+                LLM-->>Agent: Tool Call: execute_sql(sql="SELECT ...")
+            end
+        end
+    end
+    end
+
+    %% ------------------------------------------------------------------------
+    %% STAGE 8 & 9: SQL EXECUTION, VERIFICATION & SELF-CORRECTION
+    %% ------------------------------------------------------------------------
+    rect rgb(253, 242, 248)
+    Note over Agent, Impala: Stage 8 & 9: Sandboxed SQL Execution & Self-Correction
+    Agent->>MCP_SQL: tool_node: execute_sql(sql_query)
+    MCP_SQL->>Impala: Execute Read-Only SQL via Kerberos HiveServer2 / SQLite
+    Impala-->>MCP_SQL: Return Result Rows + Column Headers (or SQL Error Trace)
+    MCP_SQL-->>Agent: ToolMessage payload
+
+    alt SQL Execution Success
+        Agent->>Cache: Save successful Query + SQL in Valkey ZSET & milvus_cache.db (LRU 300)
+    else SQL Execution Error (e.g., ColumnNotFound / Syntax Error)
+        loop Self-Healing Correction Loop (Max 3 Retries)
+            Agent->>LLM: verify_node: Error feedback + Schema context
+            LLM-->>Agent: Tool Call: execute_sql(repaired_sql)
+            Agent->>MCP_SQL: Execute Repaired SQL
+            MCP_SQL->>Impala: Run Repaired SQL
+            Impala-->>MCP_SQL: Result Rows
+            MCP_SQL-->>Agent: Success
+        end
+    end
+    end
+
+    %% ------------------------------------------------------------------------
+    %% STAGE 10, 11 & 12: SUMMARIZATION, STREAMING & AUDIT
+    %% ------------------------------------------------------------------------
+    rect rgb(245, 243, 255)
+    Note over Agent, User: Stage 10, 11 & 12: Summarization, Visual Charting & Audit Delivery
+    Agent->>LLM: summarization_node: Synthesize executive summary & chart spec
+    LLM-->>Agent: Natural Language Summary + Markdown Table + Chart JSON
+    Agent->>FastAPI: Final Complete Payload (Answer, SQL, Stats, Chart)
+    FastAPI->>FastAPI: Write audit log to database/query_log.xlsx & save to chat_history.db
+    FastAPI-->>Client: Stream Response via SSE / WebSocket
+    Client-->>User: Render Interactive Visual Dashboard & Insights
+    end`;
+
+        // PlantUML Equivalent Code
+        const PLANTUML_CODE = `@startuml
+autonumber
+actor "Citizen / Officer" as User
+participant "Web UI / Audio Client" as Client
+participant "FastAPI Backend" as API
+participant "Faster-Whisper STT" as STT
+queue "Valkey FIFO Queue" as Queue
+participant "LangGraph Orchestrator" as Agent
+database "Valkey 2-Tier Cache" as Cache
+participant "Ollama LLM Engine" as LLM
+participant "MCP RAG Server" as MCP_RAG
+database "Milvus Lite Vector DB" as Milvus
+participant "MCP SQL Execution" as MCP_SQL
+database "Impala / Iceberg DB" as Impala
+
+== Stage 1 & 2: Ingestion, Speech-to-Text & FIFO Enqueue ==
+alt Voice Input
+    User -> Client: Voice Audio Query
+    Client -> API: WS /ws audio chunks
+    API -> STT: Transcribe Audio Bytes
+    STT --> API: Transcribed Text Query
+else Text Input
+    User -> Client: Type Natural Language Question
+    Client -> API: POST /ask (JSON payload)
+end
+API -> Queue: Enqueue Query (valkey:query_queue)
+Queue -> Agent: Dequeue job to worker pool
+
+== Stage 3: 2-Tier Hybrid Cache Resolution ==
+Agent -> Cache: Tier-1 Exact Hash Lookup (SHA256)
+alt Tier-1 Cache HIT
+    Cache --> Agent: Return Gold SQL & Metadata
+else Tier-1 Cache MISS
+    Agent -> Cache: Tier-2 Semantic Similarity (milvus_cache.db)
+    alt Tier-2 Cache HIT (Cosine >= 0.97)
+        Cache --> Agent: Return Nearest Validated SQL
+    else Tier-2 Cache MISS
+        Cache --> Agent: Full Cache MISS
+    end
+end
+
+== Stage 4 & 5: Intent Classification & Deterministic Search ==
+opt Cache MISS
+    Agent -> LLM: intent_node: Classify intent & entities
+    LLM --> Agent: (intent, entities, department_scope)
+    
+    alt Document Query (PDF/DOCX)
+        Agent -> MCP_RAG: search_documents(query)
+        MCP_RAG -> Milvus: Search document_store
+        Milvus --> MCP_RAG: Document Passages
+        MCP_RAG --> Agent: Relevant Passages
+        Agent -> LLM: synthesize_node: Synthesize Citation Answer
+        LLM --> Agent: Policy Answer
+    else Data Query / Hybrid
+        Agent -> MCP_RAG: deterministic_search_node: search_exact_fewshot
+        MCP_RAG -> Milvus: Exact Vector Search in few_shot_store
+        Milvus --> MCP_RAG: Top Exemplar + Score
+        MCP_RAG --> Agent: Exemplar NL2SQL Pair
+        
+        alt Match Score >= 0.99 (Fast-Path Hit)
+            Agent -> MCP_SQL: Execute Parameterized Gold SQL directly
+        else Match Score < 0.99 (Dynamic Path)
+            Agent -> MCP_RAG: initialize_node: retrive_schema_rag()
+            MCP_RAG -> Milvus: Search schema_store & few_shot_store
+            Milvus --> MCP_RAG: Top-k DDLs & Exemplars
+            MCP_RAG --> Agent: Enriched Context
+            Agent -> LLM: llm_node: Generate SQL with Context
+            LLM --> Agent: Tool Call: execute_sql(sql)
+        end
+    end
+end
+
+== Stage 8 & 9: SQL Execution & Self-Healing Verification ==
+Agent -> MCP_SQL: execute_sql(query)
+MCP_SQL -> Impala: Run Read-Only SELECT Query
+Impala --> MCP_SQL: Result Set Rows
+MCP_SQL --> Agent: ToolMessage (Rows / Error)
+
+alt Execution Error
+    loop Self-Correction (Max 3 Retries)
+        Agent -> LLM: verify_node: Error feedback
+        LLM --> Agent: Tool Call: execute_sql(repaired_sql)
+        Agent -> MCP_SQL: Run Repaired SQL
+        MCP_SQL -> Impala: Execute SQL
+        Impala --> MCP_SQL: Result Rows
+        MCP_SQL --> Agent: Success
+    end
+end
+
+Agent -> Cache: Save validated SQL to Valkey ZSET & Milvus Cache
+
+== Stage 10, 11 & 12: Summarization, Streaming & Logging ==
+Agent -> LLM: summarization_node: Synthesize Insights & Chart Spec
+LLM --> Agent: Natural Summary + Markdown Table + Chart JSON
+Agent -> API: Complete Response Payload
+API -> API: Write audit log to query_log.xlsx & chat_history.db
+API --> Client: Stream via SSE / WebSocket
+Client --> User: Display Interactive Dashboard & Visuals
+@enduml`;
+
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: false,
+            securityLevel: 'loose',
+            theme: 'default',
+            themeVariables: {
+                fontSize: '13px',
+                fontFamily: 'Inter, sans-serif',
+                actorBkg: '#EFF6FF',
+                actorBorder: '#3B82F6',
+                actorTextColor: '#0F172A',
+                signalColor: '#1E293B',
+                signalTextColor: '#0F172A',
+                labelBoxBkgColor: '#F1F5F9',
+                labelBoxBorderColor: '#94A3B8',
+                labelTextColor: '#0F172A',
+                loopTextColor: '#0F172A',
+                noteBkgColor: '#FEF3C7',
+                noteBorderColor: '#D97706',
+                noteTextColor: '#0F172A',
+                activationBkgColor: '#E0E7FF',
+                activationBorderColor: '#6366F1'
+            },
+            sequence: {
+                diagramMarginX: 30,
+                diagramMarginY: 30,
+                actorMargin: 50,
+                width: 150,
+                height: 65,
+                boxMargin: 10,
+                boxTextMargin: 5,
+                noteMargin: 10,
+                messageMargin: 35,
+                mirrorActors: true,
+                bottomMarginAdj: 1,
+                useMaxWidth: true
+            }
+        });
+
+        // Zoom State
+        let currentZoom = 1.0;
+        const zoomStep = 0.15;
+
+        function updateZoomDisplay() {
+            document.getElementById('zoomLevel').textContent = `${Math.round(currentZoom * 100)}%`;
+            document.getElementById('mermaid-output').style.transform = `scale(${currentZoom})`;
+        }
+
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom + zoomStep, 2.5);
+            updateZoomDisplay();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom - zoomStep, 0.4);
+            updateZoomDisplay();
+        }
+
+        function resetZoom() {
+            currentZoom = 1.0;
+            updateZoomDisplay();
+        }
+
+        // Render Mermaid Diagram
+        async function renderDiagram() {
+            try {
+                const { svg } = await mermaid.render('mermaid-svg-chart', MERMAID_UML);
+                const out = document.getElementById('mermaid-output');
+                out.innerHTML = svg;
+
+                // Adjust SVG attributes
+                const svgEl = out.querySelector('svg');
+                if (svgEl) {
+                    svgEl.style.maxWidth = '100%';
+                    svgEl.style.height = 'auto';
+                }
+            } catch (err) {
+                console.error("Mermaid Render Error:", err);
+            }
+        }
+
+        // Tab Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+            const targetBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+            if (targetBtn) targetBtn.classList.add('active');
+
+            const targetContent = document.getElementById(`tab-${tabId}`);
+            if (targetContent) targetContent.classList.add('active');
+        }
+
+        // Toast Helper
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2200);
+        }
+
+        // Copy Helpers
+        function copyMermaidCode() {
+            navigator.clipboard.writeText(MERMAID_UML).then(() => {
+                showToast("Mermaid UML code copied to clipboard!");
+            });
+        }
+
+        function copyPlantUmlCode() {
+            navigator.clipboard.writeText(PLANTUML_CODE).then(() => {
+                showToast("PlantUML code copied to clipboard!");
+            });
+        }
+
+        // Download SVG
+        function downloadSVG() {
+            const svgEl = document.querySelector('#mermaid-output svg');
+            if (!svgEl) return;
+            const svgData = new XMLSerializer().serializeToString(svgEl);
+            const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ap_citizen360_v1.5.2_sequence_architecture.svg`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast("Downloaded Vector SVG!");
+        }
+
+        // Download PNG
+        function downloadPNG() {
+            const svgEl = document.querySelector('#mermaid-output svg');
+            if (!svgEl) return;
+            const svgData = new XMLSerializer().serializeToString(svgEl);
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+
+            img.onload = () => {
+                const scale = 2; // High-DPI 2x scale
+                canvas.width = (svgEl.viewBox.baseVal.width || svgEl.clientWidth || 1600) * scale;
+                canvas.height = (svgEl.viewBox.baseVal.height || svgEl.clientHeight || 2400) * scale;
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                canvas.toBlob((blob) => {
+                    const pngUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = pngUrl;
+                    a.download = `ap_citizen360_v1.5.2_sequence_architecture.png`;
+                    a.click();
+                    URL.revokeObjectURL(pngUrl);
+                    URL.revokeObjectURL(url);
+                    showToast("Downloaded High-Res PNG!");
+                }, 'image/png');
+            };
+            img.src = url;
+        }
+
+        // Populate Code Blocks on Load
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('mermaidCodeBlock').textContent = MERMAID_UML;
+            document.getElementById('plantUmlCodeBlock').textContent = PLANTUML_CODE;
+            renderDiagram();
+        });
+    </script>
+</body>
+</html>
