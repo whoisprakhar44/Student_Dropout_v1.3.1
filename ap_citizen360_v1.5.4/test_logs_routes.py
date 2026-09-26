@@ -1,6 +1,6 @@
 """
 test_logs_routes.py
-Comprehensive integration test suite for TOTP-authenticated live logs endpoints in 1.5.2.
+Comprehensive integration test suite for TOTP-authenticated live logs endpoints in 1.5.4.
 """
 
 import time
@@ -27,7 +27,7 @@ def generate_current_totp(secret_base32: str) -> str:
 
 def run_tests():
     secret = get_totp_secret()
-    print(f"=== TESTING TOTP LOGS ROUTES (Secret: {secret}) ===")
+    print(f"=== TESTING TOTP LOGS ROUTES 1.5.4 (Secret: {secret}) ===")
     
     with TestClient(app) as client:
         # 1. Unauthenticated /logs UI (and verify secret is not leaked)
@@ -115,7 +115,7 @@ def run_tests():
             print(f"[PASS] 9b. WS ws_logs connected and received log frames: {log_res['data']['message'][:40]}...")
 
     print("\n=======================================================")
-    print(">>> ALL TOTP LIVE LOGS INTEGRATION TESTS PASSED (1.5.2)! <<<")
+    print(">>> ALL TOTP LIVE LOGS INTEGRATION TESTS PASSED (1.5.4)! <<<")
     print("=======================================================\n")
 
 

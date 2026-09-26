@@ -769,18 +769,38 @@ def _check_logs_auth(request: Request, code: str | None = None) -> tuple[bool, s
     return False, None
 
 
-@app.get("/ask")
 @app.get("/logs")
-async def ask_get_handler(
+@app.post("/logs")
+async def logs_handler(
     request: Request,
     action: str = Query(default="logs"),
     code: str | None = Query(default=None),
     logout: str | None = Query(default=None),
 ):
     """
-    GET handler for /ask?action=logs with TOTP Google Authenticator protection.
+    Handler for /logs with TOTP Google Authenticator protection.
     Provides live interactive log streaming, search, filters, and export.
+    Supports GET & POST, backend OTP validation, and reverse-proxy compatibility.
     """
+    # Extract code, action, logout from Form data or JSON body if POST
+    if request.method == "POST":
+        try:
+            form_data = await request.form()
+            code = form_data.get("code") or code
+            action = form_data.get("action") or action
+            logout = form_data.get("logout") or logout
+        except Exception:
+            pass
+        if not code:
+            try:
+                json_data = await request.json()
+                if isinstance(json_data, dict):
+                    code = json_data.get("code") or code
+                    action = json_data.get("action") or action
+                    logout = json_data.get("logout") or logout
+            except Exception:
+                pass
+
     # 1. Handle Logout
     if logout:
         response = HTMLResponse(render_log_viewer_html(authenticated=False))
@@ -845,7 +865,7 @@ async def ask_get_handler(
             "logs": log_manager.get_recent_logs(500)
         }
 
-    raise HTTPException(status_code=400, detail=f"Unsupported GET action: '{action}'. For natural-language SQL queries, please use POST /ask.")
+    raise HTTPException(status_code=400, detail=f"Unsupported action: '{action}'. For natural-language SQL queries, please use POST /ask.")
 
 
 @app.post("/ask")

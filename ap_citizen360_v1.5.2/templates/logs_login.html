@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AP Citizen 360 — Live Runtime Logs Authentication</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+    body {
+      background: #0B0F19;
+      color: #E2E8F0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .auth-card {
+      background: #111827;
+      border: 1px solid #1F2937;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(59, 130, 246, 0.1);
+      width: 100%;
+      max-width: 440px;
+      padding: 36px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899);
+    }
+    .icon-wrap {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      color: #60A5FA;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #F8FAFC;
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      font-size: 13px;
+      color: #94A3B8;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .error-banner {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #FCA5A5;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .input-group {
+      margin-bottom: 24px;
+      text-align: left;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #CBD5E1;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .otp-input {
+      width: 100%;
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 8px;
+      text-align: center;
+      color: #F8FAFC;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .otp-input:focus {
+      border-color: #3B82F6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+      background: #0F172A;
+    }
+    .btn-submit {
+      width: 100%;
+      background: #2563EB;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 10px;
+      padding: 13px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-submit:hover {
+      background: #1D4ED8;
+      transform: translateY(-1px);
+    }
+    .hint-box {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #1F2937;
+      font-size: 11.5px;
+      color: #64748B;
+      line-height: 1.6;
+      text-align: left;
+    }
+    .hint-box code {
+      background: #1E293B;
+      color: #38BDF8;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-card">
+    <div class="icon-wrap">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    </div>
+    <h1>Runtime Logs Access</h1>
+    <p class="subtitle">Enter the 6-digit Time-Based Verification Code (TOTP) from your Google Authenticator or 2FA app.</p>
+    
+    {{ERROR_BANNER}}
+
+    <form method="POST" action="" id="authForm">
+      <input type="hidden" name="action" value="logs">
+      <div class="input-group">
+        <label for="code">6-DIGIT VERIFICATION CODE</label>
+        <input 
+          type="text" 
+          id="code" 
+          name="code" 
+          class="otp-input" 
+          maxlength="6" 
+          pattern="[0-9]{6}" 
+          placeholder="000000" 
+          autocomplete="one-time-code" 
+          autofocus 
+          required
+        >
+      </div>
+      <button type="submit" class="btn-submit">
+        <span>Verify & View Logs</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/>
+          <path d="m12 5 7 7-7 7"/>
+        </svg>
+      </button>
+    </form>
+
+    <div class="hint-box">
+      🔒 <strong>Protected Endpoint:</strong> Enter the 6-digit one-time passcode from your Google Authenticator or 2FA app.
+    </div>
+  </div>
+</body>
+</html>
