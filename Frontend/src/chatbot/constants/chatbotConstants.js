@@ -14,6 +14,9 @@ export const STORAGE_KEYS = {
   SCHEMA_CACHE: 'chatbot_canonical_schema_cache',
   SCHEMA_VERSION: 'chatbot_canonical_schema_version',
   SCHEMA_UPDATED_AT: 'chatbot_canonical_schema_updated_at',
+  TTS_AUTO_PLAY: 'chatbot_tts_auto_play',
+  TTS_RATE: 'chatbot_tts_rate',
+  TTS_VOICE: 'chatbot_tts_voice',
   USER_INFO: 'userInfo',
   AUTH_TOKEN: 'token',
 };

@@ -1,25 +1,23 @@
-import React, { useState, useMemo } from 'react';
-import { User } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { User, Volume2, VolumeX, BarChart3, LineChart, PieChart } from 'lucide-react';
 
 import { ROLES } from '../constants/chatbotConstants';
 import ChatTable from './ChatTable';
 import ChatCharts from './ChatCharts';
 import FormattedText from './FormattedText';
-
-import {
-  BarChart3,
-  LineChart,
-  PieChart
-} from 'lucide-react';
-
-import {
-  getSupportedCharts
-} from '../utils/chartUtils';
+import { speechService } from '../services/speechService';
+import { getSupportedCharts } from '../utils/chartUtils';
 
 export const ChatMessage = ({ message }) => {
   const isUser = message.role === ROLES.USER;
 
   const [activeChart, setActiveChart] = useState(null);
+  const [speechState, setSpeechState] = useState(() => speechService.getState());
+
+  useEffect(() => {
+    const unsub = speechService.subscribe(setSpeechState);
+    return () => unsub();
+  }, []);
 
   const formatColumnLabel = (value = '') =>
     String(value)
@@ -218,8 +216,91 @@ export const ChatMessage = ({ message }) => {
             )}
 
             {message.summary && message.summary.trim() !== (message.content || '').trim() && (
-              <div className="cb-summary-text">
-                <FormattedText text={message.summary} />
+              <div className="cb-summary-wrapper">
+                <div className="cb-summary-text">
+                  <FormattedText text={message.summary} />
+                </div>
+                {!isUser && speechState.supported && (
+                  <div className="cb-speak-actions">
+                    <button
+                      type="button"
+                      className={`cb-speak-btn ${
+                        speechState.isSpeaking &&
+                        speechState.speakingMessageId === (message.id || message.timestamp)
+                          ? 'speaking'
+                          : ''
+                      }`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        speechService.speak(
+                          message.summary,
+                          message.id || message.timestamp
+                        );
+                      }}
+                      title={
+                        speechState.isSpeaking &&
+                        speechState.speakingMessageId === (message.id || message.timestamp)
+                          ? 'Stop reading summary'
+                          : 'Listen to summary'
+                      }
+                      aria-label="Listen to summary"
+                    >
+                      {speechState.isSpeaking &&
+                      speechState.speakingMessageId === (message.id || message.timestamp) ? (
+                        <VolumeX size={13} />
+                      ) : (
+                        <Volume2 size={13} />
+                      )}
+                      <span className="cb-speak-label">
+                        {speechState.isSpeaking &&
+                        speechState.speakingMessageId === (message.id || message.timestamp)
+                          ? 'Stop'
+                          : 'Listen'}
+                      </span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!isUser && !message.summary && message.content && speechState.supported && (
+              <div className="cb-message-speak-footer">
+                <button
+                  type="button"
+                  className={`cb-speak-btn mini ${
+                    speechState.isSpeaking &&
+                    speechState.speakingMessageId === (message.id || message.timestamp)
+                      ? 'speaking'
+                      : ''
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    speechService.speak(
+                      message.content,
+                      message.id || message.timestamp
+                    );
+                  }}
+                  title={
+                    speechState.isSpeaking &&
+                    speechState.speakingMessageId === (message.id || message.timestamp)
+                      ? 'Stop reading'
+                      : 'Listen to message'
+                  }
+                  aria-label="Listen to message"
+                >
+                  {speechState.isSpeaking &&
+                  speechState.speakingMessageId === (message.id || message.timestamp) ? (
+                    <VolumeX size={12} />
+                  ) : (
+                    <Volume2 size={12} />
+                  )}
+                  <span className="cb-speak-label">
+                    {speechState.isSpeaking &&
+                    speechState.speakingMessageId === (message.id || message.timestamp)
+                      ? 'Stop'
+                      : 'Listen'}
+                  </span>
+                </button>
               </div>
             )}
           </div>

@@ -22,17 +22,24 @@ src/
       │    ├── ChatInput.jsx
       │    ├── ChatSuggestions.jsx
       │    ├── ChatTable.jsx
+      │    ├── ChatCharts.jsx
       │    ├── ChatHistorySidebar.jsx
+      │    ├── AboutSchemaView.jsx
+      │    ├── FormattedText.jsx
+      │    ├── WelcomeScreen.jsx
       │    ├── LoadingAnimation.jsx
       │
       ├── services/
       │    ├── chatbotApi.js
+      │    ├── speechService.js
+      │    ├── schemaService.js
       │    ├── chatStorage.js
       │    ├── suggestionsService.js
       │    ├── indexedDbService.js
       │
       ├── utils/
       │    ├── vectorMath.js
+      │    ├── chartUtils.js
       │
       ├── constants/
       │    ├── chatbotConstants.js
@@ -86,16 +93,25 @@ src/
   - **Purpose**: Top bar component displaying bot avatar, online status indicator, bot title, clear chat button, fullscreen toggle button, and window close button.
 
 - **`src/chatbot/components/ChatMessage.jsx`**
-  - **Purpose**: Individual message bubble rendering. Formats alignment (User right, Assistant left), message content, tabular results, summaries, and timestamps.
+  - **Purpose**: Individual message bubble rendering. Formats alignment (User right, Assistant left), message content, tabular results, chart suggestions, timestamps, and speech synthesis Listen/Stop buttons with active audio animations.
+
+- **`src/chatbot/components/FormattedText.jsx`**
+  - **Purpose**: Enhanced Markdown renderer for agent messages and summaries. Parses bold formatting (`**text**`), inline code (`` `code` ``), links, lists, and headers without displaying raw asterisk symbols.
+
+- **`src/chatbot/components/ChatCharts.jsx`**
+  - **Purpose**: Dynamic chart component using Recharts (Bar, Line, Pie) with PNG snapshot export via `html2canvas`.
+
+- **`src/chatbot/components/WelcomeScreen.jsx`**
+  - **Purpose**: Interactive empty-state welcome screen with animated bot centerpiece, feature badges, and clickable query marquee chips.
 
 - **`src/chatbot/components/ChatInput.jsx`**
   - **Purpose**: Multi-line rounded text area input (`24px` border radius). Embeds `ChatSuggestions`, handles keyboard events (`Enter` to submit, `Shift+Enter` for newline), disabled states while loading, and microphone dictation.
 
 - **`src/chatbot/components/ChatHistorySidebar.jsx`**
-  - **Purpose**: Fullscreen mode sidebar allowing users to search past conversations, create new chat sessions, view session titles, timestamps, message counts, select active sessions, or delete sessions. Includes a footer with version display (from `VITE_CHATBOT_VERSION`) and a Settings gear modal for switching suggestion layouts (Horizontal vs. Vertical) and clearing conversation data.
+  - **Purpose**: Fullscreen mode sidebar allowing users to search past conversations, create new chat sessions, view session titles, timestamps, message counts, select active sessions, or delete sessions. Includes a footer with version display (from `VITE_CHATBOT_VERSION`), an Info button `(i)` to open `AboutSchemaView`, and a Settings gear modal for switching suggestion layouts (Horizontal vs. Vertical), configuring Text-to-Speech (Auto-Play, Voice Pack selector, Speed selector), and clearing conversation data.
 
--**`src/chatbot/components/AboutSchemaView.jsx`**
-  - **Purpose**: Fullscreen Canonical Data Model and Reference Schema Explorer. Displays domain groups as interactive cards, table-by-table schema definitions, primary keys, partitions, and expandable column lists with data types and descriptions.
+- **`src/chatbot/components/AboutSchemaView.jsx`**
+  - **Purpose**: Fullscreen Canonical Data Model and Reference Schema Explorer. Displays domain groups as interactive cards, table-by-table schema definitions, primary keys, partitions, search/filtering, and expandable column lists with data types and descriptions.
 
 - **`src/chatbot/components/LoadingAnimation.jsx`**
   - **Purpose**: Animated 3-dot bouncing indicator rendered while the assistant response is generating, featuring an in-flight query cancellation button.
@@ -105,6 +121,9 @@ src/
 ### 4. Service Layer (`services/`)
 - **`src/chatbot/services/chatbotApi.js`**
   - **Purpose**: API service layer integrating with the unified `/ask` multiplexed backend endpoint according to `API_CONTRACT.md`. Sends mandatory `Authorization: Bearer <token>` headers, extracts dynamic usernames, and executes actions (`ask`, `cancel`, `history`, `history_session`, `delete_session`, `clear_history`).
+
+- **`src/chatbot/services/speechService.js`**
+  - **Purpose**: Cross-browser Text-to-Speech (TTS) service using `easy-speech`. Manages voice initialization, voice pack discovery, markdown stripping for clean speech synthesis, playback state, rate/speed, selected voice, auto-play queue, and persistence in `localStorage`.
 
 - **`src/chatbot/services/schemaService.js`**
   - **Purpose**: Canonical data model schema service layer. Manages client-side caching in `localStorage`, checks server database version and timestamp metadata before downloading, and retrieves sanitized schema definitions from `POST /ask` (`action: "schema_meta"`, `action: "canonical_schema"`).
@@ -123,6 +142,9 @@ src/
 ### 5. Utility Layer (`utils/`)
 - **`src/chatbot/utils/vectorMath.js`**
   - **Purpose**: Vector mathematics engine. Computes Euclidean norms, vector normalization, 768-dim dot-product Cosine Similarity, and fallback semantic affinity scoring.
+
+- **`src/chatbot/utils/chartUtils.js`**
+  - **Purpose**: Utilities to infer chart capabilities (bar, line, pie) and structure numerical / categorical table datasets into Recharts configurations.
 
 ---
 

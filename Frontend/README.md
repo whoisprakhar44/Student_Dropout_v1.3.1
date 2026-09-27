@@ -11,8 +11,20 @@ A production-ready, highly customizable, reusable React Chatbot Widget package d
 - **Dynamic Username Resolution**: Automatically reads username from `JSON.parse(localStorage.getItem("userInfo")).username` (defaulting to `"Test User"`).
 - **Server-Driven Chat Sessions & History**: Synchronizes conversations directly from the backend on mount (`action: "history"`, `action: "history_session"`), with session deletion (`action: "delete_session"`) and clearing (`action: "clear_history"`).
 - **Query Request Cancellation**: Supports aborting in-flight NL-to-SQL generation and sends cancellation signal to the backend (`action: "cancel"`).
+- **Cross-Browser Text-to-Speech (TTS via EasySpeech)**:
+  - Speech synthesis powered by [EasySpeech](https://leaonline.github.io/easy-speech/) across Chromium, Safari, Firefox, and mobile Web Speech engines.
+  - Interactive Listen / Stop toggle button beside assistant response summaries.
+  - Auto-play mode to automatically speak response summaries on receiving new assistant messages (`VITE_TTS_AUTO_PLAY=false` default).
+  - Voice pack selection with language detection and global speech speed control (`0.8x`, `1.0x`, `1.25x`, `1.5x`) via Settings modal.
+  - Graceful fallback: completely hides speak controls if no audio/voice packs are available or speech synthesis is not supported.
+- **Canonical Data Model & Reference Schema Explorer (`AboutSchemaView.jsx`)**:
+  - Fullscreen schema reference viewer accessible via the `(i)` Info button in the sidebar footer.
+  - Displays domain groups as interactive cards, table definitions, primary keys, partitions, and expandable column lists with data types and descriptions.
+  - Client-side `localStorage` caching with database version & metadata freshness validation (`POST /ask` with `action: "schema_meta"`, `action: "canonical_schema"`).
+- **Rich Markdown Response Rendering (`FormattedText.jsx`)**:
+  - Formats LLM responses and summaries cleanly (bold `**text**`, inline code `` `code` ``, links, bulleted and numbered lists, headers) without raw asterisk syntax artifacts.
 - **Sidebar Footer & Version Info**: Displays live version tag (`VITE_CHATBOT_VERSION`) at the bottom of the conversation history.
-- **Settings Modal (Gear Icon)**: Provides a settings control in the sidebar footer enabling users to switch between **Horizontal** pills carousel and **Vertical** stacked list suggestion layouts, with persistent local preferences.
+- **Settings Modal (Gear Icon)**: Provides a settings control in the sidebar footer enabling users to switch between **Horizontal** pills carousel and **Vertical** stacked list suggestion layouts, customize TTS options (Auto-Play, Voice Pack, Speed), and clear conversations.
 - **Floating Action Button**: Always visible bottom-right icon with unread message badge and smooth micro-animations.
 - **Mini Chat Panel**: Compact floating window (width: ~380px, height: ~580px) with header status indicator, scrollable messages, auto-scroll, and loading state.
 - **Full Screen Overlay Mode**: High-impact overlay with session history sidebar, instant session search, date timestamps, message counts, and chat session management.
@@ -132,6 +144,10 @@ Configure timeouts, suggestions API, layouts, and ranking weights via Vite envir
 # Speech Recognition Inactivity Timeout in milliseconds (default: 3000ms = 3s)
 VITE_SPEECH_INACTIVITY_TIMEOUT_MS=3000
 
+# Text-to-Speech (TTS) Configuration
+VITE_TTS_AUTO_PLAY=false
+VITE_TTS_DEFAULT_RATE=1.0
+
 # Fullscreen Chat Window Gap Percentage around screen edges (default: 3%)
 VITE_FULLSCREEN_GAP_PERCENT=3
 
@@ -161,6 +177,8 @@ VITE_SUGGESTION_SEMANTIC_WEIGHT=0.8
 |---|---|---|---|
 | `VITE_CHATBOT_API_URL` | `string` | `"http://localhost:8000"` | Base URL of the backend API server implementing `/ask`. |
 | `VITE_CHATBOT_VERSION` | `string` | `"v1.0.0"` | Version tag displayed at the bottom of the chat history sidebar. |
+| `VITE_TTS_AUTO_PLAY` | `boolean` | `false` | Default setting for auto-playing assistant response summaries via TTS. |
+| `VITE_TTS_DEFAULT_RATE` | `number` | `1.0` | Default speech rate multiplier for Text-to-Speech playback (`0.8` to `1.5`). |
 | `VITE_SUGGESTIONS_API_BASE_URL` | `string` | `""` | Base API URL prefix for suggestions endpoints (e.g. `/api` or `http://localhost:8000`). |
 | `VITE_SUGGESTION_LAYOUT` | `string` | `"horizontal"` | Suggestion bubbles orientation: `"horizontal"` (scrollable carousel) or `"vertical"` (stacked list). |
 | `VITE_SUGGESTION_DEBOUNCE_MS` | `number` | `2000` | Milliseconds the user must pause typing before computing suggestion rankings. |

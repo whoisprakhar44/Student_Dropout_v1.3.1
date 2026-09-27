@@ -4,6 +4,7 @@ import { chatStorage } from './services/chatStorage';
 import { chatbotApi } from './services/chatbotApi';
 import { chatWebSocketService } from './services/chatWebSocketService';
 import { suggestionsService } from './services/suggestionsService';
+import { speechService } from './services/speechService';
 
 export const ChatbotContext = createContext(null);
 
@@ -427,6 +428,11 @@ export const ChatbotProvider = ({ children }) => {
       // Increment unread count if chat window is closed
       if (viewMode === VIEW_MODES.CLOSED) {
         setUnreadCount(count => count + 1);
+      }
+
+      // Auto-play speech if enabled in settings and message contains content/summary
+      if (targetSessionId === activeSessionId) {
+        speechService.handleAutoPlayNewMessage(assistantMsg);
       }
     } catch (err) {
       if (err.message !== 'Query request was cancelled.') {

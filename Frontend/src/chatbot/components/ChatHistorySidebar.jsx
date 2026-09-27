@@ -1,10 +1,12 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Plus,
   Search,
   Trash2,
   Settings,
   Info,
+  Volume2,
+  VolumeX,
   X,
   Check,
   LayoutGrid,
@@ -15,6 +17,7 @@ import {
 
 import { useChatbot } from '../hooks/useChatbot';
 import { SUGGESTION_LAYOUTS } from '../constants/chatbotConstants';
+import { speechService } from '../services/speechService';
 
 export const ChatHistorySidebar = () => {
   const {
@@ -36,6 +39,12 @@ export const ChatHistorySidebar = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showSettings, setShowSettings] = useState(false);
+  const [speechState, setSpeechState] = useState(() => speechService.getState());
+
+  useEffect(() => {
+    const unsub = speechService.subscribe(setSpeechState);
+    return () => unsub();
+  }, []);
   
   const settingsModalRef = useRef(null);
 
@@ -426,6 +435,73 @@ export const ChatHistorySidebar = () => {
                   </button>
                 </div>
               </div>
+
+              {speechState.supported && (
+                <div className="cb-settings-group">
+                  <label className="cb-settings-label">
+                    <Volume2 size={14} style={{ display: 'inline', marginRight: '6px', verticalAlign: 'middle' }} />
+                    Speech & Voice (TTS)
+                  </label>
+
+                  {/* Auto-Play Toggle */}
+                  <div className="cb-settings-tts-row">
+                    <div>
+                      <span className="cb-settings-sublabel">Auto-Play Summary</span>
+                      <span className="cb-settings-subtext" style={{ display: 'block' }}>
+                        Speak agent summary automatically
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      className={`cb-toggle-switch ${speechState.autoPlay ? 'active' : ''}`}
+                      onClick={() => speechService.setAutoPlay(!speechState.autoPlay)}
+                      aria-label="Toggle Auto Play Summary"
+                    >
+                      <span className="cb-toggle-knob" />
+                    </button>
+                  </div>
+
+                  {/* Voice Selector */}
+                  {speechState.voices.length > 0 && (
+                    <div style={{ marginTop: '6px' }}>
+                      <span className="cb-settings-subtext" style={{ display: 'block', marginBottom: '4px' }}>
+                        Voice Pack ({speechState.voices.length} available):
+                      </span>
+                      <select
+                        className="cb-voice-select"
+                        value={speechState.selectedVoiceURI || ''}
+                        onChange={(e) => speechService.setVoice(e.target.value)}
+                        aria-label="Select Voice Pack"
+                      >
+                        {speechState.voices.map((v) => (
+                          <option key={v.voiceURI || v.name} value={v.voiceURI || v.name}>
+                            {v.name} ({v.lang})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Speech Speed / Rate */}
+                  <div style={{ marginTop: '6px' }}>
+                    <span className="cb-settings-subtext" style={{ display: 'block', marginBottom: '4px' }}>
+                      Speech Speed ({speechState.rate}x):
+                    </span>
+                    <div className="cb-rate-options-grid">
+                      {[0.8, 1.0, 1.25, 1.5].map((rateVal) => (
+                        <button
+                          key={rateVal}
+                          type="button"
+                          className={`cb-rate-btn ${speechState.rate === rateVal ? 'active' : ''}`}
+                          onClick={() => speechService.setRate(rateVal)}
+                        >
+                          {rateVal}x
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="cb-settings-group">
                 <label className="cb-settings-label">

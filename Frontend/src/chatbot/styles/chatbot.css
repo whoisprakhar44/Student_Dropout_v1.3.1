@@ -3377,3 +3377,190 @@ body {
     align-items: flex-start;
   }
 }
+
+/* ==========================================================================
+   15. Text-To-Speech (TTS) & Voice Synthesis Controls
+   ========================================================================== */
+
+.cb-summary-wrapper {
+  position: relative;
+  margin-top: 6px;
+  padding-top: 4px;
+}
+
+.cb-summary-text {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--text-color);
+}
+
+.cb-speak-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.cb-message-speak-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.cb-speak-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  font-size: 11.5px;
+  font-weight: 500;
+  border-radius: 6px;
+  background: var(--surface-color, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  user-select: none;
+}
+
+.cb-speak-btn:hover {
+  background: var(--surface-hover, #f1f5f9);
+  border-color: var(--primary-color, #0284c7);
+  color: var(--primary-color, #0284c7);
+  transform: translateY(-1px);
+}
+
+.cb-speak-btn:active {
+  transform: translateY(0);
+}
+
+.cb-speak-btn.mini {
+  padding: 2px 7px;
+  font-size: 11px;
+}
+
+.cb-speak-btn.speaking {
+  background: rgba(14, 165, 233, 0.12) !important;
+  border-color: #0284c7 !important;
+  color: #0284c7 !important;
+  font-weight: 600;
+  animation: cb-tts-pulse 1.8s infinite ease-in-out;
+}
+
+@keyframes cb-tts-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.12);
+  }
+}
+
+.cb-speak-label {
+  letter-spacing: 0.2px;
+}
+
+/* Settings TTS controls */
+.cb-settings-tts-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  gap: 12px;
+}
+
+.cb-settings-sublabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.cb-toggle-switch {
+  width: 38px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--border-color, #cbd5e1);
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.cb-toggle-switch.active {
+  background: var(--primary-color, #0284c7);
+}
+
+.cb-toggle-knob {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: block;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.cb-toggle-switch.active .cb-toggle-knob {
+  transform: translateX(16px);
+}
+
+.cb-voice-select {
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: var(--background-color, #f8fafc);
+  color: var(--text-color, #0f172a);
+  font-size: 11.5px;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.cb-voice-select:focus {
+  border-color: var(--primary-color, #0284c7);
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
+}
+
+.cb-voice-select option {
+  background: var(--surface-color, #ffffff);
+  color: var(--text-color, #0f172a);
+}
+
+.cb-rate-options-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.cb-rate-btn {
+  padding: 5px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #cbd5e1);
+  background: var(--background-color, #f8fafc);
+  color: var(--text-muted, #64748b);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.cb-rate-btn:hover {
+  border-color: var(--primary-color, #0284c7);
+  color: var(--text-color, #0f172a);
+}
+
+.cb-rate-btn.active {
+  background: rgba(2, 132, 199, 0.12);
+  border-color: var(--primary-color, #0284c7);
+  color: var(--primary-color, #0284c7);
+  font-weight: 700;
+}
