@@ -23,6 +23,8 @@ export const ChatbotProvider = ({ children }) => {
     () => suggestionsService.isSuggestionsDisabled()
   );
   const [inputText, setInputText] = useState('');
+  const [activeRightView, setActiveRightView] = useState('chat'); // 'chat' | 'about'
+  const [selectedSchemaGroup, setSelectedSchemaGroup] = useState(null);
 
   const activeRequestsRef = useRef({}); // { [sessionId]: { requestId, controller } }
 
@@ -195,17 +197,31 @@ export const ChatbotProvider = ({ children }) => {
     setUnreadCount(0);
   }, []);
 
+  // Schema & About View Handlers
+  const openAboutView = useCallback((groupName = null) => {
+    setActiveRightView('about');
+    if (groupName !== undefined && groupName !== null) {
+      setSelectedSchemaGroup(groupName);
+    }
+  }, []);
+
+  const closeAboutView = useCallback(() => {
+    setActiveRightView('chat');
+  }, []);
+
   // Session Handlers
   const createNewSession = useCallback(() => {
     const newSession = createSessionObject();
     setSessions(prev => [newSession, ...prev]);
     setActiveSessionId(newSession.id);
+    setActiveRightView('chat');
     return newSession.id;
   }, []);
 
   const loadSession = useCallback(async (sessionId) => {
     if (!sessionId) return;
     setActiveSessionId(sessionId);
+    setActiveRightView('chat');
 
     // If messages are not yet loaded for this session, fetch from backend
     const current = sessions.find(s => s.id === sessionId);
@@ -475,6 +491,13 @@ export const ChatbotProvider = ({ children }) => {
     inputText,
     setInputText,
 
+    activeRightView,
+    setActiveRightView,
+    selectedSchemaGroup,
+    setSelectedSchemaGroup,
+    openAboutView,
+    closeAboutView,
+
     openChat,
     closeChat,
     toggleFullscreen,
@@ -504,6 +527,10 @@ export const ChatbotProvider = ({ children }) => {
     suggestionLayout,
     suggestionsDisabled,
     inputText,
+    activeRightView,
+    selectedSchemaGroup,
+    openAboutView,
+    closeAboutView,
     setSuggestionLayout,
     setSuggestionsDisabled,
     openChat,

@@ -94,6 +94,9 @@ src/
 - **`src/chatbot/components/ChatHistorySidebar.jsx`**
   - **Purpose**: Fullscreen mode sidebar allowing users to search past conversations, create new chat sessions, view session titles, timestamps, message counts, select active sessions, or delete sessions. Includes a footer with version display (from `VITE_CHATBOT_VERSION`) and a Settings gear modal for switching suggestion layouts (Horizontal vs. Vertical) and clearing conversation data.
 
+-**`src/chatbot/components/AboutSchemaView.jsx`**
+  - **Purpose**: Fullscreen Canonical Data Model and Reference Schema Explorer. Displays domain groups as interactive cards, table-by-table schema definitions, primary keys, partitions, and expandable column lists with data types and descriptions.
+
 - **`src/chatbot/components/LoadingAnimation.jsx`**
   - **Purpose**: Animated 3-dot bouncing indicator rendered while the assistant response is generating, featuring an in-flight query cancellation button.
 
@@ -102,6 +105,9 @@ src/
 ### 4. Service Layer (`services/`)
 - **`src/chatbot/services/chatbotApi.js`**
   - **Purpose**: API service layer integrating with the unified `/ask` multiplexed backend endpoint according to `API_CONTRACT.md`. Sends mandatory `Authorization: Bearer <token>` headers, extracts dynamic usernames, and executes actions (`ask`, `cancel`, `history`, `history_session`, `delete_session`, `clear_history`).
+
+- **`src/chatbot/services/schemaService.js`**
+  - **Purpose**: Canonical data model schema service layer. Manages client-side caching in `localStorage`, checks server database version and timestamp metadata before downloading, and retrieves sanitized schema definitions from `POST /ask` (`action: "schema_meta"`, `action: "canonical_schema"`).
 
 - **`src/chatbot/services/chatStorage.js`**
   - **Purpose**: Safe `localStorage` utility for persisting sessions, active session ID, view mode, unread counts, suggestion layout preferences, auth token extraction, and username resolution from `localStorage('userInfo')`.

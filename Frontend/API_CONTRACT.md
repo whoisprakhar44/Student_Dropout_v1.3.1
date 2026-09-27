@@ -165,4 +165,79 @@ Content-Type: application/json
 | `clear_history` | Delete all user sessions | `username` |
 | `suggestions_meta` | Suggestions cache metadata | - |
 | `suggestions` | Exemplar questions & vectors | `limit` |
+| `schema_meta` | Canonical schema version & table counts | - |
+| `canonical_schema` | Full sanitized canonical data model reference | - |
 | `chart` | SVG chart generation | `chart_type`, `data` |
+
+---
+
+## 4. Canonical Data Model Schema Endpoints
+
+### 4.1 Schema Metadata Check (`POST /ask` with `action: "schema_meta"` or `GET /api/schema/meta`)
+Verifies the current schema version and timestamp before fetching full payloads.
+
+Request:
+```json
+{
+  "action": "schema_meta",
+  "username": "test_user"
+}
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "version": "3.0.0",
+  "database_name": "ap_citizen360",
+  "table_count": 46,
+  "total_field_count": 605,
+  "groups_count": 20,
+  "effective_date": "2026-08-13",
+  "updated_at": "2026-08-13"
+}
+```
+
+### 4.2 Full Canonical Schema (`POST /ask` with `action: "canonical_schema"` or `GET /api/schema`)
+Retrieves the sanitized, non-confidential canonical data model reference containing all 20 domain groups, 46 Iceberg tables, descriptions, primary keys, and column field metadata.
+
+Request:
+```json
+{
+  "action": "canonical_schema",
+  "username": "test_user"
+}
+```
+
+Response:
+```json
+{
+  "title": "AP Citizen 360° Canonical Data Model",
+  "description": "Comprehensive canonical data model reference for the AP Citizen 360° platform. Every field carries a plain-language description of what it holds and how it is used.",
+  "version": "3.0.0",
+  "effectiveDate": "2026-08-13",
+  "databaseName": "ap_citizen360",
+  "tableCount": 46,
+  "totalFieldCount": 605,
+  "groups": [
+    "GEOGRAPHY",
+    "PERSON / HOUSEHOLD / IDENTITY",
+    "EMPLOYMENT / OCCUPATION",
+    "..."
+  ],
+  "tables": {
+    "dim_state": {
+      "group": "GEOGRAPHY",
+      "tableType": "dimension",
+      "primaryKey": "state_id",
+      "partitionedBy": null,
+      "description": "One row per state per effective-dated period...",
+      "fieldCount": 24,
+      "fields": {
+        "state_id": { "type": "STRING", "description": "Canonical state code, e.g. 'ap'." },
+        "population": { "type": "BIGINT", "description": "Total state population." }
+      }
+    }
+  }
+}
+```

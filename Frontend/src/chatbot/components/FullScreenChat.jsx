@@ -7,9 +7,19 @@ import ChatMessage from './ChatMessage';
 import ChatInput from './ChatInput';
 import LoadingAnimation from './LoadingAnimation';
 import WelcomeScreen from './WelcomeScreen';
+import AboutSchemaView from './AboutSchemaView';
 
 export const FullScreenChat = ({ suggestionLayout }) => {
-  const { messages, sendMessage, isLoading, openChat, suggestionLayout: contextLayout, suggestionsDisabled, setSuggestionsDisabled } = useChatbot();
+  const {
+    messages,
+    sendMessage,
+    isLoading,
+    openChat,
+    suggestionLayout: contextLayout,
+    suggestionsDisabled,
+    setSuggestionsDisabled,
+    activeRightView
+  } = useChatbot();
   const messagesEndRef = useRef(null);
 
   const isWelcomeState = !messages.some(msg => msg.role === ROLES.USER);
@@ -22,8 +32,10 @@ export const FullScreenChat = ({ suggestionLayout }) => {
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isLoading]);
+    if (activeRightView !== 'about') {
+      scrollToBottom();
+    }
+  }, [messages, isLoading, activeRightView]);
 
   // Apply gap padding ONLY to cb-fullscreen-backdrop inside cb-root (does not affect parent application root)
   const backdropStyle = React.useMemo(() => {
@@ -53,25 +65,32 @@ export const FullScreenChat = ({ suggestionLayout }) => {
           <ChatHistorySidebar />
 
           <main className="cb-fullscreen-main">
-            <div className={`cb-fullscreen-messages ${isWelcomeState ? 'welcome-mode' : ''}`}>
-              {isWelcomeState ? (
-                <WelcomeScreen onSend={sendMessage} />
-              ) : (
-                messages.map(msg => (
-                  <ChatMessage key={msg.id} message={msg} />
-                ))
-              )}
-              {isLoading && <LoadingAnimation />}
-              <div ref={messagesEndRef} />
-            </div>
+            {activeRightView === 'about' && <AboutSchemaView />}
 
-            <div className="cb-fullscreen-input-wrap">
-              <ChatInput
-                onSend={sendMessage}
-                disabled={isLoading}
-                suggestionLayout={suggestionLayout || contextLayout}
-                suggestionsDisabled={suggestionsDisabled}
-              />
+            <div
+              className="cb-fullscreen-chat-flow"
+              style={{ display: activeRightView === 'about' ? 'none' : 'flex' }}
+            >
+              <div className={`cb-fullscreen-messages ${isWelcomeState ? 'welcome-mode' : ''}`}>
+                {isWelcomeState ? (
+                  <WelcomeScreen onSend={sendMessage} />
+                ) : (
+                  messages.map(msg => (
+                    <ChatMessage key={msg.id} message={msg} />
+                  ))
+                )}
+                {isLoading && <LoadingAnimation />}
+                <div ref={messagesEndRef} />
+              </div>
+
+              <div className="cb-fullscreen-input-wrap">
+                <ChatInput
+                  onSend={sendMessage}
+                  disabled={isLoading}
+                  suggestionLayout={suggestionLayout || contextLayout}
+                  suggestionsDisabled={suggestionsDisabled}
+                />
+              </div>
             </div>
           </main>
         </div>

@@ -4,6 +4,7 @@ import {
   Search,
   Trash2,
   Settings,
+  Info,
   X,
   Check,
   LayoutGrid,
@@ -27,7 +28,10 @@ export const ChatHistorySidebar = () => {
     setSuggestionLayout,
     suggestionsDisabled,
     setSuggestionsDisabled,
-    loadingSessions
+    loadingSessions,
+    activeRightView,
+    openAboutView,
+    closeAboutView
   } = useChatbot();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -245,17 +249,36 @@ export const ChatHistorySidebar = () => {
           <span>Version {appVersion}</span>
         </div>
 
-        <button
-          type="button"
-          className="cb-settings-btn"
-          onClick={() =>
-            setShowSettings((prev) => !prev)
-          }
-          aria-label="Chatbot Settings"
-          title="Chatbot Settings"
-        >
-          <Settings size={17} />
-        </button>
+        <div className="cb-sidebar-footer-actions">
+          <button
+            type="button"
+            className={`cb-info-btn ${activeRightView === 'about' ? 'active' : ''}`}
+            onClick={() => {
+              setShowSettings(false);
+              if (activeRightView === 'about') {
+                closeAboutView();
+              } else {
+                openAboutView();
+              }
+            }}
+            aria-label="About Data Model & Canonical Schema"
+            title="About Canonical Data Model & Schema"
+          >
+            <Info size={17} />
+          </button>
+
+          <button
+            type="button"
+            className={`cb-settings-btn ${showSettings ? 'active' : ''}`}
+            onClick={() =>
+              setShowSettings((prev) => !prev)
+            }
+            aria-label="Chatbot Settings"
+            title="Chatbot Settings"
+          >
+            <Settings size={17} />
+          </button>
+        </div>
 
         {showSettings && (
           <div

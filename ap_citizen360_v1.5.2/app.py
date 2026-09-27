@@ -80,6 +80,10 @@ from database.suggestions import (
     get_suggestions_meta,
     load_or_build_suggestions,
 )
+from database.canonical_schema_manager import (
+    get_schema_metadata,
+    get_canonical_schema,
+)
 from create_schema import create_database
 from my_agent.agent import build_graph
 from my_agent.utils.ollama_check import chat_model_name, check_ollama
@@ -698,6 +702,18 @@ async def logs_handler(
     raise HTTPException(status_code=400, detail=f"Unsupported action: '{action}'. For natural-language SQL queries, please use POST /ask.")
 
 
+@app.get("/api/schema/meta")
+def get_canonical_schema_meta():
+    """Retrieve database version and canonical schema metadata."""
+    return get_schema_metadata()
+
+
+@app.get("/api/schema")
+def get_canonical_schema_data():
+    """Retrieve full sanitized canonical schema definition (non-confidential)."""
+    return get_canonical_schema()
+
+
 @app.post("/ask")
 @validate_issuer
 async def ask(payload: AskRequest, request: Request):
@@ -719,6 +735,14 @@ async def ask(payload: AskRequest, request: Request):
             "updated_at": meta["updated_at"],
             "suggestions": items,
         }
+
+    # 0c. Action: Canonical Schema Metadata / Version Check
+    elif action in ("schema_meta", "schema_version", "about_meta"):
+        return get_schema_metadata()
+
+    # 0d. Action: Canonical Schema Full Reference (sanitized, non-confidential)
+    elif action in ("schema", "canonical_schema", "about_schema", "get_schema"):
+        return get_canonical_schema()
 
     # 1. Action: Cancel
     elif action == "cancel":

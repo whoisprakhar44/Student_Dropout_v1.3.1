@@ -11,6 +11,9 @@ export const STORAGE_KEYS = {
   SUGGESTIONS_UPDATED_AT: 'chatbot_suggestions_updated_at',
   SUGGESTIONS_DISABLED: 'chatbot_suggestions_disabled',
   SUGGESTION_LAYOUT: 'chatbot_suggestion_layout',
+  SCHEMA_CACHE: 'chatbot_canonical_schema_cache',
+  SCHEMA_VERSION: 'chatbot_canonical_schema_version',
+  SCHEMA_UPDATED_AT: 'chatbot_canonical_schema_updated_at',
   USER_INFO: 'userInfo',
   AUTH_TOKEN: 'token',
 };
