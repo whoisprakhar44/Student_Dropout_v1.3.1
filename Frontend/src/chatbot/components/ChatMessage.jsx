@@ -4,6 +4,7 @@ import { User } from 'lucide-react';
 import { ROLES } from '../constants/chatbotConstants';
 import ChatTable from './ChatTable';
 import ChatCharts from './ChatCharts';
+import FormattedText from './FormattedText';
 
 import {
   BarChart3,
@@ -212,13 +213,13 @@ export const ChatMessage = ({ message }) => {
 
             {message.content && (
               <div className="cb-message-content">
-                {message.content}
+                <FormattedText text={message.content} />
               </div>
             )}
 
             {message.summary && message.summary.trim() !== (message.content || '').trim() && (
               <div className="cb-summary-text">
-                {message.summary}
+                <FormattedText text={message.summary} />
               </div>
             )}
           </div>

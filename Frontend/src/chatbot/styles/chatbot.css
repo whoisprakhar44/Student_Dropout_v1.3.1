@@ -396,7 +396,149 @@ body {
 
 .cb-message-row.assistant .cb-message-bubble {
   width: auto;
-  /* max-width: calc(100% - 7%); */
+}
+
+/* ==========================================================================
+   4a. Formatted Text & Markdown Parsing Styles
+   ========================================================================== */
+
+.cb-formatted-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: inherit;
+  word-break: break-word;
+}
+
+.cb-message-content {
+  color: inherit;
+}
+
+.cb-strong-text {
+  font-weight: 700;
+  color: inherit;
+}
+
+.cb-em-text {
+  font-style: italic;
+  color: inherit;
+}
+
+.cb-del-text {
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+.cb-message-p {
+  margin: 0;
+  line-height: 1.55;
+  color: inherit;
+}
+
+.cb-message-h1,
+.cb-message-h2,
+.cb-message-h3,
+.cb-message-h4,
+.cb-message-h5 {
+  font-weight: 700;
+  color: inherit;
+  margin: 6px 0 2px 0;
+  line-height: 1.3;
+}
+
+.cb-message-h1 { font-size: 16px; }
+.cb-message-h2 { font-size: 15px; }
+.cb-message-h3 { font-size: 14px; }
+.cb-message-h4 { font-size: 13.5px; }
+.cb-message-h5 { font-size: 13px; }
+
+.cb-message-ul,
+.cb-message-ol {
+  margin: 4px 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cb-message-ul li,
+.cb-message-ol li {
+  line-height: 1.5;
+  color: inherit;
+}
+
+.cb-inline-code {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(11, 37, 69, 0.08);
+  color: var(--primary-color);
+  border: 1px solid rgba(11, 37, 69, 0.15);
+}
+
+.cb-message-row.user .cb-inline-code {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.cb-code-block-wrap {
+  position: relative;
+  margin: 8px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0b1523;
+  border: 1px solid var(--border-color);
+}
+
+.cb-code-lang {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+.cb-code-block {
+  padding: 12px 14px;
+  margin: 0;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 12.5px;
+  color: #e2e8f0;
+  line-height: 1.45;
+}
+
+.cb-message-quote {
+  margin: 6px 0;
+  padding: 6px 12px;
+  border-left: 3px solid var(--primary-color);
+  background: rgba(11, 37, 69, 0.04);
+  border-radius: 0 6px 6px 0;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.cb-message-link {
+  color: var(--primary-color);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.cb-message-row.user .cb-message-link {
+  color: #ffffff;
+}
+
+.cb-message-hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 8px 0;
 }
 
 /* ==========================================================================
