@@ -121,10 +121,13 @@ class LogStreamManager(logging.Handler):
         try:
             msg = self.format(record)
             self.counter += 1
+            lvl = record.levelname
+            if lvl == "WARNING":
+                lvl = "WARN"
             log_entry = {
                 "id": self.counter,
                 "timestamp": datetime.fromtimestamp(record.created).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3],
-                "level": record.levelname,
+                "level": lvl,
                 "name": record.name,
                 "message": record.getMessage(),
                 "formatted": msg,

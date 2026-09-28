@@ -257,6 +257,56 @@
     .log-msg.highlight-time {
       color: #F472B6;
     }
+    .route-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(30, 41, 59, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 4px;
+      padding: 1px 7px;
+      font-size: 11.5px;
+      font-family: inherit;
+    }
+    .route-ip {
+      color: #38BDF8;
+      font-weight: 600;
+    }
+    .route-arrow {
+      color: #10B981;
+      font-weight: bold;
+    }
+    .route-arrow-err {
+      color: #F87171;
+      font-weight: bold;
+    }
+    .net-tag {
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      letter-spacing: 0.2px;
+    }
+    .net-in {
+      color: #34D399;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+    .net-out {
+      color: #C084FC;
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.35);
+    }
+    .net-err {
+      color: #F87171;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+    .net-ws {
+      color: #38BDF8;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+    }
 
     /* Bottom Status Bar */
     .bottom-bar {
@@ -423,12 +473,37 @@
 
     function highlightContent(msg) {
       let escaped = escapeHtml(msg);
+
+      // Highlight network direction tags
+      escaped = escaped.replace(/(➔\s*INCOMING\s*(?:HTTP|WS)?)/g, '<span class="net-tag net-in">$1</span>');
+      escaped = escaped.replace(/(⬅\s*OUTGOING\s*(?:HTTP|WS)?|⬅\s*INBOUND\s*HTTP)/g, '<span class="net-tag net-out">$1</span>');
+      escaped = escaped.replace(/(➔\s*OUTBOUND\s*HTTP)/g, '<span class="net-tag net-in">$1</span>');
+      escaped = escaped.replace(/(✕\s*(?:FAILED|OUTBOUND HTTP FAILED|WS ERROR))/g, '<span class="net-tag net-err">$1</span>');
+      escaped = escaped.replace(/(🔌\s*WS\s*(?:CONNECT|DISCONNECT|ACCEPT|CLOSE))/g, '<span class="net-tag net-ws">$1</span>');
+
+      // Highlight routing paths: [IP:PORT ➔ IP:PORT] and [IP:PORT ✕ IP:PORT]
+      escaped = escaped.replace(/\[([0-9a-zA-Z\.\-_]+:[0-9]+)\s*➔\s*([0-9a-zA-Z\.\-_]+:[0-9]+)\]/g,
+        '<span class="route-badge"><span class="route-ip">$1</span> <span class="route-arrow">➔</span> <span class="route-ip">$2</span></span>');
+      escaped = escaped.replace(/\[([0-9a-zA-Z\.\-_]+:[0-9]+)\s*✕\s*([0-9a-zA-Z\.\-_]+:[0-9]+)\]/g,
+        '<span class="route-badge"><span class="route-ip">$1</span> <span class="route-arrow-err">✕</span> <span class="route-ip">$2</span></span>');
+
       // Highlight SQL statements
       escaped = escaped.replace(/(SELECT\s+[\s\S]*?FROM\s+[\s\S]*?)(;|\n|$)/gi, '<span style="color:#34D399;font-weight:600;">$1$2</span>');
-      // Highlight timings (e.g., 0.45s or 1.25s)
-      escaped = escaped.replace(/(\b\d+\.\d+\s*(?:s|ms|seconds)\b)/gi, '<span style="color:#F472B6;font-weight:600;">$1</span>');
+
+      // Highlight timings (e.g., 0.45s or 12.34ms)
+      escaped = escaped.replace(/(\b\d+(?:\.\d+)?\s*(?:s|ms|seconds)\b)/gi, '<span style="color:#F472B6;font-weight:600;">$1</span>');
+
       // Highlight Request IDs & Session UUIDs
       escaped = escaped.replace(/(req_[a-zA-Z0-9_-]+|sess_[a-zA-Z0-9_-]+|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/gi, '<span style="color:#818CF8;font-weight:600;">$1</span>');
+
+      // Highlight HTTP status codes
+      escaped = escaped.replace(/\b(200 OK|201 Created|204 No Content)\b/g, '<span style="color:#10B981;font-weight:700;">$1</span>');
+      escaped = escaped.replace(/\b(400 Bad Request|401 Unauthorized|403 Forbidden|404 Not Found|422 Unprocessable Entity)\b/g, '<span style="color:#F59E0B;font-weight:700;">$1</span>');
+      escaped = escaped.replace(/\b(500 Internal Server Error|502 Bad Gateway|503 Service Unavailable)\b/g, '<span style="color:#EF4444;font-weight:700;">$1</span>');
+
+      // Highlight HTTP methods
+      escaped = escaped.replace(/\b(GET|POST|PUT|DELETE|OPTIONS|HEAD|PATCH)\b/g, '<span style="color:#60A5FA;font-weight:600;">$1</span>');
+
       return escaped;
     }
 

@@ -44,11 +44,18 @@ import time
 from fastapi import Request
 from auth_check import validate_issuer
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    force=True
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
+from production_logger import (
+    setup_production_logging,
+    NetworkRoutingMiddleware,
+    network_logger,
 )
+
+# Initialize enterprise production logging system (console, rotating files, log streamer)
+setup_production_logging()
 logger = logging.getLogger("app")
 
 from log_streamer import (
@@ -63,10 +70,6 @@ from log_streamer import (
 
 # Attach real-time log stream handler
 setup_log_streamer()
-
-from dotenv import load_dotenv
-
-load_dotenv(Path(__file__).resolve().parent / ".env")
 
 from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
 from fastapi.responses import StreamingResponse, HTMLResponse
@@ -567,6 +570,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
+
+# Full network routing audit: logs incoming/outgoing client IP:port, routing paths, latencies, and sizes
+app.add_middleware(NetworkRoutingMiddleware)
 
 
 @app.get("/health")
