@@ -14,7 +14,11 @@ intent_node classifies the user query and enriches state with:
   - query_type: "data_query" | "document_query" | "hybrid" | "greeting"
 """
 import asyncio
+import json
+import logging
 from typing import Literal
+
+logger = logging.getLogger("app")
 
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.graph import END, START, StateGraph
@@ -122,8 +126,78 @@ async def build_graph():
     import time
     async def wrapped_tool_node(state: AgentState):
         t0 = time.perf_counter()
+        messages = state.get("messages", [])
+        last_msg = messages[-1] if messages else None
+        tool_calls = getattr(last_msg, "tool_calls", None) or []
+        
+        # Log tool invocations & retrieval starts
+        for tc in tool_calls:
+            name = tc.get("name", "unknown")
+            args = tc.get("args", {})
+            if name == "execute_sql":
+                sql_preview = (args.get("sql") or args.get("query") or "").strip().replace("\n", " ")
+                if len(sql_preview) > 180:
+                    sql_preview = sql_preview[:177] + "..."
+                logger.info(f"⚙️  [TOOL INVOKE] execute_sql | SQL: {sql_preview}")
+            elif name in ("retrive_schema_rag", "search_documents"):
+                query = args.get("query", "")
+                top_k = args.get("top_k", 6)
+                logger.info(f"🔍 [RETRIEVAL START] {name} | Query: '{query}' | top_k={top_k}")
+            elif name == "search_exact_fewshot":
+                query = args.get("query", "")
+                logger.info(f"🎯 [RETRIEVAL START] search_exact_fewshot | Query: '{query}'")
+            elif name == "get_column_values":
+                tbl = args.get("table", "")
+                col = args.get("column", "")
+                logger.info(f"⚙️  [TOOL INVOKE] get_column_values | Table: {tbl} | Column: {col}")
+            else:
+                args_str = json.dumps(args, default=str)
+                if len(args_str) > 150:
+                    args_str = args_str[:147] + "..."
+                logger.info(f"⚙️  [TOOL INVOKE] {name} | Args: {args_str}")
+
         result = await _base_tool_node.ainvoke(state)
-        exec_time = state.get("exec_time", 0.0) + (time.perf_counter() - t0)
+        duration_ms = (time.perf_counter() - t0) * 1000
+        exec_time = state.get("exec_time", 0.0) + (duration_ms / 1000.0)
+
+        # Log tool completion outcomes, row counts, and retrieval results
+        new_msgs = result.get("messages", []) if isinstance(result, dict) else []
+        for tm in new_msgs:
+            tool_name = getattr(tm, "name", "") or "tool"
+            raw_content = getattr(tm, "content", "")
+            if isinstance(raw_content, list):
+                raw_content = raw_content[0].get("text", "") if raw_content else ""
+
+            if tool_name == "execute_sql":
+                try:
+                    payload = json.loads(raw_content)
+                    if isinstance(payload, dict) and payload.get("status") == "error":
+                        err_msg = payload.get("error_msg") or payload.get("error_type") or "SQL error"
+                        logger.warning(f"⚠️ [TOOL ERROR] execute_sql | duration={duration_ms:.2f}ms | Error: {err_msg}")
+                    else:
+                        rows = payload if isinstance(payload, list) else payload.get("rows", []) if isinstance(payload, dict) else []
+                        row_cnt = len(rows) if isinstance(rows, list) else 0
+                        logger.info(f"✅ [TOOL COMPLETED] execute_sql | duration={duration_ms:.2f}ms | Rows returned: {row_cnt}")
+                except Exception:
+                    logger.info(f"✅ [TOOL COMPLETED] execute_sql | duration={duration_ms:.2f}ms")
+            elif tool_name in ("retrive_schema_rag", "search_documents"):
+                try:
+                    payload = json.loads(raw_content)
+                    cnt = len(payload) if isinstance(payload, list) else len(payload.get("results", [])) if isinstance(payload, dict) else 1
+                    logger.info(f"🔍 [RETRIEVAL COMPLETED] {tool_name} | duration={duration_ms:.2f}ms | Retrieved {cnt} schema/doc match(es)")
+                except Exception:
+                    logger.info(f"🔍 [RETRIEVAL COMPLETED] {tool_name} | duration={duration_ms:.2f}ms")
+            elif tool_name == "search_exact_fewshot":
+                try:
+                    payload = json.loads(raw_content)
+                    match_found = bool(payload) and payload.get("status") != "not_found"
+                    status_text = "Found exact match" if match_found else "No exact match"
+                    logger.info(f"🎯 [RETRIEVAL COMPLETED] search_exact_fewshot | duration={duration_ms:.2f}ms | Status: {status_text}")
+                except Exception:
+                    logger.info(f"🎯 [RETRIEVAL COMPLETED] search_exact_fewshot | duration={duration_ms:.2f}ms")
+            else:
+                logger.info(f"✅ [TOOL COMPLETED] {tool_name} | duration={duration_ms:.2f}ms")
+
         if isinstance(result, dict):
             result["exec_time"] = exec_time
         return result

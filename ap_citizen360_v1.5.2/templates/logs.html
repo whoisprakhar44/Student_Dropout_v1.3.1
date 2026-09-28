@@ -308,6 +308,70 @@
       border: 1px solid rgba(56, 189, 248, 0.35);
     }
 
+    /* APM & Trace Highlight Badges */
+    .tag-tool-invoke {
+      color: #F59E0B;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    .tag-tool-complete {
+      color: #10B981;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    .tag-tool-error {
+      color: #EF4444;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    .tag-retrieval {
+      color: #38BDF8;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    .tag-llm {
+      color: #C084FC;
+      background: rgba(192, 132, 252, 0.15);
+      border: 1px solid rgba(192, 132, 252, 0.35);
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    .tag-verify {
+      color: #F43F5E;
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+    .duration-badge {
+      color: #F472B6;
+      font-weight: 700;
+      background: rgba(244, 114, 182, 0.15);
+      border-radius: 3px;
+      padding: 1px 5px;
+      border: 1px solid rgba(244, 114, 182, 0.3);
+    }
+
     /* Bottom Status Bar */
     .bottom-bar {
       background: #111827;
@@ -486,6 +550,19 @@
         '<span class="route-badge"><span class="route-ip">$1</span> <span class="route-arrow">➔</span> <span class="route-ip">$2</span></span>');
       escaped = escaped.replace(/\[([0-9a-zA-Z\.\-_]+:[0-9]+)\s*✕\s*([0-9a-zA-Z\.\-_]+:[0-9]+)\]/g,
         '<span class="route-badge"><span class="route-ip">$1</span> <span class="route-arrow-err">✕</span> <span class="route-ip">$2</span></span>');
+
+      // Highlight APM & Execution Lifecycle Tags
+      escaped = escaped.replace(/(⚙️\s*\[TOOL INVOKE\])/g, '<span class="tag-tool-invoke">$1</span>');
+      escaped = escaped.replace(/(✅\s*\[TOOL COMPLETED\])/g, '<span class="tag-tool-complete">$1</span>');
+      escaped = escaped.replace(/(⚠️\s*\[TOOL ERROR\])/g, '<span class="tag-tool-error">$1</span>');
+      escaped = escaped.replace(/((?:🔍|🎯)\s*\[RETRIEVAL (?:START|COMPLETED)\])/g, '<span class="tag-retrieval">$1</span>');
+      escaped = escaped.replace(/(🎯\s*\[INTENT CLASSIFIED\]|🚀\s*\[PIPELINE INITIALIZED\]|⚡\s*\[FAST PATH (?:HIT|MISS)\]|📚\s*\[DOC SEARCH\])/g, '<span class="tag-retrieval">$1</span>');
+      escaped = escaped.replace(/(🤖\s*\[LLM (?:GENERATION|NODE FINISHED|SUMMARY|FALLBACK|PARSED TEXT CALLS)\])/g, '<span class="tag-llm">$1</span>');
+      escaped = escaped.replace(/(📝\s*\[(?:GENERATED SQL|SUMMARIZATION COMPLETED|DOC SYNTHESIS COMPLETED)\])/g, '<span class="tag-llm">$1</span>');
+      escaped = escaped.replace(/(⚖️\s*\[VERIFY (?:RESULT|RETRY|SKIPPED|LIMIT)\])/g, '<span class="tag-verify">$1</span>');
+
+      // Highlight duration=...ms or duration=...s
+      escaped = escaped.replace(/(duration=\d+(?:\.\d+)?(?:ms|s))/gi, '<span class="duration-badge">$1</span>');
 
       // Highlight SQL statements
       escaped = escaped.replace(/(SELECT\s+[\s\S]*?FROM\s+[\s\S]*?)(;|\n|$)/gi, '<span style="color:#34D399;font-weight:600;">$1$2</span>');

@@ -24,7 +24,7 @@ from langgraph.prebuilt import ToolNode
 from my_agent.utils import tools as tool_registry
 from my_agent.utils.state import AgentState
 
-logger = logging.getLogger("agent.nodes")
+logger = logging.getLogger("app")
 
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
@@ -567,11 +567,32 @@ def llm_node(state: AgentState) -> dict:
                     "Now call execute_sql with a correct {dialect} query."
                 ).format(dialect=dialect_name)
             ))
+    t_llm = time.perf_counter()
     model = _get_model()
         
     response = model.invoke(_sanitize_messages_for_llm(messages_for_llm))
     response = _normalize_llm_response(response)
+    llm_duration_ms = (time.perf_counter() - t_llm) * 1000
     llm_steps = 1
+
+    tool_calls = getattr(response, "tool_calls", None) or []
+    if tool_calls:
+        tc_names = [t.get("name", "unknown") for t in tool_calls]
+        logger.info(
+            "🤖 [LLM GENERATION] Turn #%d | duration=%.2fms | Emitted tool calls: %s",
+            current_calls + 1, llm_duration_ms, ", ".join(tc_names)
+        )
+        for tc in tool_calls:
+            if tc.get("name") == "execute_sql":
+                sql = (tc.get("args", {}).get("sql") or tc.get("args", {}).get("query") or "").strip().replace("\n", " ")
+                if len(sql) > 180:
+                    sql = sql[:177] + "..."
+                logger.info("📝 [GENERATED SQL] %s", sql)
+    else:
+        logger.info(
+            "🤖 [LLM GENERATION] Turn #%d | duration=%.2fms | Verbal response (%d chars)",
+            current_calls + 1, llm_duration_ms, len(response.content or "")
+        )
 
     # Retry 1: model answered without calling any tool at all.
     if (
@@ -675,7 +696,7 @@ def llm_node(state: AgentState) -> dict:
     if response.content and not _REASONING:
         response.content = re.sub(r"<think>.*?</think>", "", response.content, flags=re.DOTALL).strip()
 
-    logger.info("llm_node: completed in %.2fs (rag_calls this turn: %d)", time.perf_counter() - t0, rag_increment)
+    logger.info("🤖 [LLM NODE FINISHED] Turn #%d | duration=%.2fms (rag_calls this turn: %d)", current_calls + 1, (time.perf_counter() - t0) * 1000, rag_increment)
     return {
         "messages": [response],
         "llm_calls": state.get("llm_calls", 0) + llm_steps,
@@ -776,7 +797,8 @@ def verify_node(state: AgentState) -> dict:
     # Guard: no SQL execution was even attempted (e.g. LLM answered directly)
     sql_attempts = _tool_messages(history, "execute_sql")
     if not sql_attempts:
-        logger.info("verify_node: no SQL query was executed; skipping verification")
+        verify_duration_ms = (time.perf_counter() - t0) * 1000
+        logger.info("⚖️  [VERIFY SKIPPED] No SQL query was executed; skipping verification | duration=%.2fms", verify_duration_ms)
         return {
             "messages": [AIMessage(content="No query result was returned.")],
             "verify_calls": verify_calls + 1,
@@ -796,9 +818,10 @@ def verify_node(state: AgentState) -> dict:
         sql = _extract_sql_from_history(history)
         
         if verify_calls >= _MAX_VERIFY_LOOPS:
+            verify_duration_ms = (time.perf_counter() - t0) * 1000
             logger.warning(
-                "verify_node: max verification loops (%d) reached with failed SQL; accepting error as-is",
-                _MAX_VERIFY_LOOPS,
+                "⚖️  [VERIFY LIMIT] Max verification loops (%d) reached with failed SQL | duration=%.2fms",
+                _MAX_VERIFY_LOOPS, verify_duration_ms,
             )
             return {
                 "messages": [AIMessage(content=f"SQL execution failed: {error_msg}")],
@@ -878,10 +901,9 @@ def verify_node(state: AgentState) -> dict:
                 }
             }]
         )
+        verify_duration_ms = (time.perf_counter() - t0) * 1000
         logger.warning(
-            "verify_node: SQL failed (bad_identifier=%s | error: %s). Forcing targeted RAG re-retrieval.",
-            bad_identifier or "unknown",
-            error_msg[:120],
+            f"⚖️  [VERIFY RETRY] SQL error ({error_msg[:100]}) | duration={verify_duration_ms:.2f}ms | Forcing targeted RAG re-retrieval"
         )
         return {
             "messages": [forced_rag_msg],
@@ -894,9 +916,9 @@ def verify_node(state: AgentState) -> dict:
     result_table = _result_table_str(last_result_msg.content)
     summary = _summarize_sql_result(state["user_query"], last_result_msg.content)
 
+    verify_duration_ms = (time.perf_counter() - t0) * 1000
     logger.info(
-        "verify_node: query executed successfully — skipping LLM verification (%.2fs saved)",
-        time.perf_counter() - t0,
+        f"⚖️  [VERIFY RESULT] Query executed successfully — VERIFIED | duration={verify_duration_ms:.2f}ms"
     )
     return {
         "verify_calls": verify_calls + 1,
@@ -1062,7 +1084,8 @@ def intent_node(state: AgentState) -> dict:
 
     # Guardrail check for pure greetings / salutations
     if _is_greeting_query(user_query):
-        logger.info("intent_node: detected greeting query '%s'", user_query)
+        duration_ms = (time.perf_counter() - t0) * 1000
+        logger.info("🎯 [INTENT CLASSIFIED] Intent: 'greeting' | Type: 'greeting' | Scope: [] | duration=%.2fms", duration_ms)
         return {
             "intent":           "greeting",
             "query_type":       "greeting",
@@ -1083,9 +1106,10 @@ def intent_node(state: AgentState) -> dict:
 
     department_scope = INTENT_DEPARTMENT_MAP.get(intent, ["ap_citizen360"])
 
+    duration_ms = (time.perf_counter() - t0) * 1000
     logger.info(
-        "intent_node: intent='%s' | query_type='%s' | scope=%s | %.2fs",
-        intent, query_type, department_scope, time.perf_counter() - t0,
+        "🎯 [INTENT CLASSIFIED] Intent: '%s' | Type: '%s' | Scope: %s | duration=%.2fms",
+        intent, query_type, department_scope, duration_ms,
     )
 
     return {
@@ -1110,7 +1134,7 @@ def initialize_node(state: AgentState) -> dict:
     rag_query = raw_query
 
     logger.info(
-        "initialize_node: RAG query = %s  (intent=%s, dept_scope=%s)",
+        "🚀 [PIPELINE INITIALIZED] Query: '%s' | Intent: '%s' | Scoped Departments: %s",
         rag_query, intent, dept_scope,
     )
 
@@ -1167,6 +1191,7 @@ def deterministic_search_node(state: AgentState) -> dict:
     import uuid
     tool_call_id = f"call_{uuid.uuid4().hex}"
     
+    logger.info("🎯 [FAST PATH] Initiating exact few-shot match check for: '%s'", state["user_query"])
     forced_tool_call_msg = AIMessage(
         content="",
         tool_calls=[{
@@ -1194,6 +1219,7 @@ def eval_fast_path_node(state: AgentState) -> dict:
     
     results = _tool_messages(history, "search_exact_fewshot")
     if not results:
+        logger.info("⚡ [FAST PATH MISS] No exact match results found. Proceeding to schema RAG.")
         return {"fast_sql": None}
         
     try:
@@ -1205,6 +1231,10 @@ def eval_fast_path_node(state: AgentState) -> dict:
     if payload.get("matched") and payload.get("sql"):
         sql = payload["sql"]
         tool_call_id = f"call_{uuid.uuid4().hex}"
+        sql_preview = sql.strip().replace("\n", " ")
+        if len(sql_preview) > 150:
+            sql_preview = sql_preview[:147] + "..."
+        logger.info("⚡ [FAST PATH HIT] Exact match found! Bypassing LLM generation. SQL: %s", sql_preview)
         
         forced_execute_msg = AIMessage(
             content="I found an exact match for your query. Executing now.",
@@ -1222,6 +1252,7 @@ def eval_fast_path_node(state: AgentState) -> dict:
             "query_type": "fast_path"
         }
         
+    logger.info("⚡ [FAST PATH MISS] Cosine similarity below threshold. Proceeding to standard schema RAG pipeline.")
     return {"fast_sql": None}
 
 def doc_search_node(state: AgentState) -> dict:
@@ -1229,6 +1260,7 @@ def doc_search_node(state: AgentState) -> dict:
     import uuid
     tool_call_id = f"call_{uuid.uuid4().hex}"
     
+    logger.info("📚 [DOC SEARCH] Initiating document search for: '%s'", state["user_query"])
     forced_tool_call_msg = AIMessage(
         content="",
         tool_calls=[{
@@ -1279,7 +1311,8 @@ def synthesize_node(state: AgentState) -> dict:
     if response.content:
         response.content = re.sub(r"<think>.*?</think>", "", response.content, flags=re.DOTALL).strip()
     
-    logger.info("synthesize_node: completed in %.2fs", time.perf_counter() - t0)
+    duration_ms = (time.perf_counter() - t0) * 1000
+    logger.info("📝 [DOC SYNTHESIS COMPLETED] duration=%.2fms | Response (%d chars)", duration_ms, len(response.content or ""))
     
     return {
         "messages": [response],
@@ -1334,7 +1367,8 @@ def summarization_node(state: AgentState) -> dict:
     if response.content:
         response.content = re.sub(r"<think>.*?</think>", "", response.content, flags=re.DOTALL).strip()
     
-    logger.info("summarization_node: completed in %.2fs", time.perf_counter() - t0)
+    duration_ms = (time.perf_counter() - t0) * 1000
+    logger.info("📝 [SUMMARIZATION COMPLETED] duration=%.2fms | Response (%d chars)", duration_ms, len(response.content or ""))
     
     return {
         "messages": [response],

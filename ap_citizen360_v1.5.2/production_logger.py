@@ -1,21 +1,25 @@
 """
 production_logger.py
-Enterprise-grade Production Logging & Network Routing Audit Subsystem.
+Enterprise-grade Unified Production Logging & Network Routing Audit Subsystem.
 
 Features:
-- Standardized log level tags: [INFO ], [WARN ], [ERROR], [DEBUG], [CRIT ]
+- Best-practice Time-Based File Naming:
+    * Active log file: logs/app_YYYY-MM-DD.log (e.g. logs/app_2026-09-28.log)
+    * Length-based rollover files: logs/app_YYYY-MM-DD_HHMMSS.log (timestamped chunks when maxBytes is reached)
+    * Symlink alias: logs/app_latest.log -> active log file
+- Best-practice Time-Based Request Correlation IDs:
+    * req_YYYYMMDD_HHMMSS_0001 for HTTP requests
+    * ws_YYYYMMDD_HHMMSS_0001 for WebSocket connections
+- Single Unified Module Tag: [app] across all log statements
+- Standardized 5-character aligned log level tags: [INFO ], [WARN ], [ERROR], [DEBUG], [CRIT ]
 - High-precision timestamps with millisecond accuracy (YYYY-MM-DD HH:MM:SS.mmm)
-- Production-grade file rotation in logs/ directory:
-    * logs/app.log     - Comprehensive system log (all levels >= INFO)
-    * logs/error.log   - Critical triage log (WARN, ERROR, CRITICAL only)
-    * logs/network.log - Full network routing audit log (HTTP, WS, Outbound calls)
 - ANSI colorized console formatter for terminal and container outputs
 - Full network routing interception (ASGI Middleware):
-    * Real client IP:Port resolution (with X-Forwarded-For proxy chain support)
-    * Server host:port destination resolution
-    * Inbound request logging: [CLIENT:PORT ➔ SERVER:PORT]
+    * Real client IP:Port resolution (detecting X-Forwarded-For proxy chains, X-Real-IP)
+    * Destination server host:port resolution
+    * Inbound request routing: [CLIENT:PORT ➔ SERVER:PORT]
     * Outbound response routing: [SERVER:PORT ➔ CLIENT:PORT] with status, latency (ms), and size
-    * Proper severity mapping: 2xx/3xx -> INFO, 4xx -> WARN, 5xx -> ERROR
+    * Severity mapping: 2xx/3xx -> INFO, 4xx -> WARN, 5xx -> ERROR
     * WebSocket connection, frames, and disconnection routing
 - Outbound external HTTP request tracking (requests library hook)
 - Seamless integration with real-time web UI log streaming (log_streamer.py)
@@ -25,7 +29,6 @@ import os
 import sys
 import time
 import json
-import uuid
 import logging
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
@@ -65,11 +68,24 @@ LEVEL_COLORS = {
 }
 
 
+# ── Time-Based Request ID Generator ────────────────────────────────────────────
+_request_counter = 0
+
+
+def generate_time_based_id(prefix: str = "req") -> str:
+    """Generate human-readable, chronological, time-based tracking ID: req_YYYYMMDD_HHMMSS_0001."""
+    global _request_counter
+    _request_counter += 1
+    now_str = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return f"{prefix}_{now_str}_{_request_counter:04d}"
+
+
 # ── Formatters ─────────────────────────────────────────────────────────────────
 class ProductionFileFormatter(logging.Formatter):
     """
     Standardized plain-text production formatter for file logs.
-    Includes millisecond timestamps and uniformly aligned tags: [INFO ], [WARN ], [ERROR], [DEBUG].
+    Includes millisecond timestamps, uniformly aligned tags [INFO ], [WARN ], [ERROR], [DEBUG],
+    and a unified [app] module tag.
     """
     def formatTime(self, record: logging.LogRecord, datefmt: Optional[str] = None) -> str:
         dt = datetime.fromtimestamp(record.created)
@@ -78,12 +94,10 @@ class ProductionFileFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         tag = LEVEL_TAGS.get(record.levelno, record.levelname[:5].ljust(5))
-        record.level_tag = tag  # Custom attribute for formatting
-        
-        # Format timestamp with milliseconds
+        record.level_tag = tag
         asctime = self.formatTime(record)
-        
         msg = record.getMessage()
+
         exc_text = ""
         if record.exc_info:
             if not record.exc_text:
@@ -91,7 +105,8 @@ class ProductionFileFormatter(logging.Formatter):
             if record.exc_text:
                 exc_text = f"\n{record.exc_text}"
 
-        return f"{asctime} [{tag}] [{record.name}] {msg}{exc_text}"
+        # Single unified module tag: [app]
+        return f"{asctime} [{tag}] [app] {msg}{exc_text}"
 
 
 class ColoredConsoleFormatter(logging.Formatter):
@@ -121,7 +136,7 @@ class ColoredConsoleFormatter(logging.Formatter):
                 exc_text = f"\n{record.exc_text}"
 
         if not self.use_colors:
-            return f"{asctime} [{tag}] [{record.name}] {msg}{exc_text}"
+            return f"{asctime} [{tag}] [app] {msg}{exc_text}"
 
         level_color = LEVEL_COLORS.get(record.levelno, ANSI_RESET)
         
@@ -139,28 +154,136 @@ class ColoredConsoleFormatter(logging.Formatter):
         formatted = (
             f"{ANSI_DIM}{asctime}{ANSI_RESET} "
             f"{level_color}[{tag}]{ANSI_RESET} "
-            f"{ANSI_BLUE}[{record.name}]{ANSI_RESET} "
+            f"{ANSI_BLUE}[app]{ANSI_RESET} "
             f"{colored_msg}{exc_text}"
         )
         return formatted
 
 
+# ── Time-Based Rotating File Handler ───────────────────────────────────────────
+class TimestampedRotatingFileHandler(RotatingFileHandler):
+    """
+    Production file handler following industry time-based naming conventions:
+    - Active file: app_YYYY-MM-DD.log (e.g. app_2026-09-28.log)
+    - Length rollover files: app_YYYY-MM-DD_HHMMSS.log (timestamped when length threshold is exceeded)
+    - Day rollover: automatically switches to the new date's file at midnight
+    - Symlink: app_latest.log -> points to the current active file
+    """
+    def __init__(
+        self,
+        directory: Path,
+        prefix: str = "app",
+        max_bytes: int = 10 * 1024 * 1024,
+        backup_count: int = 10,
+        encoding: str = "utf-8",
+        delay: bool = True,
+    ):
+        self.directory = Path(directory).resolve()
+        self.directory.mkdir(parents=True, exist_ok=True)
+        self.prefix = prefix
+        self.current_date = datetime.now().strftime("%Y-%m-%d")
+        
+        filepath = self.directory / f"{self.prefix}_{self.current_date}.log"
+        super().__init__(
+            str(filepath),
+            maxBytes=max_bytes,
+            backupCount=backup_count,
+            encoding=encoding,
+            delay=delay,
+        )
+        self._update_latest_symlink()
+
+    def _update_latest_symlink(self) -> None:
+        """Create or update app_latest.log symlink pointing to active log file."""
+        latest_path = self.directory / f"{self.prefix}_latest.log"
+        active_target = Path(self.baseFilename).name
+        try:
+            if latest_path.is_symlink() or latest_path.exists():
+                latest_path.unlink()
+            os.symlink(active_target, latest_path)
+        except Exception:
+            pass
+
+    def emit(self, record: logging.LogRecord) -> None:
+        # Check if date rolled over to next day
+        now_date = datetime.now().strftime("%Y-%m-%d")
+        if now_date != self.current_date:
+            self._rollover_to_new_date(now_date)
+        super().emit(record)
+
+    def _rollover_to_new_date(self, new_date: str) -> None:
+        """Switch to new date's log file when calendar day rolls over."""
+        if self.stream:
+            self.stream.close()
+            self.stream = None
+        self.current_date = new_date
+        self.baseFilename = os.path.abspath(self.directory / f"{self.prefix}_{self.current_date}.log")
+        self._update_latest_symlink()
+
+    def doRollover(self) -> None:
+        """
+        Rollover when file length threshold (maxBytes) is exceeded.
+        Archives the chunk with an exact time-based filename: app_YYYY-MM-DD_HHMMSS.log
+        """
+        if self.stream:
+            self.stream.close()
+            self.stream = None
+
+        time_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        rotated_path = self.directory / f"{self.prefix}_{time_str}.log"
+        
+        counter = 1
+        while rotated_path.exists():
+            rotated_path = self.directory / f"{self.prefix}_{time_str}_{counter:02d}.log"
+            counter += 1
+
+        if os.path.exists(self.baseFilename):
+            try:
+                os.rename(self.baseFilename, rotated_path)
+            except OSError:
+                pass
+
+        self._prune_old_backups()
+        self._update_latest_symlink()
+
+        if not self.delay:
+            self.stream = self._open()
+
+    def _prune_old_backups(self) -> None:
+        """Remove oldest archives if exceeding backupCount."""
+        if self.backupCount <= 0:
+            return
+        pattern = f"{self.prefix}_*.log"
+        active_name = Path(self.baseFilename).name
+        files = [
+            f for f in self.directory.glob(pattern)
+            if f.name != active_name and not f.name.endswith("_latest.log")
+        ]
+        files.sort(key=lambda p: p.stat().st_mtime)
+        while len(files) > self.backupCount:
+            oldest = files.pop(0)
+            try:
+                oldest.unlink()
+            except Exception:
+                pass
+
+
 # ── Configuration & Setup ──────────────────────────────────────────────────────
 _logging_initialized = False
-network_logger = logging.getLogger("app.network")
+network_logger = logging.getLogger("app")
 
 
 def setup_production_logging(
     log_dir_path: Optional[str] = None,
     log_level: Optional[str] = None,
-    max_bytes: int = 15 * 1024 * 1024,  # 15 MB per file
+    max_bytes: int = 10 * 1024 * 1024,  # 10 MB per length-based split chunk
     backup_count: int = 10,
     enable_console_colors: Optional[bool] = None,
 ) -> None:
     """
-    Initialize production logging configuration.
-    Sets up rotating file handlers for app.log, error.log, and network.log,
-    along with colorized console output and integration with log_streamer.py.
+    Initialize enterprise production logging with time-based file naming and length-based rollover.
+    Active file: logs/app_YYYY-MM-DD.log (and logs/app_latest.log symlink).
+    Rolled-over files: logs/app_YYYY-MM-DD_HHMMSS.log.
     """
     global _logging_initialized
     if _logging_initialized:
@@ -172,8 +295,24 @@ def setup_production_logging(
     log_dir = Path(log_dir_path or (base_dir / env_dir)).resolve()
     log_dir.mkdir(parents=True, exist_ok=True)
 
+    # Clean up legacy unformatted/multi-module files
+    for old_file in (log_dir / "app.log", log_dir / "error.log", log_dir / "network.log"):
+        try:
+            if old_file.exists():
+                old_file.unlink()
+        except Exception:
+            pass
+
     level_str = (log_level or os.getenv("LOG_LEVEL", "INFO")).upper().strip()
     root_level = getattr(logging, level_str, logging.INFO)
+
+    env_max_bytes = os.getenv("LOG_MAX_BYTES")
+    if env_max_bytes and env_max_bytes.isdigit():
+        max_bytes = int(env_max_bytes)
+
+    env_backup_count = os.getenv("LOG_BACKUP_COUNT")
+    if env_backup_count and env_backup_count.isdigit():
+        backup_count = int(env_backup_count)
 
     env_color = os.getenv("LOG_CONSOLE_COLOR", "").lower()
     if enable_console_colors is not None:
@@ -198,50 +337,20 @@ def setup_production_logging(
     console_handler.setFormatter(console_formatter)
     root_logger.addHandler(console_handler)
 
-    # 2. Production Rotating File Handler: app.log (all system events >= root_level)
-    app_log_path = log_dir / "app.log"
-    app_file_handler = RotatingFileHandler(
-        app_log_path,
-        maxBytes=max_bytes,
-        backupCount=backup_count,
+    # 2. Time-Based Rotating File Handler (app_YYYY-MM-DD.log -> app_YYYY-MM-DD_HHMMSS.log on split)
+    time_file_handler = TimestampedRotatingFileHandler(
+        directory=log_dir,
+        prefix="app",
+        max_bytes=max_bytes,
+        backup_count=backup_count,
         encoding="utf-8",
         delay=True,
     )
-    app_file_handler.setLevel(root_level)
-    app_file_handler.setFormatter(file_formatter)
-    root_logger.addHandler(app_file_handler)
+    time_file_handler.setLevel(root_level)
+    time_file_handler.setFormatter(file_formatter)
+    root_logger.addHandler(time_file_handler)
 
-    # 3. Production Rotating File Handler: error.log (WARN, ERROR, CRITICAL only)
-    error_log_path = log_dir / "error.log"
-    error_file_handler = RotatingFileHandler(
-        error_log_path,
-        maxBytes=max_bytes,
-        backupCount=backup_count,
-        encoding="utf-8",
-        delay=True,
-    )
-    error_file_handler.setLevel(logging.WARNING)
-    error_file_handler.setFormatter(file_formatter)
-    root_logger.addHandler(error_file_handler)
-
-    # 4. Production Rotating File Handler: network.log (Dedicated network routing audit)
-    network_log_path = log_dir / "network.log"
-    network_file_handler = RotatingFileHandler(
-        network_log_path,
-        maxBytes=max_bytes,
-        backupCount=backup_count,
-        encoding="utf-8",
-        delay=True,
-    )
-    network_file_handler.setLevel(logging.DEBUG)
-    network_file_handler.setFormatter(file_formatter)
-
-    # Dedicated network logger for explicit routing logs
-    network_logger.setLevel(logging.DEBUG)
-    if network_file_handler not in network_logger.handlers:
-        network_logger.addHandler(network_file_handler)
-
-    # 5. Connect real-time log_streamer (for live web terminal & TOTP UI)
+    # 3. Connect real-time log_streamer (for live web terminal & TOTP UI)
     try:
         from log_streamer import log_manager
         log_manager.setFormatter(file_formatter)
@@ -256,13 +365,15 @@ def setup_production_logging(
         u_logger.handlers.clear()
         u_logger.propagate = True
 
-    # 6. Install outbound HTTP request logger for requests calls (Ollama, vLLM, APIs)
+    # 4. Install outbound HTTP request logger for requests calls (Ollama, vLLM, APIs)
     install_outbound_network_logger()
 
     _logging_initialized = True
+    active_path = time_file_handler.baseFilename
+    split_size_mb = round(max_bytes / (1024 * 1024), 1)
     root_logger.info(
-        f"Production logging initialized. Logs directory: {log_dir} "
-        f"[app.log, error.log, network.log] (Level: {level_str})"
+        f"Production logging initialized. Active log: {active_path} "
+        f"(Time-based rollover at {split_size_mb}MB, keeping {backup_count} files, Level: {level_str})"
     )
 
 
@@ -296,7 +407,6 @@ def install_outbound_network_logger() -> None:
                 status_code = getattr(response, "status_code", 200)
                 reason = getattr(response, "reason", "")
 
-                # Estimate response body length
                 size_bytes = 0
                 if hasattr(response, "_content") and response._content is not None:
                     size_bytes = len(response._content)
@@ -345,10 +455,11 @@ class NetworkRoutingMiddleware:
     Pure ASGI middleware that tracks and logs the complete routing lifecycle:
     - Real client IP:Port resolution (detecting proxy headers: X-Forwarded-For, X-Real-IP)
     - Destination server host:port resolution
+    - Time-based request correlation IDs (req_YYYYMMDD_HHMMSS_0001)
     - Inbound request routing: [CLIENT_IP:PORT ➔ SERVER_HOST:PORT]
     - Outbound response routing: [SERVER_HOST:PORT ➔ CLIENT_IP:PORT]
     - Status code, millisecond latency, and payload size
-    - Proper severity tags: 2xx/3xx -> INFO, 4xx -> WARN, 5xx -> ERROR
+    - Severity mapping: 2xx/3xx -> INFO, 4xx -> WARN, 5xx -> ERROR
     - WebSocket connection handshakes, incoming/outgoing frames, and disconnection
     """
 
@@ -385,7 +496,6 @@ class NetworkRoutingMiddleware:
 
         forwarded_for = header_map.get("x-forwarded-for")
         if forwarded_for:
-            # First IP in the comma-separated chain is the client
             real_client_ip = forwarded_for.split(",")[0].strip()
         else:
             real_client_ip = (
@@ -434,11 +544,11 @@ class NetworkRoutingMiddleware:
         full_path = f"{path}{query_str}"
         http_version = scope.get("http_version", "1.1")
 
+        # Time-based Request Correlation ID (e.g. req_20260928_213500_0001)
         request_id = headers.get("x-request-id")
         if not request_id:
-            request_id = f"req_{uuid.uuid4().hex[:10]}"
+            request_id = generate_time_based_id("req")
 
-        # Metadata tags for inbound log
         content_length = headers.get("content-length")
         content_type = headers.get("content-type")
         user_agent = headers.get("user-agent", "")
@@ -469,7 +579,6 @@ class NetworkRoutingMiddleware:
             msg_type = message.get("type")
             if msg_type == "http.response.start":
                 status_code = message.get("status", 200)
-                # Inject correlation tracking header
                 resp_headers = list(message.get("headers", []))
                 resp_headers.append((b"x-request-id", request_id.encode("latin-1")))
                 message = dict(message)
@@ -498,7 +607,6 @@ class NetworkRoutingMiddleware:
                 status_phrase = ""
             status_display = f"{status_code} {status_phrase}".strip()
 
-            # Map status severity: 2xx/3xx -> INFO, 4xx -> WARN, 5xx -> ERROR
             if status_code >= 500:
                 log_lvl = logging.ERROR
             elif status_code >= 400:
@@ -519,7 +627,7 @@ class NetworkRoutingMiddleware:
         query_bytes = scope.get("query_string", b"")
         query_str = f"?{query_bytes.decode('latin-1')}" if query_bytes else ""
         full_path = f"{path}{query_str}"
-        request_id = headers.get("x-request-id") or f"ws_{uuid.uuid4().hex[:10]}"
+        request_id = headers.get("x-request-id") or generate_time_based_id("ws")
 
         self.logger.info(
             f"➔ INCOMING WS CONNECT [{client_addr} ➔ {server_addr}] {full_path} | req_id={request_id}"

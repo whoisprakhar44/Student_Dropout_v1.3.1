@@ -305,7 +305,7 @@ def get_session_messages(session_id: str) -> list[Any]:
     try:
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT role, content, sql FROM messages WHERE session_id = ? ORDER BY created_at DESC LIMIT 10",
+            "SELECT role, content, sql FROM messages WHERE session_id = ? ORDER BY created_at DESC, rowid DESC LIMIT 10",
             (session_id,)
         )
         rows = cursor.fetchall()
