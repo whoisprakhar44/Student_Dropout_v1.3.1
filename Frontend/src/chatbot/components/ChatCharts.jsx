@@ -22,7 +22,8 @@ import {
   LineChart as LineChartIcon,
   PieChart as PieChartIcon,
   Download,
-  FileDown
+  FileDown,
+  X
 } from 'lucide-react';
 
 const COLORS = [
@@ -36,7 +37,7 @@ const COLORS = [
   '#F97316'
 ];
 
-export const ChatCharts = ({ chartData, summary }) => {
+export const ChatCharts = ({ chartData, summary, onClose }) => {
   const chartRef = useRef(null);
 
   if (!chartData) return null;
@@ -342,6 +343,18 @@ export const ChatCharts = ({ chartData, summary }) => {
             <span className="cb-table-badge">
                 {chartData.data?.length || 0} points
             </span>
+
+            {onClose && (
+              <button
+                type="button"
+                className="cb-table-copy-btn"
+                onClick={onClose}
+                title="Close Chart"
+                style={{ padding: '4px', marginLeft: '4px' }}
+              >
+                <X size={14} />
+              </button>
+            )}
             </div>
         </div>
 

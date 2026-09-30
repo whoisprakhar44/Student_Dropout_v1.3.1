@@ -381,12 +381,13 @@ class ChatWebSocketService {
   /**
    * Action Shorthand Helpers
    */
-  ask({ question, sessionId, username, requestId, onProgress, signal }) {
+  ask({ question, sessionId, username, requestId, onProgress, signal, layer = 'curated' }) {
     return this.sendAction('ws_ask', {
       question,
       session_id: sessionId,
       username,
       request_id: requestId,
+      layer,
     }, { onProgress, signal });
   }
 
@@ -396,20 +397,20 @@ class ChatWebSocketService {
     });
   }
 
-  getHistory(username) {
-    return this.sendAction('ws_history', { username });
+  getHistory(username, layer = 'curated') {
+    return this.sendAction('ws_history', { username, layer });
   }
 
-  getSessionHistory(sessionId, username) {
-    return this.sendAction('ws_history_session', { session_id: sessionId, username });
+  getSessionHistory(sessionId, username, layer = 'curated') {
+    return this.sendAction('ws_history_session', { session_id: sessionId, username, layer });
   }
 
-  deleteSession(sessionId, username) {
-    return this.sendAction('ws_delete_session', { session_id: sessionId, username });
+  deleteSession(sessionId, username, layer = 'curated') {
+    return this.sendAction('ws_delete_session', { session_id: sessionId, username, layer });
   }
 
-  clearAllHistory(username) {
-    return this.sendAction('ws_clear_history', { username });
+  clearAllHistory(username, layer = 'curated') {
+    return this.sendAction('ws_clear_history', { username, layer });
   }
 
   getSuggestions(limit = 50) {

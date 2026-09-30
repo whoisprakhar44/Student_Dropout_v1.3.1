@@ -12,17 +12,25 @@ import {
   LayoutGrid,
   List,
   Ban,
-  Loader2
+  Loader2,
+  Sparkles,
+  Database,
+  Layers,
+  TableProperties
 } from 'lucide-react';
 
 import { useChatbot } from '../hooks/useChatbot';
-import { SUGGESTION_LAYOUTS } from '../constants/chatbotConstants';
+import { SUGGESTION_LAYOUTS, CHAT_LAYERS } from '../constants/chatbotConstants';
 import { speechService } from '../services/speechService';
 
 export const ChatHistorySidebar = () => {
   const {
     sessions,
     activeSessionId,
+    activeLayer,
+    setActiveLayer,
+    isSchemaEnabled,
+    currentLayerSessions,
     loadSession,
     createNewSession,
     deleteSession,
@@ -53,12 +61,20 @@ export const ChatHistorySidebar = () => {
     import.meta.env?.VITE_APP_VERSION ||
     'v1.0.0';
 
+  // Filter sessions matching active layer and search query
+  const targetSessions = useMemo(() => {
+    if (Array.isArray(currentLayerSessions)) {
+      return currentLayerSessions;
+    }
+    return sessions.filter((s) => (s.layer || CHAT_LAYERS.CURATED) === activeLayer);
+  }, [currentLayerSessions, sessions, activeLayer]);
+
   const filteredSessions = useMemo(() => {
-    if (!searchQuery.trim()) return sessions;
+    if (!searchQuery.trim()) return targetSessions;
 
     const query = searchQuery.toLowerCase();
 
-    return sessions.filter(
+    return targetSessions.filter(
       (session) =>
         session.title?.toLowerCase().includes(query) ||
         (session.messages &&
@@ -68,7 +84,7 @@ export const ChatHistorySidebar = () => {
               m.content.toLowerCase().includes(query)
           ))
     );
-  }, [sessions, searchQuery]);
+  }, [targetSessions, searchQuery]);
 
   const formatDate = (isoString) => {
     if (!isoString) return '';
@@ -124,7 +140,7 @@ export const ChatHistorySidebar = () => {
     };
   }, [showSettings]);
 
-
+  const isSchemaMode = activeLayer === CHAT_LAYERS.SCHEMA;
 
   return (
     <aside
@@ -132,12 +148,45 @@ export const ChatHistorySidebar = () => {
       aria-label="Chat history navigation"
     >
       <div className="cb-sidebar-header">
+        {/* Layer Mode Switcher (Curated vs Schema) - Controlled via SDUI / backend visibility */}
+        {isSchemaEnabled && (
+          <div className="cb-layer-switcher-wrap" aria-label="Conversation Type Switcher">
+            <div className="cb-layer-tabs" role="tablist">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeLayer === CHAT_LAYERS.CURATED}
+                className={`cb-layer-tab ${activeLayer === CHAT_LAYERS.CURATED ? 'active' : ''}`}
+                onClick={() => setActiveLayer(CHAT_LAYERS.CURATED)}
+                title="Curated Mode: Verified questions, domain analytics & citizen schemes"
+              >
+                <Sparkles size={13} className="cb-layer-tab-icon" />
+                <span>Curated</span>
+              </button>
+
+              <button
+                type="button"
+                role="tab"
+                aria-selected={activeLayer === CHAT_LAYERS.SCHEMA}
+                className={`cb-layer-tab ${activeLayer === CHAT_LAYERS.SCHEMA ? 'active' : ''}`}
+                onClick={() => setActiveLayer(CHAT_LAYERS.SCHEMA)}
+                title="Schema Mode: Direct relational schema, table structures & metadata query"
+              >
+                <Database size={13} className="cb-layer-tab-icon" />
+                <span>Schema</span>
+                <span className="cb-layer-tab-badge">Beta</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         <button
-          className="cb-new-chat-btn"
-          onClick={createNewSession}
+          className={`cb-new-chat-btn ${isSchemaMode ? 'schema-mode' : ''}`}
+          onClick={() => createNewSession(activeLayer)}
+          title={isSchemaMode ? 'Start new Schema Query session' : 'Start new Curated Conversation'}
         >
           <Plus size={16} />
-          New Chat
+          {isSchemaMode ? 'New Schema Chat' : 'New Chat'}
         </button>
 
         <div className="cb-search-input-wrap">
@@ -149,7 +198,7 @@ export const ChatHistorySidebar = () => {
           <input
             type="text"
             className="cb-search-input"
-            placeholder="Search conversations..."
+            placeholder={isSchemaMode ? 'Search schema chats...' : 'Search conversations...'}
             value={searchQuery}
             onChange={(e) =>
               setSearchQuery(e.target.value)
@@ -163,13 +212,30 @@ export const ChatHistorySidebar = () => {
         {filteredSessions.length === 0 ? (
           <div
             style={{
-              padding: '24px 16px',
+              padding: '32px 16px',
               textAlign: 'center',
               color: 'var(--text-muted)',
-              fontSize: '13px'
+              fontSize: '13px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '8px'
             }}
           >
-            No sessions found
+            {isSchemaMode ? (
+              <>
+                <Database size={24} style={{ opacity: 0.4, color: 'var(--primary-color)' }} />
+                <span>No Schema sessions found</span>
+                <span style={{ fontSize: '11px', opacity: 0.7 }}>
+                  Click "+ New Schema Chat" to query tables & column metadata.
+                </span>
+              </>
+            ) : (
+              <>
+                <Sparkles size={24} style={{ opacity: 0.4, color: 'var(--primary-color)' }} />
+                <span>No sessions found</span>
+              </>
+            )}
           </div>
         ) : (
           filteredSessions.map((session) => {
@@ -179,12 +245,14 @@ export const ChatHistorySidebar = () => {
             const messageCount =
               session.messages?.length || 0;
 
+            const sessionIsSchema = (session.layer || CHAT_LAYERS.CURATED) === CHAT_LAYERS.SCHEMA;
+
             return (
               <div
                 key={session.id}
                 className={`cb-session-item ${
                   isActive ? 'active' : ''
-                }`}
+                } ${sessionIsSchema ? 'is-schema-session' : ''}`}
                 onClick={() =>
                   loadSession(session.id)
                 }
@@ -200,7 +268,7 @@ export const ChatHistorySidebar = () => {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span className="cb-session-title">
                       {session.title ||
-                        'Untitled Session'}
+                        (sessionIsSchema ? 'Untitled Schema Query' : 'Untitled Session')}
                     </span>
                     {loadingSessions?.[session.id] && (
                       <span className="cb-session-loading-badge" title="Query running in this chat...">
@@ -210,6 +278,11 @@ export const ChatHistorySidebar = () => {
                   </div>
 
                   <div className="cb-session-meta">
+                    {sessionIsSchema && (
+                      <span className="cb-session-layer-tag" title="Schema Chat Layer">
+                        Schema
+                      </span>
+                    )}
                     <span>
                       {formatDate(
                         session.updatedAt ||
@@ -252,9 +325,9 @@ export const ChatHistorySidebar = () => {
       <div className="cb-sidebar-footer">
         <div
           className="cb-version-tag"
-          title={`Chatbot Version: ${appVersion}`}
+          title={`Chatbot Version: ${appVersion} | Mode: ${activeLayer}`}
         >
-          <span className="cb-version-dot" />
+          <span className="cb-version-dot" style={{ background: isSchemaMode ? '#8b5cf6' : 'var(--primary-color)' }} />
           <span>Version {appVersion}</span>
         </div>
 
@@ -514,17 +587,17 @@ export const ChatHistorySidebar = () => {
                   onClick={() => {
                     if (
                       window.confirm(
-                        'Are you sure you want to clear all chat conversations?'
+                        `Are you sure you want to clear ${isSchemaMode ? 'all schema query' : 'all chat'} conversations?`
                       )
                     ) {
-                      clearAllSessions();
+                      clearAllSessions(activeLayer);
                       setShowSettings(false);
                     }
                   }}
                 >
                   <Trash2 size={14} />
                   <span>
-                    Clear All Conversations
+                    Clear {isSchemaMode ? 'Schema Conversations' : 'All Conversations'}
                   </span>
                 </button>
               </div>

@@ -114,9 +114,10 @@ export const chatbotApi = {
    * @param {string} [params.requestId] - Custom identifier to track/cancel request
    * @param {AbortSignal} [params.signal] - AbortSignal for network request cancellation
    * @param {Function} [params.onProgress] - Callback for real-time planner execution steps
+   * @param {string} [params.layer='curated'] - Target conversation layer ('curated' | 'schema')
    * @returns {Promise<Object>} Formatted assistant response message
    */
-  sendChatMessage: async ({ question, sessionId, requestId, signal, onProgress }) => {
+  sendChatMessage: async ({ question, sessionId, requestId, signal, onProgress, layer = 'curated' }) => {
     const transport = getTransportMode();
     const reqId = requestId || `req_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
     const username = chatStorage.getStoredUsername();
@@ -131,6 +132,7 @@ export const chatbotApi = {
           requestId: reqId,
           onProgress,
           signal,
+          layer,
         });
 
         const payloadData = wsResponse.data || {};
@@ -144,6 +146,7 @@ export const chatbotApi = {
           summary: payloadData.summary,
           timings: payloadData.timings,
           sessionId: sessionId,
+          layer: layer,
           created_at: new Date().toISOString(),
         });
       } catch (wsErr) {
@@ -174,6 +177,7 @@ export const chatbotApi = {
       username: username,
       request_id: reqId,
       session_id: sessionId,
+      layer: layer,
     };
 
     try {
@@ -218,6 +222,7 @@ export const chatbotApi = {
         summary: data.summary,
         timings: data.timings,
         sessionId: sessionId,
+        layer: layer,
         created_at: new Date().toISOString(),
       });
     } catch (err) {
@@ -280,20 +285,22 @@ export const chatbotApi = {
   /**
    * Retrieve all session summaries for the current user via WebSocket or POST /ask
    * 
-   * @returns {Promise<Array>} List of session summaries: [{ id, title, created_at, updated_at }]
+   * @param {string} [layer='curated'] - Target layer ('curated' | 'schema')
+   * @returns {Promise<Array>} List of session summaries: [{ id, title, layer, created_at, updated_at }]
    */
-  getChatSessions: async () => {
+  getChatSessions: async (layer = 'curated') => {
     const username = chatStorage.getStoredUsername();
 
     // 1. Try WebSocket first if connected
     if (chatWebSocketService.isConnected()) {
       try {
-        const wsRes = await chatWebSocketService.getHistory(username);
+        const wsRes = await chatWebSocketService.getHistory(username, layer);
         const sessionsData = wsRes.data;
         if (Array.isArray(sessionsData)) {
           return sessionsData.map((s) => ({
             id: s.id || s.session_id,
             title: s.title || 'Conversation',
+            layer: s.layer || layer,
             createdAt: s.created_at || s.createdAt || new Date().toISOString(),
             updatedAt: s.updated_at || s.updatedAt || new Date().toISOString(),
             messages: [],
@@ -315,6 +322,7 @@ export const chatbotApi = {
         body: JSON.stringify({
           action: 'history',
           username: username,
+          layer: layer,
         }),
       });
 
@@ -330,6 +338,7 @@ export const chatbotApi = {
       return sessionsData.map((s) => ({
         id: s.id || s.session_id,
         title: s.title || 'Conversation',
+        layer: s.layer || layer,
         createdAt: s.created_at || s.createdAt || new Date().toISOString(),
         updatedAt: s.updated_at || s.updatedAt || new Date().toISOString(),
         messages: [],
@@ -344,16 +353,17 @@ export const chatbotApi = {
    * Retrieve the full message thread for a specific session ID via WebSocket or POST /ask
    * 
    * @param {string} sessionId
+   * @param {string} [layer='curated']
    * @returns {Promise<Object>} Session object with complete messages array
    */
-  getSessionHistory: async (sessionId) => {
+  getSessionHistory: async (sessionId, layer = 'curated') => {
     if (!sessionId) return null;
     const username = chatStorage.getStoredUsername();
 
     // 1. Try WebSocket first if connected
     if (chatWebSocketService.isConnected()) {
       try {
-        const wsRes = await chatWebSocketService.getSessionHistory(sessionId, username);
+        const wsRes = await chatWebSocketService.getSessionHistory(sessionId, username, layer);
         const data = wsRes.data;
         if (data) {
           const rawMessages = Array.isArray(data.messages) ? data.messages : [];
@@ -362,6 +372,7 @@ export const chatbotApi = {
           return {
             id: data.id || sessionId,
             title: data.title || 'Conversation',
+            layer: data.layer || layer,
             createdAt: data.created_at || new Date().toISOString(),
             updatedAt: data.updated_at || new Date().toISOString(),
             messages: normalizedMessages,
@@ -384,6 +395,7 @@ export const chatbotApi = {
           action: 'history_session',
           username: username,
           session_id: sessionId,
+          layer: layer,
         }),
       });
 
@@ -398,6 +410,7 @@ export const chatbotApi = {
       return {
         id: data.id || sessionId,
         title: data.title || 'Conversation',
+        layer: data.layer || layer,
         createdAt: data.created_at || new Date().toISOString(),
         updatedAt: data.updated_at || new Date().toISOString(),
         messages: normalizedMessages,
@@ -412,16 +425,17 @@ export const chatbotApi = {
    * Delete a specific session thread via WebSocket or POST /ask
    * 
    * @param {string} sessionId
+   * @param {string} [layer='curated']
    * @returns {Promise<boolean>} Success indicator
    */
-  deleteChatSession: async (sessionId) => {
+  deleteChatSession: async (sessionId, layer = 'curated') => {
     if (!sessionId) return false;
     const username = chatStorage.getStoredUsername();
 
     // 1. Try WebSocket
     if (chatWebSocketService.isConnected()) {
       try {
-        const res = await chatWebSocketService.deleteSession(sessionId, username);
+        const res = await chatWebSocketService.deleteSession(sessionId, username, layer);
         if (res.status === 'success') return true;
       } catch (wsErr) {
         console.warn('[WS] deleteChatSession failed, falling back to HTTP:', wsErr.message);
@@ -440,6 +454,7 @@ export const chatbotApi = {
           action: 'delete_session',
           username: username,
           session_id: sessionId,
+          layer: layer,
         }),
       });
 
@@ -453,15 +468,16 @@ export const chatbotApi = {
   /**
    * Clear all session histories for current user via WebSocket or POST /ask
    * 
+   * @param {string} [layer='curated']
    * @returns {Promise<boolean>} Success indicator
    */
-  clearAllHistory: async () => {
+  clearAllHistory: async (layer = 'curated') => {
     const username = chatStorage.getStoredUsername();
 
     // 1. Try WebSocket
     if (chatWebSocketService.isConnected()) {
       try {
-        const res = await chatWebSocketService.clearAllHistory(username);
+        const res = await chatWebSocketService.clearAllHistory(username, layer);
         if (res.status === 'success') return true;
       } catch (wsErr) {
         console.warn('[WS] clearAllHistory failed, falling back to HTTP:', wsErr.message);
@@ -479,6 +495,7 @@ export const chatbotApi = {
         body: JSON.stringify({
           action: 'clear_history',
           username: username,
+          layer: layer,
         }),
       });
 
@@ -534,6 +551,50 @@ export const chatbotApi = {
       console.warn('Failed to render chart on backend:', err.message);
       return null;
     }
+  },
+
+  /**
+   * Fetch SDUI & User Privileges Configuration from backend
+   * 
+   * @returns {Promise<Object>} SDUI configuration containing permissions, capabilities, copy protection & layer visibility
+   */
+  getSduiSettings: async () => {
+    const username = chatStorage.getStoredUsername();
+
+    // 1. Try WebSocket first if connected
+    if (chatWebSocketService.isConnected()) {
+      try {
+        const wsRes = await chatWebSocketService.sendAction('ws_sdui_config', { username });
+        if (wsRes?.data) {
+          return wsRes.data;
+        }
+      } catch (wsErr) {
+        // fall through
+      }
+    }
+
+    // 2. HTTP Fallback
+    const baseUrl = getApiBaseUrl();
+    if (!baseUrl) return null;
+
+    try {
+      const response = await fetch(`${baseUrl}`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          action: 'sdui_config',
+          username: username,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      }
+    } catch (err) {
+      console.warn('Could not fetch SDUI config from backend, using fallbacks:', err.message);
+    }
+    return null;
   },
 };
 

@@ -4,7 +4,7 @@ import { useChatbot } from '../hooks/useChatbot';
 import { DEFAULT_BOT_INFO, WS_CONNECTION_STATUS } from '../constants/chatbotConstants';
 
 export const ChatHeader = ({ isFullscreen = false, onToggleSidebar = null }) => {
-  const { closeChat, toggleFullscreen, clearChat, connectionStatus, isConnected } = useChatbot();
+  const { closeChat, toggleFullscreen, clearChat, connectionStatus, isConnected, activeLayer } = useChatbot();
 
   const getStatusLabel = () => {
     switch (connectionStatus) {
@@ -26,6 +26,8 @@ export const ChatHeader = ({ isFullscreen = false, onToggleSidebar = null }) => 
     return 'online';
   };
 
+  const isSchema = activeLayer === 'schema';
+
   return (
     <div className="cb-header">
       <div className="cb-header-info">
@@ -36,7 +38,14 @@ export const ChatHeader = ({ isFullscreen = false, onToggleSidebar = null }) => 
           <span className={`cb-status-dot ${getStatusClass()}`} title={`Bot Status: ${getStatusLabel()}`} />
         </div>
         <div className="cb-bot-details">
-          <span className="cb-bot-name">{DEFAULT_BOT_INFO.name}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span className="cb-bot-name">{DEFAULT_BOT_INFO.name}</span>
+            {isSchema && (
+              <span className="cb-header-layer-badge schema" title="Active Layer: Relational Schema Exploration">
+                Schema
+              </span>
+            )}
+          </div>
           <span className="cb-bot-status">
             {getStatusLabel()}
           </span>

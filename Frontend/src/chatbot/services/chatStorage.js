@@ -1,4 +1,4 @@
-import { STORAGE_KEYS, VIEW_MODES } from '../constants/chatbotConstants';
+import { STORAGE_KEYS, VIEW_MODES, CHAT_LAYERS, DEFAULT_LAYER } from '../constants/chatbotConstants';
 
 /**
  * Storage Service for persisting chatbot state in localStorage.
@@ -31,10 +31,117 @@ export const chatStorage = {
   },
 
   /**
+   * Get active layer ('curated' | 'schema')
+   */
+  getActiveLayer: () => {
+    try {
+      const layer = localStorage.getItem(STORAGE_KEYS.ACTIVE_LAYER);
+      if (layer === CHAT_LAYERS.SCHEMA || layer === CHAT_LAYERS.CURATED) {
+        return layer;
+      }
+      return DEFAULT_LAYER;
+    } catch (error) {
+      return DEFAULT_LAYER;
+    }
+  },
+
+  /**
+   * Save active layer
+   */
+  saveActiveLayer: (layer) => {
+    try {
+      if (layer) {
+        localStorage.setItem(STORAGE_KEYS.ACTIVE_LAYER, layer);
+      }
+    } catch (error) {
+      console.warn('Failed to save active layer to localStorage:', error);
+    }
+  },
+
+  /**
+   * Check if schema layer is enabled via SDUI / permissions / flag
+   */
+  getIsSchemaEnabled: () => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.SDUI_SCHEMA_ENABLED);
+      if (stored !== null) {
+        return stored === 'true';
+      }
+      // Check env variable fallback or default to true
+      const envVal = import.meta.env?.VITE_SCHEMA_CHAT_ENABLED;
+      if (envVal !== undefined) {
+        return envVal === 'true' || envVal === '1';
+      }
+      return true;
+    } catch (error) {
+      return true;
+    }
+  },
+
+  /**
+   * Save schema enabled status (SDUI backend control override)
+   */
+  saveIsSchemaEnabled: (enabled) => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.SDUI_SCHEMA_ENABLED, String(Boolean(enabled)));
+    } catch (error) {
+      console.warn('Failed to save schema enabled status:', error);
+    }
+  },
+
+  /**
+   * Get SDUI user privileges (table export, copy permissions, copy protection, devtools protection)
+   */
+  getSduiPrivileges: () => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.SDUI_PRIVILEGES);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (e) {
+      console.warn('Failed to parse SDUI privileges from storage:', e);
+    }
+
+    // Fallback to environment variables or defaults
+    const parseEnvBool = (val, fallback) => {
+      if (val === undefined || val === null || val === '') return fallback;
+      return val === 'true' || val === '1';
+    };
+
+    return {
+      allowTableExport: parseEnvBool(import.meta.env?.VITE_ALLOW_TABLE_EXPORT, false),
+      allowCsvExport: parseEnvBool(import.meta.env?.VITE_ALLOW_CSV_EXPORT, false),
+      allowExcelExport: parseEnvBool(import.meta.env?.VITE_ALLOW_EXCEL_EXPORT, false),
+      allowCopyTable: parseEnvBool(import.meta.env?.VITE_ALLOW_COPY_TABLE, false),
+      copyProtection: parseEnvBool(import.meta.env?.VITE_COPY_PROTECTION_ENABLED, true),
+      devToolsProtection: parseEnvBool(import.meta.env?.VITE_DEVTOOLS_PROTECTION_ENABLED, true),
+      isSchemaEnabled: parseEnvBool(import.meta.env?.VITE_SCHEMA_CHAT_ENABLED, true),
+    };
+  },
+
+  /**
+   * Save SDUI privileges
+   */
+  saveSduiPrivileges: (privileges) => {
+    try {
+      if (privileges && typeof privileges === 'object') {
+        localStorage.setItem(STORAGE_KEYS.SDUI_PRIVILEGES, JSON.stringify(privileges));
+      }
+    } catch (e) {
+      console.warn('Failed to save SDUI privileges:', e);
+    }
+  },
+
+  /**
    * Get active session ID
    */
-  getActiveSessionId: () => {
+  getActiveSessionId: (layer = null) => {
     try {
+      if (layer) {
+        const key = `${STORAGE_KEYS.ACTIVE_SESSION_ID}_${layer}`;
+        const val = localStorage.getItem(key);
+        if (val) return val;
+      }
       return localStorage.getItem(STORAGE_KEYS.ACTIVE_SESSION_ID) || null;
     } catch (error) {
       console.warn('Failed to get active session ID:', error);
@@ -45,12 +152,18 @@ export const chatStorage = {
   /**
    * Save active session ID
    */
-  saveActiveSessionId: (sessionId) => {
+  saveActiveSessionId: (sessionId, layer = null) => {
     try {
       if (sessionId) {
         localStorage.setItem(STORAGE_KEYS.ACTIVE_SESSION_ID, sessionId);
+        if (layer) {
+          localStorage.setItem(`${STORAGE_KEYS.ACTIVE_SESSION_ID}_${layer}`, sessionId);
+        }
       } else {
         localStorage.removeItem(STORAGE_KEYS.ACTIVE_SESSION_ID);
+        if (layer) {
+          localStorage.removeItem(`${STORAGE_KEYS.ACTIVE_SESSION_ID}_${layer}`);
+        }
       }
     } catch (error) {
       console.warn('Failed to save active session ID:', error);

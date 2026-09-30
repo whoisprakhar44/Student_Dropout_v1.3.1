@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Table, Search, Copy, Check, Download, FileSpreadsheet } from 'lucide-react';
+import { useChatbot } from '../hooks/useChatbot';
 
 /**
  * Robust Chat Table Component for displaying SQL Query Results & Structured Data
@@ -8,14 +9,21 @@ import { Table, Search, Copy, Check, Download, FileSpreadsheet } from 'lucide-re
  * - Tuple rows (Array of Arrays) & Object rows (Array of Objects)
  * - Dynamic columns detection
  * - Client-side search filtering
- * - Copy to CSV format
- * - Download CSV & Download Excel (.xls) file exports
+ * - SDUI-gated Copy to CSV format
+ * - SDUI-gated Download CSV & Download Excel (.xls) file exports
  * - Inline plain text summary rendering (no callout box card)
  * - Empty row handling (hides table, shows summary text)
  */
 export const ChatTable = ({ tableData, summary }) => {
+  const { sduiPrivileges } = useChatbot();
   const [searchTerm, setSearchTerm] = useState('');
   const [copied, setCopied] = useState(false);
+
+  // SDUI Permissions
+  const canExportTable = sduiPrivileges?.allowTableExport ?? false;
+  const canExportCsv = sduiPrivileges?.allowCsvExport !== undefined ? sduiPrivileges.allowCsvExport : canExportTable;
+  const canExportExcel = sduiPrivileges?.allowExcelExport !== undefined ? sduiPrivileges.allowExcelExport : canExportTable;
+  const canCopyTable = sduiPrivileges?.allowCopyTable ?? false;
 
   // Normalize tableData structure
   const normalized = useMemo(() => {
@@ -76,6 +84,7 @@ export const ChatTable = ({ tableData, summary }) => {
 
   // Copy table contents as CSV to clipboard
   const handleCopyCSV = () => {
+    if (!canCopyTable) return;
     const csvContent = generateCSVString();
     if (!csvContent) return;
     navigator.clipboard.writeText(csvContent);
@@ -85,6 +94,7 @@ export const ChatTable = ({ tableData, summary }) => {
 
   // Trigger browser download for CSV file
   const handleDownloadCSV = () => {
+    if (!canExportCsv) return;
     const csvContent = generateCSVString();
     if (!csvContent) return;
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -101,6 +111,7 @@ export const ChatTable = ({ tableData, summary }) => {
 
   // Trigger browser download for Excel file
   const handleDownloadExcel = () => {
+    if (!canExportExcel) return;
     if (!normalized || normalized.rows.length === 0) return;
 
     let tableHTML = `<table border="1"><thead><tr>`;
@@ -175,16 +186,18 @@ export const ChatTable = ({ tableData, summary }) => {
                 </div>
               )}
 
-              <button
-                type="button"
-                className="cb-table-copy-btn"
-                onClick={handleCopyCSV}
-                title="Copy table as CSV"
-                aria-label="Copy data as CSV"
-              >
-                {copied ? <Check size={13} color="var(--status-online)" /> : <Copy size={13} />}
-                <span>{copied ? 'Copied' : 'Copy'}</span>
-              </button>
+              {canCopyTable && (
+                <button
+                  type="button"
+                  className="cb-table-copy-btn"
+                  onClick={handleCopyCSV}
+                  title="Copy table as CSV"
+                  aria-label="Copy data as CSV"
+                >
+                  {copied ? <Check size={13} color="var(--status-online)" /> : <Copy size={13} />}
+                  <span>{copied ? 'Copied' : 'Copy'}</span>
+                </button>
+              )}
 
               <span className="cb-table-badge">
                 {normalized.rows.length} record{normalized.rows.length !== 1 ? 's' : ''}
@@ -225,28 +238,32 @@ export const ChatTable = ({ tableData, summary }) => {
         </div>
       )}
 
-      {/* Download Action Buttons immediately after table */}
-      {hasRows && (
+      {/* Download Action Buttons immediately after table (Rendered ONLY if user has export privilege) */}
+      {hasRows && (canExportCsv || canExportExcel) && (
         <div className="cb-download-actions">
-          <button
-            type="button"
-            className="cb-download-btn"
-            onClick={handleDownloadCSV}
-            title="Download table data as CSV"
-          >
-            <Download size={13} />
-            <span>Download CSV</span>
-          </button>
+          {canExportCsv && (
+            <button
+              type="button"
+              className="cb-download-btn"
+              onClick={handleDownloadCSV}
+              title="Download table data as CSV"
+            >
+              <Download size={13} />
+              <span>Download CSV</span>
+            </button>
+          )}
 
-          <button
-            type="button"
-            className="cb-download-btn excel"
-            onClick={handleDownloadExcel}
-            title="Download table data as Excel spreadsheet"
-          >
-            <FileSpreadsheet size={13} />
-            <span>Download Excel</span>
-          </button>
+          {canExportExcel && (
+            <button
+              type="button"
+              className="cb-download-btn excel"
+              onClick={handleDownloadExcel}
+              title="Download table data as Excel spreadsheet"
+            >
+              <FileSpreadsheet size={13} />
+              <span>Download Excel</span>
+            </button>
+          )}
         </div>
       )}
     </div>

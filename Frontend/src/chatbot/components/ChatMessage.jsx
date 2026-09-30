@@ -317,8 +317,9 @@ export const ChatMessage = ({ message }) => {
                         : ''
                     }`}
                     onClick={() =>
-                      setActiveChart('bar')
+                      setActiveChart((prev) => (prev === 'bar' ? null : 'bar'))
                     }
+                    title={activeChart === 'bar' ? 'Close Bar Graph' : 'Show Bar Graph'}
                   >
                     <BarChart3 size={14} />
                     Bar Graph
@@ -333,8 +334,9 @@ export const ChatMessage = ({ message }) => {
                         : ''
                     }`}
                     onClick={() =>
-                      setActiveChart('line')
+                      setActiveChart((prev) => (prev === 'line' ? null : 'line'))
                     }
+                    title={activeChart === 'line' ? 'Close Line Chart' : 'Show Line Chart'}
                   >
                     <LineChart size={14} />
                     Line Chart
@@ -349,8 +351,9 @@ export const ChatMessage = ({ message }) => {
                         : ''
                     }`}
                     onClick={() =>
-                      setActiveChart('pie')
+                      setActiveChart((prev) => (prev === 'pie' ? null : 'pie'))
                     }
+                    title={activeChart === 'pie' ? 'Close Pie Chart' : 'Show Pie Chart'}
                   >
                     <PieChart size={14} />
                     Pie Chart
@@ -362,6 +365,7 @@ export const ChatMessage = ({ message }) => {
           {activeChartData && (
             <ChatCharts
               chartData={activeChartData}
+              onClose={() => setActiveChart(null)}
             />
           )}
 

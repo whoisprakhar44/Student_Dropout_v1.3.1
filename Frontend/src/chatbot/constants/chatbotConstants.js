@@ -1,10 +1,16 @@
-/**
- * Chatbot Constants & Configuration
- */
+export const CHAT_LAYERS = {
+  CURATED: 'curated',
+  SCHEMA: 'schema',
+};
+
+export const DEFAULT_LAYER = CHAT_LAYERS.CURATED;
 
 export const STORAGE_KEYS = {
   SESSIONS: 'chatbot_widget_sessions',
   ACTIVE_SESSION_ID: 'chatbot_widget_active_session_id',
+  ACTIVE_LAYER: 'chatbot_widget_active_layer',
+  SDUI_SCHEMA_ENABLED: 'chatbot_sdui_schema_enabled',
+  SDUI_PRIVILEGES: 'chatbot_sdui_privileges',
   VIEW_MODE: 'chatbot_widget_view_mode', // 'closed' | 'mini' | 'fullscreen'
   UNREAD_COUNT: 'chatbot_widget_unread_count',
   SUGGESTIONS_CACHE: 'chatbot_suggestions_cache',
@@ -19,6 +25,16 @@ export const STORAGE_KEYS = {
   TTS_VOICE: 'chatbot_tts_voice',
   USER_INFO: 'userInfo',
   AUTH_TOKEN: 'token',
+};
+
+export const DEFAULT_SDUI_PRIVILEGES = {
+  allowTableExport: false,
+  allowCsvExport: false,
+  allowExcelExport: false,
+  allowCopyTable: false,
+  copyProtection: true,
+  devToolsProtection: true,
+  isSchemaEnabled: true,
 };
 
 export const SUGGESTION_LAYOUTS = {
@@ -87,6 +103,13 @@ export const INITIAL_WELCOME_MESSAGE = {
   timestamp: new Date().toISOString(),
 };
 
+export const INITIAL_SCHEMA_WELCOME_MESSAGE = {
+  id: 'msg_welcome_schema_initial',
+  role: ROLES.ASSISTANT,
+  content: 'Hello! 🔍 Welcome to Schema Chat Mode.\nAsk questions directly about database tables, canonical columns, relational schemas, foreign keys, or underlying entity structures.',
+  timestamp: new Date().toISOString(),
+};
+
 export const WELCOME_FAQ_QUESTIONS = [
   'How many male and female citizens are in the BC category?',
   'Find the number of citizens residing in each district.',
@@ -96,4 +119,13 @@ export const WELCOME_FAQ_QUESTIONS = [
   'Show welfare disbursements grouped by department.',
   'How many beneficiaries are currently enrolled in education schemes?'
 ];
+
+export const WELCOME_SCHEMA_FAQ_QUESTIONS = [
+  'List all available tables and their primary entities in the database.',
+  'What are the foreign key relationships for citizen disbursement tables?',
+  'Describe the columns and data types in the scheme_master table.',
+  'Show table dependencies and join keys for welfare schemes.',
+  'What is the indexing and partitioning structure for citizen event logs?'
+];
+
 
