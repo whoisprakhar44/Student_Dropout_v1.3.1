@@ -536,9 +536,13 @@ class NetworkRoutingMiddleware:
         return client_addr, server_addr, header_map
 
     async def _handle_http(self, scope: Dict[str, Any], receive: Callable, send: Callable) -> None:
+        path = scope.get("path", "/")
+        if path == "/litellm" or path.startswith("/litellm/"):
+            await self.app(scope, receive, send)
+            return
+
         client_addr, server_addr, headers = self._extract_routing_endpoints(scope)
         method = scope.get("method", "GET")
-        path = scope.get("path", "/")
         query_bytes = scope.get("query_string", b"")
         query_str = f"?{query_bytes.decode('latin-1')}" if query_bytes else ""
         full_path = f"{path}{query_str}"
@@ -622,8 +626,12 @@ class NetworkRoutingMiddleware:
             )
 
     async def _handle_websocket(self, scope: Dict[str, Any], receive: Callable, send: Callable) -> None:
-        client_addr, server_addr, headers = self._extract_routing_endpoints(scope)
         path = scope.get("path", "/")
+        if path == "/litellm" or path.startswith("/litellm/"):
+            await self.app(scope, receive, send)
+            return
+
+        client_addr, server_addr, headers = self._extract_routing_endpoints(scope)
         query_bytes = scope.get("query_string", b"")
         query_str = f"?{query_bytes.decode('latin-1')}" if query_bytes else ""
         full_path = f"{path}{query_str}"

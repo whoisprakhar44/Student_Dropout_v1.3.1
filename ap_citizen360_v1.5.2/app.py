@@ -41,6 +41,7 @@ import uuid
 import logging
 from datetime import datetime
 import time
+import httpx
 from fastapi import Request
 from auth_check import validate_issuer
 
@@ -72,7 +73,7 @@ from log_streamer import (
 setup_log_streamer()
 
 from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
-from fastapi.responses import StreamingResponse, HTMLResponse
+from fastapi.responses import StreamingResponse, HTMLResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import HumanMessage, AIMessage
 from pydantic import BaseModel, Field
@@ -567,12 +568,95 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Full network routing audit: logs incoming/outgoing client IP:port, routing paths, latencies, and sizes
 app.add_middleware(NetworkRoutingMiddleware)
+
+
+def _get_litellm_target_url() -> str:
+    target = os.getenv("LITELLM_URL")
+    return target.rstrip("/")
+
+
+_LITELLM_HOP_BY_HOP = {
+    "host",
+    "content-length",
+    "connection",
+    "transfer-encoding",
+    "content-encoding",
+    "keep-alive",
+    "proxy-authenticate",
+    "proxy-authorization",
+    "te",
+    "trailers",
+    "upgrade",
+}
+
+
+@app.api_route("/litellm", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"], include_in_schema=False)
+@app.api_route("/litellm/{full_path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"], include_in_schema=False)
+async def litellm_proxy(request: Request, full_path: str = ""):
+    target_base = _get_litellm_target_url()
+    target_url = f"{target_base}/{full_path.lstrip('/')}" if full_path else target_base
+    if request.url.query:
+        target_url = f"{target_url}?{request.url.query}"
+
+    forward_headers = {
+        k: v for k, v in request.headers.items()
+        if k.lower() not in _LITELLM_HOP_BY_HOP
+    }
+
+    body = await request.body()
+    client = httpx.AsyncClient(
+        timeout=httpx.Timeout(connect=60.0, read=None, write=60.0, pool=60.0),
+        follow_redirects=True,
+    )
+
+    try:
+        req = client.build_request(
+            method=request.method,
+            url=target_url,
+            headers=forward_headers,
+            content=body if body else None,
+        )
+        resp = await client.send(req, stream=True)
+
+        excluded_resp_headers = {
+            "content-length",
+            "transfer-encoding",
+            "content-encoding",
+            "connection",
+            "keep-alive",
+        }
+        response_headers = {
+            k: v for k, v in resp.headers.items()
+            if k.lower() not in excluded_resp_headers
+        }
+
+        async def response_stream():
+            try:
+                async for chunk in resp.aiter_raw():
+                    yield chunk
+            finally:
+                await resp.aclose()
+                await client.aclose()
+
+        return StreamingResponse(
+            response_stream(),
+            status_code=resp.status_code,
+            headers=response_headers,
+            media_type=resp.headers.get("content-type"),
+        )
+    except Exception:
+        await client.aclose()
+        return Response(
+            status_code=502,
+            content=b'{"error": "Failed to connect to LiteLLM server"}',
+            media_type="application/json",
+        )
 
 
 @app.get("/health")
