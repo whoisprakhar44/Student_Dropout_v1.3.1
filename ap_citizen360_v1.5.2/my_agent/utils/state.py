@@ -8,6 +8,9 @@ class AgentState(TypedDict):
     # Original user query
     user_query: str
 
+    # Username of requester for logging correlation
+    username: NotRequired[str | None]
+
     # Context chunks returned by RAG MCP server
     retrieved_context: List[Dict[str, Any]]
 

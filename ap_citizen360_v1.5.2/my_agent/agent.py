@@ -13,12 +13,22 @@ intent_node classifies the user query and enriches state with:
   - department_scope: relevant YAML departments (e.g. ["ap_citizen360"])
   - query_type: "data_query" | "document_query" | "hybrid" | "greeting"
 """
+import os
 import asyncio
 import json
 import logging
 from typing import Literal
 
 logger = logging.getLogger("app")
+
+IMPALA_HOST = os.getenv("IMPALA_HOST") or os.getenv("HIVE_HOST", "dl-dev-cl-fn01.datalake-dev.local")
+IMPALA_PORT = os.getenv("IMPALA_PORT") or os.getenv("HIVE_PORT", "21050")
+
+try:
+    from production_logger import set_current_user
+except ImportError:
+    def set_current_user(u: Any) -> None:
+        pass
 
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.graph import END, START, StateGraph
@@ -125,6 +135,8 @@ async def build_graph():
     
     import time
     async def wrapped_tool_node(state: AgentState):
+        if state.get("username"):
+            set_current_user(state["username"])
         t0 = time.perf_counter()
         messages = state.get("messages", [])
         last_msg = messages[-1] if messages else None
@@ -138,7 +150,7 @@ async def build_graph():
                 sql_preview = (args.get("sql") or args.get("query") or "").strip().replace("\n", " ")
                 if len(sql_preview) > 180:
                     sql_preview = sql_preview[:177] + "..."
-                logger.info(f"⚙️  [TOOL INVOKE] execute_sql | SQL: {sql_preview}")
+                logger.info(f"⚙️  [TOOL INVOKE] execute_sql | Impala: {IMPALA_HOST}:{IMPALA_PORT} | SQL: {sql_preview}")
             elif name in ("retrive_schema_rag", "search_documents"):
                 query = args.get("query", "")
                 top_k = args.get("top_k", 6)
@@ -173,13 +185,13 @@ async def build_graph():
                     payload = json.loads(raw_content)
                     if isinstance(payload, dict) and payload.get("status") == "error":
                         err_msg = payload.get("error_msg") or payload.get("error_type") or "SQL error"
-                        logger.warning(f"⚠️ [TOOL ERROR] execute_sql | duration={duration_ms:.2f}ms | Error: {err_msg}")
+                        logger.warning(f"⚠️ [TOOL ERROR] execute_sql | Impala: {IMPALA_HOST}:{IMPALA_PORT} | duration={duration_ms:.2f}ms | Error: {err_msg}")
                     else:
                         rows = payload if isinstance(payload, list) else payload.get("rows", []) if isinstance(payload, dict) else []
                         row_cnt = len(rows) if isinstance(rows, list) else 0
-                        logger.info(f"✅ [TOOL COMPLETED] execute_sql | duration={duration_ms:.2f}ms | Rows returned: {row_cnt}")
+                        logger.info(f"✅ [TOOL COMPLETED] execute_sql | Impala: {IMPALA_HOST}:{IMPALA_PORT} | duration={duration_ms:.2f}ms | Rows returned: {row_cnt}")
                 except Exception:
-                    logger.info(f"✅ [TOOL COMPLETED] execute_sql | duration={duration_ms:.2f}ms")
+                    logger.info(f"✅ [TOOL COMPLETED] execute_sql | Impala: {IMPALA_HOST}:{IMPALA_PORT} | duration={duration_ms:.2f}ms")
             elif tool_name in ("retrive_schema_rag", "search_documents"):
                 try:
                     payload = json.loads(raw_content)

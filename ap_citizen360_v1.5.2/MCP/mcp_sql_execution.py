@@ -183,7 +183,9 @@ def execute_sql(query: str) -> str:
     Execute ONLY SELECT SQL queries.
     """
 
-    logger.info("[execute_sql] %s", query)
+    impala_host = os.getenv("IMPALA_HOST") or os.getenv("HIVE_HOST", "dl-dev-cl-fn01.datalake-dev.local")
+    impala_port = os.getenv("IMPALA_PORT") or os.getenv("HIVE_PORT", "21050")
+    logger.info("⚙️  [execute_sql] Impala: %s:%s | Query: %s", impala_host, impala_port, query)
 
     # Strip schema prefixes for local SQLite mock execution
     query = query.replace("ap_citizen360.", "")

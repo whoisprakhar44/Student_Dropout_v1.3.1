@@ -26,6 +26,12 @@ from my_agent.utils.state import AgentState
 
 logger = logging.getLogger("app")
 
+try:
+    from production_logger import set_current_user
+except ImportError:
+    def set_current_user(u: Any) -> None:
+        pass
+
 load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 _BACKEND = os.getenv("LLM_BACKEND", "vllm").strip().lower()
@@ -448,6 +454,8 @@ def llm_node(state: AgentState) -> dict:
     Retry guards nudge data questions back to tools if the model answers without
     a tool call, or if it called SQL with wrong columns then retrieved schema.
     """
+    if state.get("username"):
+        set_current_user(state["username"])
     t0 = time.perf_counter()
     history = state.get("messages", [])
     if not history:
@@ -784,6 +792,8 @@ def verify_node(state: AgentState) -> dict:
     Verdict RETRY    → inject a corrective HumanMessage so the next llm_node
                        turn rewrites and re-executes the SQL.
     """
+    if state.get("username"):
+        set_current_user(state["username"])
     t0 = time.perf_counter()
     history = state.get("messages", [])
     verify_calls = state.get("verify_calls", 0)
@@ -1079,6 +1089,8 @@ def intent_node(state: AgentState) -> dict:
         query_type      – "data_query" | "document_query" | "hybrid" | "greeting"
         department_scope – relevant database departments for RAG scoping
     """
+    if state.get("username"):
+        set_current_user(state["username"])
     t0 = time.perf_counter()
     user_query = state.get("user_query", "")
 
@@ -1321,6 +1333,8 @@ def synthesize_node(state: AgentState) -> dict:
 
 def summarization_node(state: AgentState) -> dict:
     """LLM call to summarize the SQL result based on the user query."""
+    if state.get("username"):
+        set_current_user(state["username"])
     t0 = time.perf_counter()
     history = state.get("messages", [])
     

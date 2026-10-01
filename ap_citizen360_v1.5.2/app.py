@@ -53,6 +53,11 @@ from production_logger import (
     setup_production_logging,
     NetworkRoutingMiddleware,
     network_logger,
+    extract_client_ip,
+    set_current_user,
+    set_current_client_ip,
+    get_current_user,
+    get_current_client_ip,
 )
 
 # Initialize enterprise production logging system (console, rotating files, log streamer)
@@ -808,7 +813,10 @@ def get_canonical_schema_data():
 @validate_issuer
 async def ask(payload: AskRequest, request: Request):
     action = payload.action or "ask"
-    username = payload.username
+    username = payload.username or "user"
+    client_ip = extract_client_ip(request)
+    set_current_client_ip(client_ip)
+    set_current_user(username)
 
     # 0. Action: Suggestions Cache Metadata / Version check
     if action in ("suggestions_meta", "suggestions_version"):
@@ -989,11 +997,16 @@ async def ask(payload: AskRequest, request: Request):
         session_id = payload.session_id or payload.thread_id or str(uuid.uuid4())
         history_messages = get_session_messages(session_id)
 
+        client_ip = extract_client_ip(request)
+        set_current_client_ip(client_ip)
+        set_current_user(username)
+
         logger.info("=" * 60)
         logger.info("📥 [NEW QUERY RECEIVED]")
-        logger.info("   User:     %s", username)
-        logger.info("   Session:  %s", session_id)
-        logger.info("   Question: %s", payload.question)
+        logger.info("   User:      %s", username)
+        logger.info("   Client IP: %s", client_ip)
+        logger.info("   Session:   %s", session_id)
+        logger.info("   Question:  %s", payload.question)
         logger.info("=" * 60)
 
         # Content guardrail validation (reject harmful, nonsensical, or profane input early)
@@ -1002,8 +1015,8 @@ async def ask(payload: AskRequest, request: Request):
             is_valid, violation_msg, violation_details = gm.validate(payload.question)
             if not is_valid:
                 logger.warning(
-                    "🛡️ [GUARDRAIL BLOCKED] User: %s | Reason: %s | Query: %s",
-                    username, violation_msg, payload.question
+                    "🛡️ [GUARDRAIL BLOCKED] User: %s | Client IP: %s | Reason: %s | Query: %s",
+                    username, client_ip, violation_msg, payload.question
                 )
                 _append_excel_log(
                     username=username,
@@ -1040,6 +1053,8 @@ async def ask(payload: AskRequest, request: Request):
                 )
 
         async def _stream():
+            set_current_client_ip(client_ip)
+            set_current_user(username)
             graph_task: asyncio.Task | None = None
             try:
                 backend_info = check_ollama()
@@ -1070,6 +1085,7 @@ async def ask(payload: AskRequest, request: Request):
                         return await graph.ainvoke(
                             {
                                 "user_query": payload.question,
+                                "username": username,
                                 "messages": history_messages + [HumanMessage(content=payload.question)],
                                 "retrieved_context": [],
                                 "llm_calls": 0,
@@ -1115,9 +1131,11 @@ async def ask(payload: AskRequest, request: Request):
                 }
                 logger.info("=" * 60)
                 logger.info("📤 [QUERY COMPLETED]")
-                logger.info("   SQL:     %s", response_obj.sql or "None")
-                logger.info("   Results: %d rows", len(response_obj.result) if response_obj.result else 0)
-                logger.info("   Timings: Gen: %.2fs | Exec: %.2fs | Total: %.2fs", gen_time, exec_time, total_time)
+                logger.info("   User:      %s", username)
+                logger.info("   Client IP: %s", client_ip)
+                logger.info("   SQL:       %s", response_obj.sql or "None")
+                logger.info("   Results:   %d rows", len(response_obj.result) if response_obj.result else 0)
+                logger.info("   Timings:   Gen: %.2fs | Exec: %.2fs | Total: %.2fs", gen_time, exec_time, total_time)
                 logger.info("=" * 60)
 
                 # Extract response text (the final assistant verbal summary)
@@ -1301,6 +1319,9 @@ class WebSocketSessionHandler:
         action = str(payload.get("action", "")).strip()
         request_id = payload.get("request_id") or f"req_{uuid.uuid4().hex[:12]}"
         username = payload.get("username", "user")
+        client_ip = extract_client_ip(self.websocket)
+        set_current_client_ip(client_ip)
+        set_current_user(username)
 
         # Spawn task to allow concurrent message processing (e.g. ws_cancel, ws_ping during ws_ask)
         task_name = f"ws_task_{request_id}"
@@ -1312,6 +1333,9 @@ class WebSocketSessionHandler:
         task.add_done_callback(lambda t: self._active_tasks.pop(request_id, None))
 
     async def _dispatch_action(self, action: str, payload: dict[str, Any], request_id: str, username: str) -> None:
+        client_ip = extract_client_ip(self.websocket)
+        set_current_client_ip(client_ip)
+        set_current_user(username)
         try:
             # 1. Ping / Heartbeat
             if action in ("ws_ping", "ping"):
@@ -1622,9 +1646,14 @@ class WebSocketSessionHandler:
 
                 session_id = payload.get("session_id") or payload.get("thread_id") or str(uuid.uuid4())
 
+                client_ip = extract_client_ip(self.websocket)
+                set_current_client_ip(client_ip)
+                set_current_user(username)
+
                 logger.info("=" * 60)
                 logger.info("⚡ [WS QUERY RECEIVED]")
                 logger.info("   User:       %s", username)
+                logger.info("   Client IP:  %s", client_ip)
                 logger.info("   Session:    %s", session_id)
                 logger.info("   Request ID: %s", request_id)
                 logger.info("   Question:   %s", question)
@@ -1636,8 +1665,8 @@ class WebSocketSessionHandler:
                     is_valid, violation_msg, violation_details = gm.validate(question)
                     if not is_valid:
                         logger.warning(
-                            "🛡️ [WS GUARDRAIL BLOCKED] User: %s | Reason: %s | Query: %s",
-                            username, violation_msg, question
+                            "🛡️ [WS GUARDRAIL BLOCKED] User: %s | Client IP: %s | Reason: %s | Query: %s",
+                            username, client_ip, violation_msg, question
                         )
                         _append_excel_log(
                             username=username,
@@ -1731,6 +1760,7 @@ class WebSocketSessionHandler:
                     async with request_lock:
                         return await graph.ainvoke({
                             "user_query": question,
+                            "username": username,
                             "messages": history_messages + [HumanMessage(content=question)],
                             "retrieved_context": [],
                             "llm_calls": 0,
@@ -1831,6 +1861,15 @@ class WebSocketSessionHandler:
                             total_time=total_time,
                         )
 
+                    logger.info("=" * 60)
+                    logger.info("📤 [WS QUERY COMPLETED]")
+                    logger.info("   User:       %s", username)
+                    logger.info("   Client IP:  %s", client_ip)
+                    logger.info("   SQL:        %s", response_obj.sql or "None")
+                    logger.info("   Results:    %d rows", len(response_obj.result) if response_obj.result else 0)
+                    logger.info("   Timings:    Gen: %.2fs | Exec: %.2fs | Total: %.2fs", gen_time, exec_time, total_time)
+                    logger.info("=" * 60)
+
                     response_obj.username = username
                     res_dict = response_obj.model_dump(mode="json")
 
@@ -1914,8 +1953,10 @@ class WebSocketSessionHandler:
 async def chat_websocket_endpoint(websocket: WebSocket) -> None:
     """Action-based WebSocket endpoint for complete chat communication."""
     await websocket.accept()
+    client_ip = extract_client_ip(websocket)
+    set_current_client_ip(client_ip)
     session_handler = WebSocketSessionHandler(websocket)
-    logger.info("🔌 [WS CONNECTED] Client connected to chat WebSocket.")
+    logger.info("🔌 [WS CONNECTED] Client connected from %s to chat WebSocket.", client_ip)
 
     try:
         while True:
@@ -1924,7 +1965,7 @@ async def chat_websocket_endpoint(websocket: WebSocket) -> None:
                 continue
             await session_handler.handle_message(text)
     except WebSocketDisconnect:
-        logger.info("🔌 [WS DISCONNECTED] Client disconnected from chat WebSocket.")
+        logger.info("🔌 [WS DISCONNECTED] Client %s disconnected from chat WebSocket.", client_ip)
     except Exception as exc:
         logger.error("[WS UNHANDLED EXCEPTION] %s", exc)
     finally:

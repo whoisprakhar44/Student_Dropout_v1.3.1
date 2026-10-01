@@ -68,6 +68,113 @@ LEVEL_COLORS = {
 }
 
 
+# ── User & Client IP Context (Correlates logs per user & request) ─────────────
+import contextvars
+
+current_user_var: contextvars.ContextVar[str] = contextvars.ContextVar("current_user", default="")
+current_client_ip_var: contextvars.ContextVar[str] = contextvars.ContextVar("current_client_ip", default="")
+
+
+def get_current_user() -> str:
+    """Retrieve the current context username or empty string."""
+    return current_user_var.get()
+
+
+def set_current_user(username: Optional[str]) -> None:
+    """Set the current context username for logging correlation."""
+    current_user_var.set(username or "")
+
+
+def get_current_client_ip() -> str:
+    """Retrieve the current context client IP or empty string."""
+    return current_client_ip_var.get()
+
+
+def set_current_client_ip(client_ip: Optional[str]) -> None:
+    """Set the current context client IP for logging correlation."""
+    current_client_ip_var.set(client_ip or "")
+
+
+def extract_client_ip(conn_or_scope: Any) -> str:
+    """
+    Extract sanitized real client IP from Request, WebSocket, or ASGI scope,
+    resolving reverse proxy chains: X-Forwarded-For, X-Real-IP, CF-Connecting-IP.
+    """
+    if conn_or_scope is None:
+        return "127.0.0.1"
+
+    # 1. FastAPI Request or WebSocket object
+    headers = getattr(conn_or_scope, "headers", None)
+    if headers is not None:
+        forwarded = headers.get("x-forwarded-for")
+        if forwarded:
+            return forwarded.split(",")[0].strip()
+        real_ip = headers.get("x-real-ip") or headers.get("cf-connecting-ip")
+        if real_ip:
+            return real_ip.strip()
+
+    # 2. Connection client property (host, port)
+    client = getattr(conn_or_scope, "client", None)
+    if client:
+        if hasattr(client, "host") and client.host:
+            return str(client.host)
+        if isinstance(client, (list, tuple)) and len(client) > 0 and client[0]:
+            return str(client[0])
+
+    # 3. Raw ASGI scope dictionary
+    if isinstance(conn_or_scope, dict):
+        raw_headers = conn_or_scope.get("headers", [])
+        header_map: Dict[str, str] = {}
+        for k, v in raw_headers:
+            try:
+                header_map[k.decode("latin-1").lower()] = v.decode("latin-1")
+            except Exception:
+                pass
+        forwarded = header_map.get("x-forwarded-for")
+        if forwarded:
+            return forwarded.split(",")[0].strip()
+        real_ip = header_map.get("x-real-ip") or header_map.get("cf-connecting-ip")
+        if real_ip:
+            return real_ip.strip()
+        c = conn_or_scope.get("client")
+        if c and len(c) > 0 and c[0]:
+            return str(c[0])
+
+    return "127.0.0.1"
+
+
+def _should_skip_user_suffix(msg: str) -> bool:
+    """Determine if user suffix should be skipped to prevent redundant formatting."""
+    stripped = msg.strip()
+    if not stripped:
+        return True
+    # Divider/border lines (e.g. "============", "------------")
+    if len(stripped) >= 3 and set(stripped).issubset({"=", "-", "*", "#", "_"}):
+        return True
+    # Check if user/username is already in the message
+    stripped_lower = stripped.lower()
+    if "user=" in stripped_lower or "username=" in stripped_lower:
+        return True
+    # Dedicated query received / completed banners that already have dedicated User field
+    if any(b in stripped for b in ("📥 [NEW QUERY RECEIVED]", "⚡ [WS QUERY RECEIVED]", "📤 [QUERY COMPLETED]", "📤 [WS QUERY COMPLETED]")):
+        return True
+    if any(
+        stripped.startswith(prefix)
+        for prefix in (
+            "User:",
+            "Client IP:",
+            "Session:",
+            "Question:",
+            "Request ID:",
+            "SQL:",
+            "Results:",
+            "Timings:",
+        )
+    ):
+        return True
+    return False
+
+
 # ── Time-Based Request ID Generator ────────────────────────────────────────────
 _request_counter = 0
 
@@ -85,7 +192,7 @@ class ProductionFileFormatter(logging.Formatter):
     """
     Standardized plain-text production formatter for file logs.
     Includes millisecond timestamps, uniformly aligned tags [INFO ], [WARN ], [ERROR], [DEBUG],
-    and a unified [app] module tag.
+    unified [app] module tag, and appends user identifier (| user=<username>) for tracking.
     """
     def formatTime(self, record: logging.LogRecord, datefmt: Optional[str] = None) -> str:
         dt = datetime.fromtimestamp(record.created)
@@ -105,6 +212,14 @@ class ProductionFileFormatter(logging.Formatter):
             if record.exc_text:
                 exc_text = f"\n{record.exc_text}"
 
+        username = (
+            getattr(record, "username", None)
+            or getattr(record, "user", None)
+            or current_user_var.get()
+        )
+        if username and not _should_skip_user_suffix(msg):
+            msg = f"{msg} | user={username}"
+
         # Single unified module tag: [app]
         return f"{asctime} [{tag}] [app] {msg}{exc_text}"
 
@@ -112,7 +227,7 @@ class ProductionFileFormatter(logging.Formatter):
 class ColoredConsoleFormatter(logging.Formatter):
     """
     High-contrast ANSI colorized console formatter for terminal and container outputs.
-    Enhances readability of log tags, network routing arrows, and status codes.
+    Enhances readability of log tags, network routing arrows, status codes, and user context.
     """
     def __init__(self, use_colors: bool = True):
         super().__init__()
@@ -135,8 +250,20 @@ class ColoredConsoleFormatter(logging.Formatter):
             if record.exc_text:
                 exc_text = f"\n{record.exc_text}"
 
+        username = (
+            getattr(record, "username", None)
+            or getattr(record, "user", None)
+            or current_user_var.get()
+        )
+        user_suffix = ""
+        if username and not _should_skip_user_suffix(msg):
+            if self.use_colors:
+                user_suffix = f" {ANSI_DIM}|{ANSI_RESET} {ANSI_BLUE}user={ANSI_RESET}{ANSI_BOLD_CYAN}{username}{ANSI_RESET}"
+            else:
+                user_suffix = f" | user={username}"
+
         if not self.use_colors:
-            return f"{asctime} [{tag}] [app] {msg}{exc_text}"
+            return f"{asctime} [{tag}] [app] {msg}{user_suffix}{exc_text}"
 
         level_color = LEVEL_COLORS.get(record.levelno, ANSI_RESET)
         
@@ -155,7 +282,7 @@ class ColoredConsoleFormatter(logging.Formatter):
             f"{ANSI_DIM}{asctime}{ANSI_RESET} "
             f"{level_color}[{tag}]{ANSI_RESET} "
             f"{ANSI_BLUE}[app]{ANSI_RESET} "
-            f"{colored_msg}{exc_text}"
+            f"{colored_msg}{user_suffix}{exc_text}"
         )
         return formatted
 
@@ -542,6 +669,8 @@ class NetworkRoutingMiddleware:
             return
 
         client_addr, server_addr, headers = self._extract_routing_endpoints(scope)
+        client_ip = client_addr.split(":")[0] if ":" in client_addr else client_addr
+        set_current_client_ip(client_ip)
         method = scope.get("method", "GET")
         query_bytes = scope.get("query_string", b"")
         query_str = f"?{query_bytes.decode('latin-1')}" if query_bytes else ""
@@ -632,6 +761,8 @@ class NetworkRoutingMiddleware:
             return
 
         client_addr, server_addr, headers = self._extract_routing_endpoints(scope)
+        client_ip = client_addr.split(":")[0] if ":" in client_addr else client_addr
+        set_current_client_ip(client_ip)
         query_bytes = scope.get("query_string", b"")
         query_str = f"?{query_bytes.decode('latin-1')}" if query_bytes else ""
         full_path = f"{path}{query_str}"

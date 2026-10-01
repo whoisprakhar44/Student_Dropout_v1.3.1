@@ -156,6 +156,10 @@ def execute_sql(query: str) -> str:
             "query": query,
         })
 
+    impala_host = getattr(_executor, "host", None) or os.getenv("HIVE_HOST", "dl-dev-cl-fn01.datalake-dev.local")
+    impala_port = getattr(_executor, "port", None) or os.getenv("HIVE_PORT", "21050")
+    logger.info("⚙️  [execute_sql] Impala: %s:%s | Query: %s", impala_host, impala_port, query)
+
     query = _sanitize_impala_sql(query)
     return _executor.execute(query)
 
