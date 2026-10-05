@@ -149,6 +149,9 @@ export const ChatInput = ({ onSend, disabled = false, suggestionLayout, suggesti
     handleSubmit(suggestionText);
   }, [handleSubmit]);
 
+  const isUserActive = chatbotCtx?.isUserActive ?? true;
+  const isInputDisabled = disabled || isQueryRunning || !isUserActive;
+
   return (
     <div className="cb-input-wrapper-container">
       {/* Suggestions Bubble Carousel / Stack above input bar */}
@@ -170,8 +173,8 @@ export const ChatInput = ({ onSend, disabled = false, suggestionLayout, suggesti
             value={text}
             onChange={handleTextChange}
             onKeyDown={handleKeyDown}
-            placeholder={isListening ? 'Listening to speech...' : (isQueryRunning ? 'Processing query...' : 'Type a message...')}
-            disabled={disabled || isQueryRunning}
+            placeholder={!isUserActive ? '🔒 Account suspended by administrator. Access restricted.' : (isListening ? 'Listening to speech...' : (isQueryRunning ? 'Processing query...' : 'Type a message...'))}
+            disabled={isInputDisabled}
             rows={1}
             aria-label="Chat input field"
           />

@@ -4,7 +4,7 @@ import { useChatbot } from '../hooks/useChatbot';
 import { DEFAULT_BOT_INFO, WS_CONNECTION_STATUS } from '../constants/chatbotConstants';
 
 export const ChatHeader = ({ isFullscreen = false, onToggleSidebar = null }) => {
-  const { closeChat, toggleFullscreen, clearChat, connectionStatus, isConnected, activeLayer } = useChatbot();
+  const { closeChat, toggleFullscreen, clearChat, connectionStatus, isConnected, activeLayer, userRole, isUserActive } = useChatbot();
 
   const getStatusLabel = () => {
     switch (connectionStatus) {
@@ -43,6 +43,11 @@ export const ChatHeader = ({ isFullscreen = false, onToggleSidebar = null }) => 
             {isSchema && (
               <span className="cb-header-layer-badge schema" title="Active Layer: Relational Schema Exploration">
                 Schema
+              </span>
+            )}
+            {userRole && (
+              <span className={`cb-header-role-badge ${!isUserActive ? 'suspended' : ''}`} title={`Assigned Role: ${userRole}`}>
+                {isUserActive ? userRole : 'Suspended'}
               </span>
             )}
           </div>

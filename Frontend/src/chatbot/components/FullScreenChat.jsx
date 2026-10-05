@@ -18,7 +18,8 @@ export const FullScreenChat = ({ suggestionLayout }) => {
     suggestionLayout: contextLayout,
     suggestionsDisabled,
     setSuggestionsDisabled,
-    activeRightView
+    activeRightView,
+    canShowAboutSection
   } = useChatbot();
   const messagesEndRef = useRef(null);
 
@@ -65,7 +66,7 @@ export const FullScreenChat = ({ suggestionLayout }) => {
           <ChatHistorySidebar />
 
           <main className="cb-fullscreen-main">
-            {activeRightView === 'about' && <AboutSchemaView />}
+            {activeRightView === 'about' && (canShowAboutSection ?? true) && <AboutSchemaView />}
 
             <div
               className="cb-fullscreen-chat-flow"

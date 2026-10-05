@@ -27,7 +27,8 @@ import {
   Sparkles,
   HelpCircle,
   Loader2,
-  X
+  X,
+  Lock
 } from 'lucide-react';
 import { useChatbot } from '../hooks/useChatbot';
 import { schemaService } from '../services/schemaService';
@@ -54,8 +55,43 @@ export const AboutSchemaView = () => {
   const {
     closeAboutView,
     selectedSchemaGroup,
-    setSelectedSchemaGroup
+    setSelectedSchemaGroup,
+    sduiPrivileges,
+    canShowAboutSection,
+    userRole,
   } = useChatbot();
+
+  // If user role does not have about_section permission
+  if (!canShowAboutSection || sduiPrivileges?.showAboutSection === false) {
+    return (
+      <div className="cb-about-view">
+        <div className="cb-about-header">
+          <div className="cb-about-title-wrap">
+            <Database size={22} className="cb-about-brand-icon" />
+            <div>
+              <h2 className="cb-about-title">Canonical Data Model Reference</h2>
+              <p className="cb-about-subtitle">Role-Based Access Control</p>
+            </div>
+          </div>
+          <button type="button" className="cb-about-close-btn" onClick={closeAboutView} aria-label="Close About">
+            <X size={18} />
+          </button>
+        </div>
+        <div className="cb-about-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '380px', textAlign: 'center', padding: '36px 20px' }}>
+          <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(220, 38, 38, 0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px', color: '#dc2626' }}>
+            <Lock size={28} />
+          </div>
+          <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '8px', color: 'var(--text-color)' }}>Access Restricted</h3>
+          <p style={{ color: 'var(--text-muted)', fontSize: '13.5px', maxWidth: '420px', lineHeight: 1.55, marginBottom: '22px' }}>
+            Canonical schema metadata and data dictionary documentation is restricted for your role (<strong>{userRole || 'Citizen Viewer'}</strong>) under the AP Citizen 360 RBAC policy.
+          </p>
+          <button type="button" className="cb-button cb-button-primary" onClick={closeAboutView}>
+            Return to Conversation
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const [schemaData, setSchemaData] = useState(() => schemaService.getLocalCachedSchema());
   const [isLoading, setIsLoading] = useState(() => !schemaService.getLocalCachedSchema());

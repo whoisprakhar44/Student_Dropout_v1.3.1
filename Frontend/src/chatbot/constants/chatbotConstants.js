@@ -35,6 +35,10 @@ export const DEFAULT_SDUI_PRIVILEGES = {
   copyProtection: true,
   devToolsProtection: true,
   isSchemaEnabled: true,
+  showAboutSection: true,
+  role: 'Citizen Viewer',
+  is_active: true,
+  universal_overrides: {},
 };
 
 export const SUGGESTION_LAYOUTS = {

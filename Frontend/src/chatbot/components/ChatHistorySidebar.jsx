@@ -16,7 +16,9 @@ import {
   Sparkles,
   Database,
   Layers,
-  TableProperties
+  TableProperties,
+  ShieldCheck,
+  RefreshCw,
 } from 'lucide-react';
 
 import { useChatbot } from '../hooks/useChatbot';
@@ -42,11 +44,17 @@ export const ChatHistorySidebar = () => {
     loadingSessions,
     activeRightView,
     openAboutView,
-    closeAboutView
+    closeAboutView,
+    sduiPrivileges,
+    syncSduiSettings,
+    userRole,
+    isUserActive,
+    canShowAboutSection,
   } = useChatbot();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showSettings, setShowSettings] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [speechState, setSpeechState] = useState(() => speechService.getState());
 
   useEffect(() => {
@@ -332,22 +340,24 @@ export const ChatHistorySidebar = () => {
         </div>
 
         <div className="cb-sidebar-footer-actions">
-          <button
-            type="button"
-            className={`cb-info-btn ${activeRightView === 'about' ? 'active' : ''}`}
-            onClick={() => {
-              setShowSettings(false);
-              if (activeRightView === 'about') {
-                closeAboutView();
-              } else {
-                openAboutView();
-              }
-            }}
-            aria-label="About Data Model & Canonical Schema"
-            title="About Canonical Data Model & Schema"
-          >
-            <Info size={17} />
-          </button>
+          {canShowAboutSection && (
+            <button
+              type="button"
+              className={`cb-info-btn ${activeRightView === 'about' ? 'active' : ''}`}
+              onClick={() => {
+                setShowSettings(false);
+                if (activeRightView === 'about') {
+                  closeAboutView();
+                } else {
+                  openAboutView();
+                }
+              }}
+              aria-label="About Data Model & Canonical Schema"
+              title="About Canonical Data Model & Schema"
+            >
+              <Info size={17} />
+            </button>
+          )}
 
           <button
             type="button"
@@ -575,6 +585,58 @@ export const ChatHistorySidebar = () => {
                   </div>
                 </div>
               )}
+
+              {/* RBAC Access & Permissions Section */}
+              <div className="cb-settings-group">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <label className="cb-settings-label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <ShieldCheck size={14} color="var(--accent-color)" />
+                    <span>Role & Privileges</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (syncSduiSettings) {
+                        setIsSyncing(true);
+                        await syncSduiSettings();
+                        setTimeout(() => setIsSyncing(false), 500);
+                      }
+                    }}
+                    title="Sync permissions with server"
+                    style={{ background: 'transparent', border: 'none', color: 'var(--accent-color)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600 }}
+                  >
+                    <RefreshCw size={12} className={isSyncing ? 'cb-spin' : ''} />
+                    <span>{isSyncing ? 'Syncing...' : 'Sync'}</span>
+                  </button>
+                </div>
+
+                <div className="cb-rbac-status-card">
+                  <div className="cb-rbac-status-row">
+                    <span className="cb-rbac-label">Assigned Role:</span>
+                    <span className="cb-rbac-badge role">{userRole}</span>
+                  </div>
+                  <div className="cb-rbac-status-row">
+                    <span className="cb-rbac-label">Account Status:</span>
+                    <span className={`cb-rbac-badge ${isUserActive ? 'active' : 'suspended'}`}>
+                      {isUserActive ? 'Active' : 'Suspended'}
+                    </span>
+                  </div>
+                  <div className="cb-rbac-privs-grid">
+                    <span className={`cb-priv-tag ${isSchemaEnabled ? 'allowed' : 'restricted'}`}>
+                      {isSchemaEnabled ? '✓' : '✕'} Schema
+                    </span>
+                    <span className={`cb-priv-tag ${canShowAboutSection ? 'allowed' : 'restricted'}`}>
+                      {canShowAboutSection ? '✓' : '✕'} About
+                    </span>
+                    <span className={`cb-priv-tag ${sduiPrivileges?.allowTableExport ? 'allowed' : 'restricted'}`}>
+                      {sduiPrivileges?.allowTableExport ? '✓' : '✕'} Export
+                    </span>
+                    <span className={`cb-priv-tag ${sduiPrivileges?.allowCopyTable ? 'allowed' : 'restricted'}`}>
+                      {sduiPrivileges?.allowCopyTable ? '✓' : '✕'} Copy
+                    </span>
+                  </div>
+                </div>
+              </div>
 
               <div className="cb-settings-group">
                 <label className="cb-settings-label">

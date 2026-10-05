@@ -123,35 +123,66 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
     return () => unsub();
   }, []);
 
-  // 3. Fetch SDUI Settings & Privileges on Chat Init
-  useEffect(() => {
-    let isMounted = true;
+  // Dynamic SDUI Synchronization with Backend
+  const syncSduiSettings = useCallback(async (customUsername = null) => {
+    try {
+      const serverSdui = await chatbotApi.getSduiSettings(customUsername);
+      if (serverSdui && typeof serverSdui === 'object') {
+        setSduiPrivilegesState(prev => {
+          const merged = { ...prev, ...serverSdui };
+          chatStorage.saveSduiPrivileges(merged);
 
-    const initSduiSettings = async () => {
-      try {
-        const serverSdui = await chatbotApi.getSduiSettings();
-        if (isMounted && serverSdui && typeof serverSdui === 'object') {
-          setSduiPrivilegesState(prev => {
-            const merged = { ...prev, ...serverSdui };
-            chatStorage.saveSduiPrivileges(merged);
-            if (merged.isSchemaEnabled !== undefined) {
-              setIsSchemaEnabledState(Boolean(merged.isSchemaEnabled));
-              chatStorage.saveIsSchemaEnabled(Boolean(merged.isSchemaEnabled));
+          // Schema Layer Enforcement
+          if (merged.isSchemaEnabled !== undefined) {
+            const schemaOn = Boolean(merged.isSchemaEnabled);
+            setIsSchemaEnabledState(schemaOn);
+            chatStorage.saveIsSchemaEnabled(schemaOn);
+            if (!schemaOn) {
+              setActiveLayerState(curr => {
+                if (curr === CHAT_LAYERS.SCHEMA) {
+                  chatStorage.saveActiveLayer(CHAT_LAYERS.CURATED);
+                  return CHAT_LAYERS.CURATED;
+                }
+                return curr;
+              });
             }
-            return merged;
-          });
-        }
-      } catch (err) {
-        console.warn('SDUI initialization failed, continuing with cached/env settings:', err);
+          }
+
+          // About Section Enforcement
+          if (merged.showAboutSection === false) {
+            setActiveRightView(curr => (curr === 'about' ? 'chat' : curr));
+          }
+
+          // Account Suspension Warning
+          if (merged.is_active === false) {
+            showSecurityToast('🔒 Account suspended by administrator. Access restricted.');
+          }
+
+          return merged;
+        });
+        return serverSdui;
+      }
+    } catch (err) {
+      console.warn('SDUI synchronization failed:', err);
+    }
+    return null;
+  }, [showSecurityToast]);
+
+  // 3. Fetch SDUI Settings & Privileges on Chat Init & Storage Listeners
+  useEffect(() => {
+    syncSduiSettings();
+
+    const handleStorageChange = (e) => {
+      if (e.key === 'username' || e.key === 'userInfo' || e.key === 'token') {
+        syncSduiSettings();
       }
     };
 
-    initSduiSettings();
-
+    window.addEventListener('storage', handleStorageChange);
     return () => {
-      isMounted = false;
+      window.removeEventListener('storage', handleStorageChange);
     };
-  }, []);
+  }, [syncSduiSettings]);
 
   // 4. Fetch Sessions & History from Backend on Mount
   useEffect(() => {
@@ -662,6 +693,18 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
       targetSessionId = createNewSession(targetLayer);
     }
 
+    // Check user active status from SDUI RBAC
+    if (sduiPrivileges?.is_active === false) {
+      showSecurityToast('🔒 Account suspended by administrator. Access restricted.');
+      return;
+    }
+
+    // Check schema layer permission from SDUI RBAC
+    if (targetLayer === CHAT_LAYERS.SCHEMA && sduiPrivileges?.isSchemaEnabled === false) {
+      showSecurityToast('🔒 Schema layer querying is restricted for your role.');
+      return;
+    }
+
     // Prevent duplicate concurrent requests in the same session
     if (loadingSessions[targetSessionId]) {
       return;
@@ -845,6 +888,12 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
 
     clearChat,
     clearAllSessions,
+
+    // SDUI & RBAC Governance
+    syncSduiSettings,
+    userRole: sduiPrivileges?.role || 'Citizen Viewer',
+    isUserActive: sduiPrivileges?.is_active ?? true,
+    canShowAboutSection: sduiPrivileges?.showAboutSection ?? true,
   }), [
     viewMode,
     activeLayer,
@@ -887,6 +936,7 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
     deleteSession,
     clearChat,
     clearAllSessions,
+    syncSduiSettings,
   ]);
 
   return (

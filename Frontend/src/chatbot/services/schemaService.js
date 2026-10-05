@@ -7,6 +7,7 @@
  */
 
 import { STORAGE_KEYS } from '../constants/chatbotConstants';
+import { chatStorage } from './chatStorage';
 
 const getApiBaseUrl = () => {
   let url = (
@@ -71,15 +72,19 @@ export const schemaService = {
    */
   fetchServerMetadata: async () => {
     const askUrl = getAskEndpoint();
+    const username = (chatStorage.getStoredUsername() || 'user').trim();
     try {
       const res = await fetch(askUrl, {
         method: 'POST',
         headers: getHeaders(),
-        body: JSON.stringify({ action: 'schema_meta' })
+        body: JSON.stringify({ action: 'schema_meta', username })
       });
 
       if (res.ok) {
         return await res.json();
+      }
+      if (res.status === 403) {
+        return { restricted: true };
       }
     } catch (err) {
       console.warn('POST /ask (schema_meta) failed, trying GET /api/schema/meta:', err);
@@ -88,12 +93,15 @@ export const schemaService = {
     // Fallback: dedicated GET endpoint
     try {
       const base = getApiBaseUrl().replace(/\/ask\/?$/, '');
-      const res = await fetch(`${base}/api/schema/meta`, {
+      const res = await fetch(`${base}/api/schema/meta?username=${encodeURIComponent(username)}`, {
         method: 'GET',
         headers: getHeaders()
       });
       if (res.ok) {
         return await res.json();
+      }
+      if (res.status === 403) {
+        return { restricted: true };
       }
     } catch (err) {
       console.warn('GET /api/schema/meta fallback failed:', err);
@@ -107,16 +115,20 @@ export const schemaService = {
    */
   fetchServerSchema: async () => {
     const askUrl = getAskEndpoint();
+    const username = (chatStorage.getStoredUsername() || 'user').trim();
     try {
       const res = await fetch(askUrl, {
         method: 'POST',
         headers: getHeaders(),
-        body: JSON.stringify({ action: 'canonical_schema' })
+        body: JSON.stringify({ action: 'canonical_schema', username })
       });
 
       if (res.ok) {
         const data = await res.json();
         return data;
+      }
+      if (res.status === 403) {
+        return { restricted: true };
       }
     } catch (err) {
       console.warn('POST /ask (canonical_schema) failed, trying GET /api/schema:', err);
@@ -125,12 +137,15 @@ export const schemaService = {
     // Fallback: dedicated GET endpoint
     try {
       const base = getApiBaseUrl().replace(/\/ask\/?$/, '');
-      const res = await fetch(`${base}/api/schema`, {
+      const res = await fetch(`${base}/api/schema?username=${encodeURIComponent(username)}`, {
         method: 'GET',
         headers: getHeaders()
       });
       if (res.ok) {
         return await res.json();
+      }
+      if (res.status === 403) {
+        return { restricted: true };
       }
     } catch (err) {
       console.error('GET /api/schema fallback failed:', err);
@@ -148,9 +163,19 @@ export const schemaService = {
     const localVersion = localStorage.getItem(STORAGE_KEYS.SCHEMA_VERSION);
     const localUpdatedAt = localStorage.getItem(STORAGE_KEYS.SCHEMA_UPDATED_AT);
 
+    // If user's role does not allow About section according to SDUI, do not fetch
+    const privs = chatStorage.getSduiPrivileges();
+    if (privs?.showAboutSection === false) {
+      return null;
+    }
+
     // If we have cached schema and not forcing refresh, we can check server metadata
     try {
       const serverMeta = await schemaService.fetchServerMetadata();
+
+      if (serverMeta?.restricted) {
+        return null;
+      }
 
       if (serverMeta && serverMeta.version) {
         const isUpToDate =

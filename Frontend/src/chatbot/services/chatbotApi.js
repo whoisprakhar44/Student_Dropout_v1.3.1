@@ -64,10 +64,10 @@ export const normalizeBackendMessage = (msg) => {
   if (Array.isArray(msg.result) && msg.result.length > 0) {
     const firstRow = msg.result[0];
 
-    // Check for failed status payload
-    if (firstRow && (firstRow.status === 'failed' || firstRow.error)) {
-      content = firstRow.error || 'The query could not be executed.';
-      summary = null;
+    // Check for failed or forbidden status payload
+    if (firstRow && (firstRow.status === 'failed' || firstRow.status === 'forbidden' || firstRow.error)) {
+      content = firstRow.error || (firstRow.status === 'forbidden' ? '🔒 Access Denied: Action restricted for your role.' : 'The query could not be executed.');
+      summary = msg.summary || null;
     } else {
       tables = [
         {
@@ -558,25 +558,43 @@ export const chatbotApi = {
    * 
    * @returns {Promise<Object>} SDUI configuration containing permissions, capabilities, copy protection & layer visibility
    */
-  getSduiSettings: async () => {
-    const username = chatStorage.getStoredUsername();
+  getSduiSettings: async (customUsername = null) => {
+    const username = (customUsername || chatStorage.getStoredUsername() || 'user').trim();
 
     // 1. Try WebSocket first if connected
     if (chatWebSocketService.isConnected()) {
       try {
         const wsRes = await chatWebSocketService.sendAction('ws_sdui_config', { username });
-        if (wsRes?.data) {
+        if (wsRes?.data && typeof wsRes.data === 'object') {
           return wsRes.data;
         }
       } catch (wsErr) {
-        // fall through
+        // fall through to HTTP
       }
     }
 
-    // 2. HTTP Fallback
+    // 2. HTTP Dedicated Endpoint: GET /api/sdui/config?username=...
     const baseUrl = getApiBaseUrl();
     if (!baseUrl) return null;
 
+    try {
+      const hostUrl = baseUrl.replace(/\/ask\/?$/, '');
+      const getRes = await fetch(`${hostUrl}/api/sdui/config?username=${encodeURIComponent(username)}`, {
+        method: 'GET',
+        headers: getAuthHeaders(),
+      });
+
+      if (getRes.ok) {
+        const data = await getRes.json();
+        if (data && (data.status === 'success' || data.username || data.role)) {
+          return data;
+        }
+      }
+    } catch (getErr) {
+      // Fall through to POST /ask
+    }
+
+    // 3. HTTP Multiplexed Action: POST /ask action: 'sdui_config'
     try {
       const response = await fetch(`${baseUrl}`, {
         method: 'POST',

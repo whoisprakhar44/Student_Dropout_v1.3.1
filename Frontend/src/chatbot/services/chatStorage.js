@@ -116,6 +116,10 @@ export const chatStorage = {
       copyProtection: parseEnvBool(import.meta.env?.VITE_COPY_PROTECTION_ENABLED, true),
       devToolsProtection: parseEnvBool(import.meta.env?.VITE_DEVTOOLS_PROTECTION_ENABLED, true),
       isSchemaEnabled: parseEnvBool(import.meta.env?.VITE_SCHEMA_CHAT_ENABLED, true),
+      showAboutSection: parseEnvBool(import.meta.env?.VITE_SHOW_ABOUT_SECTION, true),
+      role: 'Citizen Viewer',
+      is_active: true,
+      universal_overrides: {},
     };
   },
 
@@ -249,17 +253,40 @@ export const chatStorage = {
    */
   getStoredUsername: () => {
     try {
+      // 1. Direct username key in storage
+      const direct = localStorage.getItem('username') || localStorage.getItem('userId');
+      if (direct && typeof direct === 'string' && direct.trim()) {
+        return direct.trim();
+      }
+
+      // 2. Check inside userInfo JSON
       const raw = localStorage.getItem(STORAGE_KEYS.USER_INFO);
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed && typeof parsed.username === 'string' && parsed.username.trim()) {
           return parsed.username.trim();
         }
+        if (parsed && typeof parsed.userId === 'string' && parsed.userId.trim()) {
+          return parsed.userId.trim();
+        }
       }
     } catch (error) {
       console.warn('Failed to parse userInfo for username:', error);
     }
-    return 'Test User';
+    return 'user';
+  },
+
+  /**
+   * Save active username into localStorage
+   */
+  setStoredUsername: (username) => {
+    try {
+      if (username && typeof username === 'string') {
+        localStorage.setItem('username', username.trim());
+      }
+    } catch (err) {
+      console.warn('Failed to save username to localStorage:', err);
+    }
   },
 
   /**
