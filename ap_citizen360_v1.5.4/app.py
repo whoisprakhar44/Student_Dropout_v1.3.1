@@ -30,7 +30,7 @@ except Exception:
 
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, Dict, List, Union
 import asyncio
 import json
 import os
@@ -71,7 +71,7 @@ load_dotenv(Path(__file__).resolve().parent / ".env")
 
 
 from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
-from fastapi.responses import StreamingResponse, HTMLResponse, Response
+from fastapi.responses import StreamingResponse, HTMLResponse, Response, JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from langchain_core.messages import HumanMessage, AIMessage
 from pydantic import BaseModel, Field
@@ -108,6 +108,15 @@ HISTORY_DB_PATH = os.path.join(os.path.dirname(__file__), "database", "chat_hist
 EXCEL_LOG_PATH = os.path.join(os.path.dirname(__file__), "database", "query_log.xlsx")
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 INDEX_HTML_PATH = TEMPLATES_DIR / "index.html"
+DASHBOARD_HTML_PATH = TEMPLATES_DIR / "dashboard.html"
+DASHBOARD_LOGIN_HTML_PATH = TEMPLATES_DIR / "dashboard_login.html"
+
+from database.rbac_manager import RBACManager
+rbac_manager = RBACManager()
+try:
+    rbac_manager.sync_users_from_chat_history(Path(HISTORY_DB_PATH))
+except Exception:
+    pass
 
 # Thread lock for Excel file writes (openpyxl is not thread-safe)
 _excel_lock = threading.Lock()
@@ -206,6 +215,7 @@ class AskRequest(BaseModel):
     data: list[dict[str, Any]] | None = Field(default=None, description="Data to be plotted for 'chart' action.")
     username: str = Field(default="user", description="Required username to scope the chat history.")
     limit: int | None = Field(default=-1, description="Optional limit for suggestion count (-1 returns all).")
+    layer: str | None = Field(default=None, description="Optional chat layer mode: 'curated' or 'schema'")
 
 
 class AskResponse(BaseModel):
@@ -956,15 +966,260 @@ async def logs_handler(
     raise HTTPException(status_code=400, detail=f"Unsupported action: '{action}'. For natural-language SQL queries, please use POST /ask.")
 
 
+# =========================================================================
+# RBAC Governance, Dashboard & Server-Driven UI (SDUI) Endpoints
+# =========================================================================
+
+def get_current_admin(request: Request) -> Optional[dict[str, Any]]:
+    """Extract and verify admin JWT token from cookie or Authorization header."""
+    token = request.cookies.get("admin_access_token")
+    if not token:
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1].strip()
+    if not token:
+        return None
+    return rbac_manager.verify_jwt_token(token)
+
+
+def require_admin(request: Request) -> dict[str, Any]:
+    """Dependency that enforces active admin authentication."""
+    admin = get_current_admin(request)
+    if not admin:
+        raise HTTPException(status_code=401, detail="Unauthorized: Admin authentication token required.")
+    return admin
+
+
+# 1. Dashboard Web Views (Jinja2 / HTML templates)
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def dashboard_view(request: Request):
+    """Main RBAC Governance & SDUI Control Center view."""
+    admin = get_current_admin(request)
+    if not admin:
+        return RedirectResponse(url="/dashboard/login?next=/dashboard", status_code=302)
+    if not DASHBOARD_HTML_PATH.exists():
+        raise HTTPException(status_code=404, detail="dashboard.html template not found")
+    return HTMLResponse(content=DASHBOARD_HTML_PATH.read_text(encoding="utf-8"))
+
+
+@app.get("/dashboard/login", response_class=HTMLResponse)
+async def dashboard_login_view(request: Request):
+    """Admin login screen with theme support and secure credentials check."""
+    admin = get_current_admin(request)
+    if admin:
+        return RedirectResponse(url="/dashboard", status_code=302)
+    if not DASHBOARD_LOGIN_HTML_PATH.exists():
+        raise HTTPException(status_code=404, detail="dashboard_login.html template not found")
+    return HTMLResponse(content=DASHBOARD_LOGIN_HTML_PATH.read_text(encoding="utf-8"))
+
+
+@app.post("/dashboard/login")
+async def dashboard_login_action(request: Request):
+    """Authenticate administrator and return JWT token + HttpOnly cookie."""
+    try:
+        data = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body")
+
+    username = str(data.get("username", "")).strip()
+    password = str(data.get("password", ""))
+
+    admin_user = rbac_manager.verify_admin_credentials(username, password)
+    if not admin_user:
+        raise HTTPException(status_code=401, detail="Invalid administrator credentials.")
+
+    token = rbac_manager.create_jwt_token(
+        admin_user["username"],
+        admin_user.get("full_name"),
+        admin_user.get("role", "admin"),
+    )
+    response = JSONResponse(content={"status": "success", "token": token, "user": admin_user})
+    response.set_cookie(
+        key="admin_access_token",
+        value=token,
+        max_age=86400,
+        httponly=True,
+        samesite="lax",
+        secure=False,
+    )
+    return response
+
+
+@app.get("/dashboard/logout")
+async def dashboard_logout_action():
+    """Clear session cookie and redirect to login."""
+    response = RedirectResponse(url="/dashboard/login", status_code=302)
+    response.delete_cookie("admin_access_token", path="/")
+    return response
+
+
+# 2. Protected Admin REST API Endpoints
+
+@app.get("/api/admin/overview")
+async def admin_get_overview(request: Request):
+    require_admin(request)
+    return rbac_manager.get_dashboard_metrics()
+
+
+@app.get("/api/admin/universal")
+async def admin_get_universal(request: Request):
+    require_admin(request)
+    return rbac_manager.get_universal_controls()
+
+
+@app.post("/api/admin/universal/toggle")
+async def admin_toggle_universal(request: Request):
+    admin = require_admin(request)
+    data = await request.json()
+    key = str(data.get("privilege_key", "")).strip()
+    enabled = bool(data.get("is_enabled", False))
+    success = rbac_manager.toggle_universal_control(key, enabled, admin["sub"])
+    if not success:
+        raise HTTPException(status_code=400, detail=f"Failed to toggle universal control '{key}'")
+    return {"status": "success", "privilege_key": key, "is_enabled": enabled}
+
+
+@app.get("/api/admin/roles")
+async def admin_get_roles(request: Request):
+    require_admin(request)
+    return rbac_manager.get_roles()
+
+
+@app.post("/api/admin/roles")
+async def admin_create_role(request: Request):
+    admin = require_admin(request)
+    data = await request.json()
+    name = str(data.get("name", "")).strip()
+    description = str(data.get("description", "")).strip()
+    privileges = data.get("privileges", {})
+    success, msg, role_id = rbac_manager.create_role(name, description, privileges, admin["sub"])
+    if not success:
+        raise HTTPException(status_code=400, detail=msg)
+    return {"status": "success", "message": msg, "role_id": role_id}
+
+
+@app.put("/api/admin/roles/{role_id}")
+async def admin_update_role(role_id: int, request: Request):
+    admin = require_admin(request)
+    data = await request.json()
+    name = str(data.get("name", "")).strip()
+    description = str(data.get("description", "")).strip()
+    is_active = bool(data.get("is_active", True))
+    privileges = data.get("privileges", {})
+    success, msg = rbac_manager.update_role(role_id, name, description, is_active, privileges, admin["sub"])
+    if not success:
+        raise HTTPException(status_code=400, detail=msg)
+    return {"status": "success", "message": msg}
+
+
+@app.post("/api/admin/roles/{role_id}/toggle-privilege")
+async def admin_toggle_role_privilege(role_id: int, request: Request):
+    admin = require_admin(request)
+    data = await request.json()
+    privilege_key = str(data.get("privilege_key", "")).strip()
+    is_enabled = bool(data.get("is_enabled", False))
+    success = rbac_manager.toggle_role_privilege(role_id, privilege_key, is_enabled, admin["sub"])
+    return {"status": "success", "role_id": role_id, "privilege_key": privilege_key, "is_enabled": is_enabled}
+
+
+@app.delete("/api/admin/roles/{role_id}")
+async def admin_delete_role(role_id: int, request: Request):
+    admin = require_admin(request)
+    success, msg = rbac_manager.delete_role(role_id, admin["sub"])
+    if not success:
+        raise HTTPException(status_code=400, detail=msg)
+    return {"status": "success", "message": msg}
+
+
+@app.get("/api/admin/users")
+async def admin_get_users(request: Request, search: Optional[str] = Query(default=None)):
+    require_admin(request)
+    return rbac_manager.get_users(search)
+
+
+@app.post("/api/admin/users")
+async def admin_create_user(request: Request):
+    admin = require_admin(request)
+    data = await request.json()
+    username = str(data.get("username", "")).strip()
+    display_name = str(data.get("display_name", "")).strip()
+    email = str(data.get("email", "")).strip()
+    role_id = int(data.get("role_id", 3))
+    is_active = bool(data.get("is_active", True))
+    success, msg = rbac_manager.create_or_update_user(username, display_name, email, role_id, is_active, admin["sub"])
+    if not success:
+        raise HTTPException(status_code=400, detail=msg)
+    return {"status": "success", "message": msg}
+
+
+@app.put("/api/admin/users/{username}")
+async def admin_update_user(username: str, request: Request):
+    admin = require_admin(request)
+    data = await request.json()
+    if "role_id" in data:
+        success, msg = rbac_manager.update_user_role(username, int(data["role_id"]), admin["sub"])
+        if not success:
+            raise HTTPException(status_code=400, detail=msg)
+    if "is_active" in data:
+        success, msg = rbac_manager.toggle_user_active(username, bool(data["is_active"]), admin["sub"])
+        if not success:
+            raise HTTPException(status_code=400, detail=msg)
+    return {"status": "success", "username": username}
+
+
+@app.post("/api/admin/users/sync")
+async def admin_sync_users(request: Request):
+    require_admin(request)
+    count = rbac_manager.sync_users_from_chat_history(Path(HISTORY_DB_PATH))
+    return {"status": "success", "synced_count": count}
+
+
+@app.get("/api/admin/audit-logs")
+async def admin_get_audit_logs(request: Request, limit: int = Query(default=100)):
+    require_admin(request)
+    return rbac_manager.get_audit_logs(limit)
+
+
+@app.post("/api/admin/change-password")
+async def admin_change_password(request: Request):
+    admin = require_admin(request)
+    data = await request.json()
+    old_pw = str(data.get("old_password", ""))
+    new_pw = str(data.get("new_password", ""))
+    success, msg = rbac_manager.change_admin_password(admin["sub"], old_pw, new_pw)
+    if not success:
+        raise HTTPException(status_code=400, detail=msg)
+    return {"status": "success", "message": msg}
+
+
+# 3. Server-Driven UI (SDUI) Configuration Endpoint
+
+@app.get("/api/sdui/config")
+async def get_sdui_config(username: str = Query(default="user")):
+    """Returns effective user privileges & frontend feature gates based on RBAC hierarchy."""
+    return rbac_manager.get_user_sdui_config(username)
+
+
 @app.get("/api/schema/meta")
-def get_canonical_schema_meta():
-    """Retrieve database version and canonical schema metadata."""
+def get_canonical_schema_meta(request: Request, username: str = Query(default="user")):
+    """Retrieve database version and canonical schema metadata (RBAC protected)."""
+    if not rbac_manager.check_user_privilege(username, "about_section"):
+        raise HTTPException(
+            status_code=403,
+            detail="Access Denied: Canonical Schema and About Section documentation is restricted for your role."
+        )
     return get_schema_metadata()
 
 
 @app.get("/api/schema")
-def get_canonical_schema_data():
-    """Retrieve full sanitized canonical schema definition (non-confidential)."""
+def get_canonical_schema_data(request: Request, username: str = Query(default="user")):
+    """Retrieve full sanitized canonical schema definition (RBAC protected)."""
+    if not rbac_manager.check_user_privilege(username, "about_section"):
+        raise HTTPException(
+            status_code=403,
+            detail="Access Denied: Canonical Schema and About Section documentation is restricted for your role."
+        )
     return get_canonical_schema()
 
 
@@ -974,6 +1229,60 @@ async def ask(payload: AskRequest, request: Request):
 
     action = payload.action or "ask"
     username = payload.username
+    client_ip = extract_client_ip(request)
+    set_current_client_ip(client_ip)
+    set_current_user(username)
+
+    # 0. Action: SDUI Config & User Privileges
+    if action in ("sdui_config", "get_sdui_config", "sdui_settings"):
+        return rbac_manager.get_user_sdui_config(username)
+
+    # RBAC Check 1: User & Role Active Status
+    user_record = rbac_manager.get_user(username)
+    if user_record and (not user_record.get("is_active") or not user_record.get("role_active")):
+        if action == "ask":
+            async def _inactive_stream():
+                yield json.dumps({
+                    "sql": "",
+                    "result": [{
+                        "error": "Access Denied: User account or assigned role is deactivated. Please contact an administrator.",
+                        "status": "forbidden"
+                    }],
+                    "summary": "Access Denied: Your account or assigned role is deactivated. Please contact an administrator.",
+                    "username": username,
+                    "timings": {"total_time": 0.0}
+                }).encode()
+            return StreamingResponse(_inactive_stream(), media_type="application/json")
+        else:
+            raise HTTPException(status_code=403, detail="Access Denied: User account or assigned role is deactivated.")
+
+    # RBAC Check 2: Schema Layer query access
+    is_schema_mode = (payload.layer == "schema") or (action in ("schema_ask", "schema_query"))
+    if is_schema_mode and not rbac_manager.check_user_privilege(username, "schema_layer"):
+        if action == "ask":
+            async def _schema_denied_stream():
+                yield json.dumps({
+                    "sql": "",
+                    "result": [{
+                        "error": "Access Denied: Schema layer querying is restricted for your role or universally disabled.",
+                        "status": "forbidden"
+                    }],
+                    "summary": "Access Denied: Schema layer querying is disabled by administrator policy.",
+                    "username": username,
+                    "timings": {"total_time": 0.0}
+                }).encode()
+            return StreamingResponse(_schema_denied_stream(), media_type="application/json")
+        else:
+            raise HTTPException(status_code=403, detail="Access Denied: Schema layer access is restricted.")
+
+    # RBAC Check 3: About & Canonical Schema Access
+    if action in ("schema_meta", "schema_version", "about_meta", "schema", "canonical_schema", "about_schema", "get_schema"):
+        if not rbac_manager.check_user_privilege(username, "about_section"):
+            raise HTTPException(status_code=403, detail="Access Denied: Canonical Schema and About Section documentation is restricted.")
+
+    # RBAC Check 4: Data Export & Chart Access
+    if action == "chart" and not rbac_manager.check_user_privilege(username, "allow_download") and not rbac_manager.check_user_privilege(username, "allow_copy"):
+        raise HTTPException(status_code=403, detail="Access Denied: Chart rendering / data visualization is restricted for your role.")
 
     # 0. Action: Suggestions Cache Metadata / Version check
     if action in ("suggestions_meta", "suggestions_version"):
@@ -1437,7 +1746,17 @@ class WebSocketSessionHandler:
                     "data": get_cache_metadata()
                 })
 
-            # 2c. Logs (WebSocket Live Log Streaming with TOTP Auth)
+            # 2c. SDUI Configuration & Capabilities
+            elif action in ("ws_sdui_config", "sdui_config", "get_sdui_config", "sdui_settings"):
+                await self.send_json({
+                    "type": "result",
+                    "action": action,
+                    "request_id": request_id,
+                    "status": "success",
+                    "data": rbac_manager.get_user_sdui_config(username)
+                })
+
+            # 2d. Logs (WebSocket Live Log Streaming with TOTP Auth)
             elif action in ("ws_logs", "logs"):
                 code = payload.get("code") or payload.get("totp") or payload.get("token")
                 is_auth = (code and (verify_totp(str(code)) or verify_session_token(str(code))))
@@ -1713,6 +2032,29 @@ class WebSocketSessionHandler:
                 logger.info("   Request ID: %s", request_id)
                 logger.info("   Question:   %s", question)
                 logger.info("=" * 60)
+
+                # RBAC Check 1: User & Role Active
+                user_rec = rbac_manager.get_user(username)
+                if user_rec and (not user_rec.get("is_active") or not user_rec.get("role_active")):
+                    await self.send_json({
+                        "type": "error",
+                        "action": action,
+                        "request_id": request_id,
+                        "status": "forbidden",
+                        "detail": "Access Denied: User account or assigned role is deactivated. Please contact an administrator."
+                    })
+                    return
+
+                # RBAC Check 2: Schema Layer Enforcement
+                if payload.get("layer") == "schema" and not rbac_manager.check_user_privilege(username, "schema_layer"):
+                    await self.send_json({
+                        "type": "error",
+                        "action": action,
+                        "request_id": request_id,
+                        "status": "forbidden",
+                        "detail": "Access Denied: Schema layer querying is restricted for your role or universally disabled."
+                    })
+                    return
 
                 # Content Guardrail Check
                 gm = _get_guardrail_manager()

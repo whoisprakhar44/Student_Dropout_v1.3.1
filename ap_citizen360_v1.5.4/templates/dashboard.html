@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AP Citizen 360° — RBAC & SDUI Control Center</title>
+  <style>
+    :root {
+      --primary-color: #0b2545;
+      --primary-hover: #132a4a;
+      --primary-text: #ffffff;
+      --accent-color: #d97706;
+      --accent-hover: #b45309;
+      --accent-glow: rgba(217, 119, 6, 0.25);
+      --background-color: #09090b;
+      --surface-color: #111827;
+      --surface-hover: #1f2937;
+      --surface-card: #141d2e;
+      --border-color: #1f2937;
+      --text-color: #f8fafc;
+      --text-muted: #94a3b8;
+      --status-online: #15803d;
+      --danger-color: #dc2626;
+      --danger-bg: rgba(220, 38, 38, 0.15);
+      --warning-color: #d97706;
+      --warning-bg: rgba(217, 119, 6, 0.15);
+      --success-color: #15803d;
+      --success-bg: rgba(21, 128, 61, 0.15);
+      --shadow-color: rgba(0, 0, 0, 0.4);
+      --ap-navy-dark: #0b2545;
+      --ap-navy-alt: #132a4a;
+      --ap-navy-light: #1e3a8a;
+      --ap-gold-accent: #d97706;
+      --ap-gold-glow: #f59e0b;
+      --emerald-success: #15803d;
+      --card-radius: 14px;
+    }
+
+    [data-theme="light"] {
+      --background-color: #f8fafc;
+      --surface-color: #ffffff;
+      --surface-hover: #f1f5f9;
+      --surface-card: #ffffff;
+      --border-color: #cbd5e1;
+      --text-color: #0f172a;
+      --text-muted: #475569;
+      --shadow-color: rgba(15, 23, 42, 0.08);
+      --danger-bg: #fee2e2;
+      --warning-bg: #fef3c7;
+      --success-bg: #dcfce7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+    }
+
+    body {
+      background-color: var(--background-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Bar */
+    .navbar {
+      height: 68px;
+      background: var(--surface-color);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      box-shadow: 0 4px 18px var(--shadow-color);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--ap-navy-dark), var(--ap-navy-alt));
+      border: 1.5px solid var(--ap-gold-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ap-gold-accent);
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    .brand-text h1 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-text p {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-btn {
+      background: var(--surface-hover);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .nav-btn:hover {
+      border-color: var(--ap-gold-accent);
+      color: var(--ap-gold-accent);
+    }
+
+    .nav-btn-primary {
+      background: linear-gradient(135deg, var(--ap-navy-dark), var(--ap-navy-light));
+      border: 1px solid var(--ap-gold-accent);
+      color: #ffffff;
+    }
+
+    .nav-btn-primary:hover {
+      background: var(--primary-hover);
+      color: #ffffff;
+    }
+
+    .admin-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: var(--surface-hover);
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald-success);
+      box-shadow: 0 0 8px var(--emerald-success);
+    }
+
+    /* Main Container */
+    .main-content {
+      flex: 1;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 28px 48px;
+    }
+
+    /* Metric Cards Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .metric-card {
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: var(--card-radius);
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 14px var(--shadow-color);
+    }
+
+    .metric-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--ap-navy-dark), var(--ap-gold-accent));
+    }
+
+    .metric-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .metric-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+    }
+
+    .metric-icon-wrap {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--surface-hover);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ap-gold-accent);
+    }
+
+    .metric-value {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      color: var(--text-color);
+      margin-bottom: 6px;
+    }
+
+    .metric-subtext {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Tabs Bar */
+    .tabs-bar {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      padding: 12px 18px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      margin-bottom: -1px;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-color);
+    }
+
+    .tab-btn.active {
+      color: var(--ap-gold-accent);
+      border-bottom-color: var(--ap-gold-accent);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+      animation: fadeIn 0.25s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Universal Controls View */
+    .section-intro-card {
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: var(--card-radius);
+      padding: 18px 22px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .section-intro-text h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-intro-text p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .universal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 18px;
+    }
+
+    .universal-card {
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: var(--card-radius);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      box-shadow: 0 4px 14px var(--shadow-color);
+    }
+
+    .universal-card.active-state {
+      border-left: 4px solid var(--emerald-success);
+    }
+
+    .universal-card.disabled-state {
+      border-left: 4px solid var(--danger-color);
+      background: rgba(220, 38, 38, 0.04);
+    }
+
+    .univ-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .univ-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--surface-hover);
+      color: var(--text-muted);
+    }
+
+    .univ-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 6px;
+    }
+
+    .univ-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .univ-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .state-indicator {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .state-indicator.active {
+      color: var(--emerald-success);
+    }
+
+    .state-indicator.disabled {
+      color: var(--danger-color);
+    }
+
+    /* Switch Component */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--surface-hover);
+      border: 1px solid var(--border-color);
+      transition: 0.25s;
+      border-radius: 999px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #ffffff;
+      transition: 0.25s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--emerald-success);
+      border-color: var(--emerald-success);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+    }
+
+    /* Tables Styles */
+    .table-container {
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: var(--card-radius);
+      overflow: hidden;
+      box-shadow: 0 4px 14px var(--shadow-color);
+      margin-bottom: 24px;
+    }
+
+    .table-toolbar {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      flex: 1;
+      max-width: 380px;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: var(--surface-hover);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px 8px 36px;
+      font-size: 13px;
+      color: var(--text-color);
+      outline: none;
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 12px;
+      color: var(--text-muted);
+    }
+
+    .toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    th {
+      background: var(--surface-hover);
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-color);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: var(--surface-hover);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 600;
+      line-height: 1;
+    }
+
+    .badge-success { background: var(--success-bg); color: var(--emerald-success); border: 1px solid rgba(21, 128, 61, 0.3); }
+    .badge-danger { background: var(--danger-bg); color: var(--danger-color); border: 1px solid rgba(220, 38, 38, 0.3); }
+    .badge-warning { background: var(--warning-bg); color: var(--warning-color); border: 1px solid rgba(217, 119, 6, 0.3); }
+    .badge-secondary { background: var(--surface-hover); color: var(--text-muted); border: 1px solid var(--border-color); }
+    .badge-primary { background: rgba(11, 37, 69, 0.4); color: var(--ap-gold-accent); border: 1px solid var(--ap-gold-accent); }
+
+    .action-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-icon-sm {
+      background: var(--surface-hover);
+      border: 1px solid var(--border-color);
+      color: var(--text-color);
+      border-radius: 6px;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .btn-icon-sm:hover {
+      border-color: var(--ap-gold-accent);
+      color: var(--ap-gold-accent);
+    }
+
+    .btn-icon-danger:hover {
+      border-color: var(--danger-color);
+      color: var(--danger-color);
+    }
+
+    /* Privilege Chips Matrix */
+    .priv-chips-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      max-width: 440px;
+    }
+
+    .priv-chip {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: var(--surface-hover);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .priv-chip.enabled {
+      background: rgba(21, 128, 61, 0.12);
+      color: var(--emerald-success);
+      border-color: rgba(21, 128, 61, 0.3);
+    }
+
+    .priv-chip.disabled {
+      opacity: 0.45;
+      text-decoration: line-through;
+    }
+
+    /* Modal Component */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: var(--card-radius);
+      width: 100%;
+      max-width: 580px;
+      box-shadow: 0 24px 48px var(--shadow-color);
+      overflow: hidden;
+      animation: modalSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes modalSlide {
+      from { transform: translateY(16px) scale(0.97); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    .modal-close:hover {
+      color: var(--text-color);
+    }
+
+    .modal-body {
+      padding: 22px;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      padding: 16px 22px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      background: var(--surface-hover);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      background: var(--surface-hover);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13.5px;
+      color: var(--text-color);
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--ap-gold-accent);
+    }
+
+    .privilege-check-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .priv-check-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--surface-hover);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+    }
+
+    .priv-check-item input {
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+      accent-color: var(--ap-gold-accent);
+    }
+
+    .priv-check-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+
+    .priv-check-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-top: 2px;
+    }
+
+    /* Floating Toast Alerts */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 10000;
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: auto;
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-color);
+      box-shadow: 0 10px 30px var(--shadow-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 280px;
+      animation: toastIn 0.25s ease forwards;
+    }
+
+    .toast-success { border-left: 4px solid var(--emerald-success); }
+    .toast-error { border-left: 4px solid var(--danger-color); }
+    .toast-warning { border-left: 4px solid var(--warning-color); }
+
+    @keyframes toastIn {
+      from { transform: translateX(30px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="brand-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>Andhra Pradesh Citizen 360°</h1>
+        <p>RBAC Governance & SDUI Synchronization Control Center</p>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <div class="admin-chip">
+        <span class="status-dot"></span>
+        <span>Administrator</span>
+      </div>
+
+      <button class="nav-btn" id="syncUsersBtn" title="Discover and register users from conversation chat history">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+          <path d="M16 21h5v-5"/>
+        </svg>
+        <span>Sync History Users</span>
+      </button>
+
+      <button class="nav-btn" id="themeToggleBtn" title="Toggle Theme">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+        </svg>
+        <span id="themeToggleText">Light</span>
+      </button>
+
+      <button class="nav-btn" id="changePasswordBtn" title="Change Admin Password">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </button>
+
+      <button class="nav-btn" id="logoutBtn" style="color: var(--danger-color);" title="Sign Out">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        <span>Sign Out</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Body -->
+  <main class="main-content">
+    
+    <!-- Metrics Grid -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-title">Managed Users</span>
+          <div class="metric-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+        </div>
+        <div class="metric-value" id="metricTotalUsers">-</div>
+        <div class="metric-subtext">
+          <span class="badge badge-success" id="metricActiveUsers">- Active</span>
+          <span>Accounts registered</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-title">Security Roles</span>
+          <div class="metric-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="metric-value" id="metricTotalRoles">-</div>
+        <div class="metric-subtext">
+          <span class="badge badge-primary">Hierarchy Configured</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-title">Universal Master Controls</span>
+          <div class="metric-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+        </div>
+        <div class="metric-value" id="metricUniversalStatus">-</div>
+        <div class="metric-subtext" id="metricUniversalSubtext">
+          <span class="badge badge-success">All Active</span>
+        </div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-header">
+          <span class="metric-title">Audit Trail Events</span>
+          <div class="metric-icon-wrap">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </div>
+        </div>
+        <div class="metric-value" id="metricTotalAudits">-</div>
+        <div class="metric-subtext">
+          <span>Logged security actions</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs-bar">
+      <button class="tab-btn active" data-tab="universal">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        <span>Universal Master Controls</span>
+      </button>
+
+      <button class="tab-btn" data-tab="roles">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>Roles & Privileges Matrix</span>
+      </button>
+
+      <button class="tab-btn" data-tab="users">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span>Users Directory & Roles</span>
+      </button>
+
+      <button class="tab-btn" data-tab="audits">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        <span>Audit Trail Logs</span>
+      </button>
+    </div>
+
+    <!-- Tab 1: Universal Master Controls -->
+    <div class="tab-panel active" id="tab-universal">
+      <div class="section-intro-card">
+        <div class="section-intro-text">
+          <h2>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--ap-gold-accent)">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Universal Kill-Switch Governance
+          </h2>
+          <p>
+            Universal controls act as master overrides. When a privilege is toggled <strong>OFF</strong> here, it immediately blocks all users and roles system-wide, overrides SDUI settings, and enforces hard API denial.
+          </p>
+        </div>
+      </div>
+
+      <div class="universal-grid" id="universalGrid">
+        <!-- Rendered dynamically via JS -->
+      </div>
+    </div>
+
+    <!-- Tab 2: Roles Management -->
+    <div class="tab-panel" id="tab-roles">
+      <div class="table-container">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="roleSearchInput" placeholder="Filter roles by name or description...">
+          </div>
+          <div class="toolbar-actions">
+            <button class="nav-btn nav-btn-primary" id="openCreateRoleModalBtn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              <span>Create New Role</span>
+            </button>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Role Name</th>
+              <th>Description</th>
+              <th>Assigned Users</th>
+              <th>Status</th>
+              <th>Granted Privileges</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="rolesTableBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab 3: Users Management -->
+    <div class="tab-panel" id="tab-users">
+      <div class="table-container">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="userSearchInput" placeholder="Search by username, name, or email...">
+          </div>
+          <div class="toolbar-actions">
+            <button class="nav-btn nav-btn-primary" id="openAddUserModalBtn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+              </svg>
+              <span>Add User</span>
+            </button>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Email</th>
+              <th>Assigned Role</th>
+              <th>Account Status</th>
+              <th>Effective Privileges</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab 4: Audit Logs -->
+    <div class="tab-panel" id="tab-audits">
+      <div class="table-container">
+        <div class="table-toolbar">
+          <div class="section-intro-text">
+            <h2 style="font-size: 14px;">Administrative Audit Stream</h2>
+          </div>
+          <div class="toolbar-actions">
+            <button class="nav-btn" id="exportAuditCsvBtn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp (UTC)</th>
+              <th>Admin</th>
+              <th>Action</th>
+              <th>Target</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="auditTableBody">
+            <!-- Rendered via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modals -->
+
+  <!-- 1. Create Role Modal -->
+  <div class="modal-overlay" id="createRoleModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Create New Role</h3>
+        <button class="modal-close" onclick="closeModal('createRoleModal')">&times;</button>
+      </div>
+      <form id="createRoleForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="newRoleName">Role Name</label>
+            <input type="text" id="newRoleName" placeholder="e.g. Statistical Analyst" required>
+          </div>
+          <div class="form-group">
+            <label for="newRoleDesc">Description</label>
+            <textarea id="newRoleDesc" rows="2" placeholder="Describe the purpose and access scope of this role..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Privileges Assignment</label>
+            <div class="privilege-check-grid" id="newRolePrivGrid">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="nav-btn" onclick="closeModal('createRoleModal')">Cancel</button>
+          <button type="submit" class="nav-btn nav-btn-primary">Create Role</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Edit Role Modal -->
+  <div class="modal-overlay" id="editRoleModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Edit Role & Privileges</h3>
+        <button class="modal-close" onclick="closeModal('editRoleModal')">&times;</button>
+      </div>
+      <form id="editRoleForm">
+        <input type="hidden" id="editRoleId">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="editRoleName">Role Name</label>
+            <input type="text" id="editRoleName" required>
+          </div>
+          <div class="form-group">
+            <label for="editRoleDesc">Description</label>
+            <textarea id="editRoleDesc" rows="2"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="editRoleActive">Role Status</label>
+            <select id="editRoleActive">
+              <option value="1">Active</option>
+              <option value="0">Temporarily Disabled</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Granted Privileges</label>
+            <div class="privilege-check-grid" id="editRolePrivGrid">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="nav-btn" onclick="closeModal('editRoleModal')">Cancel</button>
+          <button type="submit" class="nav-btn nav-btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Add User Modal -->
+  <div class="modal-overlay" id="addUserModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Add & Assign User</h3>
+        <button class="modal-close" onclick="closeModal('addUserModal')">&times;</button>
+      </div>
+      <form id="addUserForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="newUsername">Username</label>
+            <input type="text" id="newUsername" placeholder="e.g. collector_guntur" required>
+          </div>
+          <div class="form-group">
+            <label for="newDisplayName">Display Name</label>
+            <input type="text" id="newDisplayName" placeholder="e.g. District Collector Guntur">
+          </div>
+          <div class="form-group">
+            <label for="newEmail">Official Email</label>
+            <input type="email" id="newEmail" placeholder="officer@ap.gov.in">
+          </div>
+          <div class="form-group">
+            <label for="newUserRole">Assign Role</label>
+            <select id="newUserRole" required>
+              <!-- Populated via JS -->
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="nav-btn" onclick="closeModal('addUserModal')">Cancel</button>
+          <button type="submit" class="nav-btn nav-btn-primary">Create User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Change Password Modal -->
+  <div class="modal-overlay" id="changePasswordModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Change Admin Password</h3>
+        <button class="modal-close" onclick="closeModal('changePasswordModal')">&times;</button>
+      </div>
+      <form id="changePasswordForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="oldPassword">Current Password</label>
+            <input type="password" id="oldPassword" required>
+          </div>
+          <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" required minlength="4">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="nav-btn" onclick="closeModal('changePasswordModal')">Cancel</button>
+          <button type="submit" class="nav-btn nav-btn-primary">Update Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Interactive Scripts -->
+  <script>
+    // State Store
+    let currentTheme = localStorage.getItem('rbac_dashboard_theme') || 'dark';
+    let appRoles = [];
+    let appUniversalControls = [];
+    let appUsers = [];
+    let appAudits = [];
+
+    // Core Privileges Definition
+    const CORE_PRIVILEGES_META = [
+      { key: "schema_layer", label: "Schema Layer Access", desc: "Allows querying schema metadata & DDL definitions." },
+      { key: "about_section", label: "About & Data Dictionary", desc: "Access to canonical schema metadata & about documentation." },
+      { key: "allow_download", label: "Data Export (CSV/Excel)", desc: "Download query results as CSV or Excel files." },
+      { key: "allow_copy", label: "Copy Tables & SQL", desc: "Clipboard copy permission for queries & data." },
+      { key: "content_copy_protection", label: "Content Copy Protection", desc: "Suppresses text selection & context menu." },
+      { key: "devtools_protection", label: "DevTools Guard", desc: "Detects and blocks browser developer console keys." }
+    ];
+
+    // Theme Setup
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('rbac_dashboard_theme', theme);
+      document.getElementById('themeToggleText').textContent = theme === 'dark' ? 'Light' : 'Dark';
+    }
+    applyTheme(currentTheme);
+
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      applyTheme(currentTheme);
+    });
+
+    // Toast Alert Helper
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          ${type === 'success' ? '<polyline points="20 6 9 17 4 12"/>' : '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'}
+        </svg>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(30px)';
+        setTimeout(() => toast.remove(), 250);
+      }, 3500);
+    }
+
+    // Modal Helpers
+    function openModal(id) { document.getElementById(id).classList.add('active'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+    // Tab Switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const target = btn.getAttribute('data-tab');
+        document.getElementById(`tab-${target}`).classList.add('active');
+      });
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await fetch('/dashboard/logout');
+      window.location.href = '/dashboard/login';
+    });
+
+    // Fetch Overview Metrics
+    async function loadMetrics() {
+      try {
+        const res = await fetch('/api/admin/overview');
+        if (res.status === 401) { window.location.href = '/dashboard/login'; return; }
+        const data = await res.json();
+        document.getElementById('metricTotalUsers').textContent = data.total_users || 0;
+        document.getElementById('metricActiveUsers').textContent = `${data.active_users || 0} Active`;
+        document.getElementById('metricTotalRoles').textContent = data.total_roles || 0;
+        document.getElementById('metricTotalAudits').textContent = data.total_audits || 0;
+
+        const univStatusEl = document.getElementById('metricUniversalStatus');
+        const univSubtextEl = document.getElementById('metricUniversalSubtext');
+        univStatusEl.textContent = `${data.active_universal} / ${data.total_universal}`;
+        if (data.universal_all_green) {
+          univSubtextEl.innerHTML = '<span class="badge badge-success">All Active Worldwide</span>';
+        } else {
+          univSubtextEl.innerHTML = '<span class="badge badge-danger">Restricted (Kill-Switch Active)</span>';
+        }
+      } catch (e) {
+        console.error('Failed to load metrics:', e);
+      }
+    }
+
+    // Render Universal Controls Tab
+    async function loadUniversalControls() {
+      try {
+        const res = await fetch('/api/admin/universal');
+        const controls = await res.json();
+        appUniversalControls = controls;
+        const grid = document.getElementById('universalGrid');
+        grid.innerHTML = '';
+
+        controls.forEach(ctrl => {
+          const isEnabled = Boolean(ctrl.is_enabled);
+          const card = document.createElement('div');
+          card.className = `universal-card ${isEnabled ? 'active-state' : 'disabled-state'}`;
+          card.innerHTML = `
+            <div>
+              <div class="univ-top">
+                <span class="univ-badge">${ctrl.category}</span>
+                <label class="switch">
+                  <input type="checkbox" ${isEnabled ? 'checked' : ''} onchange="toggleUniversal('${ctrl.privilege_key}', this.checked)">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <h3 class="univ-title">${ctrl.name}</h3>
+              <p class="univ-desc">${ctrl.description}</p>
+            </div>
+            <div class="univ-footer">
+              <div class="state-indicator ${isEnabled ? 'active' : 'disabled'}">
+                <span class="status-dot" style="background: ${isEnabled ? 'var(--emerald-success)' : 'var(--danger-color)'}; box-shadow: 0 0 8px ${isEnabled ? 'var(--emerald-success)' : 'var(--danger-color)'};"></span>
+                <span>${isEnabled ? 'ACTIVE WORLDWIDE' : 'RESTRICTED (KILL-SWITCH)'}</span>
+              </div>
+              <span style="font-size: 11px; color: var(--text-muted);">Updated by ${ctrl.updated_by || 'admin'}</span>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+      } catch (e) {
+        console.error('Failed to load universal controls:', e);
+      }
+    }
+
+    async function toggleUniversal(key, enabled) {
+      try {
+        const res = await fetch('/api/admin/universal/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ privilege_key: key, is_enabled: enabled })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Universal Control '${key}' set to ${enabled ? 'Enabled' : 'Restricted'}.`);
+          loadUniversalControls();
+          loadMetrics();
+          loadUsers();
+        } else {
+          showToast(data.detail || 'Failed to update control', 'error');
+          loadUniversalControls();
+        }
+      } catch (e) {
+        showToast('Network error updating control', 'error');
+        loadUniversalControls();
+      }
+    }
+
+    // Render Roles Tab
+    async function loadRoles() {
+      try {
+        const res = await fetch('/api/admin/roles');
+        const roles = await res.json();
+        appRoles = roles;
+        const tbody = document.getElementById('rolesTableBody');
+        tbody.innerHTML = '';
+
+        // Also update role select in Add User Modal
+        const roleSelect = document.getElementById('newUserRole');
+        roleSelect.innerHTML = '';
+        roles.forEach(r => {
+          const opt = document.createElement('option');
+          opt.value = r.id;
+          opt.textContent = `${r.name} ${r.is_system ? '(System)' : ''}`;
+          roleSelect.appendChild(opt);
+        });
+
+        roles.forEach(role => {
+          const tr = document.createElement('tr');
+          const isSystem = Boolean(role.is_system);
+          const isActive = Boolean(role.is_active);
+
+          // Build privilege chips
+          let chipsHtml = '<div class="priv-chips-wrap">';
+          CORE_PRIVILEGES_META.forEach(p => {
+            const hasPriv = Boolean(role.privileges && role.privileges[p.key]);
+            chipsHtml += `<span class="priv-chip ${hasPriv ? 'enabled' : 'disabled'}" title="${p.desc}">${hasPriv ? '✓' : '✕'} ${p.label}</span>`;
+          });
+          chipsHtml += '</div>';
+
+          tr.innerHTML = `
+            <td>
+              <div style="font-weight: 700; color: var(--text-color);">${role.name}</div>
+              ${isSystem ? '<span class="badge badge-primary" style="margin-top: 4px;">System Role</span>' : '<span class="badge badge-secondary" style="margin-top: 4px;">Custom Role</span>'}
+            </td>
+            <td style="color: var(--text-muted); max-width: 240px;">${role.description || '-'}</td>
+            <td><span class="badge badge-secondary">${role.user_count} user(s)</span></td>
+            <td>
+              <span class="badge ${isActive ? 'badge-success' : 'badge-danger'}">
+                ${isActive ? 'Active' : 'Disabled'}
+              </span>
+            </td>
+            <td>${chipsHtml}</td>
+            <td style="text-align: right;">
+              <div class="action-btn-group" style="justify-content: flex-end;">
+                <button class="btn-icon-sm" title="Edit Role & Privileges" onclick="openEditRole(${role.id})">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  </svg>
+                </button>
+                ${!isSystem ? `
+                  <button class="btn-icon-sm btn-icon-danger" title="Delete Role" onclick="deleteRole(${role.id}, '${role.name}')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                  </button>
+                ` : ''}
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        console.error('Failed to load roles:', e);
+      }
+    }
+
+    // Role Edit & Create Handlers
+    function populatePrivCheckboxes(containerId, privValues = {}) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      CORE_PRIVILEGES_META.forEach(p => {
+        const isChecked = Boolean(privValues[p.key] !== undefined ? privValues[p.key] : true);
+        const item = document.createElement('label');
+        item.className = 'priv-check-item';
+        item.innerHTML = `
+          <input type="checkbox" name="${p.key}" ${isChecked ? 'checked' : ''}>
+          <div>
+            <div class="priv-check-title">${p.label}</div>
+            <div class="priv-check-desc">${p.desc}</div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    document.getElementById('openCreateRoleModalBtn').addEventListener('click', () => {
+      populatePrivCheckboxes('newRolePrivGrid');
+      openModal('createRoleModal');
+    });
+
+    document.getElementById('createRoleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('newRoleName').value.trim();
+      const desc = document.getElementById('newRoleDesc').value.trim();
+      const privs = {};
+      document.querySelectorAll('#newRolePrivGrid input').forEach(input => {
+        privs[input.name] = input.checked;
+      });
+
+      try {
+        const res = await fetch('/api/admin/roles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, description: desc, privileges: privs })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Role '${name}' created successfully.`);
+          closeModal('createRoleModal');
+          loadRoles();
+          loadMetrics();
+        } else {
+          showToast(data.detail || 'Failed to create role', 'error');
+        }
+      } catch (err) {
+        showToast('Network error creating role', 'error');
+      }
+    });
+
+    async function openEditRole(roleId) {
+      const role = appRoles.find(r => r.id === roleId);
+      if (!role) return;
+      document.getElementById('editRoleId').value = role.id;
+      document.getElementById('editRoleName').value = role.name;
+      document.getElementById('editRoleDesc').value = role.description || '';
+      document.getElementById('editRoleActive').value = role.is_active ? "1" : "0";
+
+      // If system role, make name readonly
+      document.getElementById('editRoleName').readOnly = Boolean(role.is_system);
+
+      populatePrivCheckboxes('editRolePrivGrid', role.privileges || {});
+      openModal('editRoleModal');
+    }
+
+    document.getElementById('editRoleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const roleId = document.getElementById('editRoleId').value;
+      const name = document.getElementById('editRoleName').value.trim();
+      const desc = document.getElementById('editRoleDesc').value.trim();
+      const isActive = document.getElementById('editRoleActive').value === "1";
+      const privs = {};
+      document.querySelectorAll('#editRolePrivGrid input').forEach(input => {
+        privs[input.name] = input.checked;
+      });
+
+      try {
+        const res = await fetch(`/api/admin/roles/${roleId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, description: desc, is_active: isActive, privileges: privs })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Role '${name}' updated.`);
+          closeModal('editRoleModal');
+          loadRoles();
+          loadUsers();
+          loadMetrics();
+        } else {
+          showToast(data.detail || 'Failed to update role', 'error');
+        }
+      } catch (err) {
+        showToast('Network error updating role', 'error');
+      }
+    });
+
+    async function deleteRole(roleId, name) {
+      if (!confirm(`Are you sure you want to delete role '${name}'? This cannot be undone.`)) return;
+      try {
+        const res = await fetch(`/api/admin/roles/${roleId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Role '${name}' deleted.`);
+          loadRoles();
+          loadMetrics();
+        } else {
+          showToast(data.detail || 'Could not delete role', 'error');
+        }
+      } catch (err) {
+        showToast('Error deleting role', 'error');
+      }
+    }
+
+    // Render Users Tab
+    async function loadUsers(search = '') {
+      try {
+        const url = search ? `/api/admin/users?search=${encodeURIComponent(search)}` : '/api/admin/users';
+        const res = await fetch(url);
+        const users = await res.json();
+        appUsers = users;
+        const tbody = document.getElementById('usersTableBody');
+        tbody.innerHTML = '';
+
+        users.forEach(user => {
+          const tr = document.createElement('tr');
+          const isActive = Boolean(user.is_active);
+
+          // Build role selector options
+          let roleSelectHtml = `<select style="background: var(--surface-hover); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 6px; padding: 4px 8px; font-size: 12px;" onchange="changeUserRole('${user.username}', this.value)">`;
+          appRoles.forEach(r => {
+            roleSelectHtml += `<option value="${r.id}" ${r.id === user.role_id ? 'selected' : ''}>${r.name}</option>`;
+          });
+          roleSelectHtml += `</select>`;
+
+          // Effective privileges chips
+          let effChips = '<div class="priv-chips-wrap">';
+          CORE_PRIVILEGES_META.forEach(p => {
+            const isGranted = Boolean(user.effective_privileges && user.effective_privileges[p.key]);
+            effChips += `<span class="priv-chip ${isGranted ? 'enabled' : 'disabled'}">${isGranted ? '✓' : '✕'} ${p.label}</span>`;
+          });
+          effChips += '</div>';
+
+          tr.innerHTML = `
+            <td>
+              <div style="font-weight: 700; color: var(--text-color);">${user.username}</div>
+              <div style="font-size: 11.5px; color: var(--text-muted);">${user.display_name || '-'}</div>
+            </td>
+            <td style="color: var(--text-muted);">${user.email || '-'}</td>
+            <td>${roleSelectHtml}</td>
+            <td>
+              <span class="badge ${isActive ? 'badge-success' : 'badge-danger'}">
+                ${isActive ? 'Active' : 'Suspended'}
+              </span>
+            </td>
+            <td>${effChips}</td>
+            <td style="text-align: right;">
+              <button class="nav-btn" style="padding: 4px 10px; font-size: 11.5px;" onclick="toggleUserStatus('${user.username}', ${!isActive})">
+                ${isActive ? 'Suspend' : 'Activate'}
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        console.error('Failed to load users:', e);
+      }
+    }
+
+    async function changeUserRole(username, roleId) {
+      try {
+        const res = await fetch(`/api/admin/users/${username}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ role_id: parseInt(roleId) })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Reassigned '${username}' to new role.`);
+          loadUsers();
+          loadRoles();
+        } else {
+          showToast(data.detail || 'Failed to reassign role', 'error');
+          loadUsers();
+        }
+      } catch (e) {
+        showToast('Error reassigning user', 'error');
+      }
+    }
+
+    async function toggleUserStatus(username, activate) {
+      try {
+        const res = await fetch(`/api/admin/users/${username}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ is_active: activate })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`User '${username}' ${activate ? 'Activated' : 'Suspended'}.`);
+          loadUsers();
+          loadMetrics();
+        } else {
+          showToast(data.detail || 'Failed to update user status', 'error');
+        }
+      } catch (e) {
+        showToast('Error updating user', 'error');
+      }
+    }
+
+    // Add User Handler
+    document.getElementById('openAddUserModalBtn').addEventListener('click', () => {
+      openModal('addUserModal');
+    });
+
+    document.getElementById('addUserForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('newUsername').value.trim();
+      const display_name = document.getElementById('newDisplayName').value.trim();
+      const email = document.getElementById('newEmail').value.trim();
+      const role_id = parseInt(document.getElementById('newUserRole').value);
+
+      try {
+        const res = await fetch('/api/admin/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, display_name, email, role_id })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`User '${username}' registered.`);
+          closeModal('addUserModal');
+          document.getElementById('addUserForm').reset();
+          loadUsers();
+          loadMetrics();
+        } else {
+          showToast(data.detail || 'Failed to register user', 'error');
+        }
+      } catch (e) {
+        showToast('Error creating user', 'error');
+      }
+    });
+
+    // Sync Users from Chat History
+    document.getElementById('syncUsersBtn').addEventListener('click', async () => {
+      showToast('Scanning chat history sessions for active users...', 'warning');
+      try {
+        const res = await fetch('/api/admin/users/sync', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Auto-discovery completed! Synced ${data.synced_count || 0} user(s).`);
+          loadUsers();
+          loadMetrics();
+          loadRoles();
+        } else {
+          showToast(data.detail || 'Sync failed', 'error');
+        }
+      } catch (e) {
+        showToast('Error syncing users', 'error');
+      }
+    });
+
+    // User Search Debounce
+    let userSearchTimer;
+    document.getElementById('userSearchInput').addEventListener('input', (e) => {
+      clearTimeout(userSearchTimer);
+      userSearchTimer = setTimeout(() => {
+        loadUsers(e.target.value);
+      }, 300);
+    });
+
+    // Render Audit Logs
+    async function loadAudits() {
+      try {
+        const res = await fetch('/api/admin/audit-logs?limit=50');
+        const logs = await res.json();
+        appAudits = logs;
+        const tbody = document.getElementById('auditTableBody');
+        tbody.innerHTML = '';
+
+        logs.forEach(log => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td style="color: var(--text-muted); font-size: 11.5px; font-family: monospace;">${log.timestamp.replace('T', ' ').substring(0, 19)}</td>
+            <td><span class="badge badge-secondary">${log.admin_username}</span></td>
+            <td><strong style="color: var(--ap-gold-accent);">${log.action}</strong></td>
+            <td><span class="badge badge-secondary">${log.target_type}: ${log.target_id || '-'}</span></td>
+            <td style="color: var(--text-muted); font-size: 12px;">${log.details || '-'}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        console.error('Failed to load audits:', e);
+      }
+    }
+
+    // Export Audits CSV
+    document.getElementById('exportAuditCsvBtn').addEventListener('click', () => {
+      if (!appAudits || !appAudits.length) { showToast('No audit logs to export', 'warning'); return; }
+      let csv = "Timestamp,Admin,Action,TargetType,TargetID,Details\n";
+      appAudits.forEach(l => {
+        csv += `"${l.timestamp}","${l.admin_username}","${l.action}","${l.target_type}","${l.target_id}","${(l.details || '').replace(/"/g, '""')}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `ap_citizen360_rbac_audit_${new Date().toISOString().substring(0, 10)}.csv`;
+      a.click();
+    });
+
+    // Change Password
+    document.getElementById('changePasswordBtn').addEventListener('click', () => {
+      openModal('changePasswordModal');
+    });
+
+    document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const old_password = document.getElementById('oldPassword').value;
+      const new_password = document.getElementById('newPassword').value;
+
+      try {
+        const res = await fetch('/api/admin/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ old_password, new_password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast('Admin password changed successfully!');
+          closeModal('changePasswordModal');
+          document.getElementById('changePasswordForm').reset();
+        } else {
+          showToast(data.detail || 'Failed to change password', 'error');
+        }
+      } catch (err) {
+        showToast('Error changing password', 'error');
+      }
+    });
+
+    // Initial Load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadMetrics();
+      loadUniversalControls();
+      loadRoles();
+      loadUsers();
+      loadAudits();
+    });
+  </script>
+</body>
+</html>

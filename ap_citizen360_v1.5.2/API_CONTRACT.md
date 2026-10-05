@@ -48,7 +48,7 @@ All interactions (executing NL-to-SQL queries, canceling queries, listing histor
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | `username` | `string` | **Required.** Scopes all operations. |
-| `action` | `string` | **Optional.** One of: `"ask"` (default), `"cancel"`, `"history"`, `"history_session"`, `"delete_session"`, `"clear_history"`, `"chart"`. |
+| `action` | `string` | **Optional.** One of: `"ask"` (default), `"cancel"`, `"history"`, `"history_session"`, `"delete_session"`, `"clear_history"`, `"chart"`, `"sdui_config"`. |
 | `question` | `string` | **Required only for `"ask"` action.** The natural-language database question. |
 | `request_id` | `string` | **Optional.** Custom identifier to track/cancel a running request. |
 | `session_id` | `string` | **Optional.** Chat session ID for conversation memory (used in `"ask"`, `"history_session"`, and `"delete_session"`). |
@@ -351,9 +351,84 @@ Response:
 }
 ```
 
+---
+
+### 9. Action: `"sdui_config"` (or `GET /api/sdui/config`)
+
+Retrieves the effective Role-Based Access Control (RBAC) and Server-Driven UI (SDUI) governance flags for a given user. Checks user assignment, role privileges, and universal master kill-switch status.
+
+Request (POST /ask):
+```json
+{
+  "action": "sdui_config",
+  "username": "analyst"
+}
+```
+
+Or via direct HTTP GET:
+```http
+GET /api/sdui/config?username=analyst
+```
+
+Response:
+```json
+{
+  "status": "success",
+  "username": "analyst",
+  "role": "Data Analyst",
+  "is_active": true,
+  "isSchemaEnabled": true,
+  "showAboutSection": true,
+  "allowTableExport": true,
+  "allowCsvExport": true,
+  "allowExcelExport": true,
+  "allowCopyTable": true,
+  "copyProtection": false,
+  "devToolsProtection": false,
+  "universal_overrides": {
+    "schema_layer": true,
+    "about_section": true,
+    "allow_download": true,
+    "allow_copy": true,
+    "content_copy_protection": true,
+    "devtools_protection": true
+  }
+}
+```
+
+---
+
+### 10. RBAC Administration & Control Center Dashboard (`/dashboard`)
+
+A dedicated administrative interface and REST API for system administrators to manage roles, privileges, universal kill-switches, and user directory.
+
+#### Web Views
+- `GET /dashboard`: Main Control Center (Dark/Light theme, 4 tabs: Universal Controls, Roles Matrix, Users Directory, Audit Logs). Requires authentication.
+- `GET /dashboard/login`: Admin Login Card.
+- `POST /dashboard/login`: Authenticate admin (`username`, `password`), returns JWT and sets `admin_access_token` HttpOnly cookie. Default: `admin` / `admin`.
+- `GET /dashboard/logout`: Clears session cookie and redirects to login.
+
+#### Protected Admin REST APIs (Bearer Token or `admin_access_token` cookie)
+- `GET /api/admin/overview`: Summary metrics (user counts, role counts, kill-switch status, audit count).
+- `GET /api/admin/universal`: List all 6 universal master controls.
+- `POST /api/admin/universal/toggle`: Global kill-switch toggle (`privilege_key`, `is_enabled`).
+- `GET /api/admin/roles`: List all system and custom roles with their privilege matrix.
+- `POST /api/admin/roles`: Create a new custom role.
+- `PUT /api/admin/roles/{role_id}`: Edit role name, description, and privilege assignments.
+- `DELETE /api/admin/roles/{role_id}`: Delete custom role.
+- `POST /api/admin/roles/{role_id}/toggle-privilege`: Toggle a single privilege within a role.
+- `GET /api/admin/users`: List users with search and role filters.
+- `POST /api/admin/users`: Create or update an end-user and assign role.
+- `PUT /api/admin/users/{username}/role`: Assign/reassign role to a user.
+- `POST /api/admin/users/{username}/toggle-active`: Activate or suspend user account.
+- `POST /api/admin/users/sync`: Discover and register users from `database/chat_history.db`.
+- `GET /api/admin/audit-logs`: Paginated administrative audit logs.
+- `POST /api/admin/change-password`: Update admin credentials.
+
 ## CORS
 
 CORS is open for integration testing:
 ```text
 allow_origins=["*"]
 ```
+
