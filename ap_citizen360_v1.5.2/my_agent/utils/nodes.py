@@ -17,6 +17,8 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+from pii_masking import mask_pii_rows
+
 from dotenv import load_dotenv
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langgraph.prebuilt import ToolNode
@@ -229,10 +231,50 @@ def _extract_tool_content(content: Any) -> str | None:
     return str(content)
 
 
-def _summarize_sql_result(user_query: str, tool_content: Any) -> str | None:
+def _apply_pii_mask_to_payload(text_content: str, pii_access: bool) -> str:
+    """
+    If ``pii_access`` is False, deserialise the execute_sql JSON payload,
+    mask all PII columns in the rows, and return the re-serialised payload.
+    Returns the original text unchanged when ``pii_access`` is True or when
+    the payload cannot be parsed / has no rows.
+    """
+    if pii_access:
+        return text_content
+    try:
+        payload = json.loads(text_content)
+    except (json.JSONDecodeError, TypeError):
+        return text_content
+    if not isinstance(payload, dict) or payload.get("status") != "success":
+        return text_content
+    rows = payload.get("rows") or []
+    columns = payload.get("columns") or []
+    if not rows or not columns:
+        return text_content
+    masked_rows, pii_cols = mask_pii_rows(rows, columns)
+    if pii_cols:
+        logger.info("🔒 [PII MASKED for LLM] columns=%s", pii_cols)
+        payload = {**payload, "rows": masked_rows}
+        return json.dumps(payload, default=str)
+    return text_content
+
+
+def _summarize_sql_result(
+    user_query: str,
+    tool_content: Any,
+    pii_access: bool = False,
+) -> str | None:
+    """
+    Render a short markdown summary of an execute_sql result.
+
+    ``pii_access=False`` masks PII columns before building the table so the
+    returned string (which may reach the user or an LLM) never exposes raw PII.
+    """
     text_content = _extract_tool_content(tool_content)
     if not text_content:
         return None
+    # Apply PII masking before parsing so the rest of this function
+    # only ever sees masked data when pii_access is False.
+    text_content = _apply_pii_mask_to_payload(text_content, pii_access)
     try:
         payload = json.loads(text_content)
     except (json.JSONDecodeError, TypeError):
@@ -460,6 +502,7 @@ def llm_node(state: AgentState) -> dict:
     history = state.get("messages", [])
     if not history:
         history = [HumanMessage(content=state["user_query"])]
+    pii_access: bool = state.get("pii_access", False)
 
     # Hard cap on LLM calls to prevent infinite loops
     current_calls = state.get("llm_calls", 0)
@@ -473,10 +516,10 @@ def llm_node(state: AgentState) -> dict:
         # verify_node keeps requesting retries even though good data was found.
         successful_sql_msgs = [
             m for m in _tool_messages(history, "execute_sql")
-            if _summarize_sql_result(state["user_query"], m.content) is not None
+            if _summarize_sql_result(state["user_query"], m.content, pii_access) is not None
         ]
         if successful_sql_msgs:
-            summary = _summarize_sql_result(state["user_query"], successful_sql_msgs[-1].content)
+            summary = _summarize_sql_result(state["user_query"], successful_sql_msgs[-1].content, pii_access)
             logger.info("llm_node: returning best available SQL result after hitting call cap.")
             return {
                 "messages": [AIMessage(content=summary or "Query executed successfully.")],
@@ -515,7 +558,7 @@ def llm_node(state: AgentState) -> dict:
     in_verify_retry = state.get("verify_calls", 0) > 0 and not state.get("verified", False)
     sql_results = _tool_messages(history, "execute_sql")
     if sql_results and not in_verify_retry:
-        summary = _summarize_sql_result(state["user_query"], sql_results[-1].content)
+        summary = _summarize_sql_result(state["user_query"], sql_results[-1].content, pii_access)
         if summary:
             logger.info("llm_node: summarized SQL result in %.2fs", time.perf_counter() - t0)
             return {
@@ -627,7 +670,7 @@ def llm_node(state: AgentState) -> dict:
     rag_results = _tool_messages(history, "retrive_schema_rag")
     successful_sql = [
         m for m in _tool_messages(history, "execute_sql")
-        if _summarize_sql_result(state["user_query"], m.content) is not None
+        if _summarize_sql_result(state["user_query"], m.content, pii_access) is not None
     ]
 
     # Collect the last SQL error message (if any) to include in the nudge.
@@ -756,11 +799,22 @@ def _extract_sql_from_history(history: list) -> str:
     return ""
 
 
-def _result_table_str(tool_content: Any, max_rows: int = 20) -> str:
-    """Render the SQL result as a plain-text table for the verifier prompt."""
+def _result_table_str(
+    tool_content: Any,
+    max_rows: int = 20,
+    pii_access: bool = False,
+) -> str:
+    """
+    Render the SQL result as a plain-text table for the verifier LLM prompt.
+
+    ``pii_access=False`` masks PII columns so the verifier LLM never sees raw
+    PII data for users without the ``pii_access`` RBAC privilege.
+    """
     text_content = _extract_tool_content(tool_content)
     if not text_content:
         return "(no result)"
+    # Apply PII masking before building the verifier prompt.
+    text_content = _apply_pii_mask_to_payload(text_content, pii_access)
     try:
         payload = json.loads(text_content)
     except (json.JSONDecodeError, TypeError):
@@ -797,11 +851,12 @@ def verify_node(state: AgentState) -> dict:
     t0 = time.perf_counter()
     history = state.get("messages", [])
     verify_calls = state.get("verify_calls", 0)
+    pii_access: bool = state.get("pii_access", False)
 
     # Find the latest successful SQL result
     successful = [
         m for m in _tool_messages(history, "execute_sql")
-        if _summarize_sql_result(state["user_query"], m.content) is not None
+        if _summarize_sql_result(state["user_query"], m.content, pii_access) is not None
     ]
 
     # Guard: no SQL execution was even attempted (e.g. LLM answered directly)
@@ -923,8 +978,8 @@ def verify_node(state: AgentState) -> dict:
         }
 
     last_result_msg = successful[-1]
-    result_table = _result_table_str(last_result_msg.content)
-    summary = _summarize_sql_result(state["user_query"], last_result_msg.content)
+    result_table = _result_table_str(last_result_msg.content, pii_access=pii_access)
+    summary = _summarize_sql_result(state["user_query"], last_result_msg.content, pii_access)
 
     verify_duration_ms = (time.perf_counter() - t0) * 1000
     logger.info(
@@ -1337,53 +1392,57 @@ def summarization_node(state: AgentState) -> dict:
         set_current_user(state["username"])
     t0 = time.perf_counter()
     history = state.get("messages", [])
-    
+    pii_access: bool = state.get("pii_access", False)
+
     successful = _tool_messages(history, "execute_sql")
     if not successful:
         return {}
-        
+
     last_result_msg = successful[-1]
     text_content = _extract_tool_content(last_result_msg.content)
-    
+
     payload = {}
     if text_content:
         try:
             payload = json.loads(text_content)
         except Exception:
             pass
-            
+
     if payload.get("status") != "success":
         return {}
-        
+
     rows = payload.get("rows", [])
     if not rows:
         return {
             "messages": [AIMessage(content="The query ran successfully but returned no data.")],
         }
-        
-    result_table = _result_table_str(last_result_msg.content)
+
+    # Pass pii_access so the table rendered for the LLM has PII columns masked
+    # when the user lacks the pii_access privilege. This prevents the LLM from
+    # mentioning raw PII values in its summary text.
+    result_table = _result_table_str(last_result_msg.content, pii_access=pii_access)
     max_table_chars = (_SUMMARIZE_NUM_CTX if _BACKEND == "vllm" else int(os.getenv("OLLAMA_SUMMARIZE_NUM_CTX", "2048"))) * 4
     if result_table and len(result_table) > max_table_chars:
         result_table = result_table[:max_table_chars] + "\n...(truncated for context limit)"
-    
+
     system_prompt = (
         "You are an AI assistant. Summarize the following database query results in short based on the user's query.\n"
         "Do not explain the SQL query. Just provide a concise summary of the data table returned."
     )
-    
+
     messages_for_llm = [
         SystemMessage(content=system_prompt),
         HumanMessage(content=f"User question: {state['user_query']}\n\nQuery result table:\n{result_table}")
     ]
-    
+
     model = _summarize_model
     response = model.invoke(_sanitize_messages_for_llm(messages_for_llm))
     if response.content:
         response.content = re.sub(r"<think>.*?</think>", "", response.content, flags=re.DOTALL).strip()
-    
+
     duration_ms = (time.perf_counter() - t0) * 1000
     logger.info("📝 [SUMMARIZATION COMPLETED] duration=%.2fms | Response (%d chars)", duration_ms, len(response.content or ""))
-    
+
     return {
         "messages": [response],
         "llm_calls": state.get("llm_calls", 0) + 1,

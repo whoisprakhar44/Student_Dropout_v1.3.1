@@ -7,6 +7,7 @@ universal master kill-switches, audit logging, and privilege resolution.
 from __future__ import annotations
 
 import os
+import logging
 import sqlite3
 import threading
 from datetime import datetime, timedelta, timezone
@@ -15,6 +16,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import bcrypt
 import jwt
+
+logger = logging.getLogger(__name__)
 
 # Paths & Settings
 DB_DIR = Path(__file__).resolve().parent
@@ -69,6 +72,18 @@ CORE_PRIVILEGES = [
         "description": "Detects and blocks browser developer console shortcuts (F12, Ctrl+Shift+I, Ctrl+U).",
         "default_enabled": 1,
     },
+    {
+        "key": "pii_access",
+        "name": "PII Data Access",
+        "category": "Data Privacy",
+        "description": (
+            "Grants access to personally identifiable information (PII) columns such as "
+            "Aadhaar, phone, email, name, address, and date of birth. "
+            "When disabled, these columns are masked with *** in all query results and "
+            "the LLM summariser never receives the raw values."
+        ),
+        "default_enabled": 0,   # Denied for every role until explicitly granted by admin.
+    },
 ]
 
 # Standard Seeded Roles
@@ -85,6 +100,7 @@ DEFAULT_ROLES = [
             "allow_copy": 1,
             "content_copy_protection": 0,
             "devtools_protection": 0,
+            "pii_access": 0,
         },
     },
     {
@@ -99,6 +115,7 @@ DEFAULT_ROLES = [
             "allow_copy": 1,
             "content_copy_protection": 0,
             "devtools_protection": 0,
+            "pii_access": 0,
         },
     },
     {
@@ -113,6 +130,7 @@ DEFAULT_ROLES = [
             "allow_copy": 1,
             "content_copy_protection": 1,
             "devtools_protection": 1,
+            "pii_access": 0,
         },
     },
     {
@@ -127,6 +145,7 @@ DEFAULT_ROLES = [
             "allow_copy": 0,
             "content_copy_protection": 1,
             "devtools_protection": 1,
+            "pii_access": 0,
         },
     },
 ]
@@ -309,9 +328,59 @@ class RBACManager:
 
                 conn.commit()
 
+                # Forward migration: add pii_access privilege if this is an
+                # existing database that was seeded before pii_access was added.
+                self._migrate_add_pii_access(cursor, conn)
+
+    def _migrate_add_pii_access(self, cursor: "sqlite3.Cursor", conn: "sqlite3.Connection") -> None:
+        """
+        Idempotent migration: insert the ``pii_access`` privilege row into
+        ``universal_controls`` and seed ``role_privileges`` for each seeded role.
+
+        Safe to call on every startup.
+        """
+        cursor.execute(
+            "SELECT 1 FROM universal_controls WHERE privilege_key = 'pii_access'"
+        )
+        if not cursor.fetchone():
+            now = datetime.now(timezone.utc).isoformat()
+            cursor.execute(
+                """
+                INSERT INTO universal_controls
+                    (privilege_key, name, category, description, is_enabled, updated_at, updated_by)
+                VALUES (?, ?, ?, ?, 0, ?, 'system')
+                """,
+                (
+                    "pii_access",
+                    "PII Data Access",
+                    "Data Privacy",
+                    (
+                        "Grants access to PII columns (Aadhaar, phone, email, name, address, dob). "
+                        "When disabled, these columns are masked with *** in query results and the "
+                        "LLM summariser never receives the raw values."
+                    ),
+                    now,
+                ),
+            )
+
+        # pii_access = 0 for ALL roles — admin must grant explicitly.
+        cursor.execute("SELECT id FROM roles")
+        role_rows = cursor.fetchall()
+        for role_row in role_rows:
+            cursor.execute(
+                """
+                INSERT OR IGNORE INTO role_privileges (role_id, privilege_key, is_enabled)
+                VALUES (?, 'pii_access', 0)
+                """,
+                (role_row["id"],),
+            )
+        conn.commit()
+        logger.info("[RBAC Migration] 'pii_access' privilege ensured — default=0 for all roles.")
+
     # =========================================================================
     # Admin Authentication & JWT Security
     # =========================================================================
+
 
     def verify_admin_credentials(self, username: str, password: str) -> Optional[Dict[str, Any]]:
         """Verify admin login credentials using bcrypt. Returns user dict on success, None on failure."""
@@ -929,6 +998,7 @@ class RBACManager:
             "allowCopyTable": effective.get("allow_copy", False),
             "copyProtection": effective.get("content_copy_protection", True),
             "devToolsProtection": effective.get("devtools_protection", True),
+            "piiAccess": effective.get("pii_access", False),   # NEW: frontend can gate PII-related UI
             "universal_overrides": universal_states,
         }
 

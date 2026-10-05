@@ -11,6 +11,11 @@ class AgentState(TypedDict):
     # Username of requester for logging correlation
     username: NotRequired[str | None]
 
+    # Whether the user has permission to see PII columns in query results.
+    # Resolved once at request entry via RBAC check_user_privilege("pii_access").
+    # When False, PII columns are masked with "***" before the LLM summarizes.
+    pii_access: NotRequired[bool]
+
     # Context chunks returned by RAG MCP server
     retrieved_context: List[Dict[str, Any]]
 

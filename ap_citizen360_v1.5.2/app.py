@@ -98,6 +98,7 @@ from my_agent.agent import build_graph
 from my_agent.utils.ollama_check import chat_model_name, check_ollama
 from my_agent.utils.tools import cleanup_tools
 from my_agent.utils.guardrails import ContentGuardrailManager
+from pii_masking import mask_pii_rows
 
 guardrail_manager: ContentGuardrailManager | None = None
 
@@ -442,11 +443,16 @@ def _extract_tool_content(message: Any) -> str | None:
     return str(raw)
 
 
-def _extract_sql_and_result(messages: list[Any], username: str) -> AskResponse:
+def _extract_sql_and_result(
+    messages: list[Any],
+    username: str,
+    pii_access: bool = False,
+) -> AskResponse:
     from langchain_core.messages import ToolMessage as LCToolMessage
 
     sql = None
     result: list[dict[str, Any]] | None = None
+    result_columns: list[str] = []   # captured for PII masking
 
     for message in messages:
         # ── extract SQL from any AIMessage tool call ──────────────────────────
@@ -482,6 +488,7 @@ def _extract_sql_and_result(messages: list[Any], username: str) -> AskResponse:
 
         if payload.get("status") == "success":
             result = payload.get("rows") or []
+            result_columns = payload.get("columns") or []
 
     # If SQL was not found, default to empty string
     if sql is None:
@@ -523,6 +530,25 @@ def _extract_sql_and_result(messages: list[Any], username: str) -> AskResponse:
             error_msg = "The agent did not return an executed SQL query."
 
         result = [{"error": error_msg, "status": "failed"}]
+
+    # ── PII masking gate (API response boundary) ─────────────────────────────
+    # Defence-in-depth: mask structured rows before they leave the server,
+    # even if nodes.py masking was already applied for the LLM.
+    # Only applies when there are real data rows (not an error dict).
+    if (
+        not pii_access
+        and result
+        and result_columns
+        and not result[0].get("error")
+    ):
+        masked_rows, pii_cols = mask_pii_rows(result, result_columns)
+        if pii_cols:
+            logger.info(
+                "🔒 [PII MASKED for API] user=%s masked_columns=%s",
+                username, pii_cols,
+            )
+        result = masked_rows
+    # ─────────────────────────────────────────────────────────────────────────
 
     return AskResponse(sql=sql, result=result, username=username)
 
@@ -1392,6 +1418,7 @@ async def ask(payload: AskRequest, request: Request):
                             {
                                 "user_query": payload.question,
                                 "username": username,
+                                "pii_access": rbac_manager.check_user_privilege(username, "pii_access"),
                                 "messages": history_messages + [HumanMessage(content=payload.question)],
                                 "retrieved_context": [],
                                 "llm_calls": 0,
@@ -1425,7 +1452,11 @@ async def ask(payload: AskRequest, request: Request):
                 state = graph_task.result()
                 total_time = time.perf_counter() - t_start
 
-                response_obj = _extract_sql_and_result(state.get("messages", []), username)
+                response_obj = _extract_sql_and_result(
+                    state.get("messages", []),
+                    username,
+                    pii_access=state.get("pii_access", False),
+                )
 
                 # Attach timings
                 gen_time = state.get("gen_time", 0.0)
@@ -2100,6 +2131,7 @@ class WebSocketSessionHandler:
                         return await graph.ainvoke({
                             "user_query": question,
                             "username": username,
+                            "pii_access": rbac_manager.check_user_privilege(username, "pii_access"),
                             "messages": history_messages + [HumanMessage(content=question)],
                             "retrieved_context": [],
                             "llm_calls": 0,
@@ -2149,7 +2181,11 @@ class WebSocketSessionHandler:
                         "timestamp": datetime.now().isoformat()
                     })
 
-                    response_obj = _extract_sql_and_result(state.get("messages", []), username)
+                    response_obj = _extract_sql_and_result(
+                        state.get("messages", []),
+                        username,
+                        pii_access=state.get("pii_access", False),
+                    )
                     response_obj.timings = {
                         "total_gen_time": round(gen_time, 2),
                         "total_exec_time": round(exec_time, 2),
