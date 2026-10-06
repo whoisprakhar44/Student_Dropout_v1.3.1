@@ -10,6 +10,7 @@ from pii_masking import (
     is_pii_column,
     get_pii_columns,
     mask_pii_rows,
+    extract_pii_aliases_from_sql,
 )
 from my_agent.utils.nodes import (
     _apply_pii_mask_to_payload,
@@ -199,6 +200,120 @@ def test_rbac_default_pii_access_denied():
     assert sdui.get("piiAccess") is False
 
 
+def test_extract_pii_aliases_from_sql():
+    sql = "SELECT student_name AS sn, aadhaar_no AS doc_id, phone AS contact, district_name FROM students"
+    result = extract_pii_aliases_from_sql(sql)
+    assert result == {"sn": "student_name", "doc_id": "aadhaar_no", "contact": "phone"}
+
+
+def test_extract_pii_aliases_table_qualified():
+    sql = "SELECT s.student_name AS nm, s.phone AS ph, s.district_name AS dn FROM students s"
+    result = extract_pii_aliases_from_sql(sql)
+    assert result.get("nm") == "student_name"
+    assert result.get("ph") == "phone"
+    assert "dn" not in result  # district_name is not PII
+
+
+def test_mask_pii_rows_with_alias_bypass():
+    sql = "SELECT student_name AS sn, district_name FROM students"
+    alias_map = extract_pii_aliases_from_sql(sql)
+    rows = [{"sn": "Ravi Kumar", "district_name": "Nellore"}]
+    cols = ["sn", "district_name"]
+    masked, pii_cols = mask_pii_rows(rows, cols, alias_map=alias_map)
+    assert masked[0]["sn"] == MASK_VALUE
+    assert masked[0]["district_name"] == "Nellore"
+    assert "sn" in pii_cols
+
+
+def test_no_false_positive_on_cte_and_functions():
+    # CTE "AS" should not match as PII column alias
+    sql_cte = "WITH dropout_cte AS (SELECT student_name FROM students) SELECT * FROM dropout_cte"
+    assert "dropout_cte" not in extract_pii_aliases_from_sql(sql_cte)
+
+    # Function call alias UPPER(student_name) AS nm - safe fallback: not matched
+    sql_func = "SELECT UPPER(student_name) AS nm, COUNT(*) AS cnt FROM students"
+    res_func = extract_pii_aliases_from_sql(sql_func)
+    assert "nm" not in res_func
+    assert "cnt" not in res_func
+
+
+def test_nodes_apply_pii_mask_with_alias_sql():
+    payload = {
+        "status": "success",
+        "columns": ["sn", "contact", "mandal_name"],
+        "rows": [{"sn": "John Doe", "contact": "9999999999", "mandal_name": "Kavali"}],
+    }
+    raw_str = json.dumps(payload)
+    sql = "SELECT student_name AS sn, phone AS contact, mandal_name FROM students"
+
+    # pii_access=False: alias-bypassed columns must be masked
+    res_false = _apply_pii_mask_to_payload(raw_str, pii_access=False, sql=sql)
+    parsed = json.loads(res_false)
+    assert parsed["rows"][0]["sn"] == MASK_VALUE
+    assert parsed["rows"][0]["contact"] == MASK_VALUE
+    assert parsed["rows"][0]["mandal_name"] == "Kavali"
+
+    # pii_access=True: untouched
+    res_true = _apply_pii_mask_to_payload(raw_str, pii_access=True, sql=sql)
+    assert res_true == raw_str
+
+
+def test_nodes_summarize_sql_result_alias_masking():
+    payload = {
+        "status": "success",
+        "columns": ["sn", "contact"],
+        "rows": [{"sn": "Secret Student", "contact": "9988776655"}],
+    }
+    raw_str = json.dumps(payload)
+    sql = "SELECT student_name AS sn, mobile AS contact FROM students"
+
+    summary = _summarize_sql_result("show student", raw_str, pii_access=False, sql=sql)
+    assert summary is not None
+    assert "Secret Student" not in summary
+    assert "9988776655" not in summary
+    assert MASK_VALUE in summary
+
+
+def test_nodes_result_table_str_alias_masking():
+    payload = {
+        "status": "success",
+        "columns": ["sn", "ph"],
+        "rows": [{"sn": "Alice", "ph": "9000000000"}],
+    }
+    raw_str = json.dumps(payload)
+    sql = "SELECT student_name AS sn, phone AS ph FROM students"
+
+    table_masked = _result_table_str(raw_str, pii_access=False, sql=sql)
+    assert "Alice" not in table_masked
+    assert "9000000000" not in table_masked
+    assert MASK_VALUE in table_masked
+
+
+def test_app_extract_sql_and_result_alias_masking():
+    payload = {
+        "status": "success",
+        "columns": ["sn", "doc_id", "district_name"],
+        "rows": [{"sn": "Bob", "doc_id": "1234-5678-9012", "district_name": "Visakhapatnam"}],
+    }
+    sql = "SELECT student_name AS sn, aadhaar_no AS doc_id, district_name FROM students"
+    messages = [
+        AIMessage(content="Running SQL", tool_calls=[{"id": "call_2", "name": "execute_sql", "args": {"query": sql}}]),
+        ToolMessage(content=json.dumps(payload), tool_call_id="call_2", name="execute_sql"),
+    ]
+
+    # pii_access=False: aliased columns masked
+    resp_masked = _extract_sql_and_result(messages, username="viewer", pii_access=False)
+    assert resp_masked.result[0]["sn"] == MASK_VALUE
+    assert resp_masked.result[0]["doc_id"] == MASK_VALUE
+    assert resp_masked.result[0]["district_name"] == "Visakhapatnam"
+
+    # pii_access=True: unmasked
+    resp_unmasked = _extract_sql_and_result(messages, username="admin", pii_access=True)
+    assert resp_unmasked.result[0]["sn"] == "Bob"
+    assert resp_unmasked.result[0]["doc_id"] == "1234-5678-9012"
+    assert resp_unmasked.result[0]["district_name"] == "Visakhapatnam"
+
+
 if __name__ == "__main__":
     print("Running test_is_pii_column...")
     test_is_pii_column()
@@ -216,4 +331,20 @@ if __name__ == "__main__":
     test_app_extract_sql_and_result_masking()
     print("Running test_rbac_default_pii_access_denied...")
     test_rbac_default_pii_access_denied()
-    print("\n✅ ALL PII MASKING & RBAC TESTS PASSED SUCCESSFULLY!")
+    print("Running test_extract_pii_aliases_from_sql...")
+    test_extract_pii_aliases_from_sql()
+    print("Running test_extract_pii_aliases_table_qualified...")
+    test_extract_pii_aliases_table_qualified()
+    print("Running test_mask_pii_rows_with_alias_bypass...")
+    test_mask_pii_rows_with_alias_bypass()
+    print("Running test_no_false_positive_on_cte_and_functions...")
+    test_no_false_positive_on_cte_and_functions()
+    print("Running test_nodes_apply_pii_mask_with_alias_sql...")
+    test_nodes_apply_pii_mask_with_alias_sql()
+    print("Running test_nodes_summarize_sql_result_alias_masking...")
+    test_nodes_summarize_sql_result_alias_masking()
+    print("Running test_nodes_result_table_str_alias_masking...")
+    test_nodes_result_table_str_alias_masking()
+    print("Running test_app_extract_sql_and_result_alias_masking...")
+    test_app_extract_sql_and_result_alias_masking()
+    print("\n✅ ALL PII MASKING & RBAC TESTS (INCLUDING ALIAS BYPASS) PASSED SUCCESSFULLY!")
