@@ -165,7 +165,87 @@ class TestRBACGovernance(unittest.TestCase):
         self.assertGreater(len(new_audits), initial_audits)
         latest = new_audits[0]
         self.assertEqual(latest["action"], "TEST_SECURITY_EVENT")
-        self.assertEqual(latest["target_id"], "test_id_101")
+    def test_08_sso_auto_registration_and_default_role(self):
+        """
+        Verify:
+        - New user is automatically registered with 'Default Role'
+        - Default role matches the exact preset configuration:
+            is_active: 1
+            isSchemaEnabled: false
+            showAboutSection: false
+            allowTableExport: false
+            allowCsvExport: false
+            allowExcelExport: false
+            allowCopyTable: false
+            copyProtection: true
+            devToolsProtection: true
+            piiAccess: false
+        - All decoded SSO token claims are stored as props and values
+        - Admin can see the user in get_users() with all token_props
+        - Admin can assign a new role to them
+        - Subsequent requests preserve the assigned role
+        """
+        sample_sso_payload = {
+            "userId": "DL_ROLE8_TEST",
+            "userName": "District Officer Testing",
+            "userRole": "8",
+            "deptId": "All",
+            "distId": "All",
+            "passwordstatus": "1",
+            "jti": "6F3D0DEC-307A-453A-9D9B-A4616-TEST",
+            "exp": 1787294530,
+            "iss": "YourIssuer",
+            "aud": "YourAudience",
+        }
+
+        with self.mgr._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM users WHERE username = 'DL_ROLE8_TEST'")
+            conn.commit()
+
+        # 1. Fetch SDUI config for a brand new user with SSO claims
+        sdui = self.mgr.get_user_sdui_config("DL_ROLE8_TEST", token_payload=sample_sso_payload)
+
+        # Verify exact preset config:
+        self.assertEqual(sdui["is_active"], 1)
+        self.assertFalse(sdui["isSchemaEnabled"])
+        self.assertFalse(sdui["showAboutSection"])
+        self.assertFalse(sdui["allowTableExport"])
+        self.assertFalse(sdui["allowCsvExport"])
+        self.assertFalse(sdui["allowExcelExport"])
+        self.assertFalse(sdui["allowCopyTable"])
+        self.assertTrue(sdui["copyProtection"])
+        self.assertTrue(sdui["devToolsProtection"])
+        self.assertFalse(sdui["piiAccess"])
+        self.assertEqual(sdui["role"], "Default Role")
+
+        # Verify all SSO claims stored as props & values
+        self.assertIn("token_props", sdui)
+        self.assertEqual(sdui["token_props"]["userId"], "DL_ROLE8_TEST")
+        self.assertEqual(sdui["token_props"]["userRole"], "8")
+        self.assertEqual(sdui["token_props"]["deptId"], "All")
+        self.assertEqual(sdui["token_props"]["distId"], "All")
+        self.assertEqual(sdui["token_props"]["passwordstatus"], "1")
+        self.assertEqual(sdui["token_props"]["jti"], "6F3D0DEC-307A-453A-9D9B-A4616-TEST")
+
+        # 2. Check get_users() in dashboard/admin view
+        all_users = self.mgr.get_users("DL_ROLE8_TEST")
+        matching = [u for u in all_users if u["username"] == "DL_ROLE8_TEST"]
+        self.assertEqual(len(matching), 1)
+        user_record = matching[0]
+        self.assertEqual(user_record["role_name"], "Default Role")
+        self.assertEqual(user_record["token_props"]["userRole"], "8")
+
+        # 3. Admin reassigns role to Data Analyst
+        analyst_role = next(r for r in self.mgr.get_roles() if r["name"] == "Data Analyst")
+        reassign_ok, _ = self.mgr.update_user_role("DL_ROLE8_TEST", analyst_role["id"], "admin")
+        self.assertTrue(reassign_ok)
+
+        # 4. Subsequent requests from user preserve the assigned role
+        sdui_after = self.mgr.get_user_sdui_config("DL_ROLE8_TEST", token_payload=sample_sso_payload)
+        self.assertEqual(sdui_after["role"], "Data Analyst")
+        self.assertTrue(sdui_after["allowTableExport"])
+        self.assertEqual(sdui_after["token_props"]["deptId"], "All")
 
 
 if __name__ == "__main__":

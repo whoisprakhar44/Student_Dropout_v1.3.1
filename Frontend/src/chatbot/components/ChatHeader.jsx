@@ -1,10 +1,10 @@
 import React from 'react';
-import { Maximize2, Minimize2, X, RotateCcw, Wifi, WifiOff } from 'lucide-react';
+import { Maximize2, Minimize2, X, RotateCcw, Wifi, WifiOff, User } from 'lucide-react';
 import { useChatbot } from '../hooks/useChatbot';
 import { DEFAULT_BOT_INFO, WS_CONNECTION_STATUS } from '../constants/chatbotConstants';
 
 export const ChatHeader = ({ isFullscreen = false, onToggleSidebar = null }) => {
-  const { closeChat, toggleFullscreen, clearChat, connectionStatus, isConnected, activeLayer, userRole, isUserActive } = useChatbot();
+  const { closeChat, toggleFullscreen, clearChat, connectionStatus, isConnected, activeLayer, isUserActive, userDisplayName, username } = useChatbot();
 
   const getStatusLabel = () => {
     switch (connectionStatus) {
@@ -45,9 +45,10 @@ export const ChatHeader = ({ isFullscreen = false, onToggleSidebar = null }) => 
                 Schema
               </span>
             )}
-            {userRole && (
-              <span className={`cb-header-role-badge ${!isUserActive ? 'suspended' : ''}`} title={`Assigned Role: ${userRole}`}>
-                {isUserActive ? userRole : 'Suspended'}
+            {userDisplayName && (
+              <span className="cb-header-user-badge" title={`Signed in as: ${userDisplayName} (${username})`}>
+                <User size={11} className="cb-header-user-icon" />
+                <span className="cb-header-user-text">{userDisplayName}</span>
               </span>
             )}
           </div>

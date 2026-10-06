@@ -48,6 +48,18 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
   const [loadingSessions, setLoadingSessions] = useState({}); // { [sessionId]: true }
   const [sessionProgress, setSessionProgress] = useState({}); // { [sessionId]: progressObj }
   const [connectionStatus, setConnectionStatus] = useState(chatWebSocketService.status);
+  const [username, setUsernameState] = useState(() => chatStorage.getStoredUsername());
+  const [userDisplayName, setUserDisplayNameState] = useState(() => chatStorage.getUserDisplayName());
+
+  // Listen for storage events (e.g. login / token updates in other tabs or components)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setUsernameState(chatStorage.getStoredUsername());
+      setUserDisplayNameState(chatStorage.getUserDisplayName());
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
   const [suggestionLayout, setSuggestionLayoutState] = useState(() => {
     return chatStorage.getSuggestionLayout() || (import.meta.env?.VITE_SUGGESTION_LAYOUT || SUGGESTION_LAYOUTS.HORIZONTAL).toLowerCase();
   });
@@ -889,9 +901,14 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
     clearChat,
     clearAllSessions,
 
+    // User Identity from JWT
+    username,
+    userId: username,
+    userDisplayName,
+
     // SDUI & RBAC Governance
     syncSduiSettings,
-    userRole: sduiPrivileges?.role || 'Citizen Viewer',
+    userRole: sduiPrivileges?.role || chatStorage.getUserRole() || 'Citizen Viewer',
     isUserActive: sduiPrivileges?.is_active ?? true,
     canShowAboutSection: sduiPrivileges?.showAboutSection ?? true,
   }), [
@@ -937,6 +954,8 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
     clearChat,
     clearAllSessions,
     syncSduiSettings,
+    username,
+    userDisplayName,
   ]);
 
   return (

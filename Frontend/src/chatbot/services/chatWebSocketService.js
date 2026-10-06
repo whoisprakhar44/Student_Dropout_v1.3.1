@@ -329,6 +329,8 @@ class ChatWebSocketService {
       ...payload,
       request_id: requestId,
       username,
+      userId: username,
+      user_id: username,
     };
 
     return new Promise((resolve, reject) => {
@@ -382,10 +384,13 @@ class ChatWebSocketService {
    * Action Shorthand Helpers
    */
   ask({ question, sessionId, username, requestId, onProgress, signal, layer = 'curated' }) {
+    const user = username || chatStorage.getStoredUsername();
     return this.sendAction('ws_ask', {
       question,
       session_id: sessionId,
-      username,
+      username: user,
+      userId: user,
+      user_id: user,
       request_id: requestId,
       layer,
     }, { onProgress, signal });
@@ -398,19 +403,23 @@ class ChatWebSocketService {
   }
 
   getHistory(username, layer = 'curated') {
-    return this.sendAction('ws_history', { username, layer });
+    const user = username || chatStorage.getStoredUsername();
+    return this.sendAction('ws_history', { username: user, userId: user, user_id: user, layer });
   }
 
   getSessionHistory(sessionId, username, layer = 'curated') {
-    return this.sendAction('ws_history_session', { session_id: sessionId, username, layer });
+    const user = username || chatStorage.getStoredUsername();
+    return this.sendAction('ws_history_session', { session_id: sessionId, username: user, userId: user, user_id: user, layer });
   }
 
   deleteSession(sessionId, username, layer = 'curated') {
-    return this.sendAction('ws_delete_session', { session_id: sessionId, username, layer });
+    const user = username || chatStorage.getStoredUsername();
+    return this.sendAction('ws_delete_session', { session_id: sessionId, username: user, userId: user, user_id: user, layer });
   }
 
   clearAllHistory(username, layer = 'curated') {
-    return this.sendAction('ws_clear_history', { username, layer });
+    const user = username || chatStorage.getStoredUsername();
+    return this.sendAction('ws_clear_history', { username: user, userId: user, user_id: user, layer });
   }
 
   getSuggestions(limit = 50) {

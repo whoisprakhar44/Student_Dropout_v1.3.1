@@ -43,7 +43,27 @@ from datetime import datetime
 import time
 import httpx
 from fastapi import Request
-from auth_check import validate_issuer
+from auth_check import validate_issuer, safe_decode_jwt
+
+
+def extract_jwt_payload_from_request(request: Request) -> Optional[dict]:
+    """Extract and decode SSO JWT token claims without enforcing issuer verification."""
+    if hasattr(request.state, "token_payload") and request.state.token_payload:
+        return request.state.token_payload
+
+    auth = request.headers.get("Authorization")
+    if auth and auth.startswith("Bearer "):
+        payload = safe_decode_jwt(auth)
+        if payload:
+            return payload
+
+    tok = request.query_params.get("token") or request.query_params.get("jwt") or request.query_params.get("authToken")
+    if tok:
+        payload = safe_decode_jwt(tok)
+        if payload:
+            return payload
+
+    return None
 
 logging.basicConfig(
     level=logging.INFO,
@@ -1253,9 +1273,27 @@ async def admin_change_password(request: Request):
 # 3. Server-Driven UI (SDUI) Configuration Endpoint
 
 @app.get("/api/sdui/config")
-async def get_sdui_config(username: str = Query(default="user")):
+async def get_sdui_config(
+    request: Request,
+    username: Optional[str] = Query(default=None),
+    userId: Optional[str] = Query(default=None),
+    user_id: Optional[str] = Query(default=None),
+):
     """Returns effective user privileges & frontend feature gates based on RBAC hierarchy."""
-    return rbac_manager.get_user_sdui_config(username)
+    token_payload = extract_jwt_payload_from_request(request)
+    resolved_user = username or userId or user_id
+    if not resolved_user or resolved_user.lower() in ("user", "undefined", "null"):
+        if token_payload:
+            resolved_user = str(
+                token_payload.get("preferred_username")
+                or token_payload.get("userId")
+                or token_payload.get("sub")
+                or token_payload.get("cfms_id")
+                or "user"
+            ).strip()
+        else:
+            resolved_user = "user"
+    return rbac_manager.get_user_sdui_config(resolved_user, token_payload=token_payload)
 
 
 @app.get("/api/schema/meta")
@@ -1286,13 +1324,27 @@ async def ask(payload: AskRequest, request: Request):
 
     action = payload.action or "ask"
     username = payload.username
+    token_payload = extract_jwt_payload_from_request(request)
+    if token_payload and (not username or username.lower() in ("user", "undefined", "null")):
+        token_uid = str(
+            token_payload.get("preferred_username")
+            or token_payload.get("userId")
+            or token_payload.get("sub")
+            or token_payload.get("cfms_id")
+            or "user"
+        ).strip()
+        username = token_uid
+
+    # Auto-register user with Default Role and save decoded SSO token properties
+    rbac_manager.auto_register_or_update_user(username, token_payload=token_payload)
+
     client_ip = extract_client_ip(request)
     set_current_client_ip(client_ip)
     set_current_user(username)
 
     # 0. Action: SDUI Config & User Privileges
     if action in ("sdui_config", "get_sdui_config", "sdui_settings"):
-        return rbac_manager.get_user_sdui_config(username)
+        return rbac_manager.get_user_sdui_config(username, token_payload=token_payload)
 
     # RBAC Check 1: User & Role Active Status
     user_record = rbac_manager.get_user(username)
@@ -1805,12 +1857,28 @@ class WebSocketSessionHandler:
 
             # 2c. SDUI Configuration & Capabilities
             elif action in ("ws_sdui_config", "sdui_config", "get_sdui_config", "sdui_settings"):
+                token_payload = None
+                raw_tok = payload.get("token") or payload.get("jwt") or payload.get("authToken")
+                if raw_tok and isinstance(raw_tok, str):
+                    token_payload = safe_decode_jwt(raw_tok)
+                elif payload.get("userId") or payload.get("deptId") or payload.get("preferred_username") or payload.get("department"):
+                    token_payload = {k: v for k, v in payload.items() if k in ("userId", "userName", "userRole", "deptId", "distId", "passwordstatus", "jti", "exp", "iss", "aud", "preferred_username", "role", "department", "dept_id", "cfms_id", "sub")}
+
+                if token_payload and (not username or username.lower() in ("user", "undefined", "null")):
+                    username = str(
+                        token_payload.get("preferred_username")
+                        or token_payload.get("userId")
+                        or token_payload.get("sub")
+                        or token_payload.get("cfms_id")
+                        or username
+                    ).strip()
+
                 await self.send_json({
                     "type": "result",
                     "action": action,
                     "request_id": request_id,
                     "status": "success",
-                    "data": rbac_manager.get_user_sdui_config(username)
+                    "data": rbac_manager.get_user_sdui_config(username, token_payload=token_payload)
                 })
 
             # 2d. Logs (WebSocket Live Log Streaming with TOTP Auth)

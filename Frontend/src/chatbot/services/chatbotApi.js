@@ -175,6 +175,8 @@ export const chatbotApi = {
       action: 'ask',
       question: question,
       username: username,
+      userId: username,
+      user_id: username,
       request_id: reqId,
       session_id: sessionId,
       layer: layer,
@@ -266,6 +268,8 @@ export const chatbotApi = {
         body: JSON.stringify({
           action: 'cancel',
           username: username,
+          userId: username,
+          user_id: username,
           request_id: requestId,
           target_request_id: requestId,
         }),
@@ -322,6 +326,8 @@ export const chatbotApi = {
         body: JSON.stringify({
           action: 'history',
           username: username,
+          userId: username,
+          user_id: username,
           layer: layer,
         }),
       });
@@ -394,6 +400,8 @@ export const chatbotApi = {
         body: JSON.stringify({
           action: 'history_session',
           username: username,
+          userId: username,
+          user_id: username,
           session_id: sessionId,
           layer: layer,
         }),
@@ -453,6 +461,8 @@ export const chatbotApi = {
         body: JSON.stringify({
           action: 'delete_session',
           username: username,
+          userId: username,
+          user_id: username,
           session_id: sessionId,
           layer: layer,
         }),
@@ -495,6 +505,8 @@ export const chatbotApi = {
         body: JSON.stringify({
           action: 'clear_history',
           username: username,
+          userId: username,
+          user_id: username,
           layer: layer,
         }),
       });
@@ -564,7 +576,11 @@ export const chatbotApi = {
     // 1. Try WebSocket first if connected
     if (chatWebSocketService.isConnected()) {
       try {
-        const wsRes = await chatWebSocketService.sendAction('ws_sdui_config', { username });
+        const wsRes = await chatWebSocketService.sendAction('ws_sdui_config', {
+          username,
+          userId: username,
+          user_id: username,
+        });
         if (wsRes?.data && typeof wsRes.data === 'object') {
           return wsRes.data;
         }
@@ -573,13 +589,13 @@ export const chatbotApi = {
       }
     }
 
-    // 2. HTTP Dedicated Endpoint: GET /api/sdui/config?username=...
+    // 2. HTTP Dedicated Endpoint: GET /api/sdui/config?username=...&userId=...
     const baseUrl = getApiBaseUrl();
     if (!baseUrl) return null;
 
     try {
       const hostUrl = baseUrl.replace(/\/ask\/?$/, '');
-      const getRes = await fetch(`${hostUrl}/api/sdui/config?username=${encodeURIComponent(username)}`, {
+      const getRes = await fetch(`${hostUrl}/api/sdui/config?username=${encodeURIComponent(username)}&userId=${encodeURIComponent(username)}&user_id=${encodeURIComponent(username)}`, {
         method: 'GET',
         headers: getAuthHeaders(),
       });
@@ -602,6 +618,8 @@ export const chatbotApi = {
         body: JSON.stringify({
           action: 'sdui_config',
           username: username,
+          userId: username,
+          user_id: username,
         }),
       });
 

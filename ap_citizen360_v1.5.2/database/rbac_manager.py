@@ -7,7 +7,7 @@ universal master kill-switches, audit logging, and privilege resolution.
 from __future__ import annotations
 
 import os
-import logging
+import json
 import sqlite3
 import threading
 from datetime import datetime, timedelta, timezone
@@ -16,8 +16,6 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import bcrypt
 import jwt
-
-logger = logging.getLogger(__name__)
 
 # Paths & Settings
 DB_DIR = Path(__file__).resolve().parent
@@ -76,13 +74,8 @@ CORE_PRIVILEGES = [
         "key": "pii_access",
         "name": "PII Data Access",
         "category": "Data Privacy",
-        "description": (
-            "Grants access to personally identifiable information (PII) columns such as "
-            "Aadhaar, phone, email, name, address, and date of birth. "
-            "When disabled, these columns are masked with *** in all query results and "
-            "the LLM summariser never receives the raw values."
-        ),
-        "default_enabled": 0,   # Denied for every role until explicitly granted by admin.
+        "description": "Controls access to personally identifiable information (PII). When disabled, sensitive citizen columns are masked.",
+        "default_enabled": 0,
     },
 ]
 
@@ -100,7 +93,7 @@ DEFAULT_ROLES = [
             "allow_copy": 1,
             "content_copy_protection": 0,
             "devtools_protection": 0,
-            "pii_access": 0,
+            "pii_access": 1,
         },
     },
     {
@@ -136,6 +129,21 @@ DEFAULT_ROLES = [
     {
         "name": "Citizen Viewer",
         "description": "Restricted public viewer. Curated questions only, strictly prohibited from downloading or copying.",
+        "is_system": 0,
+        "is_active": 1,
+        "privileges": {
+            "schema_layer": 0,
+            "about_section": 0,
+            "allow_download": 0,
+            "allow_copy": 0,
+            "content_copy_protection": 1,
+            "devtools_protection": 1,
+            "pii_access": 0,
+        },
+    },
+    {
+        "name": "Default Role",
+        "description": "Default role assigned to newly authenticated SSO users with preset restricted configuration. Can be edited by administrator.",
         "is_system": 0,
         "is_active": 1,
         "privileges": {
@@ -235,10 +243,17 @@ class RBACManager:
                         email TEXT,
                         role_id INTEGER NOT NULL REFERENCES roles(id),
                         is_active INTEGER DEFAULT 1,
+                        token_data TEXT,
                         created_at TEXT NOT NULL,
                         updated_at TEXT NOT NULL
                     );
                 """)
+
+                # Check and run migration for token_data if users table already existed
+                cursor.execute("PRAGMA table_info(users)")
+                u_cols = [r["name"] for r in cursor.fetchall()]
+                if "token_data" not in u_cols:
+                    cursor.execute("ALTER TABLE users ADD COLUMN token_data TEXT")
 
                 # 6. Audit Logs Table
                 cursor.execute("""
@@ -302,6 +317,19 @@ class RBACManager:
                                 """,
                                 (role_id, priv_key, is_en),
                             )
+                    else:
+                        role_id = row["id"]
+                        # Ensure any missing privileges (e.g. pii_access) are seeded for existing role
+                        for priv_key, is_en in role_data["privileges"].items():
+                            cursor.execute(
+                                "SELECT is_enabled FROM role_privileges WHERE role_id = ? AND privilege_key = ?",
+                                (role_id, priv_key),
+                            )
+                            if not cursor.fetchone():
+                                cursor.execute(
+                                    "INSERT INTO role_privileges (role_id, privilege_key, is_enabled) VALUES (?, ?, ?)",
+                                    (role_id, priv_key, is_en),
+                                )
 
                 # Seed standard sample end users if users table is empty
                 cursor.execute("SELECT COUNT(*) FROM users")
@@ -328,59 +356,9 @@ class RBACManager:
 
                 conn.commit()
 
-                # Forward migration: add pii_access privilege if this is an
-                # existing database that was seeded before pii_access was added.
-                self._migrate_add_pii_access(cursor, conn)
-
-    def _migrate_add_pii_access(self, cursor: "sqlite3.Cursor", conn: "sqlite3.Connection") -> None:
-        """
-        Idempotent migration: insert the ``pii_access`` privilege row into
-        ``universal_controls`` and seed ``role_privileges`` for each seeded role.
-
-        Safe to call on every startup.
-        """
-        cursor.execute(
-            "SELECT 1 FROM universal_controls WHERE privilege_key = 'pii_access'"
-        )
-        if not cursor.fetchone():
-            now = datetime.now(timezone.utc).isoformat()
-            cursor.execute(
-                """
-                INSERT INTO universal_controls
-                    (privilege_key, name, category, description, is_enabled, updated_at, updated_by)
-                VALUES (?, ?, ?, ?, 0, ?, 'system')
-                """,
-                (
-                    "pii_access",
-                    "PII Data Access",
-                    "Data Privacy",
-                    (
-                        "Grants access to PII columns (Aadhaar, phone, email, name, address, dob). "
-                        "When disabled, these columns are masked with *** in query results and the "
-                        "LLM summariser never receives the raw values."
-                    ),
-                    now,
-                ),
-            )
-
-        # pii_access = 0 for ALL roles — admin must grant explicitly.
-        cursor.execute("SELECT id FROM roles")
-        role_rows = cursor.fetchall()
-        for role_row in role_rows:
-            cursor.execute(
-                """
-                INSERT OR IGNORE INTO role_privileges (role_id, privilege_key, is_enabled)
-                VALUES (?, 'pii_access', 0)
-                """,
-                (role_row["id"],),
-            )
-        conn.commit()
-        logger.info("[RBAC Migration] 'pii_access' privilege ensured — default=0 for all roles.")
-
     # =========================================================================
     # Admin Authentication & JWT Security
     # =========================================================================
-
 
     def verify_admin_credentials(self, username: str, password: str) -> Optional[Dict[str, Any]]:
         """Verify admin login credentials using bcrypt. Returns user dict on success, None on failure."""
@@ -522,6 +500,35 @@ class RBACManager:
                     (role_dict["id"],),
                 )
                 role_dict["privileges"] = {p["privilege_key"]: bool(p["is_enabled"]) for p in cursor.fetchall()}
+
+                # Fetch users assigned to this role along with token details
+                cursor.execute(
+                    """
+                    SELECT username, display_name, email, is_active, token_data, created_at
+                    FROM users
+                    WHERE role_id = ?
+                    ORDER BY created_at DESC
+                    """,
+                    (role_dict["id"],),
+                )
+                assigned_users = []
+                for u_row in cursor.fetchall():
+                    u_dict = dict(u_row)
+                    raw_td = u_dict.get("token_data")
+                    if raw_td:
+                        try:
+                            u_dict["token_props"] = json.loads(raw_td)
+                        except Exception:
+                            u_dict["token_props"] = {}
+                    else:
+                        u_dict["token_props"] = {}
+                    tp = u_dict["token_props"]
+                    u_dict["preferred_username"] = tp.get("preferred_username") or u_dict["username"]
+                    u_dict["department"] = tp.get("department") or tp.get("dept_id") or tp.get("deptId") or ""
+                    u_dict["token_role"] = tp.get("role") or tp.get("userRole") or ""
+                    u_dict["cfms_id"] = tp.get("cfms_id") or ""
+                    assigned_users.append(u_dict)
+                role_dict["assigned_users"] = assigned_users
                 roles_list.append(role_dict)
             return roles_list
 
@@ -715,21 +722,21 @@ class RBACManager:
     # =========================================================================
 
     def get_users(self, search: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Return list of managed users with their assigned role and effective privileges."""
+        """Return list of managed users with their assigned role, decoded SSO properties, and effective privileges."""
         with self._get_connection() as conn:
             cursor = conn.cursor()
             query = """
                 SELECT 
-                    u.username, u.display_name, u.email, u.is_active, u.created_at, u.updated_at,
+                    u.username, u.display_name, u.email, u.is_active, u.token_data, u.created_at, u.updated_at,
                     r.id AS role_id, r.name AS role_name, r.is_active AS role_active
                 FROM users u
                 JOIN roles r ON r.id = u.role_id
             """
             params: List[Any] = []
             if search:
-                query += " WHERE u.username LIKE ? OR u.display_name LIKE ? OR u.email LIKE ?"
+                query += " WHERE u.username LIKE ? OR u.display_name LIKE ? OR u.email LIKE ? OR u.token_data LIKE ?"
                 like_term = f"%{search.strip()}%"
-                params = [like_term, like_term, like_term]
+                params = [like_term, like_term, like_term, like_term]
 
             query += " ORDER BY u.created_at DESC"
             cursor.execute(query, params)
@@ -737,19 +744,35 @@ class RBACManager:
             users_list = []
             for row in cursor.fetchall():
                 user_dict = dict(row)
+                raw_td = user_dict.get("token_data")
+                if raw_td:
+                    try:
+                        user_dict["token_props"] = json.loads(raw_td)
+                    except Exception:
+                        user_dict["token_props"] = {}
+                else:
+                    user_dict["token_props"] = {}
+
+                tp = user_dict["token_props"]
+                user_dict["preferred_username"] = tp.get("preferred_username") or user_dict["username"]
+                user_dict["department"] = tp.get("department") or tp.get("dept_id") or tp.get("deptId") or ""
+                user_dict["dept_id"] = tp.get("dept_id") or tp.get("deptId") or tp.get("department") or ""
+                user_dict["token_role"] = tp.get("role") or tp.get("userRole") or ""
+                user_dict["cfms_id"] = tp.get("cfms_id") or ""
+
                 # Compute effective privileges
                 user_dict["effective_privileges"] = self.get_user_effective_privileges(user_dict["username"])
                 users_list.append(user_dict)
             return users_list
 
     def get_user(self, username: str) -> Optional[Dict[str, Any]]:
-        """Get single user information by username."""
+        """Get single user information by username including decoded SSO token properties."""
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
                 """
                 SELECT 
-                    u.username, u.display_name, u.email, u.is_active, u.created_at, u.updated_at,
+                    u.username, u.display_name, u.email, u.is_active, u.token_data, u.created_at, u.updated_at,
                     r.id AS role_id, r.name AS role_name, r.is_active AS role_active
                 FROM users u
                 JOIN roles r ON r.id = u.role_id
@@ -760,7 +783,22 @@ class RBACManager:
             row = cursor.fetchone()
             if not row:
                 return None
-            return dict(row)
+            user_dict = dict(row)
+            raw_td = user_dict.get("token_data")
+            if raw_td:
+                try:
+                    user_dict["token_props"] = json.loads(raw_td)
+                except Exception:
+                    user_dict["token_props"] = {}
+            else:
+                user_dict["token_props"] = {}
+            tp = user_dict["token_props"]
+            user_dict["preferred_username"] = tp.get("preferred_username") or user_dict["username"]
+            user_dict["department"] = tp.get("department") or tp.get("dept_id") or tp.get("deptId") or ""
+            user_dict["dept_id"] = tp.get("dept_id") or tp.get("deptId") or tp.get("department") or ""
+            user_dict["token_role"] = tp.get("role") or tp.get("userRole") or ""
+            user_dict["cfms_id"] = tp.get("cfms_id") or ""
+            return user_dict
 
     def create_or_update_user(
         self,
@@ -770,6 +808,7 @@ class RBACManager:
         role_id: int,
         is_active: bool = True,
         admin_username: str = "admin",
+        token_data: Optional[Dict[str, Any]] = None,
     ) -> Tuple[bool, str]:
         """Create or update an end user and assign their role."""
         username = username.strip()
@@ -777,6 +816,8 @@ class RBACManager:
             return False, "Username cannot be empty."
 
         now = datetime.now(timezone.utc).isoformat()
+        token_json = json.dumps(token_data) if token_data else None
+
         with _lock:
             with self._get_connection() as conn:
                 cursor = conn.cursor()
@@ -788,16 +829,17 @@ class RBACManager:
 
                 cursor.execute(
                     """
-                    INSERT INTO users (username, display_name, email, role_id, is_active, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO users (username, display_name, email, role_id, is_active, token_data, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                     ON CONFLICT(username) DO UPDATE SET
                         display_name = excluded.display_name,
                         email = excluded.email,
                         role_id = excluded.role_id,
                         is_active = excluded.is_active,
+                        token_data = COALESCE(excluded.token_data, users.token_data),
                         updated_at = excluded.updated_at
                     """,
-                    (username, display_name, email, role_id, 1 if is_active else 0, now, now),
+                    (username, display_name, email, role_id, 1 if is_active else 0, token_json, now, now),
                 )
                 conn.commit()
 
@@ -809,6 +851,103 @@ class RBACManager:
             f"Assigned role '{role_row['name']}' to '{username}' (active={is_active})",
         )
         return True, f"User '{username}' saved successfully."
+
+    def auto_register_or_update_user(
+        self,
+        username: str,
+        token_payload: Optional[Dict[str, Any]] = None,
+        default_role_name: str = "Default Role",
+    ) -> Dict[str, Any]:
+        """
+        Ensure a user exists in the RBAC users directory with Default Role.
+        - If user does not exist: creates user with 'Default Role' and saves all SSO token decoded data as prop and value in token_data.
+        - If user already exists: preserves assigned role, but updates token_data if new token payload is given.
+        """
+        username = (username or "").strip()
+        if not username or username.lower() in ("user", "undefined", "null"):
+            if token_payload:
+                username = str(
+                    token_payload.get("preferred_username")
+                    or token_payload.get("userId")
+                    or token_payload.get("sub")
+                    or token_payload.get("cfms_id")
+                    or "user"
+                ).strip()
+            else:
+                username = "user"
+
+        now = datetime.now(timezone.utc).isoformat()
+        token_json = json.dumps(token_payload) if token_payload else None
+
+        display_name = ""
+        email = f"{username}@ap.gov.in"
+        if token_payload:
+            display_name = (
+                token_payload.get("preferred_username")
+                or token_payload.get("userName")
+                or token_payload.get("name")
+                or token_payload.get("userId")
+                or token_payload.get("cfms_id")
+                or username
+            )
+            dept = token_payload.get("department") or token_payload.get("dept_id") or token_payload.get("deptId")
+            if token_payload.get("email"):
+                email = str(token_payload["email"]).strip()
+            elif dept:
+                email = f"{username}@{str(dept).lower()}.ap.gov.in"
+        else:
+            display_name = username
+
+        with _lock:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+
+                # Get Default Role ID (fallback to Citizen Viewer or lowest role id)
+                cursor.execute("SELECT id FROM roles WHERE name = ?", (default_role_name,))
+                def_role = cursor.fetchone()
+                if not def_role:
+                    cursor.execute("SELECT id FROM roles WHERE name = 'Citizen Viewer'")
+                    def_role = cursor.fetchone()
+                if not def_role:
+                    cursor.execute("SELECT id FROM roles ORDER BY id ASC LIMIT 1")
+                    def_role = cursor.fetchone()
+                default_role_id = def_role["id"] if def_role else 1
+
+                # Check existing user
+                cursor.execute("SELECT username, role_id, display_name, token_data FROM users WHERE username = ?", (username,))
+                existing = cursor.fetchone()
+
+                if not existing:
+                    cursor.execute(
+                        """
+                        INSERT INTO users (username, display_name, email, role_id, is_active, token_data, created_at, updated_at)
+                        VALUES (?, ?, ?, ?, 1, ?, ?, ?)
+                        """,
+                        (username, display_name, email, default_role_id, token_json, now, now),
+                    )
+                    conn.commit()
+                    self.log_audit_event(
+                        "system",
+                        "AUTO_REGISTER_USER",
+                        "users",
+                        username,
+                        f"Auto-registered new user '{username}' with default role '{default_role_name}' and SSO claims: {list(token_payload.keys()) if token_payload else 'None'}",
+                    )
+                else:
+                    if token_json:
+                        cursor.execute(
+                            """
+                            UPDATE users 
+                            SET token_data = ?,
+                                display_name = CASE WHEN display_name IS NULL OR display_name = '' OR display_name = username THEN ? ELSE display_name END,
+                                updated_at = ?
+                            WHERE username = ?
+                            """,
+                            (token_json, display_name, now, username),
+                        )
+                        conn.commit()
+
+        return self.get_user(username) or {}
 
     def update_user_role(self, username: str, role_id: int, admin_username: str = "admin") -> Tuple[bool, str]:
         """Reassign an existing user to another role."""
@@ -948,18 +1087,24 @@ class RBACManager:
             )
             row = cursor.fetchone()
             if not row:
-                # If user is not explicitly registered, fallback to check default viewer permissions
+                # If user is not yet registered, auto-register with Default Role
+                self.auto_register_or_update_user(username)
                 cursor.execute(
                     """
-                    SELECT rp.is_enabled 
-                    FROM roles r
-                    JOIN role_privileges rp ON rp.role_id = r.id
-                    WHERE r.name = 'Citizen Viewer' AND r.is_active = 1 AND rp.privilege_key = ?
+                    SELECT 
+                        u.is_active AS user_active,
+                        r.is_active AS role_active,
+                        rp.is_enabled AS priv_enabled
+                    FROM users u
+                    JOIN roles r ON r.id = u.role_id
+                    LEFT JOIN role_privileges rp ON rp.role_id = r.id AND rp.privilege_key = ?
+                    WHERE u.username = ?
                     """,
-                    (privilege_key,),
+                    (privilege_key, username),
                 )
-                fallback = cursor.fetchone()
-                return bool(fallback["is_enabled"]) if fallback else False
+                row = cursor.fetchone()
+                if not row:
+                    return False
 
             if not row["user_active"] or not row["role_active"]:
                 return False
@@ -970,26 +1115,46 @@ class RBACManager:
         """Compute all effective privileges for a user across all core privileges."""
         return {priv["key"]: self.check_user_privilege(username, priv["key"]) for priv in CORE_PRIVILEGES}
 
-    def get_user_sdui_config(self, username: str) -> Dict[str, Any]:
+    def get_user_sdui_config(self, username: str, token_payload: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Construct the complete Server-Driven UI (SDUI) configuration payload
         strictly aligned with Frontend `DEFAULT_SDUI_PRIVILEGES` and `chatbotApi.js`.
+        If the user does not exist yet, auto-registers them with Default Role and stores token_payload.
         """
+        username = (username or "").strip()
+        if token_payload and (not username or username.lower() in ("user", "undefined", "null")):
+            username = str(
+                token_payload.get("preferred_username")
+                or token_payload.get("userId")
+                or token_payload.get("sub")
+                or token_payload.get("cfms_id")
+                or username
+            ).strip()
+
+        # Auto register or update user with Default Role and store SSO claims
+        self.auto_register_or_update_user(username, token_payload=token_payload)
+
         user_info = self.get_user(username)
         effective = self.get_user_effective_privileges(username)
 
         # Universal control states for telemetry
         universal_states = {p["privilege_key"]: bool(p["is_enabled"]) for p in self.get_universal_controls()}
 
-        role_name = user_info["role_name"] if user_info else "Citizen Viewer"
-        is_active = user_info["is_active"] if user_info else True
+        role_name = user_info["role_name"] if user_info else "Default Role"
+        is_active = user_info["is_active"] if user_info else 1
+        token_data_dict = user_info.get("token_props", {}) if user_info else {}
 
         return {
             "status": "success",
             "username": username,
+            "preferred_username": token_data_dict.get("preferred_username") or username,
+            "department": token_data_dict.get("department") or token_data_dict.get("dept_id") or token_data_dict.get("deptId") or "",
+            "dept_id": token_data_dict.get("dept_id") or token_data_dict.get("deptId") or "",
+            "cfms_id": token_data_dict.get("cfms_id") or "",
+            "token_role": token_data_dict.get("role") or token_data_dict.get("userRole") or "",
             "role": role_name,
-            "is_active": is_active,
-            # SDUI Gating Flags matching Frontend exactly:
+            "is_active": 1 if is_active else 0,
+            # SDUI Gating Flags matching Frontend & User specifications:
             "isSchemaEnabled": effective.get("schema_layer", False),
             "showAboutSection": effective.get("about_section", False),
             "allowTableExport": effective.get("allow_download", False),
@@ -998,7 +1163,8 @@ class RBACManager:
             "allowCopyTable": effective.get("allow_copy", False),
             "copyProtection": effective.get("content_copy_protection", True),
             "devToolsProtection": effective.get("devtools_protection", True),
-            "piiAccess": effective.get("pii_access", False),   # NEW: frontend can gate PII-related UI
+            "piiAccess": effective.get("pii_access", False),
+            "token_props": token_data_dict,
             "universal_overrides": universal_states,
         }
 

@@ -561,6 +561,7 @@
     .badge-warning { background: var(--warning-bg); color: var(--warning-color); border: 1px solid rgba(217, 119, 6, 0.3); }
     .badge-secondary { background: var(--surface-hover); color: var(--text-muted); border: 1px solid var(--border-color); }
     .badge-primary { background: rgba(11, 37, 69, 0.4); color: var(--ap-gold-accent); border: 1px solid var(--ap-gold-accent); }
+    .badge-unassigned { background: rgba(148, 163, 184, 0.1); color: var(--text-muted); border: 1px dashed rgba(148, 163, 184, 0.4); opacity: 0.72; }
 
     .action-btn-group {
       display: flex;
@@ -1007,12 +1008,12 @@
         <table>
           <thead>
             <tr>
-              <th>Role Name</th>
-              <th>Description</th>
-              <th>Assigned Users</th>
+              <th style="min-width: 170px;">Role Name</th>
+              <th style="min-width: 200px;">Description</th>
+              <th style="min-width: 280px;">Assigned Users & Token Details</th>
               <th>Status</th>
-              <th>Granted Privileges</th>
-              <th style="text-align: right;">Actions</th>
+              <th style="min-width: 240px;">Granted Privileges</th>
+              <th style="text-align: right; min-width: 100px;">Actions</th>
             </tr>
           </thead>
           <tbody id="rolesTableBody">
@@ -1030,7 +1031,7 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
-            <input type="text" id="userSearchInput" placeholder="Search by username, name, or email...">
+            <input type="text" id="userSearchInput" placeholder="Search by username, preferred name, CFMS ID, dept, or role...">
           </div>
           <div class="toolbar-actions">
             <button class="nav-btn nav-btn-primary" id="openAddUserModalBtn">
@@ -1045,12 +1046,12 @@
         <table>
           <thead>
             <tr>
-              <th>User</th>
-              <th>Email</th>
-              <th>Assigned Role</th>
+              <th style="min-width: 180px;">User & Display</th>
+              <th style="min-width: 260px;">SSO Token Properties</th>
+              <th style="min-width: 220px;">Assigned Role</th>
               <th>Account Status</th>
-              <th>Effective Privileges</th>
-              <th style="text-align: right;">Actions</th>
+              <th style="min-width: 240px;">Effective Privileges</th>
+              <th style="text-align: right; min-width: 130px;">Actions</th>
             </tr>
           </thead>
           <tbody id="usersTableBody">
@@ -1232,6 +1233,40 @@
     </div>
   </div>
 
+  <!-- 5. User SSO Claims Modal -->
+  <div class="modal-overlay" id="userClaimsModal">
+    <div class="modal-card" style="max-width: 720px;">
+      <div class="modal-header">
+        <div>
+          <h3 id="claimsModalTitle" style="color: var(--text-color);">SSO Token Properties</h3>
+          <p id="claimsModalSubtitle" style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">Decoded JWT token payload & user properties</p>
+        </div>
+        <button class="modal-close" onclick="closeModal('userClaimsModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+          <span style="font-size: 12.5px; color: var(--text-muted);">Decoded claims saved in RBAC user directory:</span>
+          <button class="nav-btn" style="padding: 4px 10px; font-size: 11.5px;" onclick="copyClaimsJson()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+            </svg>
+            <span id="copyClaimsBtnText">Copy Raw JSON</span>
+          </button>
+        </div>
+        <div id="claimsModalTableWrap" style="background: var(--surface-hover); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; margin-bottom: 14px;">
+          <!-- Key-value table rendered via JS -->
+        </div>
+        <div>
+          <label style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; margin-bottom: 6px; display: block;">Raw Decoded JSON Payload</label>
+          <pre id="claimsModalRawJson" style="background: var(--background-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; font-size: 12px; color: #a5b4fc; max-height: 180px; overflow: auto; font-family: monospace; white-space: pre-wrap; word-break: break-all;"></pre>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="nav-btn" onclick="closeModal('userClaimsModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
 
@@ -1267,7 +1302,8 @@
       { key: "allow_download", label: "Data Export (CSV/Excel)", desc: "Download query results as CSV or Excel files." },
       { key: "allow_copy", label: "Copy Tables & SQL", desc: "Clipboard copy permission for queries & data." },
       { key: "content_copy_protection", label: "Content Copy Protection", desc: "Suppresses text selection & context menu." },
-      { key: "devtools_protection", label: "DevTools Guard", desc: "Detects and blocks browser developer console keys." }
+      { key: "devtools_protection", label: "DevTools Guard", desc: "Detects and blocks browser developer console keys." },
+      { key: "pii_access", label: "PII Access", desc: "Access to citizen personally identifiable information (Aadhaar, personal details)." }
     ];
 
     // Theme Setup
@@ -1427,7 +1463,7 @@
         roles.forEach(r => {
           const opt = document.createElement('option');
           opt.value = r.id;
-          opt.textContent = `${r.name} ${r.is_system ? '(System)' : ''}`;
+          opt.textContent = `${r.name} ${r.name === 'Default Role' ? '(Unassigned Default)' : r.is_system ? '(System)' : ''}`;
           roleSelect.appendChild(opt);
         });
 
@@ -1435,6 +1471,7 @@
           const tr = document.createElement('tr');
           const isSystem = Boolean(role.is_system);
           const isActive = Boolean(role.is_active);
+          const isDefaultRole = role.name === 'Default Role';
 
           // Build privilege chips
           let chipsHtml = '<div class="priv-chips-wrap">';
@@ -1444,13 +1481,85 @@
           });
           chipsHtml += '</div>';
 
+          // Build Assigned Users with SSO token details (Unassigned default fadeout tint)
+          let assignedUsersHtml = '';
+          const usersList = role.assigned_users || [];
+          if (isDefaultRole) {
+            assignedUsersHtml += `
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                <span class="badge" style="opacity: 0.72; background: rgba(148, 163, 184, 0.12); color: var(--text-muted); border: 1px dashed rgba(148, 163, 184, 0.4);">${role.user_count} User(s)</span>
+                <span style="font-size: 11px; color: var(--text-muted); opacity: 0.72; font-style: italic;">Unassigned (Default Preset)</span>
+              </div>
+            `;
+          } else {
+            assignedUsersHtml += `
+              <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                <span class="badge badge-primary">${role.user_count} User(s) Assigned</span>
+              </div>
+            `;
+          }
+
+          if (usersList.length > 0) {
+            assignedUsersHtml += `<div style="display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow-y: auto; padding-right: 4px;">`;
+            usersList.forEach(u => {
+              const uDisplayName = escapeHtml(u.preferred_username || u.username);
+              const uDept = escapeHtml(u.department || '');
+              const uRole = escapeHtml(u.token_role || '');
+              const uCfms = escapeHtml(u.cfms_id || '');
+
+              if (isDefaultRole) {
+                // Little fadeout tint for unassigned default role users
+                assignedUsersHtml += `
+                  <div style="opacity: 0.72; background: rgba(148, 163, 184, 0.08); border: 1px dashed rgba(148, 163, 184, 0.35); border-radius: 6px; padding: 4px 8px; font-size: 11.5px; transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.72'">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                      <span style="font-weight: 700; color: var(--text-color); font-family: monospace;">@${uDisplayName}</span>
+                      <button class="nav-btn" style="padding: 1px 6px; font-size: 10px;" onclick="openClaimsModal('${escapeHtml(u.username)}')">SSO</button>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px;">
+                      ${uRole ? `<span class="badge badge-primary" style="font-size: 9.5px; padding: 1px 4px; opacity: 0.85;">Role: ${uRole}</span>` : ''}
+                      ${uDept ? `<span class="badge badge-secondary" style="font-size: 9.5px; padding: 1px 4px; opacity: 0.85;">Dept: ${uDept}</span>` : ''}
+                      ${uCfms ? `<span class="badge badge-secondary" style="font-size: 9.5px; padding: 1px 4px; opacity: 0.85;">CFMS: ${uCfms}</span>` : ''}
+                    </div>
+                  </div>
+                `;
+              } else {
+                // Active solid styling for assigned custom/system role users
+                assignedUsersHtml += `
+                  <div style="background: var(--surface-hover); border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 8px; font-size: 11.5px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                      <span style="font-weight: 700; color: var(--ap-gold-accent); font-family: monospace;">@${uDisplayName}</span>
+                      <button class="nav-btn" style="padding: 1px 6px; font-size: 10px;" onclick="openClaimsModal('${escapeHtml(u.username)}')">SSO</button>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 3px; margin-top: 3px;">
+                      ${uRole ? `<span class="badge badge-primary" style="font-size: 9.5px; padding: 1px 4px;">Role: ${uRole}</span>` : ''}
+                      ${uDept ? `<span class="badge badge-secondary" style="font-size: 9.5px; padding: 1px 4px;">Dept: ${uDept}</span>` : ''}
+                      ${uCfms ? `<span class="badge badge-secondary" style="font-size: 9.5px; padding: 1px 4px;">CFMS: ${uCfms}</span>` : ''}
+                    </div>
+                  </div>
+                `;
+              }
+            });
+            assignedUsersHtml += `</div>`;
+          } else {
+            assignedUsersHtml += `<span style="color: var(--text-muted); font-size: 12px; font-style: italic; opacity: 0.72;">No users currently assigned</span>`;
+          }
+
+          let roleTypeBadge = '';
+          if (isDefaultRole) {
+            roleTypeBadge = '<span class="badge" style="margin-top: 4px; opacity: 0.72; background: rgba(148, 163, 184, 0.12); color: var(--text-muted); border: 1px dashed rgba(148, 163, 184, 0.45); font-size: 11px;">Unassigned Default Preset</span>';
+          } else if (isSystem) {
+            roleTypeBadge = '<span class="badge badge-primary" style="margin-top: 4px;">System Role</span>';
+          } else {
+            roleTypeBadge = '<span class="badge badge-secondary" style="margin-top: 4px;">Custom Role</span>';
+          }
+
           tr.innerHTML = `
             <td>
-              <div style="font-weight: 700; color: var(--text-color);">${role.name}</div>
-              ${isSystem ? '<span class="badge badge-primary" style="margin-top: 4px;">System Role</span>' : '<span class="badge badge-secondary" style="margin-top: 4px;">Custom Role</span>'}
+              <div style="font-weight: 700; color: var(--text-color);">${escapeHtml(role.name)}</div>
+              ${roleTypeBadge}
             </td>
-            <td style="color: var(--text-muted); max-width: 240px;">${role.description || '-'}</td>
-            <td><span class="badge badge-secondary">${role.user_count} user(s)</span></td>
+            <td style="color: var(--text-muted); max-width: 220px; font-size: 12px;">${escapeHtml(role.description || '-')}</td>
+            <td>${assignedUsersHtml}</td>
             <td>
               <span class="badge ${isActive ? 'badge-success' : 'badge-danger'}">
                 ${isActive ? 'Active' : 'Disabled'}
@@ -1465,7 +1574,7 @@
                   </svg>
                 </button>
                 ${!isSystem ? `
-                  <button class="btn-icon-sm btn-icon-danger" title="Delete Role" onclick="deleteRole(${role.id}, '${role.name}')">
+                  <button class="btn-icon-sm btn-icon-danger" title="Delete Role" onclick="deleteRole(${role.id}, '${escapeHtml(role.name)}')">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                     </svg>
@@ -1598,6 +1707,114 @@
       }
     }
 
+    // Helper to safely escape HTML
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    let activeSelectedUserClaims = null;
+
+    function openClaimsModal(username) {
+      let user = appUsers.find(u => u.username === username);
+      if (!user) {
+        for (const r of appRoles) {
+          if (r.assigned_users) {
+            const found = r.assigned_users.find(u => u.username === username);
+            if (found) {
+              user = Object.assign({}, found);
+              user.role_name = user.role_name || r.name;
+              break;
+            }
+          }
+        }
+      }
+      if (!user) return;
+
+      activeSelectedUserClaims = user.token_props || {};
+      const resolvedUsername = user.preferred_username || user.username;
+      document.getElementById('claimsModalTitle').textContent = `SSO Claims: @${resolvedUsername}`;
+      document.getElementById('claimsModalSubtitle').textContent = `Role: ${user.role_name || 'Default Role'} | ${user.display_name || user.username}`;
+
+      const wrap = document.getElementById('claimsModalTableWrap');
+      const rawEl = document.getElementById('claimsModalRawJson');
+      rawEl.textContent = JSON.stringify(activeSelectedUserClaims, null, 2);
+
+      const props = Object.entries(activeSelectedUserClaims);
+      if (props.length === 0) {
+        wrap.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px;">No decoded SSO token claims recorded for this user (user registered manually or without JWT).</div>`;
+      } else {
+        const highlightedFields = [
+          { label: 'Username', val: user.preferred_username || activeSelectedUserClaims.preferred_username || user.username },
+          { label: 'Token Role', val: user.token_role || activeSelectedUserClaims.role || activeSelectedUserClaims.userRole || '-' },
+          { label: 'Department', val: user.department || activeSelectedUserClaims.department || activeSelectedUserClaims.dept_id || activeSelectedUserClaims.deptId || '-' },
+          { label: 'CFMS ID', val: user.cfms_id || activeSelectedUserClaims.cfms_id || '-' }
+        ];
+
+        let highlightHtml = `<div style="background: var(--surface-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">`;
+        highlightedFields.forEach(hf => {
+          highlightHtml += `
+            <div>
+              <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">${hf.label}</div>
+              <div style="font-weight: 700; color: var(--ap-gold-accent); font-family: monospace; font-size: 13px; margin-top: 2px;">${escapeHtml(hf.val)}</div>
+            </div>
+          `;
+        });
+        highlightHtml += `</div>`;
+
+        let tableHtml = highlightHtml + `<table style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
+          <thead>
+            <tr style="background: var(--surface-card);">
+              <th style="padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-color); color: var(--text-muted); width: 35%;">Property (Claim)</th>
+              <th style="padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-color); color: var(--text-muted);">Decoded Value</th>
+            </tr>
+          </thead>
+          <tbody>`;
+
+        props.forEach(([k, v]) => {
+          let valDisplay = typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v);
+          let extraInfo = '';
+          if (k === 'exp' && typeof v === 'number') {
+            try {
+              const expDate = new Date(v * 1000);
+              extraInfo = ` <span style="font-size: 11px; color: var(--text-muted);">(${expDate.toLocaleString()})</span>`;
+            } catch (e) {}
+          }
+          tableHtml += `
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 9px 14px; font-weight: 600; color: var(--ap-gold-accent); font-family: monospace;">${escapeHtml(k)}</td>
+              <td style="padding: 9px 14px; color: var(--text-color); font-family: monospace; word-break: break-all;">
+                ${escapeHtml(valDisplay)}${extraInfo}
+              </td>
+            </tr>
+          `;
+        });
+
+        tableHtml += `</tbody></table>`;
+        wrap.innerHTML = tableHtml;
+      }
+
+      openModal('userClaimsModal');
+    }
+
+    function copyClaimsJson() {
+      if (!activeSelectedUserClaims) return;
+      navigator.clipboard.writeText(JSON.stringify(activeSelectedUserClaims, null, 2)).then(() => {
+        const btnText = document.getElementById('copyClaimsBtnText');
+        const oldText = btnText.textContent;
+        btnText.textContent = 'Copied!';
+        setTimeout(() => { btnText.textContent = oldText; }, 2000);
+        showToast('Decoded SSO token JSON copied to clipboard');
+      }).catch(() => {
+        showToast('Failed to copy to clipboard', 'error');
+      });
+    }
+
     // Render Users Tab
     async function loadUsers(search = '') {
       try {
@@ -1608,32 +1825,98 @@
         const tbody = document.getElementById('usersTableBody');
         tbody.innerHTML = '';
 
+        if (!users || users.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 32px; color: var(--text-muted);">No users found. Users are automatically added upon their first authenticated request with the preset Default Role.</td></tr>`;
+          return;
+        }
+
         users.forEach(user => {
           const tr = document.createElement('tr');
           const isActive = Boolean(user.is_active);
+          const isDefaultRole = user.role_name === 'Default Role';
+          const tokenProps = user.token_props || {};
+          const propKeys = Object.keys(tokenProps);
+
+          // Build SSO props summary badges with prod values prominently
+          let propsHtml = '';
+          if (propKeys.length > 0) {
+            propsHtml += '<div style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center; max-width: 300px;">';
+            if (user.token_role) {
+              propsHtml += `<span class="badge badge-primary" title="Role in Token">Role: ${escapeHtml(user.token_role)}</span>`;
+            }
+            if (user.department || user.dept_id) {
+              propsHtml += `<span class="badge badge-secondary" title="Department">Dept: ${escapeHtml(user.department || user.dept_id)}</span>`;
+            }
+            if (user.cfms_id) {
+              propsHtml += `<span class="badge badge-secondary" title="CFMS ID">CFMS: ${escapeHtml(user.cfms_id)}</span>`;
+            }
+            if (tokenProps.distId !== undefined && tokenProps.distId !== 'All') {
+              propsHtml += `<span class="badge badge-secondary" title="distId: ${escapeHtml(tokenProps.distId)}">Dist: ${escapeHtml(tokenProps.distId)}</span>`;
+            }
+            if (tokenProps.passwordstatus !== undefined) {
+              propsHtml += `<span class="badge badge-secondary" title="passwordstatus: ${escapeHtml(tokenProps.passwordstatus)}">Pwd: ${escapeHtml(tokenProps.passwordstatus)}</span>`;
+            }
+            propsHtml += `
+              <button class="nav-btn" style="padding: 2px 7px; font-size: 11px; margin-top: 2px;" onclick="openClaimsModal('${escapeHtml(user.username)}')">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+                <span>${propKeys.length} Claims</span>
+              </button>
+            </div>`;
+          } else {
+            propsHtml = `<span style="color: var(--text-muted); font-size: 11.5px;">No SSO claims logged</span>`;
+          }
 
           // Build role selector options
-          let roleSelectHtml = `<select style="background: var(--surface-hover); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 6px; padding: 4px 8px; font-size: 12px;" onchange="changeUserRole('${user.username}', this.value)">`;
+          let roleSelectHtml = `<select style="background: var(--surface-hover); border: 1px solid var(--border-color); color: var(--text-color); border-radius: 6px; padding: 5px 8px; font-size: 12px; font-weight: 600;" onchange="changeUserRole('${escapeHtml(user.username)}', this.value)">`;
           appRoles.forEach(r => {
-            roleSelectHtml += `<option value="${r.id}" ${r.id === user.role_id ? 'selected' : ''}>${r.name}</option>`;
+            const isSelected = r.id === user.role_id;
+            const label = r.name === 'Default Role' ? 'Default Role (Unassigned Default)' : r.name;
+            roleSelectHtml += `<option value="${r.id}" ${isSelected ? 'selected' : ''}>${escapeHtml(label)}</option>`;
           });
           roleSelectHtml += `</select>`;
+
+          // Role assignment status badge (Unassigned as default and little fadeout tint)
+          let roleBadgeHtml = '';
+          if (isDefaultRole) {
+            roleBadgeHtml = `
+              <div style="opacity: 0.72; background: rgba(148, 163, 184, 0.12); border: 1px dashed rgba(148, 163, 184, 0.4); border-radius: 6px; padding: 3px 8px; font-size: 11px; margin-top: 5px; display: inline-flex; align-items: center; gap: 5px; color: var(--text-muted); transition: opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.72'">
+                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #94a3b8; opacity: 0.6;"></span>
+                <span>Unassigned (Default Role)</span>
+              </div>
+            `;
+          } else {
+            roleBadgeHtml = `
+              <div style="font-size: 11px; font-weight: 600; color: var(--ap-gold-accent); margin-top: 5px; display: inline-flex; align-items: center; gap: 5px;">
+                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--ap-gold-accent);"></span>
+                <span>Assigned: ${escapeHtml(user.role_name)}</span>
+              </div>
+            `;
+          }
 
           // Effective privileges chips
           let effChips = '<div class="priv-chips-wrap">';
           CORE_PRIVILEGES_META.forEach(p => {
             const isGranted = Boolean(user.effective_privileges && user.effective_privileges[p.key]);
-            effChips += `<span class="priv-chip ${isGranted ? 'enabled' : 'disabled'}">${isGranted ? '✓' : '✕'} ${p.label}</span>`;
+            effChips += `<span class="priv-chip ${isGranted ? 'enabled' : 'disabled'}" title="${escapeHtml(p.label)}">${isGranted ? '✓' : '✕'} ${escapeHtml(p.label)}</span>`;
           });
           effChips += '</div>';
 
           tr.innerHTML = `
             <td>
-              <div style="font-weight: 700; color: var(--text-color);">${user.username}</div>
-              <div style="font-size: 11.5px; color: var(--text-muted);">${user.display_name || '-'}</div>
+              <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <span style="font-weight: 700; color: var(--text-color); font-size: 13.5px; font-family: monospace;">@${escapeHtml(user.preferred_username || user.username)}</span>
+                ${user.preferred_username && user.preferred_username !== user.username ? `<span class="badge badge-secondary" style="font-size: 10px;" title="Original User ID">ID: ${escapeHtml(user.username)}</span>` : ''}
+              </div>
+              <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">${escapeHtml(user.display_name || user.email || 'SSO User')}</div>
+              ${user.cfms_id ? `<div style="font-size: 10.5px; color: var(--ap-gold-accent); margin-top: 2px; font-family: monospace;">CFMS ID: ${escapeHtml(user.cfms_id)}</div>` : ''}
             </td>
-            <td style="color: var(--text-muted);">${user.email || '-'}</td>
-            <td>${roleSelectHtml}</td>
+            <td>${propsHtml}</td>
+            <td>
+              ${roleSelectHtml}
+              <div>${roleBadgeHtml}</div>
+            </td>
             <td>
               <span class="badge ${isActive ? 'badge-success' : 'badge-danger'}">
                 ${isActive ? 'Active' : 'Suspended'}
@@ -1641,9 +1924,16 @@
             </td>
             <td>${effChips}</td>
             <td style="text-align: right;">
-              <button class="nav-btn" style="padding: 4px 10px; font-size: 11.5px;" onclick="toggleUserStatus('${user.username}', ${!isActive})">
-                ${isActive ? 'Suspend' : 'Activate'}
-              </button>
+              <div class="action-btn-group" style="justify-content: flex-end;">
+                <button class="btn-icon-sm" title="View Decoded SSO Properties" onclick="openClaimsModal('${escapeHtml(user.username)}')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+                <button class="nav-btn" style="padding: 4px 10px; font-size: 11.5px;" onclick="toggleUserStatus('${escapeHtml(user.username)}', ${!isActive})">
+                  ${isActive ? 'Suspend' : 'Activate'}
+                </button>
+              </div>
             </td>
           `;
           tbody.appendChild(tr);
@@ -1754,6 +2044,19 @@
         loadUsers(e.target.value);
       }, 300);
     });
+
+    // Role Search Filter
+    const roleSearchInput = document.getElementById('roleSearchInput');
+    if (roleSearchInput) {
+      roleSearchInput.addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        const rows = document.querySelectorAll('#rolesTableBody tr');
+        rows.forEach(tr => {
+          const text = tr.textContent.toLowerCase();
+          tr.style.display = text.includes(q) ? '' : 'none';
+        });
+      });
+    }
 
     // Render Audit Logs
     async function loadAudits() {

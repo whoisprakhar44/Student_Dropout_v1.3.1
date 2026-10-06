@@ -249,31 +249,311 @@ export const chatStorage = {
   },
 
   /**
-   * Extract username from localStorage("userInfo") JSON, fallback to "Test User"
+   * Parse and decode JSON Web Token (JWT) payload
+   * Supports Bearer prefix and base64url encoding
+   */
+  parseJwtPayload: (token) => {
+    if (!token || typeof token !== 'string') return null;
+    try {
+      const raw = token.replace(/^Bearer\s+/i, '').trim();
+      const parts = raw.split('.');
+      if (parts.length !== 3) return null;
+      let base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4) {
+        base64 += '=';
+      }
+      const jsonStr = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      return JSON.parse(jsonStr);
+    } catch {
+      try {
+        const raw = token.replace(/^Bearer\s+/i, '').trim();
+        return JSON.parse(atob(raw.split('.')[1]));
+      } catch {
+        return null;
+      }
+    }
+  },
+
+  /**
+   * Extract decoded JWT user claims from localStorage
+   */
+  getUserPayloadFromJwt: () => {
+    try {
+      const isCandidatePayload = (p) => {
+        if (!p || typeof p !== 'object') return false;
+        return Boolean(
+          p.preferred_username ||
+          p.userId ||
+          p.sub ||
+          p.cfms_id ||
+          p.role ||
+          p.userRole ||
+          p.department ||
+          p.dept_id ||
+          p.userName !== undefined
+        );
+      };
+
+      // 1. Check known token storage keys
+      const candidateKeys = [
+        'token',
+        'jwt',
+        'authToken',
+        'accessToken',
+        'auth_token',
+        'bearer_token',
+        STORAGE_KEYS.AUTH_TOKEN,
+      ];
+
+      for (const key of candidateKeys) {
+        const val = localStorage.getItem(key);
+        if (val && typeof val === 'string') {
+          const payload = chatStorage.parseJwtPayload(val);
+          if (payload && isCandidatePayload(payload)) {
+            return payload;
+          }
+          try {
+            const parsed = JSON.parse(val);
+            if (parsed && typeof parsed === 'object') {
+              if (isCandidatePayload(parsed)) {
+                return parsed;
+              }
+              const innerToken = parsed.token || parsed.accessToken || parsed.authToken || parsed.jwt;
+              if (innerToken) {
+                const innerPayload = chatStorage.parseJwtPayload(innerToken);
+                if (innerPayload && isCandidatePayload(innerPayload)) return innerPayload;
+              }
+            }
+          } catch {}
+        }
+      }
+
+      // 2. Check userInfo JSON object
+      const userKeys = [STORAGE_KEYS.USER_INFO, 'user', 'currentUser', 'authUser', 'session'];
+      for (const uk of userKeys) {
+        const raw = localStorage.getItem(uk);
+        if (raw) {
+          const payload = chatStorage.parseJwtPayload(raw);
+          if (payload && isCandidatePayload(payload)) return payload;
+
+          try {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+              const innerTok = parsed.token || parsed.accessToken || parsed.authToken || parsed.jwt;
+              if (innerTok) {
+                const innerPayload = chatStorage.parseJwtPayload(innerTok);
+                if (innerPayload && isCandidatePayload(innerPayload)) return innerPayload;
+              }
+              if (isCandidatePayload(parsed)) {
+                return parsed;
+              }
+            }
+          } catch {}
+        }
+      }
+
+      // 3. Scan all keys in localStorage for any JWT string
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        const val = localStorage.getItem(k);
+        if (val && typeof val === 'string' && val.includes('.')) {
+          const payload = chatStorage.parseJwtPayload(val);
+          if (payload && isCandidatePayload(payload)) {
+            return payload;
+          }
+        }
+      }
+
+      // 4. Also scan sessionStorage if available
+      if (typeof sessionStorage !== 'undefined') {
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const k = sessionStorage.key(i);
+          const val = sessionStorage.getItem(k);
+          if (val && typeof val === 'string' && val.includes('.')) {
+            const payload = chatStorage.parseJwtPayload(val);
+            if (payload && isCandidatePayload(payload)) {
+              return payload;
+            }
+          }
+        }
+      }
+
+      // 5. Fallback to active auth token
+      const fallbackTok = chatStorage.getAuthToken();
+      if (fallbackTok) {
+        const p = chatStorage.parseJwtPayload(fallbackTok);
+        if (p && isCandidatePayload(p)) return p;
+      }
+    } catch (err) {
+      console.warn('Failed to extract user payload from JWT:', err);
+    }
+    return null;
+  },
+
+  /**
+   * Extract username from JWT payload saved in localStorage to use for backend APIs
+   * Prioritizes preferred_username (prod token structure) -> userId -> cfms_id -> sub
    */
   getStoredUsername: () => {
     try {
-      // 1. Direct username key in storage
-      const direct = localStorage.getItem('username') || localStorage.getItem('userId');
-      if (direct && typeof direct === 'string' && direct.trim()) {
-        return direct.trim();
+      const payload = chatStorage.getUserPayloadFromJwt();
+      if (payload) {
+        // 1. Prod token structure: preferred_username is the username
+        if (payload.preferred_username && typeof payload.preferred_username === 'string' && payload.preferred_username.trim()) {
+          return payload.preferred_username.trim();
+        }
+        // 2. Dev/SSO structure: userId
+        if (payload.userId && typeof payload.userId === 'string' && payload.userId.trim()) {
+          return payload.userId.trim();
+        }
+        // 3. CFMS ID
+        if (payload.cfms_id && typeof payload.cfms_id === 'string' && payload.cfms_id.trim()) {
+          return payload.cfms_id.trim();
+        }
+        // 4. JWT sub
+        if (payload.sub && typeof payload.sub === 'string' && payload.sub.trim() && payload.sub !== 'user') {
+          return payload.sub.trim();
+        }
       }
 
-      // 2. Check inside userInfo JSON
+      // Direct storage keys
+      const directPref = localStorage.getItem('preferred_username');
+      if (directPref && typeof directPref === 'string' && directPref.trim()) {
+        return directPref.trim();
+      }
+
+      const directId = localStorage.getItem('userId');
+      if (directId && typeof directId === 'string' && directId.trim()) {
+        return directId.trim();
+      }
+
+      const directUser = localStorage.getItem('username');
+      if (directUser && typeof directUser === 'string' && directUser.trim() && directUser !== 'user') {
+        return directUser.trim();
+      }
+
+      // Check inside userInfo JSON
       const raw = localStorage.getItem(STORAGE_KEYS.USER_INFO);
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (parsed && typeof parsed.username === 'string' && parsed.username.trim()) {
-          return parsed.username.trim();
+        if (parsed?.preferred_username && typeof parsed.preferred_username === 'string' && parsed.preferred_username.trim()) {
+          return parsed.preferred_username.trim();
         }
-        if (parsed && typeof parsed.userId === 'string' && parsed.userId.trim()) {
+        if (parsed?.userId && typeof parsed.userId === 'string' && parsed.userId.trim()) {
           return parsed.userId.trim();
         }
+        if (parsed?.username && typeof parsed.username === 'string' && parsed.username.trim() && parsed.username !== 'user') {
+          return parsed.username.trim();
+        }
+      }
+
+      // Fallback: userName if available
+      if (payload && payload.userName && typeof payload.userName === 'string' && payload.userName.trim()) {
+        return payload.userName.trim();
       }
     } catch (error) {
-      console.warn('Failed to parse userInfo for username:', error);
+      console.warn('Failed to parse JWT for username:', error);
     }
     return 'user';
+  },
+
+  /**
+   * Alias for getStoredUsername to explicitly denote userId retrieval
+   */
+  getUserId: () => {
+    return chatStorage.getStoredUsername();
+  },
+
+  /**
+   * Extract user display Name from JWT token:
+   * Prioritizes preferred_username / userName -> userId / cfms_id
+   */
+  getUserDisplayName: () => {
+    try {
+      const payload = chatStorage.getUserPayloadFromJwt();
+      if (payload) {
+        if (payload.preferred_username && typeof payload.preferred_username === 'string' && payload.preferred_username.trim()) {
+          return payload.preferred_username.trim();
+        }
+        if (payload.userName && typeof payload.userName === 'string' && payload.userName.trim()) {
+          return payload.userName.trim();
+        }
+        if (payload.name && typeof payload.name === 'string' && payload.name.trim()) {
+          return payload.name.trim();
+        }
+        if (payload.userId && typeof payload.userId === 'string' && payload.userId.trim()) {
+          return payload.userId.trim();
+        }
+        if (payload.cfms_id && typeof payload.cfms_id === 'string' && payload.cfms_id.trim()) {
+          return payload.cfms_id.trim();
+        }
+        if (payload.sub && typeof payload.sub === 'string' && payload.sub.trim() && payload.sub !== 'user') {
+          return payload.sub.trim();
+        }
+      }
+
+      const directName = localStorage.getItem('preferred_username') || localStorage.getItem('userName') || localStorage.getItem('name');
+      if (directName && typeof directName === 'string' && directName.trim()) {
+        return directName.trim();
+      }
+
+      const uid = chatStorage.getStoredUsername();
+      if (uid && uid !== 'user') {
+        return uid;
+      }
+    } catch (err) {
+      console.warn('Failed to get user display name from JWT:', err);
+    }
+    return 'User';
+  },
+
+  /**
+   * Extract user role from JWT token (supports 'role' in prod token or 'userRole')
+   */
+  getUserRole: () => {
+    try {
+      const payload = chatStorage.getUserPayloadFromJwt();
+      if (payload) {
+        if (payload.role !== undefined && payload.role !== null && String(payload.role).trim()) {
+          return String(payload.role).trim();
+        }
+        if (payload.userRole !== undefined && payload.userRole !== null && String(payload.userRole).trim()) {
+          return String(payload.userRole).trim();
+        }
+      }
+    } catch {}
+    return null;
+  },
+
+  /**
+   * Extract user department from JWT token (supports 'department', 'dept_id', 'deptId')
+   */
+  getUserDepartment: () => {
+    try {
+      const payload = chatStorage.getUserPayloadFromJwt();
+      if (payload) {
+        return payload.department || payload.dept_id || payload.deptId || null;
+      }
+    } catch {}
+    return null;
+  },
+
+  /**
+   * Extract CFMS ID from JWT token
+   */
+  getCfmsId: () => {
+    try {
+      const payload = chatStorage.getUserPayloadFromJwt();
+      if (payload) {
+        return payload.cfms_id || null;
+      }
+    } catch {}
+    return null;
   },
 
   /**
@@ -283,6 +563,7 @@ export const chatStorage = {
     try {
       if (username && typeof username === 'string') {
         localStorage.setItem('username', username.trim());
+        localStorage.setItem('userId', username.trim());
       }
     } catch (err) {
       console.warn('Failed to save username to localStorage:', err);
@@ -309,6 +590,7 @@ export const chatStorage = {
 
       // 2. Direct token keys fallback
       return (
+        localStorage.getItem('token') ||
         localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN) ||
         localStorage.getItem('authToken') ||
         localStorage.getItem('accessToken') ||

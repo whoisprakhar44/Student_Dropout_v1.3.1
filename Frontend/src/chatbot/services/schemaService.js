@@ -77,7 +77,12 @@ export const schemaService = {
       const res = await fetch(askUrl, {
         method: 'POST',
         headers: getHeaders(),
-        body: JSON.stringify({ action: 'schema_meta', username })
+        body: JSON.stringify({
+          action: 'schema_meta',
+          username,
+          userId: username,
+          user_id: username,
+        })
       });
 
       if (res.ok) {
@@ -93,7 +98,7 @@ export const schemaService = {
     // Fallback: dedicated GET endpoint
     try {
       const base = getApiBaseUrl().replace(/\/ask\/?$/, '');
-      const res = await fetch(`${base}/api/schema/meta?username=${encodeURIComponent(username)}`, {
+      const res = await fetch(`${base}/api/schema/meta?username=${encodeURIComponent(username)}&userId=${encodeURIComponent(username)}&user_id=${encodeURIComponent(username)}`, {
         method: 'GET',
         headers: getHeaders()
       });
@@ -120,7 +125,12 @@ export const schemaService = {
       const res = await fetch(askUrl, {
         method: 'POST',
         headers: getHeaders(),
-        body: JSON.stringify({ action: 'canonical_schema', username })
+        body: JSON.stringify({
+          action: 'canonical_schema',
+          username,
+          userId: username,
+          user_id: username,
+        })
       });
 
       if (res.ok) {
@@ -137,7 +147,7 @@ export const schemaService = {
     // Fallback: dedicated GET endpoint
     try {
       const base = getApiBaseUrl().replace(/\/ask\/?$/, '');
-      const res = await fetch(`${base}/api/schema?username=${encodeURIComponent(username)}`, {
+      const res = await fetch(`${base}/api/schema?username=${encodeURIComponent(username)}&userId=${encodeURIComponent(username)}&user_id=${encodeURIComponent(username)}`, {
         method: 'GET',
         headers: getHeaders()
       });

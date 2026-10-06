@@ -43,7 +43,27 @@ from datetime import datetime
 import time
 import httpx
 from fastapi import Request
-from auth_check import validate_issuer
+from auth_check import validate_issuer, safe_decode_jwt
+
+
+def extract_jwt_payload_from_request(request: Request) -> Optional[dict]:
+    """Extract and decode SSO JWT token claims without enforcing issuer verification."""
+    if hasattr(request.state, "token_payload") and request.state.token_payload:
+        return request.state.token_payload
+
+    auth = request.headers.get("Authorization")
+    if auth and auth.startswith("Bearer "):
+        payload = safe_decode_jwt(auth)
+        if payload:
+            return payload
+
+    tok = request.query_params.get("token") or request.query_params.get("jwt") or request.query_params.get("authToken")
+    if tok:
+        payload = safe_decode_jwt(tok)
+        if payload:
+            return payload
+
+    return None
 
 from dotenv import load_dotenv
 
@@ -1147,18 +1167,58 @@ def get_canonical_schema_data(request: Request, username: str = Query(default="u
     return get_canonical_schema()
 
 
+# 3. Server-Driven UI (SDUI) Configuration Endpoint
+
+@app.get("/api/sdui/config")
+async def get_sdui_config(
+    request: Request,
+    username: Optional[str] = Query(default=None),
+    userId: Optional[str] = Query(default=None),
+    user_id: Optional[str] = Query(default=None),
+):
+    """Returns effective user privileges & frontend feature gates based on RBAC hierarchy."""
+    token_payload = extract_jwt_payload_from_request(request)
+    resolved_user = username or userId or user_id
+    if not resolved_user or resolved_user.lower() in ("user", "undefined", "null"):
+        if token_payload:
+            resolved_user = str(
+                token_payload.get("preferred_username")
+                or token_payload.get("userId")
+                or token_payload.get("sub")
+                or token_payload.get("cfms_id")
+                or "user"
+            ).strip()
+        else:
+            resolved_user = "user"
+    return rbac_manager.get_user_sdui_config(resolved_user, token_payload=token_payload)
+
+
 @app.post("/ask")
 @validate_issuer
 async def ask(payload: AskRequest, request: Request):
     action = payload.action or "ask"
     username = payload.username or "user"
+    token_payload = extract_jwt_payload_from_request(request)
+    if token_payload and (not username or username.lower() in ("user", "undefined", "null")):
+        token_uid = str(
+            token_payload.get("preferred_username")
+            or token_payload.get("userId")
+            or token_payload.get("sub")
+            or token_payload.get("cfms_id")
+            or "user"
+        ).strip()
+        username = token_uid
+
+    # Auto-register user with Default Role and save decoded SSO token properties
+    rbac_manager.auto_register_or_update_user(username, token_payload=token_payload)
+
     client_ip = extract_client_ip(request)
     set_current_client_ip(client_ip)
     set_current_user(username)
 
     # 0. Action: SDUI Config & User Privileges
     if action in ("sdui_config", "get_sdui_config", "sdui_settings"):
-        return rbac_manager.get_user_sdui_config(username)
+        return rbac_manager.get_user_sdui_config(username, token_payload=token_payload)
 
     # RBAC Check 1: User & Role Active Status
     user_record = rbac_manager.get_user(username)

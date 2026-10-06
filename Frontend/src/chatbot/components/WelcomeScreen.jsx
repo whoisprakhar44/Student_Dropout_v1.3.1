@@ -11,7 +11,7 @@ import { useChatbot } from '../hooks/useChatbot';
  * Adapts dynamically based on active conversation layer (Curated vs Schema).
  */
 export const WelcomeScreen = ({ onSend, onSelect }) => {
-  const { activeLayer } = useChatbot();
+  const { activeLayer, userDisplayName } = useChatbot();
   const isSchemaMode = activeLayer === CHAT_LAYERS.SCHEMA;
 
   const handleQueryClick = (question) => {
@@ -113,7 +113,11 @@ export const WelcomeScreen = ({ onSend, onSelect }) => {
             )}
           </div>
           <h2 className="cb-welcome-title">
-            {isSchemaMode ? 'Explore Database Schemas & Relations' : 'How can I assist you today?'}
+            {isSchemaMode
+              ? 'Explore Database Schemas & Relations'
+              : (userDisplayName && userDisplayName !== 'User'
+                ? `Hello ${userDisplayName}, how can I assist you today?`
+                : 'How can I assist you today?')}
           </h2>
           <p className="cb-welcome-desc">
             {isSchemaMode

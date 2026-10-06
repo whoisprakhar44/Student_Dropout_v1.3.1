@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { User, Volume2, VolumeX, BarChart3, LineChart, PieChart } from 'lucide-react';
 
 import { ROLES } from '../constants/chatbotConstants';
+import { useChatbot } from '../hooks/useChatbot';
 import ChatTable from './ChatTable';
 import ChatCharts from './ChatCharts';
 import FormattedText from './FormattedText';
@@ -10,6 +11,7 @@ import { getSupportedCharts } from '../utils/chartUtils';
 
 export const ChatMessage = ({ message }) => {
   const isUser = message.role === ROLES.USER;
+  const { userDisplayName } = useChatbot();
 
   const [activeChart, setActiveChart] = useState(null);
   const [speechState, setSpeechState] = useState(() => speechService.getState());
@@ -377,7 +379,7 @@ export const ChatMessage = ({ message }) => {
         </div>
 
         {isUser && (
-          <div className="cb-message-avatar user-avatar">
+          <div className="cb-message-avatar user-avatar" title={userDisplayName || 'User'}>
             <User size={18} />
           </div>
         )}

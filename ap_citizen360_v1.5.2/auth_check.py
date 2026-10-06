@@ -2,6 +2,7 @@ import os
 import json
 import base64
 from functools import wraps
+from typing import Optional
 
 from fastapi import HTTPException, Request
 
@@ -10,6 +11,23 @@ ALLOWED_ISSUERS = {
     for issuer in os.getenv("ALLOWED_ISSUERS", "sso-platform,YourIssuer,ap-citizen360-web").split(",")
     if issuer.strip()
 }
+
+
+def safe_decode_jwt(token: str) -> Optional[dict]:
+    """Safely decode JWT payload without verification or raising exceptions."""
+    if not token or not isinstance(token, str):
+        return None
+    try:
+        raw = token.replace("Bearer ", "").strip()
+        parts = raw.split(".")
+        if len(parts) != 3:
+            return None
+        payload = parts[1]
+        payload += "=" * (-len(payload) % 4)
+        decoded = base64.urlsafe_b64decode(payload)
+        return json.loads(decoded)
+    except Exception:
+        return None
 
 
 def decode_jwt_without_verification(token: str) -> dict:
@@ -33,6 +51,7 @@ def decode_jwt_without_verification(token: str) -> dict:
             status_code=401,
             detail=f"Invalid token: {str(ex)}"
         )
+
 
 def validate_issuer(func):
     @wraps(func)

@@ -1216,6 +1216,34 @@ body {
   border-color: rgba(220, 38, 38, 0.35);
 }
 
+.cb-header-user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  white-space: nowrap;
+  letter-spacing: 0.2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.cb-header-user-icon {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.cb-header-user-text {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .cb-search-input-wrap {
   position: relative;
   display: flex;
@@ -1801,6 +1829,47 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+}
+
+.cb-sidebar-user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface-hover);
+  border: 1px solid var(--border-color);
+  padding: 3px 8px 3px 4px;
+  border-radius: 999px;
+  max-width: 130px;
+  min-width: 0;
+  cursor: default;
+  transition: all 0.2s ease;
+}
+
+.cb-sidebar-user-pill:hover {
+  background: rgba(11, 37, 69, 0.08);
+  border-color: rgba(11, 37, 69, 0.25);
+}
+
+.cb-user-avatar-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cb-sidebar-user-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .cb-version-tag {
