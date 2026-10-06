@@ -252,3 +252,78 @@ The Admin Dashboard is built upon the **AP Citizen 360 Official Design Language*
 - **Dark Mode Palette**: Deep Navy background (`#09090b` / `#0b0f19`), Surface Card (`#111827`), Dark Border (`#1f2937`), Accent Navy (`#0b2545`), Gold Accent (`#d97706`), Gold Glow (`#f59e0b`), Emerald Success (`#15803d`).
 - **Light Mode Palette**: Canvas (`#f8fafc`), Card (`#ffffff`), Border (`#cbd5e1`), Primary text (`#0f172a`), Muted text (`#475569`).
 - **Zero-Dependency Architecture**: Embedded SVGs, modern Vanilla CSS variables, and native JavaScript for instantaneous rendering and complete offline functionality on enterprise RHEL/CentOS intranet servers.
+
+---
+
+## 10. Reverse Proxy & Subpath Deployment Architecture (`APP_SUBPATH`)
+
+When deployed behind enterprise reverse proxies (such as NGINX, Traefik, HAProxy, AWS ALB, or Kubernetes Ingress) where subpath rewriting/routing is configured:
+
+```
+External User Request:   https://domain.com/some_path/dashboard
+Reverse Proxy Mapping:   http://localhost:8001/dashboard  (proxied to local port)
+```
+
+### 10.1 The Subpath Routing Problem
+When the application is mapped to a subpath like `/some_path/`:
+1. **Server Redirects**: Standard FastAPI redirects like `RedirectResponse(url="/dashboard/login?next=/dashboard")` instruct the browser to navigate to `https://domain.com/dashboard/login`, stripping the reverse-proxy `/some_path/` prefix and resulting in 404 Not Found errors or infinite login loops.
+2. **Client Fetch Calls**: Hardcoded frontend calls like `fetch('/api/admin/roles')` or `fetch('/dashboard/login')` hit the domain root `https://domain.com/api/...`, bypassing the proxy route.
+3. **Form Submissions**: Hardcoded `<form action="/dashboard/login">` bypasses the subpath prefix on submission.
+
+### 10.2 Dual-Layer Adaptive Solution
+
+The platform implements a comprehensive dual-layer subpath adaptation architecture:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        Incoming HTTP Request                           │
+└───────────────────────────────────┬────────────────────────────────────┘
+                                    │
+         ┌──────────────────────────┴──────────────────────────┐
+         ▼                                                     ▼
+┌─────────────────────────────────┐           ┌──────────────────────────────────┐
+│  1. Server-Side Normalization   │           │ 2. Template Injection & Client   │
+│  - APP_SUBPATH / BASE_PATH env  │           │    Autonomous Detection          │
+│  - X-Forwarded-Prefix fallback  │           │ - window.__BASE_PATH__ injected  │
+│  - FastAPI root_path configured │           │ - Dynamic fallback from pathname │
+│  - RedirectResponse rewritten   │           │ - All fetch & form URLs prefixed │
+└─────────────────────────────────┘           └──────────────────────────────────┘
+```
+
+1. **Server-Side Subpath Normalization (`get_base_path`)**:
+   - Reads environment variables `APP_SUBPATH`, `BASE_PATH`, `ROOT_PATH`, or `SUBPATH`.
+   - If not set in `.env`, automatically inspects the standard `X-Forwarded-Prefix` HTTP header and ASGI `root_path`.
+   - Guarantees normalized format: `/some_path` (leading slash, no trailing slash, or `""` for root).
+   - FastAPI is initialized with `root_path=get_base_path()`.
+   - All server-side redirects dynamically prepend `base_path`:
+     - `RedirectResponse(url=f"{base_path}/dashboard/login?next={base_path}/dashboard", status_code=302)`
+     - `RedirectResponse(url=f"{base_path}/dashboard", status_code=302)`
+     - `RedirectResponse(url=f"{base_path}/dashboard/login", status_code=302)`
+
+2. **Template Injection (`render_template_with_base_path`)**:
+   - Replaces all `{{BASE_PATH}}` tokens in HTML templates.
+   - Automatically injects `<script>window.__BASE_PATH__ = '{base_path}';</script>` into the `<head>` of all rendered pages (`dashboard.html`, `dashboard_login.html`, `index.html`, `logs.html`, `logs_login.html`).
+
+3. **Autonomous Client-Side Resolution (`getBasePath`)**:
+   - Every template implements `getBasePath()`:
+     ```javascript
+     const getBasePath = () => {
+       if (typeof window.__BASE_PATH__ === 'string') {
+         return window.__BASE_PATH__.replace(/\/+$/, '');
+       }
+       const pathname = window.location.pathname;
+       const idx = pathname.indexOf('/dashboard');
+       if (idx > 0) {
+         return pathname.substring(0, idx).replace(/\/+$/, '');
+       }
+       return '';
+     };
+     const BASE_PATH = getBasePath();
+     ```
+   - All AJAX/Fetch calls, form submissions, and redirects prepend `${BASE_PATH}`:
+     - `fetch(`${BASE_PATH}/api/admin/overview`)`
+     - `fetch(`${BASE_PATH}/dashboard/login`)`
+     - `fetch(`${BASE_PATH}/ask`, ...)`
+     - `<form id="loginForm" method="POST" action="">` (empty action posts to current URL preserving subpath)
+     - `window.location.href = `${BASE_PATH}/dashboard/login``
+

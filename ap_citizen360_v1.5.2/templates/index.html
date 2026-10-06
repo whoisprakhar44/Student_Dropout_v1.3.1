@@ -552,6 +552,18 @@
     </div>
 
     <script>
+        // Base path detection:
+        // 1. Injected window.__BASE_PATH__ (from backend template rendering or env var)
+        // 2. Dynamic detection from current URL path
+        const getBasePath = () => {
+            if (typeof window.__BASE_PATH__ === 'string') {
+                return window.__BASE_PATH__.replace(/\/+$/, '');
+            }
+            const pathname = window.location.pathname.replace(/\/index\.html$/, '').replace(/\/+$/, '');
+            return pathname;
+        };
+        const BASE_PATH = getBasePath();
+
         let currentUsername = "";
         let currentSessionId = "";
         let sessionsMap = new Map(); // session_id -> session object
@@ -595,7 +607,7 @@
         async function loadSuggestions() {
             try {
                 // 1. Check server cache timestamp / version first
-                const metaResp = await fetch('/suggestions/meta');
+                const metaResp = await fetch(`${BASE_PATH}/suggestions/meta`);
                 let serverMeta = null;
                 if (metaResp.ok) {
                     serverMeta = await metaResp.json();
@@ -619,7 +631,7 @@
                 }
 
                 // 3. Otherwise, fetch all suggestions (limit=-1) and save to localStorage
-                const response = await fetch('/suggestions?limit=-1');
+                const response = await fetch(`${BASE_PATH}/suggestions?limit=-1`);
                 if (!response.ok) throw new Error("Suggestions fetch failed");
                 const data = await response.json();
                 if (data.suggestions && Array.isArray(data.suggestions)) {
@@ -858,7 +870,7 @@
             localStorage.setItem('chat_username', currentUsername);
             
             try {
-                const response = await fetch('/ask', {
+                const response = await fetch(`${BASE_PATH}/ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -920,7 +932,7 @@
             if (activeEl) activeEl.classList.add('active');
             
             try {
-                const response = await fetch('/ask', {
+                const response = await fetch(`${BASE_PATH}/ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -979,7 +991,7 @@
             if (!confirm("Are you sure you want to delete this session?")) return;
             
             try {
-                const response = await fetch('/ask', {
+                const response = await fetch(`${BASE_PATH}/ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1003,7 +1015,7 @@
             if (!confirm("Are you sure you want to clear ALL session history for this user? This cannot be undone.")) return;
             
             try {
-                const response = await fetch('/ask', {
+                const response = await fetch(`${BASE_PATH}/ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1030,7 +1042,7 @@
             container.innerHTML = `<span class="loader" style="width: 20px; height: 20px; display: inline-block;"></span> <span>Generating ${type} chart...</span>`;
             
             try {
-                const response = await fetch('/ask', {
+                const response = await fetch(`${BASE_PATH}/ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1176,7 +1188,7 @@
             scrollToBottom();
             
             try {
-                const response = await fetch('/ask', {
+                const response = await fetch(`${BASE_PATH}/ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1232,7 +1244,7 @@
 
         async function triggerCancel(reqId) {
             try {
-                const response = await fetch('/ask', {
+                const response = await fetch(`${BASE_PATH}/ask`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

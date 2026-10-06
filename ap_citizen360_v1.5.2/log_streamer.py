@@ -103,6 +103,53 @@ def verify_session_token(token: Optional[str]) -> bool:
         return False
 
 
+def is_litellm_log(record: logging.LogRecord) -> bool:
+    """
+    Return True if the log record pertains to /litellm endpoints or LiteLLM proxy.
+    Used to completely suppress litellm logs across all loggers, handlers, and streams.
+    """
+    try:
+        msg = record.getMessage()
+    except Exception:
+        msg = str(getattr(record, "msg", ""))
+
+    msg_lower = msg.lower()
+    if "/litellm" in msg_lower or "litellm" in msg_lower:
+        return True
+
+    # Check record.args (e.g. Uvicorn access log tuple: client, method, path, http_ver, status)
+    args = getattr(record, "args", None)
+    if args:
+        if isinstance(args, dict):
+            for v in args.values():
+                v_str = str(v).lower()
+                if "/litellm" in v_str or "litellm" in v_str:
+                    return True
+        elif isinstance(args, (tuple, list)):
+            for a in args:
+                a_str = str(a).lower()
+                if "/litellm" in a_str or "litellm" in a_str:
+                    return True
+
+    # Check logger name (e.g. httpx / httpcore calling LiteLLM backend)
+    rec_name = getattr(record, "name", "").lower()
+    if rec_name in ("httpx", "httpcore"):
+        litellm_url = os.getenv("LITELLM_URL", "")
+        if litellm_url and litellm_url.lower() in msg_lower:
+            return True
+
+    return False
+
+
+class LiteLLMLogFilter(logging.Filter):
+    """
+    Global logging filter to completely suppress any logs related to /litellm endpoints,
+    proxying, or LiteLLM calls across all loggers and handlers.
+    """
+    def filter(self, record: logging.LogRecord) -> bool:
+        return not is_litellm_log(record)
+
+
 class LogStreamManager(logging.Handler):
     """
     Thread-safe & async-safe logging handler that buffers recent logs and broadcasts
@@ -116,8 +163,11 @@ class LogStreamManager(logging.Handler):
         self.counter = 0
         self._lock = asyncio.Lock() if asyncio.get_event_loop().is_running() else None
         self.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s"))
+        self.addFilter(LiteLLMLogFilter())
 
     def emit(self, record: logging.LogRecord) -> None:
+        if is_litellm_log(record):
+            return
         try:
             msg = self.format(record)
             self.counter += 1
@@ -144,9 +194,14 @@ class LogStreamManager(logging.Handler):
             self.handleError(record)
 
     def get_recent_logs(self, limit: int = 500) -> List[Dict[str, Any]]:
-        """Return list of recent log entries."""
-        logs = list(self.buffer)
+        """Return list of recent log entries, strictly excluding any litellm logs."""
+        logs = [entry for entry in self.buffer if not self._is_litellm_entry(entry)]
         return logs[-limit:] if limit > 0 else logs
+
+    @staticmethod
+    def _is_litellm_entry(entry: Dict[str, Any]) -> bool:
+        text = f"{entry.get('name', '')} {entry.get('message', '')} {entry.get('formatted', '')}".lower()
+        return "/litellm" in text or "litellm" in text
 
     async def subscribe(self) -> AsyncGenerator[Dict[str, Any], None]:
         """Subscribe to live log stream."""
@@ -155,7 +210,8 @@ class LogStreamManager(logging.Handler):
         try:
             while True:
                 entry = await q.get()
-                yield entry
+                if not self._is_litellm_entry(entry):
+                    yield entry
         finally:
             self.subscribers.discard(q)
 
@@ -164,8 +220,47 @@ class LogStreamManager(logging.Handler):
 log_manager = LogStreamManager(buffer_size=1000)
 
 
+def install_litellm_log_filter():
+    """
+    Apply LiteLLMLogFilter to all loggers and handlers to prevent
+    any /litellm logs from appearing anywhere (console, terminal, files, or streams).
+    """
+    flt = LiteLLMLogFilter()
+
+    # 1. Attach to singleton log manager
+    log_manager.addFilter(flt)
+
+    # 2. Attach to root logger and all its existing handlers (stdout/stderr)
+    root_logger = logging.getLogger()
+    root_logger.addFilter(flt)
+    for h in root_logger.handlers:
+        h.addFilter(flt)
+
+    # 3. Attach to standard server and application loggers
+    target_loggers = [
+        "uvicorn",
+        "uvicorn.access",
+        "uvicorn.error",
+        "app",
+        "httpx",
+        "httpcore",
+        "fastapi",
+        "starlette",
+        "production_logger",
+    ]
+    for name in target_loggers:
+        lg = logging.getLogger(name)
+        lg.addFilter(flt)
+        for h in lg.handlers:
+            h.addFilter(flt)
+
+    # 4. Mute verbose query-level httpx/httpcore access logging
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+    logging.getLogger("httpcore").setLevel(logging.WARNING)
+
+
 def setup_log_streamer():
-    """Attach log_manager to the root logger and app loggers."""
+    """Attach log_manager to root and app loggers and install LiteLLM log filter."""
     log_manager.setLevel(logging.DEBUG)
     root_logger = logging.getLogger()
     if root_logger.level == logging.NOTSET or root_logger.level > logging.INFO:
@@ -178,6 +273,8 @@ def setup_log_streamer():
     if log_manager not in app_logger.handlers:
         app_logger.addHandler(log_manager)
 
+    install_litellm_log_filter()
+
 
 
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
@@ -185,8 +282,8 @@ LOGS_LOGIN_HTML_PATH = TEMPLATES_DIR / "logs_login.html"
 LOGS_VIEWER_HTML_PATH = TEMPLATES_DIR / "logs.html"
 
 
-def render_log_viewer_html(authenticated: bool = False, error_message: str = "") -> str:
-    """Load and render self-contained HTML page for logs viewer or authenticator login from templates."""
+def render_log_viewer_html(authenticated: bool = False, error_message: str = "", base_path: str = "") -> str:
+    """Load and render self-contained HTML page for logs viewer or authenticator login from templates with subpath awareness."""
     if not authenticated:
         if LOGS_LOGIN_HTML_PATH.exists():
             html = LOGS_LOGIN_HTML_PATH.read_text(encoding="utf-8")
@@ -205,11 +302,12 @@ def render_log_viewer_html(authenticated: bool = False, error_message: str = "")
 </body>
 </html>"""
         error_banner = f'<div class="error-banner">⚠️ {error_message}</div>' if error_message else ''
-        return html.replace("{{ERROR_BANNER}}", error_banner).replace("{error_message}", error_message)
-
-    if LOGS_VIEWER_HTML_PATH.exists():
-        return LOGS_VIEWER_HTML_PATH.read_text(encoding="utf-8")
-    return """<!DOCTYPE html>
+        html = html.replace("{{ERROR_BANNER}}", error_banner).replace("{error_message}", error_message)
+    else:
+        if LOGS_VIEWER_HTML_PATH.exists():
+            html = LOGS_VIEWER_HTML_PATH.read_text(encoding="utf-8")
+        else:
+            html = """<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><title>AP Citizen 360 Logs</title></head>
 <body>
@@ -220,3 +318,16 @@ def render_log_viewer_html(authenticated: bool = False, error_message: str = "")
   <main id="terminal"></main>
 </body>
 </html>"""
+
+    html = html.replace("{{BASE_PATH}}", base_path)
+    base_script = f"<script>window.__BASE_PATH__ = '{base_path}';</script>"
+    if "<head>" in html:
+        html = html.replace("<head>", f"<head>\n  {base_script}", 1)
+    elif "<HEAD>" in html:
+        html = html.replace("<HEAD>", f"<HEAD>\n  {base_script}", 1)
+    elif "<body>" in html:
+        html = html.replace("<body>", f"<body>\n  {base_script}", 1)
+    else:
+        html = base_script + "\n" + html
+
+    return html

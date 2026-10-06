@@ -449,7 +449,14 @@
       return div;
     }
 
+    function isLiteLLMEntry(entry) {
+      if (!entry) return false;
+      const raw = ((entry.formatted || '') + ' ' + (entry.message || '') + ' ' + (entry.name || '')).toLowerCase();
+      return raw.includes('/litellm') || raw.includes('litellm');
+    }
+
     function matchesFilter(entry) {
+      if (isLiteLLMEntry(entry)) return false;
       const lvl = (entry.level || 'INFO').toUpperCase();
       if (activeLevel !== 'ALL' && lvl !== activeLevel) {
         if (activeLevel === 'WARNING' && lvl !== 'WARN' && lvl !== 'WARNING') return false;
@@ -484,6 +491,7 @@
     }
 
     function appendSingleLog(entry) {
+      if (isLiteLLMEntry(entry)) return;
       allLogs.push(entry);
       if (allLogs.length > 2000) allLogs.shift();
       totalCount.textContent = allLogs.length;
@@ -510,7 +518,9 @@
       streamStatus.className = 'status-badge';
       streamStatusText.textContent = 'Connecting...';
 
-      const baseEndpoint = window.location.pathname.replace(/\/+$/, '') || '/logs';
+      const baseEndpoint = (typeof window.__BASE_PATH__ === 'string' && window.__BASE_PATH__)
+        ? `${window.__BASE_PATH__.replace(/\/+$/, '')}/logs`
+        : (window.location.pathname.replace(/\/+$/, '') || '/logs');
       evtSource = new EventSource(baseEndpoint + '?action=logs_stream');
 
       evtSource.onopen = () => {

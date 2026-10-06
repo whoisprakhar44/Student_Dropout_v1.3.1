@@ -663,8 +663,8 @@ class NetworkRoutingMiddleware:
         return client_addr, server_addr, header_map
 
     async def _handle_http(self, scope: Dict[str, Any], receive: Callable, send: Callable) -> None:
-        path = scope.get("path", "/")
-        if path == "/litellm" or path.startswith("/litellm/"):
+        path = scope.get("path", "")
+        if "/litellm" in path or path.endswith("/litellm") or "litellm" in path.lower():
             await self.app(scope, receive, send)
             return
 
@@ -755,8 +755,8 @@ class NetworkRoutingMiddleware:
             )
 
     async def _handle_websocket(self, scope: Dict[str, Any], receive: Callable, send: Callable) -> None:
-        path = scope.get("path", "/")
-        if path == "/litellm" or path.startswith("/litellm/"):
+        path = scope.get("path", "")
+        if "/litellm" in path or path.endswith("/litellm") or "litellm" in path.lower():
             await self.app(scope, receive, send)
             return
 

@@ -1237,6 +1237,22 @@
 
   <!-- Interactive Scripts -->
   <script>
+    // Base path detection:
+    // 1. Injected window.__BASE_PATH__ (from backend template rendering or env var)
+    // 2. Dynamic detection from current URL path (e.g. /some_path/dashboard -> /some_path)
+    const getBasePath = () => {
+      if (typeof window.__BASE_PATH__ === 'string') {
+        return window.__BASE_PATH__.replace(/\/+$/, '');
+      }
+      const pathname = window.location.pathname;
+      const idx = pathname.indexOf('/dashboard');
+      if (idx > 0) {
+        return pathname.substring(0, idx).replace(/\/+$/, '');
+      }
+      return '';
+    };
+    const BASE_PATH = getBasePath();
+
     // State Store
     let currentTheme = localStorage.getItem('rbac_dashboard_theme') || 'dark';
     let appRoles = [];
@@ -1303,15 +1319,17 @@
 
     // Logout
     document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await fetch('/dashboard/logout');
-      window.location.href = '/dashboard/login';
+      try {
+        await fetch(`${BASE_PATH}/dashboard/logout`);
+      } catch (e) {}
+      window.location.href = `${BASE_PATH}/dashboard/login`;
     });
 
     // Fetch Overview Metrics
     async function loadMetrics() {
       try {
-        const res = await fetch('/api/admin/overview');
-        if (res.status === 401) { window.location.href = '/dashboard/login'; return; }
+        const res = await fetch(`${BASE_PATH}/api/admin/overview`);
+        if (res.status === 401) { window.location.href = `${BASE_PATH}/dashboard/login`; return; }
         const data = await res.json();
         document.getElementById('metricTotalUsers').textContent = data.total_users || 0;
         document.getElementById('metricActiveUsers').textContent = `${data.active_users || 0} Active`;
@@ -1334,7 +1352,7 @@
     // Render Universal Controls Tab
     async function loadUniversalControls() {
       try {
-        const res = await fetch('/api/admin/universal');
+        const res = await fetch(`${BASE_PATH}/api/admin/universal`);
         const controls = await res.json();
         appUniversalControls = controls;
         const grid = document.getElementById('universalGrid');
@@ -1373,7 +1391,7 @@
 
     async function toggleUniversal(key, enabled) {
       try {
-        const res = await fetch('/api/admin/universal/toggle', {
+        const res = await fetch(`${BASE_PATH}/api/admin/universal/toggle`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ privilege_key: key, is_enabled: enabled })
@@ -1397,7 +1415,7 @@
     // Render Roles Tab
     async function loadRoles() {
       try {
-        const res = await fetch('/api/admin/roles');
+        const res = await fetch(`${BASE_PATH}/api/admin/roles`);
         const roles = await res.json();
         appRoles = roles;
         const tbody = document.getElementById('rolesTableBody');
@@ -1497,7 +1515,7 @@
       });
 
       try {
-        const res = await fetch('/api/admin/roles', {
+        const res = await fetch(`${BASE_PATH}/api/admin/roles`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, description: desc, privileges: privs })
@@ -1543,7 +1561,7 @@
       });
 
       try {
-        const res = await fetch(`/api/admin/roles/${roleId}`, {
+        const res = await fetch(`${BASE_PATH}/api/admin/roles/${roleId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, description: desc, is_active: isActive, privileges: privs })
@@ -1566,7 +1584,7 @@
     async function deleteRole(roleId, name) {
       if (!confirm(`Are you sure you want to delete role '${name}'? This cannot be undone.`)) return;
       try {
-        const res = await fetch(`/api/admin/roles/${roleId}`, { method: 'DELETE' });
+        const res = await fetch(`${BASE_PATH}/api/admin/roles/${roleId}`, { method: 'DELETE' });
         const data = await res.json();
         if (res.ok) {
           showToast(`Role '${name}' deleted.`);
@@ -1583,7 +1601,7 @@
     // Render Users Tab
     async function loadUsers(search = '') {
       try {
-        const url = search ? `/api/admin/users?search=${encodeURIComponent(search)}` : '/api/admin/users';
+        const url = search ? `${BASE_PATH}/api/admin/users?search=${encodeURIComponent(search)}` : `${BASE_PATH}/api/admin/users`;
         const res = await fetch(url);
         const users = await res.json();
         appUsers = users;
@@ -1637,7 +1655,7 @@
 
     async function changeUserRole(username, roleId) {
       try {
-        const res = await fetch(`/api/admin/users/${username}`, {
+        const res = await fetch(`${BASE_PATH}/api/admin/users/${username}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ role_id: parseInt(roleId) })
@@ -1658,7 +1676,7 @@
 
     async function toggleUserStatus(username, activate) {
       try {
-        const res = await fetch(`/api/admin/users/${username}`, {
+        const res = await fetch(`${BASE_PATH}/api/admin/users/${username}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ is_active: activate })
@@ -1689,7 +1707,7 @@
       const role_id = parseInt(document.getElementById('newUserRole').value);
 
       try {
-        const res = await fetch('/api/admin/users', {
+        const res = await fetch(`${BASE_PATH}/api/admin/users`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, display_name, email, role_id })
@@ -1713,7 +1731,7 @@
     document.getElementById('syncUsersBtn').addEventListener('click', async () => {
       showToast('Scanning chat history sessions for active users...', 'warning');
       try {
-        const res = await fetch('/api/admin/users/sync', { method: 'POST' });
+        const res = await fetch(`${BASE_PATH}/api/admin/users/sync`, { method: 'POST' });
         const data = await res.json();
         if (res.ok) {
           showToast(`Auto-discovery completed! Synced ${data.synced_count || 0} user(s).`);
@@ -1740,7 +1758,7 @@
     // Render Audit Logs
     async function loadAudits() {
       try {
-        const res = await fetch('/api/admin/audit-logs?limit=50');
+        const res = await fetch(`${BASE_PATH}/api/admin/audit-logs?limit=50`);
         const logs = await res.json();
         appAudits = logs;
         const tbody = document.getElementById('auditTableBody');
@@ -1788,7 +1806,7 @@
       const new_password = document.getElementById('newPassword').value;
 
       try {
-        const res = await fetch('/api/admin/change-password', {
+        const res = await fetch(`${BASE_PATH}/api/admin/change-password`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ old_password, new_password })

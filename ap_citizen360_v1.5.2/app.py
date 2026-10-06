@@ -67,6 +67,7 @@ logger = logging.getLogger("app")
 from log_streamer import (
     log_manager,
     setup_log_streamer,
+    install_litellm_log_filter,
     verify_totp,
     create_session_token,
     verify_session_token,
@@ -74,7 +75,7 @@ from log_streamer import (
     SESSION_COOKIE_NAME,
 )
 
-# Attach real-time log stream handler
+# Attach real-time log stream handler and LiteLLM log suppression filters
 setup_log_streamer()
 
 from fastapi import FastAPI, HTTPException, Query, WebSocket, WebSocketDisconnect
@@ -556,6 +557,8 @@ def _extract_sql_and_result(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Ensure LiteLLM log suppression filters are attached to all server loggers and handlers
+    install_litellm_log_filter()
     init_database()
     init_history_database()
     _init_excel_log()
@@ -599,10 +602,59 @@ async def _get_graph():
 # Global lock to serialize requests and prevent concurrency crashes in Milvus/MCP
 request_lock = asyncio.Lock()
 
+def get_base_path(request: Optional[Request] = None) -> str:
+    """
+    Determine the application base subpath for reverse-proxy deployments.
+    Supports environment variables (APP_SUBPATH, BASE_PATH, ROOT_PATH, SUBPATH),
+    falling back to incoming reverse proxy headers (X-Forwarded-Prefix, ASGI root_path).
+    Returns normalized path like '/some_path' or '' (empty string for root).
+    Never ends with a trailing slash.
+    """
+    subpath = (
+        os.getenv("APP_SUBPATH")
+        or os.getenv("BASE_PATH")
+        or os.getenv("ROOT_PATH")
+        or os.getenv("SUBPATH")
+        or ""
+    ).strip()
+
+    if not subpath and request is not None:
+        subpath = request.headers.get("x-forwarded-prefix", "").strip()
+        if not subpath:
+            subpath = request.scope.get("root_path", "").strip()
+
+    if subpath:
+        subpath = "/" + subpath.strip("/")
+        if subpath == "/":
+            subpath = ""
+
+    return subpath
+
+
+def render_template_with_base_path(template_content: str, base_path: str) -> str:
+    """
+    Renders HTML content with subpath awareness:
+    1. Replaces all instances of {{BASE_PATH}} with the resolved base_path.
+    2. Injects a global <script>window.__BASE_PATH__ = '{base_path}';</script> tag into <head>.
+    """
+    html = template_content.replace("{{BASE_PATH}}", base_path)
+    base_script = f"<script>window.__BASE_PATH__ = '{base_path}';</script>"
+    if "<head>" in html:
+        html = html.replace("<head>", f"<head>\n  {base_script}", 1)
+    elif "<HEAD>" in html:
+        html = html.replace("<HEAD>", f"<HEAD>\n  {base_script}", 1)
+    elif "<body>" in html:
+        html = html.replace("<body>", f"<body>\n  {base_script}", 1)
+    else:
+        html = base_script + "\n" + html
+    return html
+
+
 app = FastAPI(
     title="Student Dropout Intent API",
     version="1.4.0",
     description="API backend for natural-language SQL with Intent Classification (v1.4).",
+    root_path=get_base_path(),
     lifespan=lifespan,
 )
 
@@ -766,9 +818,11 @@ async def logs_handler(
             except Exception:
                 pass
 
+    base_path = get_base_path(request)
+
     # 1. Handle Logout
     if logout:
-        response = HTMLResponse(render_log_viewer_html(authenticated=False))
+        response = HTMLResponse(render_log_viewer_html(authenticated=False, base_path=base_path))
         response.delete_cookie(SESSION_COOKIE_NAME, path="/")
         return response
 
@@ -776,7 +830,7 @@ async def logs_handler(
     if action in ("logs", "view_logs", "runtime_logs"):
         is_auth, new_token = _check_logs_auth(request, code)
         if is_auth:
-            html = render_log_viewer_html(authenticated=True)
+            html = render_log_viewer_html(authenticated=True, base_path=base_path)
             response = HTMLResponse(html)
             if new_token:
                 response.set_cookie(
@@ -790,7 +844,7 @@ async def logs_handler(
             return response
         else:
             err_msg = "Invalid or expired 6-digit Authenticator code. Please try again." if code else ""
-            return HTMLResponse(render_log_viewer_html(authenticated=False, error_message=err_msg))
+            return HTMLResponse(render_log_viewer_html(authenticated=False, error_message=err_msg, base_path=base_path))
 
     # 3. Action: Live Server-Sent Events (SSE) Log Stream
     elif action in ("logs_stream", "stream_logs"):
@@ -862,23 +916,25 @@ def require_admin(request: Request) -> dict[str, Any]:
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard_view(request: Request):
     """Main RBAC Governance & SDUI Control Center view."""
+    base_path = get_base_path(request)
     admin = get_current_admin(request)
     if not admin:
-        return RedirectResponse(url="/dashboard/login?next=/dashboard", status_code=302)
+        return RedirectResponse(url=f"{base_path}/dashboard/login?next={base_path}/dashboard", status_code=302)
     if not DASHBOARD_HTML_PATH.exists():
         raise HTTPException(status_code=404, detail="dashboard.html template not found")
-    return HTMLResponse(content=DASHBOARD_HTML_PATH.read_text(encoding="utf-8"))
+    return HTMLResponse(content=render_template_with_base_path(DASHBOARD_HTML_PATH.read_text(encoding="utf-8"), base_path))
 
 
 @app.get("/dashboard/login", response_class=HTMLResponse)
 async def dashboard_login_view(request: Request):
     """Admin login screen with theme support and secure credentials check."""
+    base_path = get_base_path(request)
     admin = get_current_admin(request)
     if admin:
-        return RedirectResponse(url="/dashboard", status_code=302)
+        return RedirectResponse(url=f"{base_path}/dashboard", status_code=302)
     if not DASHBOARD_LOGIN_HTML_PATH.exists():
         raise HTTPException(status_code=404, detail="dashboard_login.html template not found")
-    return HTMLResponse(content=DASHBOARD_LOGIN_HTML_PATH.read_text(encoding="utf-8"))
+    return HTMLResponse(content=render_template_with_base_path(DASHBOARD_LOGIN_HTML_PATH.read_text(encoding="utf-8"), base_path))
 
 
 @app.post("/dashboard/login")
@@ -914,9 +970,10 @@ async def dashboard_login_action(request: Request):
 
 
 @app.get("/dashboard/logout")
-async def dashboard_logout_action():
+async def dashboard_logout_action(request: Request):
     """Clear session cookie and redirect to login."""
-    response = RedirectResponse(url="/dashboard/login", status_code=302)
+    base_path = get_base_path(request)
+    response = RedirectResponse(url=f"{base_path}/dashboard/login", status_code=302)
     response.delete_cookie("admin_access_token", path="/")
     return response
 
@@ -2348,7 +2405,9 @@ async def chat_websocket_endpoint(websocket: WebSocket) -> None:
 
 
 @app.get("/", response_class=HTMLResponse)
-async def get_ui():
+async def get_ui(request: Request):
+    base_path = get_base_path(request)
     if not INDEX_HTML_PATH.exists():
         raise HTTPException(status_code=404, detail="index.html template not found")
-    return HTMLResponse(content=INDEX_HTML_PATH.read_text(encoding="utf-8"))
+    return HTMLResponse(content=render_template_with_base_path(INDEX_HTML_PATH.read_text(encoding="utf-8"), base_path))
+

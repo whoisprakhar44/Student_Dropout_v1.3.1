@@ -96,12 +96,48 @@ def test_html_rendering():
     print("[PASS] render_log_viewer_html(authenticated=True) correctly renders live terminal dashboard")
 
 
+def test_litellm_log_suppression():
+    from log_streamer import LiteLLMLogFilter, install_litellm_log_filter
+    install_litellm_log_filter()
+
+    flt = LiteLLMLogFilter()
+
+    # Direct /litellm URL
+    rec1 = logging.LogRecord("uvicorn.access", logging.INFO, "path", 1, '127.0.0.1 - "GET /litellm/v1/models HTTP/1.1" 200', (), None)
+    assert not flt.filter(rec1), "LogRecord with /litellm should be filtered out"
+
+    # Subpath /litellm
+    rec2 = logging.LogRecord("uvicorn.access", logging.INFO, "path", 1, '127.0.0.1 - "POST /subpath/litellm/chat/completions HTTP/1.1" 200', (), None)
+    assert not flt.filter(rec2), "LogRecord with subpath /litellm should be filtered out"
+
+    # Uvicorn formatted tuple args with /litellm
+    rec3 = logging.LogRecord("uvicorn.access", logging.INFO, "path", 1, '%s - "%s %s HTTP/%s" %d', ('127.0.0.1:51234', 'GET', '/litellm', '1.1', 200), None)
+    assert not flt.filter(rec3), "LogRecord with uvicorn tuple args containing /litellm should be filtered out"
+
+    # Standard app log that is NOT litellm
+    rec_ok = logging.LogRecord("app", logging.INFO, "path", 1, "User queried enrollment count", (), None)
+    assert flt.filter(rec_ok), "Normal non-litellm log should pass filter"
+
+    # Test log_manager buffering rejection
+    test_logger = logging.getLogger("app.litellm_test")
+    test_logger.info("Accessing /litellm endpoint proxy")
+    test_logger.info("Forwarding query to litellm backend")
+    
+    recent = log_manager.get_recent_logs(20)
+    messages = [r.get("message", "") + " " + r.get("formatted", "") for r in recent]
+    for m in messages:
+        assert "/litellm" not in m and "litellm" not in m.lower(), f"LiteLLM log leaked into buffer: {m}"
+
+    print("[PASS] LiteLLM logs are completely suppressed and not stored anywhere")
+
+
 if __name__ == "__main__":
     print("\n--- RUNNING LOG STREAMER & TOTP TESTS ---")
     test_totp_verification()
     test_session_token()
     test_log_buffering()
     test_html_rendering()
+    test_litellm_log_suppression()
     print("\n>>> ALL LOG STREAMER & TOTP TESTS PASSED SUCCESSFULLY! <<<\n")
 
 
