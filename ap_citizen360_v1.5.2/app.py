@@ -566,7 +566,7 @@ def _extract_sql_and_result(
         masked_rows, pii_cols = mask_pii_rows(result, result_columns, alias_map=alias_map)
         if pii_cols:
             logger.info(
-                "🔒 [PII MASKED for API] user=%s masked_columns=%s",
+                "[PII MASKED for API] user=%s masked_columns=%s",
                 username, pii_cols,
             )
         result = masked_rows

@@ -14,6 +14,14 @@ class AgentState(TypedDict):
     # Full conversation / tool-call message history
     messages: Annotated[List[AnyMessage], operator.add]
 
+    # Whether caller has permission to view unmasked PII data.
+    # Resolved once at request entry via RBAC check_user_privilege("pii_access").
+    # When False (default for all non-privileged users):
+    #   - execute_sql results are masked before being placed in state
+    #   - verifier & summarizer prompts receive masked tables
+    #   - final answer generation LLM never sees raw PII
+    pii_access: NotRequired[bool]
+
     # Tracks how many times the LLM has been invoked
     llm_calls: int
 

@@ -19,7 +19,11 @@ import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
-from langchain_mcp_adapters.client import MultiServerMCPClient, load_mcp_tools
+try:
+    from langchain_mcp_adapters.client import MultiServerMCPClient, load_mcp_tools
+except (ImportError, Exception):
+    MultiServerMCPClient = None
+    load_mcp_tools = None
 
 BASE_DIR = str(Path(__file__).resolve().parents[2])
 load_dotenv(os.path.join(BASE_DIR, ".env"))

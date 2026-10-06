@@ -263,7 +263,7 @@ def _apply_pii_mask_to_payload(text_content: str, pii_access: bool, sql: str = "
     alias_map = extract_pii_aliases_from_sql(sql) if sql else {}
     masked_rows, pii_cols = mask_pii_rows(rows, columns, alias_map=alias_map)
     if pii_cols:
-        logger.info("🔒 [PII MASKED for LLM] columns=%s", pii_cols)
+        logger.info("[PII MASKED for LLM] columns=%s", pii_cols)
         payload = {**payload, "rows": masked_rows}
         return json.dumps(payload, default=str)
     return text_content

@@ -113,6 +113,7 @@ from my_agent.agent import build_graph
 from my_agent.utils.ollama_check import chat_model_name, check_ollama
 from my_agent.utils.tools import cleanup_tools
 from my_agent.utils.guardrails import ContentGuardrailManager
+from pii_masking import mask_pii_rows, extract_pii_aliases_from_sql
 
 guardrail_manager: ContentGuardrailManager | None = None
 
@@ -452,11 +453,16 @@ def _extract_tool_content(message: Any) -> str | None:
     return str(raw)
 
 
-def _extract_sql_and_result(messages: list[Any], username: str) -> AskResponse:
+def _extract_sql_and_result(
+    messages: list[Any],
+    username: str,
+    pii_access: bool = False,
+) -> AskResponse:
     from langchain_core.messages import ToolMessage as LCToolMessage
 
     sql = None
     result: list[dict[str, Any]] | None = None
+    result_columns: list[str] = []   # captured for PII masking
 
     for message in messages:
         # ── extract SQL from any AIMessage tool call ──────────────────────────
@@ -492,6 +498,7 @@ def _extract_sql_and_result(messages: list[Any], username: str) -> AskResponse:
 
         if payload.get("status") == "success":
             result = payload.get("rows") or []
+            result_columns = payload.get("columns") or []
 
     # If SQL was not found, default to empty string
     if sql is None:
@@ -533,6 +540,26 @@ def _extract_sql_and_result(messages: list[Any], username: str) -> AskResponse:
             error_msg = "The agent did not return an executed SQL query."
 
         result = [{"error": error_msg, "status": "failed"}]
+
+    # ── PII masking gate (API response boundary) ─────────────────────────────
+    # Defence-in-depth: mask structured rows before they leave the server,
+    # even if nodes.py masking was already applied for the LLM.
+    # Only applies when there are real data rows (not an error dict).
+    if (
+        not pii_access
+        and result
+        and result_columns
+        and not result[0].get("error")
+    ):
+        alias_map = extract_pii_aliases_from_sql(sql or "")
+        masked_rows, pii_cols = mask_pii_rows(result, result_columns, alias_map=alias_map)
+        if pii_cols:
+            logger.info(
+                "[PII MASKED for API] user=%s masked_columns=%s",
+                username, pii_cols,
+            )
+        result = masked_rows
+    # ─────────────────────────────────────────────────────────────────────────
 
     return AskResponse(sql=sql, result=result, username=username)
 
@@ -628,6 +655,8 @@ async def _execute_graph_query(job: dict) -> dict:
             "intent": None,
             "department_scope": None,
             "entities": None,
+            "username": username,
+            "pii_access": rbac_manager.check_user_privilege(username, "pii_access"),
         }
     )
     total_time = time.perf_counter() - t_start
@@ -641,7 +670,11 @@ async def _execute_graph_query(job: dict) -> dict:
         message="Formatting result rows, extracting summary, and updating session context..."
     )
 
-    response_obj = _extract_sql_and_result(state.get("messages", []), username)
+    response_obj = _extract_sql_and_result(
+        state.get("messages", []),
+        username,
+        pii_access=state.get("pii_access", False),
+    )
     response_obj.timings = {
         "total_gen_time": round(gen_time, 2),
         "total_exec_time": round(exec_time, 2),
