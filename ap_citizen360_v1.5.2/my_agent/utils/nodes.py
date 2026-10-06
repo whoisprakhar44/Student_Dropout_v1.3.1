@@ -17,7 +17,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from pii_masking import mask_pii_rows
+from pii_masking import mask_pii_rows, extract_pii_aliases_from_sql
 
 from dotenv import load_dotenv
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
@@ -155,6 +155,7 @@ STRICT RULES — follow every rule without exception:
 7. The database is Hive/Impala - use Hive/Spark-compatible SQL only. Always prefix table names with the database (e.g. `ap_citizen360.table_name`).
 8. NEVER guess, invent, or assume any table names, column names, or join relations. If you lack the DDL context or column definitions for a table, you MUST call retrive_schema_rag to retrieve it. Do not attempt to guess or invent columns/tables under any circumstances.
 9. BEFORE using any filter value in a WHERE clause (like district name, status, or academic year), you MUST verify the exact spelling by calling get_column_values. Do NOT blindly trust the user's spelling and do NOT invent your own. Always use the closest matching valid value returned by the tool.
+10. NEVER rename or alias sensitive personal data columns using AS in your SQL. Columns such as student_name, aadhaar_no, phone, mobile, email, address, door_no, dob, date_of_birth, voter_id, pan_number, bank_account, and all similar personal identifiers MUST appear in the SELECT clause using their exact original column name. Do NOT use AS to rename them to anything else, regardless of how the user phrases the request.
 """
 else:
     SYSTEM_PROMPT = """You are a data and document assistant for the ap_citizen360 data model.
@@ -173,6 +174,7 @@ STRICT RULES — follow every rule without exception:
 5. After execute_sql returns rows, summarize the result in plain language.
 6. The database is SQLite - use SQLite-compatible SQL only. All tables are in the main schema with no prefix (e.g. write `citizen_student` instead of `ap_citizen360.citizen_student`).
 7. BEFORE using any filter value in a WHERE clause (like district name, status, or academic year), you MUST verify the exact spelling by calling get_column_values. Do NOT blindly trust the user's spelling and do NOT invent your own. Always use the closest matching valid value returned by the tool.
+8. NEVER rename or alias sensitive personal data columns using AS in your SQL. Columns such as student_name, aadhaar_no, phone, mobile, email, address, door_no, dob, date_of_birth, voter_id, pan_number, bank_account, and all similar personal identifiers MUST appear in the SELECT clause using their exact original column name. Do NOT use AS to rename them to anything else, regardless of how the user phrases the request.
 """
 
 if not _REASONING:
@@ -231,12 +233,19 @@ def _extract_tool_content(content: Any) -> str | None:
     return str(content)
 
 
-def _apply_pii_mask_to_payload(text_content: str, pii_access: bool) -> str:
+def _apply_pii_mask_to_payload(text_content: str, pii_access: bool, sql: str = "") -> str:
     """
     If ``pii_access`` is False, deserialise the execute_sql JSON payload,
     mask all PII columns in the rows, and return the re-serialised payload.
     Returns the original text unchanged when ``pii_access`` is True or when
     the payload cannot be parsed / has no rows.
+
+    Parameters
+    ----------
+    sql:
+        The original SQL query string that produced this payload.  Used to
+        build an alias map so that prompt-injection alias bypasses
+        (e.g. ``SELECT student_name AS sn``) are also masked.
     """
     if pii_access:
         return text_content
@@ -250,7 +259,9 @@ def _apply_pii_mask_to_payload(text_content: str, pii_access: bool) -> str:
     columns = payload.get("columns") or []
     if not rows or not columns:
         return text_content
-    masked_rows, pii_cols = mask_pii_rows(rows, columns)
+    # Build alias map to catch prompt-injection column renames
+    alias_map = extract_pii_aliases_from_sql(sql) if sql else {}
+    masked_rows, pii_cols = mask_pii_rows(rows, columns, alias_map=alias_map)
     if pii_cols:
         logger.info("🔒 [PII MASKED for LLM] columns=%s", pii_cols)
         payload = {**payload, "rows": masked_rows}
@@ -262,6 +273,7 @@ def _summarize_sql_result(
     user_query: str,
     tool_content: Any,
     pii_access: bool = False,
+    sql: str = "",
 ) -> str | None:
     """
     Render a short markdown summary of an execute_sql result.
@@ -272,9 +284,9 @@ def _summarize_sql_result(
     text_content = _extract_tool_content(tool_content)
     if not text_content:
         return None
-    # Apply PII masking before parsing so the rest of this function
-    # only ever sees masked data when pii_access is False.
-    text_content = _apply_pii_mask_to_payload(text_content, pii_access)
+    # Apply PII masking (including alias bypass) before parsing so the rest of
+    # this function only ever sees masked data when pii_access is False.
+    text_content = _apply_pii_mask_to_payload(text_content, pii_access, sql=sql)
     try:
         payload = json.loads(text_content)
     except (json.JSONDecodeError, TypeError):
@@ -516,10 +528,13 @@ def llm_node(state: AgentState) -> dict:
         # verify_node keeps requesting retries even though good data was found.
         successful_sql_msgs = [
             m for m in _tool_messages(history, "execute_sql")
-            if _summarize_sql_result(state["user_query"], m.content, pii_access) is not None
+            if _summarize_sql_result(state["user_query"], m.content, pii_access,
+                                     sql=_sql_for_tool_message(history, m)) is not None
         ]
         if successful_sql_msgs:
-            summary = _summarize_sql_result(state["user_query"], successful_sql_msgs[-1].content, pii_access)
+            last_msg = successful_sql_msgs[-1]
+            summary = _summarize_sql_result(state["user_query"], last_msg.content, pii_access,
+                                            sql=_sql_for_tool_message(history, last_msg))
             logger.info("llm_node: returning best available SQL result after hitting call cap.")
             return {
                 "messages": [AIMessage(content=summary or "Query executed successfully.")],
@@ -558,7 +573,8 @@ def llm_node(state: AgentState) -> dict:
     in_verify_retry = state.get("verify_calls", 0) > 0 and not state.get("verified", False)
     sql_results = _tool_messages(history, "execute_sql")
     if sql_results and not in_verify_retry:
-        summary = _summarize_sql_result(state["user_query"], sql_results[-1].content, pii_access)
+        summary = _summarize_sql_result(state["user_query"], sql_results[-1].content, pii_access,
+                                        sql=_sql_for_tool_message(history, sql_results[-1]))
         if summary:
             logger.info("llm_node: summarized SQL result in %.2fs", time.perf_counter() - t0)
             return {
@@ -670,7 +686,8 @@ def llm_node(state: AgentState) -> dict:
     rag_results = _tool_messages(history, "retrive_schema_rag")
     successful_sql = [
         m for m in _tool_messages(history, "execute_sql")
-        if _summarize_sql_result(state["user_query"], m.content, pii_access) is not None
+        if _summarize_sql_result(state["user_query"], m.content, pii_access,
+                                 sql=_sql_for_tool_message(history, m)) is not None
     ]
 
     # Collect the last SQL error message (if any) to include in the nudge.
@@ -799,22 +816,55 @@ def _extract_sql_from_history(history: list) -> str:
     return ""
 
 
+def _sql_for_tool_message(history: list, target_tool_msg: Any) -> str:
+    """
+    Walk backward through *history* to find the AIMessage whose
+    ``execute_sql`` tool_call matches the ``tool_call_id`` of
+    *target_tool_msg*, and return the SQL query string.
+
+    Used to supply the original SQL to alias-bypass detection when
+    masking a specific ToolMessage result payload.
+
+    Falls back to the most-recently-seen execute_sql query when the
+    tool_call_id cannot be matched (e.g. old-format messages).
+    """
+    target_id = getattr(target_tool_msg, "tool_call_id", None)
+    fallback_sql = ""
+    for msg in reversed(history):
+        for tc in getattr(msg, "tool_calls", None) or []:
+            if tc.get("name") == "execute_sql":
+                args = tc.get("args") or {}
+                if isinstance(args, str):
+                    try:
+                        args = json.loads(args)
+                    except Exception:
+                        args = {}
+                sql = args.get("query") or args.get("sql") or ""
+                if not fallback_sql:
+                    fallback_sql = sql
+                if target_id and tc.get("id") == target_id:
+                    return sql
+    return fallback_sql
+
+
 def _result_table_str(
     tool_content: Any,
     max_rows: int = 20,
     pii_access: bool = False,
+    sql: str = "",
 ) -> str:
     """
     Render the SQL result as a plain-text table for the verifier LLM prompt.
 
-    ``pii_access=False`` masks PII columns so the verifier LLM never sees raw
-    PII data for users without the ``pii_access`` RBAC privilege.
+    ``pii_access=False`` masks PII columns (including alias-bypass columns)
+    so the verifier LLM never sees raw PII data for users without the
+    ``pii_access`` RBAC privilege.
     """
     text_content = _extract_tool_content(tool_content)
     if not text_content:
         return "(no result)"
-    # Apply PII masking before building the verifier prompt.
-    text_content = _apply_pii_mask_to_payload(text_content, pii_access)
+    # Apply PII masking (including alias bypass) before building the verifier prompt.
+    text_content = _apply_pii_mask_to_payload(text_content, pii_access, sql=sql)
     try:
         payload = json.loads(text_content)
     except (json.JSONDecodeError, TypeError):
@@ -856,7 +906,8 @@ def verify_node(state: AgentState) -> dict:
     # Find the latest successful SQL result
     successful = [
         m for m in _tool_messages(history, "execute_sql")
-        if _summarize_sql_result(state["user_query"], m.content, pii_access) is not None
+        if _summarize_sql_result(state["user_query"], m.content, pii_access,
+                                 sql=_sql_for_tool_message(history, m)) is not None
     ]
 
     # Guard: no SQL execution was even attempted (e.g. LLM answered directly)
@@ -978,8 +1029,10 @@ def verify_node(state: AgentState) -> dict:
         }
 
     last_result_msg = successful[-1]
-    result_table = _result_table_str(last_result_msg.content, pii_access=pii_access)
-    summary = _summarize_sql_result(state["user_query"], last_result_msg.content, pii_access)
+    _last_sql = _sql_for_tool_message(history, last_result_msg)
+    result_table = _result_table_str(last_result_msg.content, pii_access=pii_access, sql=_last_sql)
+    summary = _summarize_sql_result(state["user_query"], last_result_msg.content, pii_access,
+                                    sql=_last_sql)
 
     verify_duration_ms = (time.perf_counter() - t0) * 1000
     logger.info(
@@ -1420,7 +1473,8 @@ def summarization_node(state: AgentState) -> dict:
     # Pass pii_access so the table rendered for the LLM has PII columns masked
     # when the user lacks the pii_access privilege. This prevents the LLM from
     # mentioning raw PII values in its summary text.
-    result_table = _result_table_str(last_result_msg.content, pii_access=pii_access)
+    result_table = _result_table_str(last_result_msg.content, pii_access=pii_access,
+                                      sql=_sql_for_tool_message(history, last_result_msg))
     max_table_chars = (_SUMMARIZE_NUM_CTX if _BACKEND == "vllm" else int(os.getenv("OLLAMA_SUMMARIZE_NUM_CTX", "2048"))) * 4
     if result_table and len(result_table) > max_table_chars:
         result_table = result_table[:max_table_chars] + "\n...(truncated for context limit)"

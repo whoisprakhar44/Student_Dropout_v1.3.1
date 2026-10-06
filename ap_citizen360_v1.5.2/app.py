@@ -119,7 +119,7 @@ from my_agent.agent import build_graph
 from my_agent.utils.ollama_check import chat_model_name, check_ollama
 from my_agent.utils.tools import cleanup_tools
 from my_agent.utils.guardrails import ContentGuardrailManager
-from pii_masking import mask_pii_rows
+from pii_masking import mask_pii_rows, extract_pii_aliases_from_sql
 
 guardrail_manager: ContentGuardrailManager | None = None
 
@@ -562,7 +562,8 @@ def _extract_sql_and_result(
         and result_columns
         and not result[0].get("error")
     ):
-        masked_rows, pii_cols = mask_pii_rows(result, result_columns)
+        alias_map = extract_pii_aliases_from_sql(sql or "")
+        masked_rows, pii_cols = mask_pii_rows(result, result_columns, alias_map=alias_map)
         if pii_cols:
             logger.info(
                 "🔒 [PII MASKED for API] user=%s masked_columns=%s",
