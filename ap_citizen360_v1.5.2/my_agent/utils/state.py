@@ -66,3 +66,6 @@ class AgentState(TypedDict):
 
     # List of source filenames cited in the document answer (for UI display)
     doc_sources: NotRequired[List[str] | None]
+
+    # True if input query has already passed content guardrail checks at the API gateway
+    guardrail_verified: NotRequired[bool]

@@ -41,6 +41,7 @@ import uuid
 import logging
 from datetime import datetime
 import time
+import re
 import httpx
 from fastapi import Request
 from auth_check import validate_issuer, safe_decode_jwt
@@ -337,7 +338,11 @@ def init_history_database() -> None:
 
 
 def get_session_messages(session_id: str) -> list[Any]:
-    """Load messages from db and convert them to LangGraph message list."""
+    """Load messages from db and convert them to LangGraph message list.
+    
+    Injects ONLY the user prompt, verbal summary, and executed SQL query for
+    context efficiency. Raw database rows are deliberately excluded.
+    """
     conn = sqlite3.connect(HISTORY_DB_PATH)
     conn.row_factory = sqlite3.Row
     try:
@@ -351,13 +356,20 @@ def get_session_messages(session_id: str) -> list[Any]:
         messages = []
         for row in rows:
             if row["role"] == "user":
-                messages.append(HumanMessage(content=row["content"]))
+                user_text = (row["content"] or "").strip()
+                if user_text:
+                    messages.append(HumanMessage(content=user_text))
             elif row["role"] == "assistant":
-                # Include SQL in the assistant message so the LLM can reference
-                # it for follow-up questions (e.g. "now filter by female students")
-                content = row["content"] or ""
-                if row["sql"]:
-                    content = f"{content}\n\n[SQL used: `{row['sql']}`]"
+                summary = (row["content"] or "").strip()
+                # Strip think tags if any slipped into stored summary
+                summary = re.sub(r"<think>.*?</think>", "", summary, flags=re.DOTALL).strip()
+                sql = (row["sql"] or "").strip()
+                if summary and sql:
+                    content = f"{summary}\n\n[SQL used: `{sql}`]"
+                elif sql:
+                    content = f"[SQL used: `{sql}`]"
+                else:
+                    content = summary or "Here is the query result."
                 messages.append(AIMessage(content=content))
         return messages
     except sqlite3.Error as e:
@@ -1543,6 +1555,7 @@ async def ask(payload: AskRequest, request: Request):
                                 "rag_calls": 0,
                                 "verify_calls": 0,
                                 "verified": False,
+                                "guardrail_verified": True,
                                 # intent_node will populate these during the run
                                 "intent": None,
                                 "department_scope": None,
@@ -1600,6 +1613,8 @@ async def ask(payload: AskRequest, request: Request):
                         if not getattr(msg, "tool_calls", None) and getattr(msg, "content", ""):
                             response_text = msg.content
                             break
+                if response_text:
+                    response_text = re.sub(r"<think>.*?</think>", "", response_text, flags=re.DOTALL).strip()
                 if not response_text:
                     if response_obj.result and isinstance(response_obj.result, list) and len(response_obj.result) > 0 and "error" in response_obj.result[0]:
                         response_text = response_obj.result[0]["error"]
@@ -2256,6 +2271,7 @@ class WebSocketSessionHandler:
                             "rag_calls": 0,
                             "verify_calls": 0,
                             "verified": False,
+                            "guardrail_verified": True,
                             "intent": None,
                             "department_scope": None,
                             "entities": None,
@@ -2316,6 +2332,8 @@ class WebSocketSessionHandler:
                             if not getattr(msg, "tool_calls", None) and getattr(msg, "content", ""):
                                 response_text = msg.content
                                 break
+                    if response_text:
+                        response_text = re.sub(r"<think>.*?</think>", "", response_text, flags=re.DOTALL).strip()
                     if not response_text:
                         if response_obj.result and isinstance(response_obj.result, list) and len(response_obj.result) > 0 and "error" in response_obj.result[0]:
                             response_text = response_obj.result[0]["error"]

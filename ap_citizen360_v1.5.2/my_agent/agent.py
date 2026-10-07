@@ -233,7 +233,7 @@ async def build_graph():
     builder.add_conditional_edges(
         "intent_node",
         route_node,
-        ["initialize_node", "doc_search_node", "deterministic_search_node", "greeting_node"],
+        ["initialize_node", "doc_search_node", "deterministic_search_node", "greeting_node", END],
     )
     
     builder.add_edge("initialize_node", "tool_node")

@@ -21,6 +21,7 @@ from pii_masking import mask_pii_rows, extract_pii_aliases_from_sql
 
 from dotenv import load_dotenv
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
+from langgraph.graph import END
 from langgraph.prebuilt import ToolNode
 
 from my_agent.utils import tools as tool_registry
@@ -156,6 +157,7 @@ STRICT RULES — follow every rule without exception:
 8. NEVER guess, invent, or assume any table names, column names, or join relations. If you lack the DDL context or column definitions for a table, you MUST call retrive_schema_rag to retrieve it. Do not attempt to guess or invent columns/tables under any circumstances.
 9. BEFORE using any filter value in a WHERE clause (like district name, status, or academic year), you MUST verify the exact spelling by calling get_column_values. Do NOT blindly trust the user's spelling and do NOT invent your own. Always use the closest matching valid value returned by the tool.
 10. NEVER rename or alias sensitive personal data columns using AS in your SQL. Columns such as student_name, aadhaar_no, phone, mobile, email, address, door_no, dob, date_of_birth, voter_id, pan_number, bank_account, and all similar personal identifiers MUST appear in the SELECT clause using their exact original column name. Do NOT use AS to rename them to anything else, regardless of how the user phrases the request.
+11. CONVERSATIONAL FOLLOW-UP CONTEXT: Multi-turn chat history provides previous user questions, assistant summaries, and executed queries formatted as `[SQL used: <sql>]`. When the user asks a follow-up question (e.g., adding filters, changing aggregations, or drilling down like "now filter by female", "break down by mandal", "show for 2024"), inspect the previous `[SQL used: ...]` query to adapt, extend, or refine it rather than starting from scratch.
 """
 else:
     SYSTEM_PROMPT = """You are a data and document assistant for the ap_citizen360 data model.
@@ -175,6 +177,7 @@ STRICT RULES — follow every rule without exception:
 6. The database is SQLite - use SQLite-compatible SQL only. All tables are in the main schema with no prefix (e.g. write `citizen_student` instead of `ap_citizen360.citizen_student`).
 7. BEFORE using any filter value in a WHERE clause (like district name, status, or academic year), you MUST verify the exact spelling by calling get_column_values. Do NOT blindly trust the user's spelling and do NOT invent your own. Always use the closest matching valid value returned by the tool.
 8. NEVER rename or alias sensitive personal data columns using AS in your SQL. Columns such as student_name, aadhaar_no, phone, mobile, email, address, door_no, dob, date_of_birth, voter_id, pan_number, bank_account, and all similar personal identifiers MUST appear in the SELECT clause using their exact original column name. Do NOT use AS to rename them to anything else, regardless of how the user phrases the request.
+9. CONVERSATIONAL FOLLOW-UP CONTEXT: Multi-turn chat history provides previous user questions, assistant summaries, and executed queries formatted as `[SQL used: <sql>]`. When the user asks a follow-up question (e.g., adding filters, changing aggregations, or drilling down like "now filter by female", "break down by mandal", "show for 2024"), inspect the previous `[SQL used: ...]` query to adapt, extend, or refine it rather than starting from scratch.
 """
 
 if not _REASONING:
@@ -1202,6 +1205,25 @@ def intent_node(state: AgentState) -> dict:
     t0 = time.perf_counter()
     user_query = state.get("user_query", "")
 
+    # Content Guardrail check (Prompt Injection, Gibberish, Out of Context, Profanity)
+    if not state.get("guardrail_verified"):
+        from my_agent.utils.guardrails import ContentGuardrailManager
+        gm = ContentGuardrailManager()
+        is_valid, violation_msg, violation_details = gm.validate(user_query)
+        if not is_valid:
+            duration_ms = (time.perf_counter() - t0) * 1000
+            logger.warning(
+                "🛡️ [INTENT GUARDRAIL BLOCKED] Reason: %s | Query: %s | duration=%.2fms",
+                violation_msg, user_query, duration_ms
+            )
+            return {
+                "intent": "blocked",
+                "query_type": "blocked",
+                "department_scope": [],
+                "messages": [AIMessage(content=f"I cannot process this query. {violation_msg}")],
+                "verified": True,
+            }
+
     # Guardrail check for pure greetings / salutations
     if _is_greeting_query(user_query):
         duration_ms = (time.perf_counter() - t0) * 1000
@@ -1213,9 +1235,24 @@ def intent_node(state: AgentState) -> dict:
         }
 
     try:
+        # Check if conversation history exists so follow-up queries inherit domain context
+        history = state.get("messages", [])
+        prev_user_msgs = [m for m in history[:-1] if isinstance(m, HumanMessage) or getattr(m, "type", None) == "human"]
+        prev_ai_msgs = [m for m in history[:-1] if isinstance(m, AIMessage) or getattr(m, "type", None) == "ai"]
+
+        prompt_content = f"User question: {user_query}"
+        if prev_user_msgs and prev_ai_msgs:
+            last_user_query = getattr(prev_user_msgs[-1], "content", "")
+            last_ai_content = getattr(prev_ai_msgs[-1], "content", "")[:300]
+            prompt_content = (
+                f"Previous user question: {last_user_query}\n"
+                f"Previous assistant summary/SQL: {last_ai_content}\n\n"
+                f"Current follow-up user question: {user_query}"
+            )
+
         response = _intent_model.invoke(_sanitize_messages_for_llm([
             SystemMessage(content=_INTENT_SYSTEM_PROMPT),
-            HumanMessage(content=f"User question: {user_query}"),
+            HumanMessage(content=prompt_content),
         ]))
         raw_text = response.content or ""
         intent, query_type = _parse_intent_response(raw_text)
@@ -1298,7 +1335,9 @@ def greeting_node(state: AgentState) -> dict:
 def route_node(state: AgentState) -> str:
     """Returns the next node name based on query_type."""
     qt = state.get("query_type", "data_query")
-    if qt == "greeting":
+    if qt == "blocked":
+        return END
+    elif qt == "greeting":
         return "greeting_node"
     elif qt == "document_query":
         return "doc_search_node"
