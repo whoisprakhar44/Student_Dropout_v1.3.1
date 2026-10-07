@@ -3,6 +3,7 @@ import { ChatbotProvider } from './chatbot/ChatbotProvider';
 import Chatbot from './chatbot/Chatbot';
 import { useChatbot } from './chatbot/hooks/useChatbot';
 import { CHAT_LAYERS, VIEW_MODES } from './chatbot/constants/chatbotConstants';
+import AccessKeyGate, { useAccessKey } from './components/AccessKeyGate';
 import {
   Sparkles,
   Database,
@@ -24,7 +25,9 @@ import {
   Lock,
   Unlock,
   ShieldAlert,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Clock,
+  RotateCcw
 } from 'lucide-react';
 
 /**
@@ -43,7 +46,10 @@ function PortalDashboard({ activeTab, setActiveTab }) {
     openChat,
     toggleFullscreen,
     viewMode,
-    connectionStatus
+    connectionStatus,
+    canAccessChatbot,
+    isChatDisabledBySecurity,
+    resetSecurityLock
   } = useChatbot();
 
   const [sduiRole, setSduiRole] = useState('admin');
@@ -94,6 +100,16 @@ function PortalDashboard({ activeTab, setActiveTab }) {
         devtools_protection: sduiPrivileges?.devToolsProtection ?? true,
         anti_screenshot_alert: true,
       },
+      chatbot_access: {
+        privilege_granted: sduiPrivileges?.canAccessChatbot !== false,
+        toggle_icon_visible: sduiPrivileges?.canAccessChatbot !== false,
+        queries_permitted: sduiPrivileges?.canAccessChatbot !== false && !isChatDisabledBySecurity,
+      },
+      access_key_security: {
+        enabled: true,
+        validity_minutes: 30,
+        verification_method: 'SHA-256'
+      },
       transport: {
         primary: 'websocket',
         fallback: 'http_post',
@@ -118,7 +134,7 @@ function PortalDashboard({ activeTab, setActiveTab }) {
         boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)'
       }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
             <span style={{
               background: 'rgba(59, 130, 246, 0.2)',
               color: '#60a5fa',
@@ -138,6 +154,18 @@ function PortalDashboard({ activeTab, setActiveTab }) {
             </span>
             <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>•</span>
             <span style={{
+              color: sduiPrivileges?.canAccessChatbot !== false ? '#34d399' : '#f87171',
+              fontSize: '12px',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              <MessageSquare size={12} />
+              Chatbot Privilege: {sduiPrivileges?.canAccessChatbot !== false ? 'GRANTED' : 'REVOKED'}
+            </span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>•</span>
+            <span style={{
               color: sduiPrivileges?.copyProtection ? '#f87171' : '#a3e635',
               fontSize: '12px',
               fontWeight: 600,
@@ -148,66 +176,168 @@ function PortalDashboard({ activeTab, setActiveTab }) {
               <Lock size={12} />
               Copy Protection: {sduiPrivileges?.copyProtection ? 'ACTIVE' : 'OFF'}
             </span>
+            {isChatDisabledBySecurity && (
+              <>
+                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>•</span>
+                <span style={{
+                  color: '#ef4444',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  padding: '1px 6px',
+                  borderRadius: '6px'
+                }}>
+                  <ShieldAlert size={12} />
+                  DEVTOOLS LOCKED
+                </span>
+              </>
+            )}
           </div>
           <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: 'var(--text-color)' }}>
             Chatbot SDUI & Privileges Control Center
           </h1>
           <p style={{ margin: '6px 0 0 0', color: 'var(--text-muted)', fontSize: '14px' }}>
-            Manage schema tab visibility, table download privileges, and content copy protection rules dynamically.
+            Manage schema tab visibility, table download privileges, chatbot icon visibility, and security rules dynamically.
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: '10px' }}>
           <button
             onClick={() => {
+              if (canAccessChatbot === false) {
+                showSecurityToast('🔒 Chatbot access privilege is revoked.');
+                return;
+              }
+              if (isChatDisabledBySecurity) {
+                showSecurityToast('🔒 Chat option is disabled due to DevTools security violation.');
+                return;
+              }
               setActiveLayer(CHAT_LAYERS.CURATED);
               openChat(VIEW_MODES.FULLSCREEN);
             }}
+            disabled={canAccessChatbot === false || isChatDisabledBySecurity}
             style={{
               padding: '10px 18px',
               background: activeLayer === CHAT_LAYERS.CURATED ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.08)',
               color: '#fff',
               border: '1px solid rgba(59, 130, 246, 0.3)',
               borderRadius: '10px',
-              cursor: 'pointer',
+              cursor: (canAccessChatbot === false || isChatDisabledBySecurity) ? 'not-allowed' : 'pointer',
               fontWeight: 600,
               fontSize: '13px',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
+              opacity: (canAccessChatbot === false || isChatDisabledBySecurity) ? 0.5 : 1,
               transition: 'all 0.2s ease'
             }}
           >
             <Sparkles size={15} />
-            Open Curated Chat
+            {canAccessChatbot === false ? 'Curated Chat (Revoked)' : (isChatDisabledBySecurity ? 'Curated Chat (Locked)' : 'Open Curated Chat')}
           </button>
 
           <button
             onClick={() => {
+              if (canAccessChatbot === false) {
+                showSecurityToast('🔒 Chatbot access privilege is revoked.');
+                return;
+              }
+              if (isChatDisabledBySecurity) {
+                showSecurityToast('🔒 Chat option is disabled due to DevTools security violation.');
+                return;
+              }
               if (!isSchemaEnabled) setIsSchemaEnabled(true);
               setActiveLayer(CHAT_LAYERS.SCHEMA);
               openChat(VIEW_MODES.FULLSCREEN);
             }}
+            disabled={canAccessChatbot === false || isChatDisabledBySecurity}
             style={{
               padding: '10px 18px',
               background: activeLayer === CHAT_LAYERS.SCHEMA ? 'linear-gradient(135deg, #7c3aed, #9333ea)' : 'rgba(139, 92, 246, 0.15)',
               color: activeLayer === CHAT_LAYERS.SCHEMA ? '#fff' : '#c084fc',
               border: '1px solid rgba(139, 92, 246, 0.4)',
               borderRadius: '10px',
-              cursor: 'pointer',
+              cursor: (canAccessChatbot === false || isChatDisabledBySecurity) ? 'not-allowed' : 'pointer',
               fontWeight: 600,
               fontSize: '13px',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
+              opacity: (canAccessChatbot === false || isChatDisabledBySecurity) ? 0.5 : 1,
               transition: 'all 0.2s ease'
             }}
           >
             <Database size={15} />
-            Open Schema Chat
+            {canAccessChatbot === false ? 'Schema Chat (Revoked)' : (isChatDisabledBySecurity ? 'Schema Chat (Locked)' : 'Open Schema Chat')}
           </button>
         </div>
       </div>
+
+      {/* DevTools Security Violation Alert Banner */}
+      {isChatDisabledBySecurity && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.12)',
+          border: '1px solid rgba(239, 68, 68, 0.45)',
+          borderRadius: '14px',
+          padding: '16px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px',
+          boxShadow: '0 4px 20px rgba(239, 68, 68, 0.15)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '10px',
+              background: 'rgba(239, 68, 68, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#f87171'
+            }}>
+              <ShieldAlert size={20} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '14px', color: '#fca5a5' }}>
+                DevTools Inspection Active — Chatbot Interface Disabled
+              </div>
+              <div style={{ fontSize: '12px', color: '#cbd5e1', marginTop: '2px' }}>
+                Developer tools or restricted shortcut keys were triggered while DevTools protection was active. The chatbot has been locked out from UI.
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              resetSecurityLock();
+              showSecurityToast('🔓 Security lock reset by administrator.');
+            }}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              background: '#ef4444',
+              color: '#ffffff',
+              fontWeight: 600,
+              fontSize: '12px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <RotateCcw size={13} />
+            Reset Security Lock
+          </button>
+        </div>
+      )}
 
       {/* Grid: 3 Metric Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
@@ -426,9 +556,13 @@ function PortalDashboard({ activeTab, setActiveTab }) {
                   allowCsvExport: true,
                   allowExcelExport: true,
                   allowCopyTable: true,
+                  canAccessChatbot: true,
+                  allowChatbotAccess: true,
                   copyProtection: false,
                   devToolsProtection: false
                 });
+                resetSecurityLock();
+                showSecurityToast('✅ Granted all privileges (including Chatbot toggle & access).');
               }}
               style={{
                 padding: '6px 12px',
@@ -449,9 +583,12 @@ function PortalDashboard({ activeTab, setActiveTab }) {
                   allowCsvExport: false,
                   allowExcelExport: false,
                   allowCopyTable: false,
+                  canAccessChatbot: false,
+                  allowChatbotAccess: false,
                   copyProtection: true,
                   devToolsProtection: true
                 });
+                showSecurityToast('🔒 Restricted all: Chatbot toggle hidden & queries blocked.');
               }}
               style={{
                 padding: '6px 12px',
@@ -470,6 +607,51 @@ function PortalDashboard({ activeTab, setActiveTab }) {
 
         {/* Privileges Toggle Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+          {/* Chatbot Access & Toggle Icon Privilege */}
+          <div style={{
+            background: 'var(--background-color)',
+            border: `1px solid ${sduiPrivileges?.canAccessChatbot !== false ? 'rgba(59, 130, 246, 0.4)' : 'rgba(239, 68, 68, 0.4)'}`,
+            padding: '12px 14px',
+            borderRadius: '10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600, color: 'var(--text-color)' }}>
+                <MessageSquare size={14} color={sduiPrivileges?.canAccessChatbot !== false ? '#3b82f6' : '#ef4444'} />
+                <span>Chatbot Toggle & Access</span>
+              </div>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Show toggle icon & allow queries</span>
+            </div>
+            <button
+              onClick={() => {
+                const nextVal = sduiPrivileges?.canAccessChatbot === false ? true : false;
+                updateSduiPrivileges({
+                  canAccessChatbot: nextVal,
+                  allowChatbotAccess: nextVal
+                });
+                if (!nextVal) {
+                  showSecurityToast('🔒 Chatbot access privilege revoked: icon hidden & queries blocked.');
+                } else {
+                  showSecurityToast('✅ Chatbot access privilege granted.');
+                }
+              }}
+              style={{
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontWeight: 600,
+                border: 'none',
+                background: sduiPrivileges?.canAccessChatbot !== false ? '#10b981' : '#ef4444',
+                color: '#fff',
+                cursor: 'pointer'
+              }}
+            >
+              {sduiPrivileges?.canAccessChatbot !== false ? 'Granted' : 'Revoked'}
+            </button>
+          </div>
+
           {/* Table Export Toggle */}
           <div style={{
             background: 'var(--background-color)',
@@ -598,7 +780,13 @@ function PortalDashboard({ activeTab, setActiveTab }) {
               <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>F12 restriction & watermark</span>
             </div>
             <button
-              onClick={() => updateSduiPrivileges({ devToolsProtection: !sduiPrivileges?.devToolsProtection })}
+              onClick={() => {
+                const nextVal = !sduiPrivileges?.devToolsProtection;
+                updateSduiPrivileges({ devToolsProtection: nextVal });
+                if (!nextVal) {
+                  resetSecurityLock();
+                }
+              }}
               style={{
                 padding: '4px 10px',
                 borderRadius: '6px',
@@ -733,8 +921,9 @@ function PortalDashboard({ activeTab, setActiveTab }) {
   );
 }
 
-function App() {
+function PortalApp() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const { lockApp, remainingFormatted } = useAccessKey();
 
   return (
     <ChatbotProvider>
@@ -755,7 +944,9 @@ function App() {
           borderBottom: '1px solid var(--border-color)',
           marginBottom: '28px',
           maxWidth: '1200px',
-          margin: '0 auto 28px auto'
+          margin: '0 auto 28px auto',
+          flexWrap: 'wrap',
+          gap: '12px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
@@ -779,28 +970,67 @@ function App() {
             </div>
           </div>
 
-          <nav style={{ display: 'flex', gap: '8px' }}>
-            {['dashboard', 'analytics', 'settings'].map(tab => (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            {/* 30-min Access Key Session Monitor & Lock Button */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '6px 12px',
+              borderRadius: '8px',
+              background: 'rgba(30, 58, 138, 0.25)',
+              border: '1px solid rgba(59, 130, 246, 0.3)',
+              fontSize: '12px',
+              color: '#93c5fd'
+            }}>
+              <Clock size={13} color="#60a5fa" />
+              <span>Session: <strong>{remainingFormatted}</strong></span>
               <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={lockApp}
+                title="Lock Portal (Requires Access Key)"
                 style={{
-                  padding: '8px 16px',
-                  borderRadius: '8px',
-                  border: '1px solid var(--border-color)',
-                  background: activeTab === tab ? 'var(--primary-color)' : 'var(--surface-color)',
-                  color: activeTab === tab ? '#fff' : 'var(--text-muted)',
-                  cursor: 'pointer',
+                  background: 'rgba(239, 68, 68, 0.2)',
+                  border: '1px solid rgba(239, 68, 68, 0.4)',
+                  color: '#fca5a5',
+                  borderRadius: '5px',
+                  padding: '2px 7px',
+                  fontSize: '11px',
                   fontWeight: 600,
-                  fontSize: '13px',
-                  textTransform: 'capitalize',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
                   transition: 'all 0.2s ease'
                 }}
               >
-                {tab}
+                <Lock size={10} />
+                Lock
               </button>
-            ))}
-          </nav>
+            </div>
+
+            <nav style={{ display: 'flex', gap: '8px' }}>
+              {['dashboard', 'analytics', 'settings'].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border-color)',
+                    background: activeTab === tab ? 'var(--primary-color)' : 'var(--surface-color)',
+                    color: activeTab === tab ? '#fff' : 'var(--text-muted)',
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                    fontSize: '13px',
+                    textTransform: 'capitalize',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {tab}
+                </button>
+              ))}
+            </nav>
+          </div>
         </header>
 
         {/* Main Dashboard / Route View */}
@@ -812,6 +1042,14 @@ function App() {
         <Chatbot />
       </div>
     </ChatbotProvider>
+  );
+}
+
+function App() {
+  return (
+    <AccessKeyGate>
+      <PortalApp />
+    </AccessKeyGate>
   );
 }
 

@@ -40,7 +40,10 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
 
   const [securityToast, setSecurityToast] = useState(null);
   const [isDevToolsOpen, setIsDevToolsOpen] = useState(false);
+  const [isChatDisabledBySecurity, setIsChatDisabledBySecurity] = useState(false);
   const securityToastTimeoutRef = useRef(null);
+  const isInitialMountRef = useRef(true);
+  const fullscreenHistoryPushedRef = useRef(false);
 
   const [sessions, setSessions] = useState(() => chatStorage.getSessions());
   const [activeSessionId, setActiveSessionId] = useState(() => chatStorage.getActiveSessionId(chatStorage.getActiveLayer()));
@@ -91,6 +94,15 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
     }, 3200);
   }, []);
 
+  // Derived Chatbot access privilege from SDUI
+  const canAccessChatbot = (sduiPrivileges?.canAccessChatbot ?? sduiPrivileges?.allowChatbotAccess ?? true);
+
+  // Reset DevTools security lockout
+  const resetSecurityLock = useCallback(() => {
+    setIsDevToolsOpen(false);
+    setIsChatDisabledBySecurity(false);
+  }, []);
+
   // Update SDUI Privileges dynamically
   const updateSduiPrivileges = useCallback((patch) => {
     setSduiPrivilegesState(prev => {
@@ -100,9 +112,35 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
         setIsSchemaEnabledState(Boolean(patch.isSchemaEnabled));
         chatStorage.saveIsSchemaEnabled(Boolean(patch.isSchemaEnabled));
       }
+      if (patch.devToolsProtection === false) {
+        setIsDevToolsOpen(false);
+        setIsChatDisabledBySecurity(false);
+      }
       return next;
     });
   }, []);
+
+  // When DevTools protection is turned off, automatically clear lockout
+  useEffect(() => {
+    if (!sduiPrivileges?.devToolsProtection) {
+      setIsDevToolsOpen(false);
+      setIsChatDisabledBySecurity(false);
+    }
+  }, [sduiPrivileges?.devToolsProtection]);
+
+  // If chatbot access privilege is revoked, automatically close any open chat window
+  useEffect(() => {
+    if (canAccessChatbot === false && viewMode !== VIEW_MODES.CLOSED) {
+      setViewMode(VIEW_MODES.CLOSED);
+    }
+  }, [canAccessChatbot, viewMode]);
+
+  // If chat option is disabled by security violation (DevTools), automatically close chat
+  useEffect(() => {
+    if (isChatDisabledBySecurity && viewMode !== VIEW_MODES.CLOSED) {
+      setViewMode(VIEW_MODES.CLOSED);
+    }
+  }, [isChatDisabledBySecurity, viewMode]);
 
   // Helper to construct a new session object
   const createSessionObject = useCallback((initialMessages = [], layer = activeLayer) => {
@@ -296,24 +334,28 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
       }
 
       // Intercept Ctrl+U (View Source)
-      if (isCopyProtected && (e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U')) {
-        if (isInsideChat) {
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U')) {
+        if (isInsideChat || isDevToolsProtected) {
           e.preventDefault();
-          showSecurityToast('🔒 Source viewing is restricted.');
+          if (isDevToolsProtected) {
+            setIsChatDisabledBySecurity(true);
+            showSecurityToast('🔒 Security Notice: View Source shortcut blocked. Chat has been disabled from UI.');
+          } else {
+            showSecurityToast('🔒 Source viewing is restricted.');
+          }
           return;
         }
       }
 
-      // Intercept DevTools shortcuts
+      // Intercept DevTools shortcuts (F12, Ctrl+Shift+I/J/C, Cmd+Opt+I/J/C)
       if (isDevToolsProtected) {
-        if (
-          e.key === 'F12' ||
-          ((e.ctrlKey || e.metaKey) && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key))
-        ) {
-          if (isInsideChat) {
-            e.preventDefault();
-            showSecurityToast('🔒 Developer inspection tools are restricted.');
-          }
+        const isF12 = e.key === 'F12';
+        const isInspectShortcut = (e.ctrlKey || e.metaKey) && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key);
+        if (isF12 || isInspectShortcut) {
+          e.preventDefault();
+          setIsChatDisabledBySecurity(true);
+          showSecurityToast('⚠️ Security Violation: Developer inspection tools restricted. Chat option has been disabled from UI.');
+          return;
         }
 
         if (e.key === 'PrintScreen') {
@@ -331,7 +373,12 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
       const threshold = 160;
       const widthThreshold = window.outerWidth - window.innerWidth > threshold;
       const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-      setIsDevToolsOpen(widthThreshold || heightThreshold);
+      const detected = widthThreshold || heightThreshold;
+      setIsDevToolsOpen(detected);
+      if (detected) {
+        setIsChatDisabledBySecurity(true);
+        showSecurityToast('⚠️ Security Notice: DevTools inspection active. Chat option has been disabled from UI.');
+      }
     };
 
     window.addEventListener('copy', handleCopy, true);
@@ -361,23 +408,48 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
     chatStorage.saveActiveLayer(activeLayer);
   }, [activeLayer]);
 
-  // Prevent browser back page navigation while in Fullscreen mode (minimize to MINI view instead)
+  // Initial mount grace period to avoid processing stale popstate events on page reload
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      isInitialMountRef.current = false;
+    }, 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Fullscreen mode browser history handling (preserves fullscreen maximized state across reloads)
   useEffect(() => {
     if (viewMode === VIEW_MODES.FULLSCREEN) {
-      window.history.pushState({ cbFullscreen: true }, '');
+      if (!window.history.state?.cbFullscreen) {
+        window.history.pushState({ cbFullscreen: true }, '');
+        fullscreenHistoryPushedRef.current = true;
+      }
 
-      const handlePopState = () => {
-        setViewMode(VIEW_MODES.MINI);
+      const handlePopState = (e) => {
+        // Critical: Do NOT minimize if popstate fired during initial reload
+        if (isInitialMountRef.current) return;
+
+        // If user pressed browser Back button out of fullscreen state
+        if (!e.state?.cbFullscreen) {
+          fullscreenHistoryPushedRef.current = false;
+          setViewMode(VIEW_MODES.MINI);
+        }
       };
 
       window.addEventListener('popstate', handlePopState);
 
       return () => {
         window.removeEventListener('popstate', handlePopState);
-        if (window.history.state?.cbFullscreen) {
-          window.history.back();
-        }
+        // CRITICAL: DO NOT call window.history.back() here in cleanup!
+        // Calling window.history.back() during cleanup triggers popstate on StrictMode remount
+        // and browser reloads, which would minimize fullscreen back to mini!
       };
+    } else {
+      if (fullscreenHistoryPushedRef.current && window.history.state?.cbFullscreen) {
+        fullscreenHistoryPushedRef.current = false;
+        try {
+          window.history.back();
+        } catch {}
+      }
     }
   }, [viewMode]);
 
@@ -508,18 +580,34 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
 
   // UI State Control Handlers
   const openChat = useCallback((mode = VIEW_MODES.MINI) => {
+    if (canAccessChatbot === false) {
+      showSecurityToast('🔒 Chatbot access privilege is not granted for your role.');
+      return;
+    }
+    if (isChatDisabledBySecurity) {
+      showSecurityToast('🔒 Chat option is disabled due to DevTools security violation.');
+      return;
+    }
     setViewMode(mode);
     setUnreadCount(0);
-  }, []);
+  }, [canAccessChatbot, isChatDisabledBySecurity, showSecurityToast]);
 
   const closeChat = useCallback(() => {
     setViewMode(VIEW_MODES.CLOSED);
   }, []);
 
   const toggleFullscreen = useCallback(() => {
+    if (canAccessChatbot === false) {
+      showSecurityToast('🔒 Chatbot access privilege is not granted for your role.');
+      return;
+    }
+    if (isChatDisabledBySecurity) {
+      showSecurityToast('🔒 Chat option is disabled due to DevTools security violation.');
+      return;
+    }
     setViewMode(prev => (prev === VIEW_MODES.FULLSCREEN ? VIEW_MODES.MINI : VIEW_MODES.FULLSCREEN));
     setUnreadCount(0);
-  }, []);
+  }, [canAccessChatbot, isChatDisabledBySecurity, showSecurityToast]);
 
   const markAsRead = useCallback(() => {
     setUnreadCount(0);
@@ -711,6 +799,18 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
       return;
     }
 
+    // Check Chatbot access privilege (block even if authToken is verified)
+    if (canAccessChatbot === false) {
+      showSecurityToast('🔒 Chatbot access privilege is not granted. Query cannot be processed.');
+      return;
+    }
+
+    // Check DevTools security lockout
+    if (isChatDisabledBySecurity) {
+      showSecurityToast('🔒 Chat option is disabled due to DevTools security violation.');
+      return;
+    }
+
     // Check schema layer permission from SDUI RBAC
     if (targetLayer === CHAT_LAYERS.SCHEMA && sduiPrivileges?.isSchemaEnabled === false) {
       showSecurityToast('🔒 Schema layer querying is restricted for your role.');
@@ -837,7 +937,7 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
       });
       delete activeRequestsRef.current[targetSessionId];
     }
-  }, [activeSessionId, activeLayer, sessions, loadingSessions, viewMode, createNewSession]);
+  }, [activeSessionId, activeLayer, sessions, loadingSessions, viewMode, createNewSession, canAccessChatbot, isChatDisabledBySecurity]);
 
   const value = useMemo(() => ({
     viewMode,
@@ -852,6 +952,11 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
     currentLayerSessions,
     sduiPrivileges,
     updateSduiPrivileges,
+    canAccessChatbot,
+    allowChatbotAccess: canAccessChatbot,
+    isChatDisabledBySecurity,
+    isChatDisabledDueToDevTools: isChatDisabledBySecurity,
+    resetSecurityLock,
     securityToast,
     showSecurityToast,
     isDevToolsOpen,
@@ -920,6 +1025,9 @@ export const ChatbotProvider = ({ children, initialLayer, schemaEnabled }) => {
     currentLayerSessions,
     sduiPrivileges,
     updateSduiPrivileges,
+    canAccessChatbot,
+    isChatDisabledBySecurity,
+    resetSecurityLock,
     securityToast,
     showSecurityToast,
     isDevToolsOpen,

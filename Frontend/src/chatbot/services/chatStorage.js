@@ -93,20 +93,27 @@ export const chatStorage = {
    * Get SDUI user privileges (table export, copy permissions, copy protection, devtools protection)
    */
   getSduiPrivileges: () => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEYS.SDUI_PRIVILEGES);
-      if (stored) {
-        return JSON.parse(stored);
-      }
-    } catch (e) {
-      console.warn('Failed to parse SDUI privileges from storage:', e);
-    }
-
     // Fallback to environment variables or defaults
     const parseEnvBool = (val, fallback) => {
       if (val === undefined || val === null || val === '') return fallback;
       return val === 'true' || val === '1';
     };
+
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.SDUI_PRIVILEGES);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === 'object') {
+          return {
+            canAccessChatbot: parseEnvBool(import.meta.env?.VITE_ALLOW_CHATBOT_ACCESS, true),
+            allowChatbotAccess: parseEnvBool(import.meta.env?.VITE_ALLOW_CHATBOT_ACCESS, true),
+            ...parsed,
+          };
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse SDUI privileges from storage:', e);
+    }
 
     return {
       allowTableExport: parseEnvBool(import.meta.env?.VITE_ALLOW_TABLE_EXPORT, false),
@@ -115,6 +122,8 @@ export const chatStorage = {
       allowCopyTable: parseEnvBool(import.meta.env?.VITE_ALLOW_COPY_TABLE, false),
       copyProtection: parseEnvBool(import.meta.env?.VITE_COPY_PROTECTION_ENABLED, true),
       devToolsProtection: parseEnvBool(import.meta.env?.VITE_DEVTOOLS_PROTECTION_ENABLED, true),
+      canAccessChatbot: parseEnvBool(import.meta.env?.VITE_ALLOW_CHATBOT_ACCESS, true),
+      allowChatbotAccess: parseEnvBool(import.meta.env?.VITE_ALLOW_CHATBOT_ACCESS, true),
       isSchemaEnabled: parseEnvBool(import.meta.env?.VITE_SCHEMA_CHAT_ENABLED, true),
       showAboutSection: parseEnvBool(import.meta.env?.VITE_SHOW_ABOUT_SECTION, true),
       role: 'Citizen Viewer',

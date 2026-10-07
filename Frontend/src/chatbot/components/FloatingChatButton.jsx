@@ -1,12 +1,32 @@
 import React from 'react';
-import { MessageSquare, X } from 'lucide-react';
+import { MessageSquare, X, Lock } from 'lucide-react';
 import { useChatbot } from '../hooks/useChatbot';
 import { VIEW_MODES } from '../constants/chatbotConstants';
 
 export const FloatingChatButton = () => {
-  const { viewMode, isChatOpen, openChat, closeChat, unreadCount } = useChatbot();
+  const {
+    viewMode,
+    isChatOpen,
+    openChat,
+    closeChat,
+    unreadCount,
+    canAccessChatbot,
+    isChatDisabledBySecurity,
+    showSecurityToast
+  } = useChatbot();
+
+  // Privilege enforcement: If user has no privilege, do not even show the chatbot toggle icon
+  if (canAccessChatbot === false) {
+    return null;
+  }
 
   const handleClick = () => {
+    // If DevTools protection warning triggered, disable chat option from UI
+    if (isChatDisabledBySecurity) {
+      showSecurityToast('🔒 Chat option is disabled due to active DevTools inspection.');
+      return;
+    }
+
     if (isChatOpen) {
       closeChat();
     } else {
@@ -16,12 +36,20 @@ export const FloatingChatButton = () => {
 
   return (
     <button
-      className="cb-floating-btn"
+      className={`cb-floating-btn ${isChatDisabledBySecurity ? 'cb-btn-disabled' : ''}`}
       onClick={handleClick}
-      aria-label={isChatOpen ? 'Close chat window' : 'Open chatbot assistant'}
-      title={isChatOpen ? 'Close Chat' : 'Need help? Chat with AI'}
+      aria-label={isChatDisabledBySecurity ? 'Chat disabled due to security policy' : (isChatOpen ? 'Close chat window' : 'Open chatbot assistant')}
+      title={isChatDisabledBySecurity ? 'Chat disabled: DevTools inspection active' : (isChatOpen ? 'Close Chat' : 'Need help? Chat with AI')}
+      style={isChatDisabledBySecurity ? {
+        opacity: 0.55,
+        cursor: 'not-allowed',
+        background: 'linear-gradient(135deg, #475569, #334155)',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)'
+      } : {}}
     >
-      {isChatOpen ? (
+      {isChatDisabledBySecurity ? (
+        <Lock size={22} color="#fca5a5" />
+      ) : isChatOpen ? (
         <X size={26} />
       ) : (
         <>

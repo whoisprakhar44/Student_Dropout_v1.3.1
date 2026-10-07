@@ -34,6 +34,8 @@ export const DEFAULT_SDUI_PRIVILEGES = {
   allowCopyTable: false,
   copyProtection: true,
   devToolsProtection: true,
+  canAccessChatbot: true,
+  allowChatbotAccess: true,
   isSchemaEnabled: true,
   showAboutSection: true,
   role: 'Citizen Viewer',

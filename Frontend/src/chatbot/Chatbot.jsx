@@ -8,21 +8,31 @@ import { ShieldAlert, Lock } from 'lucide-react';
 import './styles/chatbot.css';
 
 export const Chatbot = () => {
-  const { viewMode, sduiPrivileges, securityToast, isDevToolsOpen } = useChatbot();
+  const {
+    viewMode,
+    sduiPrivileges,
+    securityToast,
+    isDevToolsOpen,
+    canAccessChatbot,
+    isChatDisabledBySecurity
+  } = useChatbot();
 
   const isCopyProtected = sduiPrivileges?.copyProtection ?? true;
   const isDevToolsProtected = sduiPrivileges?.devToolsProtection ?? true;
 
+  // If user has NO chatbot privilege, do NOT even render chat windows or respond
+  const canShowChat = canAccessChatbot && !isChatDisabledBySecurity;
+
   return (
     <div className={`cb-root ${isCopyProtected ? 'cb-copy-protected' : ''}`}>
-      {/* Floating Action Button always present at bottom-right */}
+      {/* Floating Action Button (handles its own privilege check to hide if no privilege) */}
       <FloatingChatButton />
 
-      {/* Render Mini Chat Window */}
-      {viewMode === VIEW_MODES.MINI && <MiniChatWindow />}
+      {/* Render Mini Chat Window only if user has privilege and not disabled by security */}
+      {canShowChat && viewMode === VIEW_MODES.MINI && <MiniChatWindow />}
 
-      {/* Render Full Screen Overlay Mode */}
-      {viewMode === VIEW_MODES.FULLSCREEN && <FullScreenChat />}
+      {/* Render Full Screen Overlay Mode only if user has privilege and not disabled by security */}
+      {canShowChat && viewMode === VIEW_MODES.FULLSCREEN && <FullScreenChat />}
 
       {/* Security Toast Notification */}
       {securityToast && (
@@ -33,10 +43,10 @@ export const Chatbot = () => {
       )}
 
       {/* DevTools Open Warning Watermark */}
-      {isDevToolsOpen && isDevToolsProtected && viewMode !== VIEW_MODES.CLOSED && (
+      {(isDevToolsOpen || isChatDisabledBySecurity) && isDevToolsProtected && viewMode !== VIEW_MODES.CLOSED && (
         <div className="cb-devtools-warning" role="status">
           <ShieldAlert size={14} />
-          <span>Security Notice: DevTools inspection active. Copy & export restricted.</span>
+          <span>Security Notice: DevTools inspection active. Chat option disabled from UI.</span>
         </div>
       )}
     </div>

@@ -150,7 +150,18 @@ export const ChatInput = ({ onSend, disabled = false, suggestionLayout, suggesti
   }, [handleSubmit]);
 
   const isUserActive = chatbotCtx?.isUserActive ?? true;
-  const isInputDisabled = disabled || isQueryRunning || !isUserActive;
+  const canAccessChatbot = chatbotCtx?.canAccessChatbot ?? true;
+  const isChatDisabledBySecurity = chatbotCtx?.isChatDisabledBySecurity ?? false;
+  const isInputDisabled = disabled || isQueryRunning || !isUserActive || !canAccessChatbot || isChatDisabledBySecurity;
+
+  const getPlaceholder = () => {
+    if (!isUserActive) return '🔒 Account suspended by administrator. Access restricted.';
+    if (!canAccessChatbot) return '🔒 Chatbot access privilege is not granted.';
+    if (isChatDisabledBySecurity) return '🔒 Chat disabled: Developer tools security violation detected.';
+    if (isListening) return 'Listening to speech...';
+    if (isQueryRunning) return 'Processing query...';
+    return 'Type a message...';
+  };
 
   return (
     <div className="cb-input-wrapper-container">
@@ -173,7 +184,7 @@ export const ChatInput = ({ onSend, disabled = false, suggestionLayout, suggesti
             value={text}
             onChange={handleTextChange}
             onKeyDown={handleKeyDown}
-            placeholder={!isUserActive ? '🔒 Account suspended by administrator. Access restricted.' : (isListening ? 'Listening to speech...' : (isQueryRunning ? 'Processing query...' : 'Type a message...'))}
+            placeholder={getPlaceholder()}
             disabled={isInputDisabled}
             rows={1}
             aria-label="Chat input field"
