@@ -122,8 +122,9 @@ function PortalDashboard({ activeTab, setActiveTab }) {
     <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Top Banner */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.4) 0%, rgba(15, 23, 42, 0.8) 100%)',
-        border: '1px solid rgba(59, 130, 246, 0.25)',
+        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+        border: '1px solid #cbd5e1',
+        borderTop: '3px solid #0b2545',
         borderRadius: '16px',
         padding: '24px 28px',
         display: 'flex',
@@ -131,14 +132,15 @@ function PortalDashboard({ activeTab, setActiveTab }) {
         justifyContent: 'space-between',
         flexWrap: 'wrap',
         gap: '16px',
-        boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)'
+        boxShadow: '0 4px 20px rgba(11, 37, 69, 0.06)'
       }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
             <span style={{
-              background: 'rgba(59, 130, 246, 0.2)',
-              color: '#60a5fa',
-              padding: '2px 8px',
+              background: '#eff6ff',
+              color: '#1d4ed8',
+              border: '1px solid #bfdbfe',
+              padding: '2px 9px',
               borderRadius: '999px',
               fontSize: '11px',
               fontWeight: 700,
@@ -147,14 +149,14 @@ function PortalDashboard({ activeTab, setActiveTab }) {
             }}>
               SDUI Controlled Chatbot
             </span>
-            <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>•</span>
-            <span style={{ color: '#10b981', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ color: '#94a3b8', fontSize: '13px' }}>•</span>
+            <span style={{ color: '#047857', fontSize: '12px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '5px' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
               Active Layer: {activeLayer.toUpperCase()}
             </span>
-            <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>•</span>
+            <span style={{ color: '#94a3b8', fontSize: '13px' }}>•</span>
             <span style={{
-              color: sduiPrivileges?.canAccessChatbot !== false ? '#34d399' : '#f87171',
+              color: sduiPrivileges?.canAccessChatbot !== false ? '#047857' : '#b91c1c',
               fontSize: '12px',
               fontWeight: 600,
               display: 'flex',
@@ -164,9 +166,9 @@ function PortalDashboard({ activeTab, setActiveTab }) {
               <MessageSquare size={12} />
               Chatbot Privilege: {sduiPrivileges?.canAccessChatbot !== false ? 'GRANTED' : 'REVOKED'}
             </span>
-            <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>•</span>
+            <span style={{ color: '#94a3b8', fontSize: '13px' }}>•</span>
             <span style={{
-              color: sduiPrivileges?.copyProtection ? '#f87171' : '#a3e635',
+              color: sduiPrivileges?.copyProtection ? '#b91c1c' : '#047857',
               fontSize: '12px',
               fontWeight: 600,
               display: 'flex',
@@ -178,16 +180,17 @@ function PortalDashboard({ activeTab, setActiveTab }) {
             </span>
             {isChatDisabledBySecurity && (
               <>
-                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>•</span>
+                <span style={{ color: '#94a3b8', fontSize: '13px' }}>•</span>
                 <span style={{
-                  color: '#ef4444',
+                  color: '#b91c1c',
                   fontSize: '12px',
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px',
-                  background: 'rgba(239, 68, 68, 0.15)',
-                  padding: '1px 6px',
+                  background: '#fee2e2',
+                  border: '1px solid #fca5a5',
+                  padding: '1px 7px',
                   borderRadius: '6px'
                 }}>
                   <ShieldAlert size={12} />
@@ -196,10 +199,10 @@ function PortalDashboard({ activeTab, setActiveTab }) {
               </>
             )}
           </div>
-          <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: 'var(--text-color)' }}>
+          <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#0b2545' }}>
             Chatbot SDUI & Privileges Control Center
           </h1>
-          <p style={{ margin: '6px 0 0 0', color: 'var(--text-muted)', fontSize: '14px' }}>
+          <p style={{ margin: '6px 0 0 0', color: '#475569', fontSize: '14px', lineHeight: '1.5' }}>
             Manage schema tab visibility, table download privileges, chatbot icon visibility, and security rules dynamically.
           </p>
         </div>
@@ -221,9 +224,9 @@ function PortalDashboard({ activeTab, setActiveTab }) {
             disabled={canAccessChatbot === false || isChatDisabledBySecurity}
             style={{
               padding: '10px 18px',
-              background: activeLayer === CHAT_LAYERS.CURATED ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.08)',
-              color: '#fff',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
+              background: activeLayer === CHAT_LAYERS.CURATED ? '#0b2545' : '#ffffff',
+              color: activeLayer === CHAT_LAYERS.CURATED ? '#ffffff' : '#0b2545',
+              border: '1px solid #0b2545',
               borderRadius: '10px',
               cursor: (canAccessChatbot === false || isChatDisabledBySecurity) ? 'not-allowed' : 'pointer',
               fontWeight: 600,
@@ -231,6 +234,7 @@ function PortalDashboard({ activeTab, setActiveTab }) {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
+              boxShadow: activeLayer === CHAT_LAYERS.CURATED ? '0 2px 8px rgba(11, 37, 69, 0.25)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
               opacity: (canAccessChatbot === false || isChatDisabledBySecurity) ? 0.5 : 1,
               transition: 'all 0.2s ease'
             }}
@@ -256,9 +260,9 @@ function PortalDashboard({ activeTab, setActiveTab }) {
             disabled={canAccessChatbot === false || isChatDisabledBySecurity}
             style={{
               padding: '10px 18px',
-              background: activeLayer === CHAT_LAYERS.SCHEMA ? 'linear-gradient(135deg, #7c3aed, #9333ea)' : 'rgba(139, 92, 246, 0.15)',
-              color: activeLayer === CHAT_LAYERS.SCHEMA ? '#fff' : '#c084fc',
-              border: '1px solid rgba(139, 92, 246, 0.4)',
+              background: activeLayer === CHAT_LAYERS.SCHEMA ? 'linear-gradient(135deg, #7c3aed, #9333ea)' : '#f5f3ff',
+              color: activeLayer === CHAT_LAYERS.SCHEMA ? '#ffffff' : '#6d28d9',
+              border: '1px solid #8b5cf6',
               borderRadius: '10px',
               cursor: (canAccessChatbot === false || isChatDisabledBySecurity) ? 'not-allowed' : 'pointer',
               fontWeight: 600,
@@ -266,6 +270,7 @@ function PortalDashboard({ activeTab, setActiveTab }) {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
+              boxShadow: activeLayer === CHAT_LAYERS.SCHEMA ? '0 2px 8px rgba(124, 58, 237, 0.25)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
               opacity: (canAccessChatbot === false || isChatDisabledBySecurity) ? 0.5 : 1,
               transition: 'all 0.2s ease'
             }}
@@ -279,8 +284,8 @@ function PortalDashboard({ activeTab, setActiveTab }) {
       {/* DevTools Security Violation Alert Banner */}
       {isChatDisabledBySecurity && (
         <div style={{
-          background: 'rgba(239, 68, 68, 0.12)',
-          border: '1px solid rgba(239, 68, 68, 0.45)',
+          background: 'linear-gradient(135deg, #fff1f2 0%, #fee2e2 100%)',
+          border: '1px solid #f87171',
           borderRadius: '14px',
           padding: '16px 20px',
           display: 'flex',
@@ -288,26 +293,27 @@ function PortalDashboard({ activeTab, setActiveTab }) {
           justifyContent: 'space-between',
           flexWrap: 'wrap',
           gap: '12px',
-          boxShadow: '0 4px 20px rgba(239, 68, 68, 0.15)'
+          boxShadow: '0 4px 16px rgba(239, 68, 68, 0.12)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              width: '36px',
-              height: '36px',
+              width: '38px',
+              height: '38px',
               borderRadius: '10px',
-              background: 'rgba(239, 68, 68, 0.2)',
+              background: '#fee2e2',
+              border: '1px solid #fca5a5',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#f87171'
+              color: '#b91c1c'
             }}>
               <ShieldAlert size={20} />
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '14px', color: '#fca5a5' }}>
+              <div style={{ fontWeight: 700, fontSize: '14px', color: '#991b1b' }}>
                 DevTools Inspection Active — Chatbot Interface Disabled
               </div>
-              <div style={{ fontSize: '12px', color: '#cbd5e1', marginTop: '2px' }}>
+              <div style={{ fontSize: '13px', color: '#7f1d1d', marginTop: '2px', lineHeight: '1.4' }}>
                 Developer tools or restricted shortcut keys were triggered while DevTools protection was active. The chatbot has been locked out from UI.
               </div>
             </div>
@@ -318,10 +324,10 @@ function PortalDashboard({ activeTab, setActiveTab }) {
               showSecurityToast('🔓 Security lock reset by administrator.');
             }}
             style={{
-              padding: '8px 16px',
+              padding: '9px 18px',
               borderRadius: '8px',
-              border: 'none',
-              background: '#ef4444',
+              border: '1px solid #b91c1c',
+              background: '#dc2626',
               color: '#ffffff',
               fontWeight: 600,
               fontSize: '12px',
@@ -329,7 +335,7 @@ function PortalDashboard({ activeTab, setActiveTab }) {
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.4)',
+              boxShadow: '0 2px 8px rgba(220, 38, 38, 0.3)',
               transition: 'all 0.2s ease'
             }}
           >
@@ -387,8 +393,8 @@ function PortalDashboard({ activeTab, setActiveTab }) {
                 borderRadius: '6px',
                 fontSize: '12px',
                 fontWeight: 600,
-                border: 'none',
-                background: activeLayer === CHAT_LAYERS.CURATED ? 'var(--primary-color)' : 'rgba(255, 255, 255, 0.06)',
+                border: activeLayer === CHAT_LAYERS.CURATED ? '1px solid #0b2545' : '1px solid var(--border-color)',
+                background: activeLayer === CHAT_LAYERS.CURATED ? '#0b2545' : '#f8fafc',
                 color: activeLayer === CHAT_LAYERS.CURATED ? '#fff' : 'var(--text-color)',
                 cursor: 'pointer'
               }}
@@ -417,11 +423,11 @@ function PortalDashboard({ activeTab, setActiveTab }) {
                 <span style={{
                   fontSize: '9px',
                   fontWeight: 700,
-                  padding: '1px 5px',
+                  padding: '2px 7px',
                   borderRadius: '999px',
-                  background: 'rgba(139, 92, 246, 0.25)',
-                  color: '#c084fc',
-                  border: '1px solid rgba(139, 92, 246, 0.4)'
+                  background: '#f3e8ff',
+                  color: '#7e22ce',
+                  border: '1px solid #d8b4fe'
                 }}>
                   SDUI Controlled
                 </span>
@@ -448,7 +454,7 @@ function PortalDashboard({ activeTab, setActiveTab }) {
           </p>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '12px' }}>
             <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-              Saved Conversations: <strong style={{ color: '#c084fc' }}>{schemaSessionsCount}</strong>
+              Saved Conversations: <strong style={{ color: '#7e22ce' }}>{schemaSessionsCount}</strong>
             </span>
             <button
               onClick={() => setActiveLayer(CHAT_LAYERS.SCHEMA)}
@@ -457,8 +463,8 @@ function PortalDashboard({ activeTab, setActiveTab }) {
                 borderRadius: '6px',
                 fontSize: '12px',
                 fontWeight: 600,
-                border: 'none',
-                background: activeLayer === CHAT_LAYERS.SCHEMA ? 'linear-gradient(135deg, #7c3aed, #9333ea)' : 'rgba(255, 255, 255, 0.06)',
+                border: activeLayer === CHAT_LAYERS.SCHEMA ? '1px solid #7c3aed' : '1px solid var(--border-color)',
+                background: activeLayer === CHAT_LAYERS.SCHEMA ? 'linear-gradient(135deg, #7c3aed, #9333ea)' : '#f8fafc',
                 color: activeLayer === CHAT_LAYERS.SCHEMA ? '#fff' : 'var(--text-color)',
                 cursor: 'pointer'
               }}
@@ -565,12 +571,13 @@ function PortalDashboard({ activeTab, setActiveTab }) {
                 showSecurityToast('✅ Granted all privileges (including Chatbot toggle & access).');
               }}
               style={{
-                padding: '6px 12px',
+                padding: '6px 14px',
                 borderRadius: '6px',
-                border: '1px solid var(--border-color)',
-                background: 'rgba(255, 255, 255, 0.05)',
-                color: 'var(--text-color)',
+                border: '1px solid #cbd5e1',
+                background: '#f8fafc',
+                color: '#0f172a',
                 fontSize: '12px',
+                fontWeight: 600,
                 cursor: 'pointer'
               }}
             >
@@ -591,12 +598,13 @@ function PortalDashboard({ activeTab, setActiveTab }) {
                 showSecurityToast('🔒 Restricted all: Chatbot toggle hidden & queries blocked.');
               }}
               style={{
-                padding: '6px 12px',
+                padding: '6px 14px',
                 borderRadius: '6px',
-                border: '1px solid var(--border-color)',
-                background: 'rgba(239, 68, 68, 0.1)',
-                color: '#f87171',
+                border: '1px solid #fca5a5',
+                background: '#fee2e2',
+                color: '#b91c1c',
                 fontSize: '12px',
+                fontWeight: 600,
                 cursor: 'pointer'
               }}
             >
@@ -894,22 +902,22 @@ function PortalDashboard({ activeTab, setActiveTab }) {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
-            <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+            <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
               <strong style={{ color: 'var(--primary-color)' }}>1. Curated vs Schema Layer Tabs:</strong>
               <div style={{ color: 'var(--text-muted)', marginTop: '2px' }}>
                 Positioned cleanly above the chat history search & New Chat button on the left sidebar.
               </div>
             </div>
 
-            <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-              <strong style={{ color: '#10b981' }}>2. Table Export & Copy Gating:</strong>
+            <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+              <strong style={{ color: '#047857' }}>2. Table Export & Copy Gating:</strong>
               <div style={{ color: 'var(--text-muted)', marginTop: '2px' }}>
                 Download CSV, Excel, and Copy buttons below tables only appear if the user role has export permissions in SDUI configuration.
               </div>
             </div>
 
-            <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
-              <strong style={{ color: '#f87171' }}>3. Content Copy & DevTools Protection:</strong>
+            <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
+              <strong style={{ color: '#b91c1c' }}>3. Content Copy & DevTools Protection:</strong>
               <div style={{ color: 'var(--text-muted)', marginTop: '2px' }}>
                 Prevents text selection, intercepts copy shortcuts (Ctrl+C), context menus, F12, and displays screenshot & security warnings.
               </div>
@@ -929,7 +937,7 @@ function PortalApp() {
     <ChatbotProvider>
       <div style={{
         minHeight: '100vh',
-        background: 'radial-gradient(1000px circle at 50% -250px, rgba(59, 130, 246, 0.2), transparent 60%), linear-gradient(180deg, var(--background-color), #040913)',
+        background: 'radial-gradient(1200px circle at 50% -200px, rgba(59, 130, 246, 0.05), transparent 70%), #f8fafc',
         color: 'var(--text-color)',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         padding: '24px 32px',
@@ -965,8 +973,8 @@ function PortalApp() {
               P
             </div>
             <div>
-              <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>Production Enterprise Portal</h2>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>AP Citizen 360 Knowledge & Analytics</span>
+              <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#0b2545' }}>Production Enterprise Portal</h2>
+              <span style={{ fontSize: '12px', color: '#475569' }}>AP Citizen 360 Knowledge & Analytics</span>
             </div>
           </div>
 
@@ -976,24 +984,25 @@ function PortalApp() {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              padding: '6px 12px',
+              padding: '6px 14px',
               borderRadius: '8px',
-              background: 'rgba(30, 58, 138, 0.25)',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
+              background: '#eff6ff',
+              border: '1px solid #bfdbfe',
               fontSize: '12px',
-              color: '#93c5fd'
+              color: '#1e40af',
+              fontWeight: 500
             }}>
-              <Clock size={13} color="#60a5fa" />
-              <span>Session: <strong>{remainingFormatted}</strong></span>
+              <Clock size={13} color="#2563eb" />
+              <span>Session: <strong style={{ color: '#1e3a8a', fontWeight: 700 }}>{remainingFormatted}</strong></span>
               <button
                 onClick={lockApp}
                 title="Lock Portal (Requires Access Key)"
                 style={{
-                  background: 'rgba(239, 68, 68, 0.2)',
-                  border: '1px solid rgba(239, 68, 68, 0.4)',
-                  color: '#fca5a5',
+                  background: '#fee2e2',
+                  border: '1px solid #fca5a5',
+                  color: '#b91c1c',
                   borderRadius: '5px',
-                  padding: '2px 7px',
+                  padding: '3px 8px',
                   fontSize: '11px',
                   fontWeight: 600,
                   cursor: 'pointer',
@@ -1009,26 +1018,30 @@ function PortalApp() {
             </div>
 
             <nav style={{ display: 'flex', gap: '8px' }}>
-              {['dashboard', 'analytics', 'settings'].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border-color)',
-                    background: activeTab === tab ? 'var(--primary-color)' : 'var(--surface-color)',
-                    color: activeTab === tab ? '#fff' : 'var(--text-muted)',
-                    cursor: 'pointer',
-                    fontWeight: 600,
-                    fontSize: '13px',
-                    textTransform: 'capitalize',
-                    transition: 'all 0.2s ease'
-                  }}
-                >
-                  {tab}
-                </button>
-              ))}
+              {['dashboard', 'analytics', 'settings'].map(tab => {
+                const isActive = activeTab === tab;
+                return (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    style={{
+                      padding: '8px 18px',
+                      borderRadius: '8px',
+                      border: isActive ? '1px solid #0b2545' : '1px solid #cbd5e1',
+                      background: isActive ? '#0b2545' : '#ffffff',
+                      color: isActive ? '#ffffff' : '#1e293b',
+                      cursor: 'pointer',
+                      fontWeight: 600,
+                      fontSize: '13px',
+                      textTransform: 'capitalize',
+                      boxShadow: isActive ? '0 2px 8px rgba(11, 37, 69, 0.25)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {tab}
+                  </button>
+                );
+              })}
             </nav>
           </div>
         </header>
