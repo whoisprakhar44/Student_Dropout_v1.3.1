@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -251,7 +251,7 @@
       <circle cx="12" cy="12" r="5"/>
       <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
     </svg>
-    <span id="themeLabel">Light Mode</span>
+    <span id="themeLabel">Dark Mode</span>
   </button>
 
   <div class="login-container">
@@ -327,7 +327,7 @@
     const themeLabel = document.getElementById('themeLabel');
     const htmlEl = document.documentElement;
 
-    const savedTheme = localStorage.getItem('rbac_dashboard_theme') || 'dark';
+    const savedTheme = localStorage.getItem('rbac_dashboard_theme') || 'light';
     htmlEl.setAttribute('data-theme', savedTheme);
     themeLabel.textContent = savedTheme === 'dark' ? 'Light Mode' : 'Dark Mode';
 

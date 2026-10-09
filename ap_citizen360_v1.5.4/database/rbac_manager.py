@@ -29,6 +29,13 @@ _lock = threading.Lock()
 # Standard Privileges Specification
 CORE_PRIVILEGES = [
     {
+        "key": "allow_chatbot_access",
+        "name": "Show Chatbot",
+        "category": "Interface Access",
+        "description": "Controls visibility of the Chatbot launcher toggle icon and access to the conversational AI query interface.",
+        "default_enabled": 1,
+    },
+    {
         "key": "schema_layer",
         "name": "Schema Layer Access",
         "category": "Data Access",
@@ -87,6 +94,7 @@ DEFAULT_ROLES = [
         "is_system": 1,
         "is_active": 1,
         "privileges": {
+            "allow_chatbot_access": 1,
             "schema_layer": 1,
             "about_section": 1,
             "allow_download": 1,
@@ -102,6 +110,7 @@ DEFAULT_ROLES = [
         "is_system": 0,
         "is_active": 1,
         "privileges": {
+            "allow_chatbot_access": 1,
             "schema_layer": 1,
             "about_section": 1,
             "allow_download": 1,
@@ -117,6 +126,7 @@ DEFAULT_ROLES = [
         "is_system": 0,
         "is_active": 1,
         "privileges": {
+            "allow_chatbot_access": 1,
             "schema_layer": 0,
             "about_section": 1,
             "allow_download": 1,
@@ -132,6 +142,7 @@ DEFAULT_ROLES = [
         "is_system": 0,
         "is_active": 1,
         "privileges": {
+            "allow_chatbot_access": 1,
             "schema_layer": 0,
             "about_section": 0,
             "allow_download": 0,
@@ -147,6 +158,7 @@ DEFAULT_ROLES = [
         "is_system": 0,
         "is_active": 1,
         "privileges": {
+            "allow_chatbot_access": 1,
             "schema_layer": 0,
             "about_section": 0,
             "allow_download": 0,
@@ -255,7 +267,19 @@ class RBACManager:
                 if "token_data" not in u_cols:
                     cursor.execute("ALTER TABLE users ADD COLUMN token_data TEXT")
 
-                # 6. Audit Logs Table
+                # 6. User Privileges Table (Per-user privilege overrides)
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS user_privileges (
+                        username TEXT NOT NULL REFERENCES users(username) ON DELETE CASCADE,
+                        privilege_key TEXT NOT NULL REFERENCES universal_controls(privilege_key) ON DELETE CASCADE,
+                        is_enabled INTEGER NOT NULL,
+                        updated_at TEXT NOT NULL,
+                        updated_by TEXT DEFAULT 'admin',
+                        PRIMARY KEY (username, privilege_key)
+                    );
+                """)
+
+                # 7. Audit Logs Table
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS audit_logs (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -435,8 +459,24 @@ class RBACManager:
             )
             return [dict(row) for row in cursor.fetchall()]
 
+    @staticmethod
+    def _normalize_privilege_key(privilege_key: str) -> str:
+        k = (privilege_key or "").strip()
+        if k in (
+            "allowChatbotAccess",
+            "canAccessChatbot",
+            "allow_chatbot",
+            "showChatbot",
+            "show_chatbot",
+            "chatbot_access",
+            "allow_chatbot_access",
+        ):
+            return "allow_chatbot_access"
+        return k
+
     def get_universal_status(self, privilege_key: str) -> bool:
         """Return True if universal control allows this privilege, False if globally restricted."""
+        privilege_key = self._normalize_privilege_key(privilege_key)
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT is_enabled FROM universal_controls WHERE privilege_key = ?", (privilege_key,))
@@ -447,6 +487,7 @@ class RBACManager:
 
     def toggle_universal_control(self, privilege_key: str, is_enabled: bool, admin_username: str = "admin") -> bool:
         """Toggle a universal master control on or off and log the audit trail."""
+        privilege_key = self._normalize_privilege_key(privilege_key)
         now = datetime.now(timezone.utc).isoformat()
         with _lock:
             with self._get_connection() as conn:
@@ -663,6 +704,7 @@ class RBACManager:
         self, role_id: int, privilege_key: str, is_enabled: bool, admin_username: str = "admin"
     ) -> bool:
         """Toggle an individual privilege in a role."""
+        privilege_key = self._normalize_privilege_key(privilege_key)
         with _lock:
             with self._get_connection() as conn:
                 cursor = conn.cursor()
@@ -760,7 +802,8 @@ class RBACManager:
                 user_dict["token_role"] = tp.get("role") or tp.get("userRole") or ""
                 user_dict["cfms_id"] = tp.get("cfms_id") or ""
 
-                # Compute effective privileges
+                # Compute effective privileges and per-user overrides
+                user_dict["privilege_overrides"] = self.get_user_privilege_overrides(user_dict["username"])
                 user_dict["effective_privileges"] = self.get_user_effective_privileges(user_dict["username"])
                 users_list.append(user_dict)
             return users_list
@@ -798,6 +841,8 @@ class RBACManager:
             user_dict["dept_id"] = tp.get("dept_id") or tp.get("deptId") or tp.get("department") or ""
             user_dict["token_role"] = tp.get("role") or tp.get("userRole") or ""
             user_dict["cfms_id"] = tp.get("cfms_id") or ""
+            user_dict["privilege_overrides"] = self.get_user_privilege_overrides(username)
+            user_dict["effective_privileges"] = self.get_user_effective_privileges(username)
             return user_dict
 
     def create_or_update_user(
@@ -1001,6 +1046,79 @@ class RBACManager:
         )
         return True, f"User '{username}' status updated."
 
+    def get_user_privilege_overrides(self, username: str) -> Dict[str, bool]:
+        """Fetch explicit per-user privilege overrides."""
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT privilege_key, is_enabled FROM user_privileges WHERE username = ?",
+                (username,),
+            )
+            return {row["privilege_key"]: bool(row["is_enabled"]) for row in cursor.fetchall()}
+
+    def set_user_privilege_override(
+        self,
+        username: str,
+        privilege_key: str,
+        is_enabled: Optional[bool],
+        admin_username: str = "admin",
+    ) -> Tuple[bool, str]:
+        """
+        Set or clear a per-user privilege override.
+        If is_enabled is None: removes the override so the user inherits from their assigned role.
+        If is_enabled is a bool: upserts the override (1 or 0).
+        """
+        privilege_key = self._normalize_privilege_key(privilege_key)
+        now = datetime.now(timezone.utc).isoformat()
+        with _lock:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT username FROM users WHERE username = ?", (username,))
+                if not cursor.fetchone():
+                    self.auto_register_or_update_user(username)
+
+                if is_enabled is None:
+                    cursor.execute(
+                        "DELETE FROM user_privileges WHERE username = ? AND privilege_key = ?",
+                        (username, privilege_key),
+                    )
+                    action = "REMOVE_USER_PRIVILEGE_OVERRIDE"
+                    detail = f"Cleared privilege override for '{privilege_key}' on user '{username}' (now inherits from role)"
+                else:
+                    cursor.execute(
+                        """
+                        INSERT INTO user_privileges (username, privilege_key, is_enabled, updated_at, updated_by)
+                        VALUES (?, ?, ?, ?, ?)
+                        ON CONFLICT(username, privilege_key) DO UPDATE SET
+                            is_enabled = excluded.is_enabled,
+                            updated_at = excluded.updated_at,
+                            updated_by = excluded.updated_by
+                        """,
+                        (username, privilege_key, 1 if is_enabled else 0, now, admin_username),
+                    )
+                    action = "SET_USER_PRIVILEGE_OVERRIDE"
+                    detail = f"Set user '{username}' privilege override '{privilege_key}' to {is_enabled}"
+                conn.commit()
+
+        self.log_audit_event(
+            admin_username,
+            action,
+            "user_privileges",
+            f"{username}:{privilege_key}",
+            detail,
+        )
+        return True, detail
+
+    def toggle_user_privilege(
+        self,
+        username: str,
+        privilege_key: str,
+        is_enabled: Optional[bool],
+        admin_username: str = "admin",
+    ) -> Tuple[bool, str]:
+        """Alias for set_user_privilege_override."""
+        return self.set_user_privilege_override(username, privilege_key, is_enabled, admin_username)
+
     def sync_users_from_chat_history(
         self, chat_history_db_path: Path, default_role_name: str = "Department Officer"
     ) -> int:
@@ -1063,13 +1181,15 @@ class RBACManager:
           1. Universal Control (Master Kill-Switch): If disabled universally, ALWAYS False.
           2. User active state: If user is suspended, ALWAYS False.
           3. Role active state: If role is suspended, ALWAYS False.
-          4. Role privilege mapping: Returns mapped value.
+          4. User privilege override: If set in user_privileges, overrides role.
+          5. Role privilege mapping: Returns mapped role value.
         """
+        privilege_key = self._normalize_privilege_key(privilege_key)
         # Step 1: Universal Control Check
         if not self.get_universal_status(privilege_key):
             return False
 
-        # Step 2 & 3 & 4: User & Role Resolution
+        # Step 2 & 3 & 4 & 5: User & Role Resolution
         with self._get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(
@@ -1077,13 +1197,15 @@ class RBACManager:
                 SELECT 
                     u.is_active AS user_active,
                     r.is_active AS role_active,
-                    rp.is_enabled AS priv_enabled
+                    up.is_enabled AS user_override_enabled,
+                    rp.is_enabled AS role_priv_enabled
                 FROM users u
                 JOIN roles r ON r.id = u.role_id
+                LEFT JOIN user_privileges up ON up.username = u.username AND up.privilege_key = ?
                 LEFT JOIN role_privileges rp ON rp.role_id = r.id AND rp.privilege_key = ?
                 WHERE u.username = ?
                 """,
-                (privilege_key, username),
+                (privilege_key, privilege_key, username),
             )
             row = cursor.fetchone()
             if not row:
@@ -1094,13 +1216,15 @@ class RBACManager:
                     SELECT 
                         u.is_active AS user_active,
                         r.is_active AS role_active,
-                        rp.is_enabled AS priv_enabled
+                        up.is_enabled AS user_override_enabled,
+                        rp.is_enabled AS role_priv_enabled
                     FROM users u
                     JOIN roles r ON r.id = u.role_id
+                    LEFT JOIN user_privileges up ON up.username = u.username AND up.privilege_key = ?
                     LEFT JOIN role_privileges rp ON rp.role_id = r.id AND rp.privilege_key = ?
                     WHERE u.username = ?
                     """,
-                    (privilege_key, username),
+                    (privilege_key, privilege_key, username),
                 )
                 row = cursor.fetchone()
                 if not row:
@@ -1109,7 +1233,11 @@ class RBACManager:
             if not row["user_active"] or not row["role_active"]:
                 return False
 
-            return bool(row["priv_enabled"])
+            # If user has an explicit override set in user_privileges, use it!
+            if row["user_override_enabled"] is not None:
+                return bool(row["user_override_enabled"])
+
+            return bool(row["role_priv_enabled"])
 
     def get_user_effective_privileges(self, username: str) -> Dict[str, bool]:
         """Compute all effective privileges for a user across all core privileges."""
@@ -1155,6 +1283,9 @@ class RBACManager:
             "role": role_name,
             "is_active": 1 if is_active else 0,
             # SDUI Gating Flags matching Frontend & User specifications:
+            "allowChatbotAccess": effective.get("allow_chatbot_access", True),
+            "canAccessChatbot": effective.get("allow_chatbot_access", True),
+            "showChatbot": effective.get("allow_chatbot_access", True),
             "isSchemaEnabled": effective.get("schema_layer", False),
             "showAboutSection": effective.get("about_section", False),
             "allowTableExport": effective.get("allow_download", False),
@@ -1165,6 +1296,7 @@ class RBACManager:
             "devToolsProtection": effective.get("devtools_protection", True),
             "piiAccess": effective.get("pii_access", False),
             "token_props": token_data_dict,
+            "user_overrides": user_info.get("privilege_overrides", {}) if user_info else {},
             "universal_overrides": universal_states,
         }
 

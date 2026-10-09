@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -848,7 +848,7 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
         </svg>
-        <span id="themeToggleText">Light</span>
+        <span id="themeToggleText">Dark</span>
       </button>
 
       <button class="nav-btn" id="changePasswordBtn" title="Change Admin Password">
@@ -1267,6 +1267,35 @@
     </div>
   </div>
 
+  <!-- 6. User Privileges & Overrides Modal -->
+  <div class="modal-overlay" id="userPrivilegesModal">
+    <div class="modal-card" style="max-width: 780px;">
+      <div class="modal-header">
+        <div>
+          <h3 id="userPrivModalTitle" style="color: var(--text-color);">User Privileges & Governance</h3>
+          <p id="userPrivModalSubtitle" style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+            Configure per-user privilege overrides for @<span id="userPrivModalUsername"></span>
+          </p>
+        </div>
+        <button class="modal-close" onclick="closeModal('userPrivilegesModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: rgba(217, 119, 6, 0.1); border: 1px solid rgba(217, 119, 6, 0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 12px; color: var(--text-color);">
+          <strong>3-Tier Governance Hierarchy:</strong> 
+          1. Universal Kill-Switch always enforces global lock. 
+          2. Explicit User Override overrides Role. 
+          3. Default inherits from assigned role (<span id="userPrivModalRoleName" style="color: var(--ap-gold-accent); font-weight: 600;"></span>).
+        </div>
+        <div id="userPrivTableWrap" style="background: var(--surface-hover); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
+          <!-- Privilege table with selectors rendered via JS -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="nav-btn" onclick="closeModal('userPrivilegesModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
 
@@ -1289,7 +1318,7 @@
     const BASE_PATH = getBasePath();
 
     // State Store
-    let currentTheme = localStorage.getItem('rbac_dashboard_theme') || 'dark';
+    let currentTheme = localStorage.getItem('rbac_dashboard_theme') || 'light';
     let appRoles = [];
     let appUniversalControls = [];
     let appUsers = [];
@@ -1297,6 +1326,7 @@
 
     // Core Privileges Definition
     const CORE_PRIVILEGES_META = [
+      { key: "allow_chatbot_access", label: "Show Chatbot", desc: "Controls visibility of the Chatbot launcher toggle icon and conversational AI access." },
       { key: "schema_layer", label: "Schema Layer Access", desc: "Allows querying schema metadata & DDL definitions." },
       { key: "about_section", label: "About & Data Dictionary", desc: "Access to canonical schema metadata & about documentation." },
       { key: "allow_download", label: "Data Export (CSV/Excel)", desc: "Download query results as CSV or Excel files." },
@@ -1815,6 +1845,134 @@
       });
     }
 
+    // User Privileges Management
+    let activePrivUser = null;
+
+    function openUserPrivilegesModal(username, focusKey = null) {
+      let user = appUsers.find(u => u.username === username);
+      if (!user) {
+        for (const r of appRoles) {
+          if (r.assigned_users) {
+            const found = r.assigned_users.find(u => u.username === username);
+            if (found) {
+              user = Object.assign({}, found);
+              user.role_name = user.role_name || r.name;
+              break;
+            }
+          }
+        }
+      }
+      if (!user) return;
+      activePrivUser = user;
+
+      document.getElementById('userPrivModalUsername').textContent = user.preferred_username || user.username;
+      document.getElementById('userPrivModalRoleName').textContent = user.role_name || 'Default Role';
+
+      renderUserPrivilegesList(user, focusKey);
+      openModal('userPrivilegesModal');
+    }
+
+    function renderUserPrivilegesList(user, focusKey = null) {
+      const wrap = document.getElementById('userPrivTableWrap');
+      const overrides = user.privilege_overrides || {};
+      const role = appRoles.find(r => r.name === user.role_name || r.id === user.role_id) || {};
+      const rolePrivs = role.privileges || {};
+
+      let tableHtml = `
+        <table style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
+          <thead>
+            <tr style="background: var(--surface-card);">
+              <th style="padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border-color); color: var(--text-muted); width: 38%;">Privilege</th>
+              <th style="padding: 10px 14px; text-align: center; border-bottom: 1px solid var(--border-color); color: var(--text-muted); width: 18%;">Role Default</th>
+              <th style="padding: 10px 14px; text-align: center; border-bottom: 1px solid var(--border-color); color: var(--text-muted); width: 18%;">Effective Status</th>
+              <th style="padding: 10px 14px; text-align: right; border-bottom: 1px solid var(--border-color); color: var(--text-muted); width: 26%;">User Override</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      CORE_PRIVILEGES_META.forEach(p => {
+        const isRoleGranted = Boolean(rolePrivs[p.key]);
+        const isEffective = Boolean(user.effective_privileges && user.effective_privileges[p.key]);
+        const hasOverride = (overrides[p.key] !== undefined);
+        const overrideVal = hasOverride ? (overrides[p.key] ? 'grant' : 'deny') : 'inherit';
+        const isChatbot = (p.key === 'allow_chatbot_access');
+        const isFocused = (p.key === focusKey);
+
+        const highlightStyle = isFocused || (isChatbot && focusKey === null)
+          ? 'background: rgba(59, 130, 246, 0.08);' 
+          : '';
+
+        tableHtml += `
+          <tr style="border-bottom: 1px solid var(--border-color); ${highlightStyle}">
+            <td style="padding: 10px 14px;">
+              <div style="font-weight: 600; color: ${isChatbot ? 'var(--ap-gold-accent)' : 'var(--text-color)'}; display: flex; align-items: center; gap: 6px;">
+                ${isChatbot ? '🤖 ' : ''}${escapeHtml(p.label)}
+                ${isChatbot ? '<span class="badge badge-primary" style="font-size: 9px;">SDUI FLAG</span>' : ''}
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">${escapeHtml(p.desc)}</div>
+            </td>
+            <td style="padding: 10px 14px; text-align: center;">
+              <span class="badge ${isRoleGranted ? 'badge-success' : 'badge-danger'}" style="font-size: 10.5px;">
+                ${isRoleGranted ? 'Granted' : 'Revoked'}
+              </span>
+            </td>
+            <td style="padding: 10px 14px; text-align: center;">
+              <span class="badge ${isEffective ? 'badge-success' : 'badge-danger'}" style="font-size: 10.5px;">
+                ${isEffective ? '✓ Granted' : '✕ Revoked'}
+              </span>
+              ${hasOverride ? '<div style="font-size: 10px; color: var(--ap-gold-accent); margin-top: 2px; font-weight: 600;">(Overridden)</div>' : ''}
+            </td>
+            <td style="padding: 10px 14px; text-align: right;">
+              <select style="background: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 6px; padding: 4px 8px; font-size: 11.5px; cursor: pointer;"
+                      onchange="saveUserOverride('${escapeHtml(user.username)}', '${p.key}', this.value)">
+                <option value="inherit" ${overrideVal === 'inherit' ? 'selected' : ''}>Inherit (${isRoleGranted ? 'Granted' : 'Revoked'})</option>
+                <option value="grant" ${overrideVal === 'grant' ? 'selected' : ''}>Always Grant ✓</option>
+                <option value="deny" ${overrideVal === 'deny' ? 'selected' : ''}>Always Block ✕</option>
+              </select>
+            </td>
+          </tr>
+        `;
+      });
+
+      tableHtml += `</tbody></table>`;
+      wrap.innerHTML = tableHtml;
+    }
+
+    async function saveUserOverride(username, privilegeKey, mode) {
+      let isEnabled = null;
+      if (mode === 'grant') isEnabled = true;
+      else if (mode === 'deny') isEnabled = false;
+
+      try {
+        const res = await fetch(`${BASE_PATH}/api/admin/users/${encodeURIComponent(username)}/override-privilege`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            privilege_key: privilegeKey,
+            is_enabled: isEnabled
+          })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`Privilege '${privilegeKey}' override updated for @${username}.`);
+          const updatedUser = data.user;
+          const uIdx = appUsers.findIndex(u => u.username === username);
+          if (uIdx !== -1 && updatedUser) {
+            appUsers[uIdx] = updatedUser;
+            activePrivUser = updatedUser;
+            renderUserPrivilegesList(updatedUser, privilegeKey);
+          }
+          loadUsers();
+          loadMetrics();
+        } else {
+          showToast(data.detail || 'Failed to update privilege override', 'error');
+        }
+      } catch (e) {
+        showToast('Error saving user privilege override', 'error');
+      }
+    }
+
     // Render Users Tab
     async function loadUsers(search = '') {
       try {
@@ -1895,11 +2053,15 @@
             `;
           }
 
-          // Effective privileges chips
+          // Effective privileges chips with clickable override management
           let effChips = '<div class="priv-chips-wrap">';
           CORE_PRIVILEGES_META.forEach(p => {
             const isGranted = Boolean(user.effective_privileges && user.effective_privileges[p.key]);
-            effChips += `<span class="priv-chip ${isGranted ? 'enabled' : 'disabled'}" title="${escapeHtml(p.label)}">${isGranted ? '✓' : '✕'} ${escapeHtml(p.label)}</span>`;
+            const isOverridden = Boolean(user.privilege_overrides && user.privilege_overrides[p.key] !== undefined);
+            const overrideLabel = isOverridden ? ' [Override]' : '';
+            const chipClass = isGranted ? 'enabled' : 'disabled';
+            const extraStyle = isOverridden ? 'border: 1px dashed var(--ap-gold-accent); font-weight: 600;' : '';
+            effChips += `<span class="priv-chip ${chipClass}" style="cursor: pointer; ${extraStyle}" onclick="openUserPrivilegesModal('${escapeHtml(user.username)}', '${p.key}')" title="Click to manage ${escapeHtml(p.label)} override">${isGranted ? '✓' : '✕'} ${escapeHtml(p.label)}${overrideLabel}</span>`;
           });
           effChips += '</div>';
 
@@ -1928,6 +2090,12 @@
                 <button class="btn-icon-sm" title="View Decoded SSO Properties" onclick="openClaimsModal('${escapeHtml(user.username)}')">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+                <button class="btn-icon-sm" title="Manage User Privileges & Overrides" onclick="openUserPrivilegesModal('${escapeHtml(user.username)}')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                   </svg>
                 </button>
                 <button class="nav-btn" style="padding: 4px 10px; font-size: 11.5px;" onclick="toggleUserStatus('${escapeHtml(user.username)}', ${!isActive})">

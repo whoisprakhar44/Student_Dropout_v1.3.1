@@ -1122,7 +1122,31 @@ async def admin_update_user(username: str, request: Request):
         success, msg = rbac_manager.toggle_user_active(username, bool(data["is_active"]), admin["sub"])
         if not success:
             raise HTTPException(status_code=400, detail=msg)
-    return {"status": "success", "username": username}
+    if "privilege_key" in data:
+        priv_key = str(data["privilege_key"])
+        is_en = data.get("is_enabled")
+        if is_en is not None:
+            is_en = bool(is_en)
+        success, msg = rbac_manager.set_user_privilege_override(username, priv_key, is_en, admin["sub"])
+        if not success:
+            raise HTTPException(status_code=400, detail=msg)
+    return {"status": "success", "username": username, "user": rbac_manager.get_user(username)}
+
+
+@app.post("/api/admin/users/{username}/override-privilege")
+async def admin_override_user_privilege(username: str, request: Request):
+    admin = require_admin(request)
+    data = await request.json()
+    priv_key = data.get("privilege_key")
+    if not priv_key:
+        raise HTTPException(status_code=400, detail="privilege_key is required.")
+    is_en = data.get("is_enabled")
+    if is_en is not None:
+        is_en = bool(is_en)
+    success, msg = rbac_manager.set_user_privilege_override(username, str(priv_key), is_en, admin["sub"])
+    if not success:
+        raise HTTPException(status_code=400, detail=msg)
+    return {"status": "success", "detail": msg, "user": rbac_manager.get_user(username)}
 
 
 @app.post("/api/admin/users/sync")
@@ -1251,6 +1275,22 @@ async def ask(payload: AskRequest, request: Request):
             return StreamingResponse(_inactive_stream(), media_type="application/json")
         else:
             raise HTTPException(status_code=403, detail="Access Denied: User account or assigned role is deactivated.")
+
+    # RBAC Check 1b: Chatbot Access Privilege (allow_chatbot_access / allowChatbotAccess)
+    if action == "ask":
+        if not rbac_manager.check_user_privilege(username, "allow_chatbot_access"):
+            async def _chatbot_denied_stream():
+                yield json.dumps({
+                    "sql": "",
+                    "result": [{
+                        "error": "Access Denied: Chatbot access privilege is not granted for your account or is disabled by administrator policy.",
+                        "status": "forbidden"
+                    }],
+                    "summary": "Access Denied: Chatbot access privilege is not granted for your account.",
+                    "username": username,
+                    "timings": {"total_time": 0.0}
+                }).encode()
+            return StreamingResponse(_chatbot_denied_stream(), media_type="application/json")
 
     # RBAC Check 2: Schema Layer query access
     is_schema_mode = (payload.layer == "schema") or (action in ("schema_ask", "schema_query"))
@@ -2148,6 +2188,17 @@ class WebSocketSessionHandler:
                         "request_id": request_id,
                         "status": "forbidden",
                         "detail": "Access Denied: User account or assigned role is deactivated. Please contact an administrator."
+                    })
+                    return
+
+                # RBAC Check 1b: Chatbot Access Privilege (allow_chatbot_access)
+                if not rbac_manager.check_user_privilege(username, "allow_chatbot_access"):
+                    await self.send_json({
+                        "type": "error",
+                        "action": action,
+                        "request_id": request_id,
+                        "status": "forbidden",
+                        "detail": "Access Denied: Chatbot access privilege is not granted for your account or is disabled by administrator policy."
                     })
                     return
 

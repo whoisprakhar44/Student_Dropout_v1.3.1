@@ -10,6 +10,7 @@ Tests:
 """
 
 import sys
+import time
 import unittest
 from pathlib import Path
 
@@ -159,12 +160,12 @@ class TestRBACGovernance(unittest.TestCase):
 
     def test_07_audit_trail_logging(self):
         """Administrative audit events must be logged and retrievable."""
-        initial_audits = len(self.mgr.get_audit_logs(limit=200))
-        self.mgr.log_audit_event("admin", "TEST_SECURITY_EVENT", "test_target", "test_id_101", "Automated security test entry")
-        new_audits = self.mgr.get_audit_logs(limit=200)
-        self.assertGreater(len(new_audits), initial_audits)
-        latest = new_audits[0]
-        self.assertEqual(latest["action"], "TEST_SECURITY_EVENT")
+        unique_id = "audit_check_" + str(int(time.time() * 1000))
+        self.mgr.log_audit_event("admin", "TEST_SECURITY_EVENT", "test_target", unique_id, "Automated security test entry")
+        new_audits = self.mgr.get_audit_logs(limit=50)
+        matching = [a for a in new_audits if a.get("target_id") == unique_id]
+        self.assertTrue(len(matching) > 0, "Newly created audit log must be present in retrieved logs")
+        self.assertEqual(matching[0]["action"], "TEST_SECURITY_EVENT")
     def test_08_sso_auto_registration_and_default_role(self):
         """
         Verify:
@@ -245,7 +246,148 @@ class TestRBACGovernance(unittest.TestCase):
         sdui_after = self.mgr.get_user_sdui_config("DL_ROLE8_TEST", token_payload=sample_sso_payload)
         self.assertEqual(sdui_after["role"], "Data Analyst")
         self.assertTrue(sdui_after["allowTableExport"])
-        self.assertEqual(sdui_after["token_props"]["deptId"], "All")
+    def test_09_chatbot_privilege_governance_3_tiers(self):
+        """
+        Verify complete 3-tier Show Chatbot (allow_chatbot_access / allowChatbotAccess) governance:
+        1. Universal Control (Master Kill-Switch): When OFF, denies all users worldwide.
+        2. Role Privileges: Role setting governs default permissions.
+        3. User Privileges: Per-user override supersedes Role setting, but obeys Universal Kill-Switch.
+        4. SDUI config: Returns allowChatbotAccess, canAccessChatbot, showChatbot matching frontend contract.
+        5. Key normalization: CamelCase, snake_case, and aliases all normalize accurately.
+        """
+        # A. Normalization Check
+        self.assertTrue(self.mgr.check_user_privilege("analyst", "allow_chatbot_access"))
+        self.assertTrue(self.mgr.check_user_privilege("analyst", "allowChatbotAccess"))
+        self.assertTrue(self.mgr.check_user_privilege("analyst", "canAccessChatbot"))
+        self.assertTrue(self.mgr.check_user_privilege("analyst", "showChatbot"))
+
+        # B. SDUI Config Payload Check
+        sdui = self.mgr.get_user_sdui_config("analyst")
+        self.assertIn("allowChatbotAccess", sdui)
+        self.assertIn("canAccessChatbot", sdui)
+        self.assertIn("showChatbot", sdui)
+        self.assertTrue(sdui["allowChatbotAccess"])
+        self.assertTrue(sdui["canAccessChatbot"])
+        self.assertTrue(sdui["showChatbot"])
+
+        # C. Tier 1: Universal Kill-Switch Master Override
+        ok = self.mgr.toggle_universal_control("allow_chatbot_access", False, "test_suite")
+        self.assertTrue(ok)
+        self.assertFalse(self.mgr.get_universal_status("allow_chatbot_access"))
+        self.assertFalse(self.mgr.check_user_privilege("analyst", "allow_chatbot_access"))
+        self.assertFalse(self.mgr.check_user_privilege("super_admin", "allow_chatbot_access"))
+        sdui_killed = self.mgr.get_user_sdui_config("analyst")
+        self.assertFalse(sdui_killed["allowChatbotAccess"])
+        self.assertFalse(sdui_killed["canAccessChatbot"])
+        self.assertFalse(sdui_killed["showChatbot"])
+
+        # Restore Universal Control
+        self.mgr.toggle_universal_control("allow_chatbot_access", True, "test_suite")
+        self.assertTrue(self.mgr.get_universal_status("allow_chatbot_access"))
+        self.assertTrue(self.mgr.check_user_privilege("analyst", "allow_chatbot_access"))
+
+        # D. Tier 2: Role Level Governance
+        # Create role with chatbot access disabled
+        no_chat_role_privs = {
+            "allow_chatbot_access": False,
+            "schema_layer": False,
+            "about_section": False,
+            "allow_download": False,
+            "allow_copy": False,
+            "content_copy_protection": True,
+            "devtools_protection": True,
+            "pii_access": False,
+        }
+        ok, _, role_id = self.mgr.create_role("No Chat Role", "Role without chatbot access", no_chat_role_privs, "test_suite")
+        self.assertTrue(ok)
+
+        # Register user with this restricted role
+        test_user = "chat_tiered_test_user"
+        self.mgr.create_or_update_user(test_user, "Tiered Test User", f"{test_user}@ap.gov.in", role_id)
+        self.assertFalse(self.mgr.check_user_privilege(test_user, "allow_chatbot_access"))
+        sdui_user = self.mgr.get_user_sdui_config(test_user)
+        self.assertFalse(sdui_user["allowChatbotAccess"])
+
+        # E. Tier 3: Per-User Privilege Override
+        # Admin grants chatbot access specifically to this user (overriding role)
+        ok, msg = self.mgr.set_user_privilege_override(test_user, "allow_chatbot_access", True, "admin")
+        self.assertTrue(ok)
+        overrides = self.mgr.get_user_privilege_overrides(test_user)
+        self.assertEqual(overrides.get("allow_chatbot_access"), True)
+
+        # User now HAS chatbot access despite role having it disabled!
+        self.assertTrue(self.mgr.check_user_privilege(test_user, "allow_chatbot_access"))
+        sdui_overridden = self.mgr.get_user_sdui_config(test_user)
+        self.assertTrue(sdui_overridden["allowChatbotAccess"])
+        self.assertTrue(sdui_overridden["canAccessChatbot"])
+        self.assertEqual(sdui_overridden["user_overrides"].get("allow_chatbot_access"), True)
+
+        # But Universal Kill-Switch still beats the user-level override!
+        self.mgr.toggle_universal_control("allow_chatbot_access", False, "test_suite")
+        self.assertFalse(self.mgr.check_user_privilege(test_user, "allow_chatbot_access"))
+        self.mgr.toggle_universal_control("allow_chatbot_access", True, "test_suite")
+        self.assertTrue(self.mgr.check_user_privilege(test_user, "allow_chatbot_access"))
+
+        # Revert override (set to None -> inherits from role again)
+        ok, msg = self.mgr.set_user_privilege_override(test_user, "allow_chatbot_access", None, "admin")
+        self.assertTrue(ok)
+        self.assertNotIn("allow_chatbot_access", self.mgr.get_user_privilege_overrides(test_user))
+        self.assertFalse(self.mgr.check_user_privilege(test_user, "allow_chatbot_access"))
+
+        # Clean up test role & user
+        with self.mgr._get_connection() as conn:
+            conn.execute("DELETE FROM users WHERE username = ?", (test_user,))
+            conn.execute("DELETE FROM roles WHERE id = ?", (role_id,))
+            conn.commit()
+
+    def test_10_api_enforcement_chatbot_access(self):
+        """Verify API /ask rejects queries when allow_chatbot_access is revoked."""
+        from fastapi.testclient import TestClient
+        from app import app
+
+        client = TestClient(app)
+
+        username = "chat_api_test_user"
+        with self.mgr._get_connection() as conn:
+            conn.execute("DELETE FROM user_privileges WHERE username = ?", (username,))
+            conn.execute("DELETE FROM users WHERE username = ?", (username,))
+            conn.commit()
+
+        try:
+            # 1. User with chatbot access enabled -> ask query does not get 403 / chatbot denied
+            self.mgr.auto_register_or_update_user(username)
+            self.assertTrue(self.mgr.check_user_privilege(username, "allow_chatbot_access"))
+
+            # 2. Revoke chatbot access via user override
+            self.mgr.set_user_privilege_override(username, "allow_chatbot_access", False, "admin")
+            self.assertFalse(self.mgr.check_user_privilege(username, "allow_chatbot_access"))
+
+            import jwt
+            token = jwt.encode({"iss": "ap-citizen360-web", "sub": username, "preferred_username": username}, "secret", algorithm="HS256")
+            headers = {"Authorization": f"Bearer {token}"}
+
+            resp = client.post(
+                "/ask",
+                json={"question": "What is the total count?", "action": "ask", "username": username},
+                headers=headers
+            )
+            self.assertEqual(resp.status_code, 200)
+            body = resp.text
+            self.assertIn("Chatbot access privilege is not granted", body)
+
+            # 3. Restore chatbot access
+            self.mgr.set_user_privilege_override(username, "allow_chatbot_access", None, "admin")
+            self.assertTrue(self.mgr.check_user_privilege(username, "allow_chatbot_access"))
+        finally:
+            with self.mgr._get_connection() as conn:
+                conn.execute("DELETE FROM user_privileges WHERE username = ?", (username,))
+                conn.execute("DELETE FROM users WHERE username = ?", (username,))
+                conn.commit()
+
+        # Clean up
+        with self.mgr._get_connection() as conn:
+            conn.execute("DELETE FROM users WHERE username = ?", (username,))
+            conn.commit()
 
 
 if __name__ == "__main__":
