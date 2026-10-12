@@ -560,9 +560,13 @@ def llm_node(state: AgentState) -> dict:
             except (json.JSONDecodeError, TypeError, AttributeError):
                 break
 
-        error_hint = f" (Last error: {last_sql_error})" if last_sql_error else ""
+        if current_rag_calls >= _MAX_RAG_CALLS:
+            fallback_msg = "I do not have data present in the database to answer this question."
+        else:
+            error_hint = f" (Last error: {last_sql_error})" if last_sql_error else ""
+            fallback_msg = f"I encountered multiple issues or errors while trying to query the database. Please try rephrasing your request.{error_hint}"
         return {
-            "messages": [AIMessage(content=f"I encountered multiple issues or errors while trying to query the database. Please try rephrasing your request.{error_hint}")],
+            "messages": [AIMessage(content=fallback_msg)],
             "llm_calls": current_calls,
             "rag_calls": current_rag_calls,
             "verified": True,
@@ -612,17 +616,18 @@ def llm_node(state: AgentState) -> dict:
         dialect_name = "Hive SQL" if _HIVE_ENABLED else "SQLite SQL"
         if current_rag_calls >= _MAX_RAG_CALLS:
             # RAG call budget exhausted — stop asking for more schema retrieval.
-            # Force the LLM to write SQL with whatever schema is already in context.
             logger.warning(
-                "llm_node: RAG call cap (%d) reached. Forcing SQL generation with existing schema context.",
+                "llm_node: RAG call cap (%d) reached. Nudging model to execute SQL if context exists, or declare data unavailable.",
                 _MAX_RAG_CALLS,
             )
             messages_for_llm.append(HumanMessage(
                 content=(
                     "You have already retrieved schema context multiple times. "
-                    "Do NOT call retrive_schema_rag again. "
-                    "Use ONLY the table and column names already present in the conversation above. "
-                    f"Call execute_sql now with a valid {dialect_name} SELECT query."
+                    "Do NOT call retrive_schema_rag again.\n"
+                    "1. If the retrieved schema in the conversation above contains the tables and columns needed to answer the user question, "
+                    f"call execute_sql now with a valid {dialect_name} SELECT query.\n"
+                    "2. If the required data, tables, or columns are NOT present in the database to answer this question, "
+                    "do NOT make up or guess tables. Answer directly stating that the data is not present in the database for this request."
                 )
             ))
         else:
@@ -755,11 +760,11 @@ def llm_node(state: AgentState) -> dict:
                 "(rag_calls=%d, cap=%d)", stripped, current_rag_calls + rag_increment, _MAX_RAG_CALLS,
             )
             response.tool_calls = filtered_calls
-            # If no tool calls remain, the LLM essentially produced a text-only
-            # response.  If it also has no content, synthesise a fallback.
+            # If no tool calls remain, the model needed more schema but cap was reached.
             if not response.tool_calls and not response.content:
                 response.content = (
-                    "I have the schema context. Let me write the SQL query now."
+                    "I do not have data present in the database to answer this question. "
+                    "The requested information is not available in the Andhra Pradesh Citizen 360 records."
                 )
             # Recalculate increment after stripping
             rag_increment = 0
@@ -787,7 +792,7 @@ def build_tool_node() -> ToolNode:
 # Verification node
 # ---------------------------------------------------------------------------
 _MAX_VERIFY_LOOPS = int(os.getenv("MAX_VERIFY_LOOPS", "10"))
-_MAX_RAG_CALLS   = int(os.getenv("MAX_RAG_CALLS", "4"))
+_MAX_RAG_CALLS   = int(os.getenv("MAX_RAG_CALLS", "5"))
 
 _VERIFY_PROMPT = """You are a strict SQL result verifier.
 
@@ -936,14 +941,14 @@ def verify_node(state: AgentState) -> dict:
             
         sql = _extract_sql_from_history(history)
         
-        if verify_calls >= _MAX_VERIFY_LOOPS:
+        if verify_calls >= _MAX_VERIFY_LOOPS or state.get("rag_calls", 0) >= _MAX_RAG_CALLS:
             verify_duration_ms = (time.perf_counter() - t0) * 1000
             logger.warning(
-                "⚖️  [VERIFY LIMIT] Max verification loops (%d) reached with failed SQL | duration=%.2fms",
+                "⚖️  [VERIFY LIMIT] Max verification loops (%d) or RAG cap reached with failed SQL | duration=%.2fms",
                 _MAX_VERIFY_LOOPS, verify_duration_ms,
             )
             return {
-                "messages": [AIMessage(content=f"SQL execution failed: {error_msg}")],
+                "messages": [AIMessage(content="I do not have data present in the database to answer this question.")],
                 "verify_calls": verify_calls + 1,
                 "verified": True,
             }
@@ -1310,6 +1315,7 @@ def initialize_node(state: AgentState) -> dict:
     return {
         "messages": [forced_tool_call_msg],
         "llm_calls": 0,
+        "rag_calls": 1,
     }
 
 # ─────────────────────────────────────────────────────────────────────────────
