@@ -154,7 +154,29 @@ columns:
 - name: vehicles
   type: BIGINT
   nullable: true
-  description: Total registered vehicles in the district.
+  description: 'Vehicle registration series number / RTO district code used in that district (not total registered vehicles count). [Value Examples: ''33'', ''32'', ''51'', ''57'', ''13'', ''25'']'
+  distinct:
+  - '33'
+  - '32'
+  - '51'
+  - '57'
+  - '13'
+  - '25'
+  - '36'
+  - '37'
+  - '49'
+  - '34'
+  - '35'
+  - '27'
+  - '42'
+  - '56'
+  - '45'
+  - '52'
+  - '28'
+  - '62'
+  - '39'
+  - '47'
+  - '48'
 - name: land_acres
   type: BIGINT
   nullable: true

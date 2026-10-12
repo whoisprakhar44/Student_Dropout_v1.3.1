@@ -264,7 +264,7 @@ def _apply_pii_mask_to_payload(text_content: str, pii_access: bool, sql: str = "
         return text_content
     # Build alias map to catch prompt-injection column renames
     alias_map = extract_pii_aliases_from_sql(sql) if sql else {}
-    masked_rows, pii_cols = mask_pii_rows(rows, columns, alias_map=alias_map)
+    masked_rows, pii_cols = mask_pii_rows(rows, columns, alias_map=alias_map, sql=sql)
     if pii_cols:
         logger.info("[PII MASKED for LLM] columns=%s", pii_cols)
         payload = {**payload, "rows": masked_rows}

@@ -314,6 +314,82 @@ def test_app_extract_sql_and_result_alias_masking():
     assert resp_unmasked.result[0]["district_name"] == "Visakhapatnam"
 
 
+# ---------------------------------------------------------------------------
+# Aggregate / count safety tests
+# ---------------------------------------------------------------------------
+
+def test_aggregate_not_masked():
+    """
+    COUNT(ration_card_no) returns a plain integer.
+    Even though the column name contains a PII marker, the numeric value
+    must NOT be replaced with ***.
+    """
+    rows = [{"ration_card_no": 4271}]
+    columns = ["ration_card_no"]
+    sql = "SELECT COUNT(ration_card_no) AS ration_card_no FROM welfare WHERE district='Guntur'"
+    masked, pii_cols = mask_pii_rows(rows, columns, sql=sql)
+    assert masked[0]["ration_card_no"] == 4271, (
+        f"Aggregate count was incorrectly masked: {masked[0]['ration_card_no']!r}"
+    )
+    assert pii_cols == [], f"Aggregate column wrongly flagged as PII: {pii_cols}"
+    print("  v Numeric COUNT(ration_card_no) not masked")
+
+
+def test_aggregate_alias_not_masked():
+    """
+    COUNT(ration_card_no) AS total_ration_cards — alias contains PII marker
+    but must NOT be masked.
+    """
+    from pii_masking import get_aggregate_aliases_from_sql
+
+    sql = (
+        "SELECT district_name, "
+        "COUNT(ration_card_no) AS total_ration_cards, "
+        "COUNT(aadhaar_no) AS aadhaar_count "
+        "FROM welfare_data GROUP BY district_name"
+    )
+    aliases = get_aggregate_aliases_from_sql(sql)
+    assert "total_ration_cards" in aliases, f"Expected alias not found: {aliases}"
+    assert "aadhaar_count" in aliases, f"Expected aadhaar_count not found: {aliases}"
+    print(f"  v get_aggregate_aliases_from_sql detected: {aliases}")
+
+    rows = [
+        {"district_name": "Guntur",  "total_ration_cards": 4271, "aadhaar_count": 51200},
+        {"district_name": "Krishna", "total_ration_cards": 3190, "aadhaar_count": 43100},
+    ]
+    columns = ["district_name", "total_ration_cards", "aadhaar_count"]
+    masked, pii_cols = mask_pii_rows(rows, columns, sql=sql)
+
+    for i, row in enumerate(masked):
+        assert row["total_ration_cards"] != "***", f"Row {i}: total_ration_cards was wrongly masked"
+        assert row["aadhaar_count"] != "***",      f"Row {i}: aadhaar_count was wrongly masked"
+        assert row["district_name"] == rows[i]["district_name"]
+    assert pii_cols == [], f"Aggregate aliases wrongly in pii_cols: {pii_cols}"
+    print("  v Aggregate aliases (total_ration_cards, aadhaar_count) not masked")
+
+
+def test_mixed_aggregate_and_raw_pii():
+    """
+    Result set with both raw PII (mask) and aggregate count (keep).
+    """
+    sql = (
+        "SELECT student_name, aadhaar_no, "
+        "COUNT(ration_card_no) AS total_ration_cards "
+        "FROM students WHERE district='Guntur'"
+    )
+    rows = [{"student_name": "Ravi Kumar", "aadhaar_no": "1234-5678-9012", "total_ration_cards": 7}]
+    columns = ["student_name", "aadhaar_no", "total_ration_cards"]
+    masked, pii_cols = mask_pii_rows(rows, columns, sql=sql)
+
+    assert masked[0]["student_name"] == "***", "student_name not masked"
+    assert masked[0]["aadhaar_no"]   == "***", "aadhaar_no not masked"
+    assert masked[0]["total_ration_cards"] == 7, (
+        f"Aggregate was wrongly masked: {masked[0]['total_ration_cards']!r}"
+    )
+    assert "total_ration_cards" not in pii_cols, f"total_ration_cards wrongly in pii_cols: {pii_cols}"
+    print("  v Mixed result: raw PII masked, aggregate count preserved")
+
+
 if __name__ == "__main__":
     print("Running test_is_pii_column...")
     test_is_pii_column()
@@ -347,4 +423,11 @@ if __name__ == "__main__":
     test_nodes_result_table_str_alias_masking()
     print("Running test_app_extract_sql_and_result_alias_masking...")
     test_app_extract_sql_and_result_alias_masking()
-    print("\n[PASS] ALL PII MASKING & RBAC TESTS (INCLUDING ALIAS BYPASS) PASSED SUCCESSFULLY!")
+    print("Running test_aggregate_not_masked...")
+    test_aggregate_not_masked()
+    print("Running test_aggregate_alias_not_masked...")
+    test_aggregate_alias_not_masked()
+    print("Running test_mixed_aggregate_and_raw_pii...")
+    test_mixed_aggregate_and_raw_pii()
+    print("\n[PASS] ALL PII MASKING & RBAC TESTS (INCLUDING ALIAS BYPASS + AGGREGATE SAFETY) PASSED SUCCESSFULLY!")
+
